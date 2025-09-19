@@ -1,5 +1,5 @@
 ---
-title: CoT Reporting
+title: COT Reporting
 layout: layout.html
 ---
 
