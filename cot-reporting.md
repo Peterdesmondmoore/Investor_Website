@@ -1,5 +1,5 @@
 ---
-title: COT Reporting
+title: CoT Reporting
 layout: layout.html
 ---
 
@@ -7,11 +7,16 @@ layout: layout.html
 
 Click on the title of a report below to expand and view its content.
 
-{% for report in collections.reports %}
+{% raw %}{% for report in collections.reports %}
 <details class="report-accordion">
-  <summary>{{ report.data.title | default: report.fileSlug }}</summary>
+  <summary>
+    <span>{{ report.data.title | default: report.fileSlug }}</span>
+    {% if report.data.date %}
+      <span style="font-size: 0.9rem; font-weight: 400; color: #6c757d;">{{ report.data.date | date: "%d %b %Y" }}</span>
+    {% endif %}
+  </summary>
   <div class="report-content">
     {{ report.templateContent | safe }}
   </div>
 </details>
-{% endfor %}
+{% endfor %}{% endraw %}
