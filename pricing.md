@@ -16,3 +16,6 @@ This is where you can add details about your pricing tiers, features, and subscr
 - All Basic features
 - Feature C
 - Feature D
+
+## Trading Analysis Reports
+- [SLV Trading Analysis](/pricing-reports/slv_trading/)
