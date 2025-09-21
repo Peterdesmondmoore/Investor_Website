@@ -4,8 +4,14 @@ module.exports = function(eleventyConfig) {
     return collectionApi.getFilteredByGlob("market-reports/*.html");
   });
 
-  // Tell Eleventy to copy the 'css' folder to the output folder
+  // Create a custom collection for summary reports
+  eleventyConfig.addCollection("summaryReports", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("summary-reports/*.html");
+  });
+
+  // Tell Eleventy to copy the 'css' and 'images' folders to the output folder
   eleventyConfig.addPassthroughCopy("css");
+  eleventyConfig.addPassthroughCopy("images");
 
   // Add a 'safe' filter to mark HTML as safe
   eleventyConfig.addFilter("safe", function(value) {

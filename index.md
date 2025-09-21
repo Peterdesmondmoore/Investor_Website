@@ -30,3 +30,17 @@ layout: layout.html
         </div>
     </div>
 </div>
+
+<div class="report-container" style="margin-top: 40px;">
+    <h3 style="font-size: 22px; color: #0a3d62; font-weight: 600; text-align: center; margin-bottom: 30px; border-bottom: none;">Summary Reports</h3>
+    {% for report in collections.summaryReports %}
+    <details class="report-accordion">
+      <summary>
+        <span>{{ report.data.title | default: report.fileSlug }}</span>
+      </summary>
+      <div class="report-content">
+        {{ report.templateContent | safe }}
+      </div>
+    </details>
+    {% endfor %}
+</div>

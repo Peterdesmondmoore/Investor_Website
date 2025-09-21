@@ -13,155 +13,125 @@ layout: layout.html
       <div class="report-content">
 
         <h3>Gold</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Perth Mint Gold</td>
-                    <td>PMGOLD</td>
-                    <td>AUD</td>
-                    <td>0.15% p.a.</td>
-                    <td>- Lowest cost ASX option; government guaranteed. High liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>SPDR Gold MiniShares</td>
-                    <td>GLDM</td>
-                    <td>USD</td>
-                    <td>0.10% p.a.</td>
-                    <td>- One of the world's lowest-cost gold ETFs. Excellent liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-                <tr>
-                    <td>Invesco Physical Gold</td>
-                    <td>SGLD</td>
-                    <td>USD</td>
-                    <td>0.12% p.a.</td>
-                    <td>- Ultra-low-cost European option. Excellent liquidity.<br>- AEST Trading Hours: 6 PM - 2:30 AM</td>
-                </tr>
-                <tr>
-                    <td>SPDR Gold Shares</td>
-                    <td>2840</td>
-                    <td>HKD</td>
-                    <td>0.40% p.a.</td>
-                    <td>- Major Asian hub ETF; HKD version of GLD. Excellent liquidity.<br>- AEST Trading Hours: 11:30 AM - 6 PM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Perth Mint Gold</h4><span class="ticker">PMGOLD</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.15% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Lowest cost ASX option; government guaranteed. High liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>SPDR Gold MiniShares</h4><span class="ticker">GLDM</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.10% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>One of the world's lowest-cost gold ETFs. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Invesco Physical Gold</h4><span class="ticker">SGLD</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.12% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Ultra-low-cost European option. Excellent liquidity.</li><li>AEST Trading Hours: 6 PM - 2:30 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>SPDR Gold Shares</h4><span class="ticker">2840</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>HKD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.40% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Major Asian hub ETF; HKD version of GLD. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 AM - 6 PM</li></ul></div>
+            </div>
+        </div>
 
         <h3>Silver</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>iShares Physical Silver</td>
-                    <td>SLVR</td>
-                    <td>AUD</td>
-                    <td>0.40% p.a.</td>
-                    <td>- Lowest cost ASX silver ETF. Good liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>Invesco Physical Silver</td>
-                    <td>SSLN</td>
-                    <td>USD</td>
-                    <td>0.19% p.a.</td>
-                    <td>- One of the world's lowest-cost silver ETCs. Good liquidity.<br>- AEST Trading Hours: 6 PM - 2:30 AM</td>
-                </tr>
-                 <tr>
-                    <td>iShares Silver Trust</td>
-                    <td>SLV</td>
-                    <td>USD</td>
-                    <td>0.50% p.a.</td>
-                    <td>- Largest & most liquid silver ETF globally. Excellent liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>iShares Physical Silver</h4><span class="ticker">SLVR</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.40% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Lowest cost ASX silver ETF. Good liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Invesco Physical Silver</h4><span class="ticker">SSLN</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.19% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>One of the world's lowest-cost silver ETCs. Good liquidity.</li><li>AEST Trading Hours: 6 PM - 2:30 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>iShares Silver Trust</h4><span class="ticker">SLV</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.50% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Largest & most liquid silver ETF globally. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+        </div>
 
         <h3>Platinum</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Global X Physical Platinum</td>
-                    <td>ETPMPT</td>
-                    <td>AUD</td>
-                    <td>0.49% p.a.</td>
-                    <td>- Direct & simple ASX option. Good liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>Invesco Physical Platinum</td>
-                    <td>SPLT</td>
-                    <td>USD</td>
-                    <td>0.19% p.a.</td>
-                    <td>- Ultra-low-cost European option. Good liquidity.<br>- AEST Trading Hours: 6 PM - 2:30 AM</td>
-                </tr>
-                 <tr>
-                    <td>Aberdeen Physical Platinum</td>
-                    <td>PPLT</td>
-                    <td>USD</td>
-                    <td>0.60% p.a.</td>
-                    <td>- Largest US platinum ETF. Excellent liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Global X Physical Platinum</h4><span class="ticker">ETPMPT</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.49% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Direct & simple ASX option. Good liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Invesco Physical Platinum</h4><span class="ticker">SPLT</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.19% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Ultra-low-cost European option. Good liquidity.</li><li>AEST Trading Hours: 6 PM - 2:30 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Aberdeen Physical Platinum</h4><span class="ticker">PPLT</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.60% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Largest US platinum ETF. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+        </div>
 
         <h3>Palladium</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Global X Physical Palladium</td>
-                    <td>ETPMPD</td>
-                    <td>AUD</td>
-                    <td>0.49% p.a.</td>
-                    <td>- Direct & simple ASX option. Moderate liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>Invesco Physical Palladium</td>
-                    <td>SPAL</td>
-                    <td>USD</td>
-                    <td>0.19% p.a.</td>
-                    <td>- Ultra-low-cost European option. Good liquidity.<br>- AEST Trading Hours: 6 PM - 2:30 AM</td>
-                </tr>
-                 <tr>
-                    <td>Aberdeen Physical Palladium</td>
-                    <td>PALL</td>
-                    <td>USD</td>
-                    <td>0.60% p.a.</td>
-                    <td>- Largest US palladium ETF. Good liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Global X Physical Palladium</h4><span class="ticker">ETPMPD</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.49% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Direct & simple ASX option. Moderate liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Invesco Physical Palladium</h4><span class="ticker">SPAL</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.19% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Ultra-low-cost European option. Good liquidity.</li><li>AEST Trading Hours: 6 PM - 2:30 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Aberdeen Physical Palladium</h4><span class="ticker">PALL</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Expense Ratio</span>0.60% p.a.</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Largest US palladium ETF. Good liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+        </div>
+
       </div>
     </details>
 
@@ -172,184 +142,145 @@ layout: layout.html
       <div class="report-content">
 
         <h3>Aluminium</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio / Type</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Invesco Physical Aluminium</td>
-                    <td>LIAL</td>
-                    <td>USD</td>
-                    <td>0.65%</td>
-                    <td>- Direct futures exposure. Moderate liquidity.<br>- AEST Trading Hours: 6 PM - 2:30 AM</td>
-                </tr>
-                <tr>
-                    <td>iPath Aluminum ETN</td>
-                    <td>JJA</td>
-                    <td>USD</td>
-                    <td>0.45%</td>
-                    <td>- Direct futures exposure. Lower liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-                <tr>
-                    <td>China Hongqiao Group</td>
-                    <td>1378</td>
-                    <td>HKD</td>
-                    <td>N/A (Stock)</td>
-                    <td>- Stock in the world's largest aluminium producer. Good liquidity.<br>- AEST Trading Hours: 11:30 AM - 6 PM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Invesco Physical Aluminium</h4><span class="ticker">LIAL</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.65%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Direct futures exposure. Moderate liquidity.</li><li>AEST Trading Hours: 6 PM - 2:30 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>iPath Aluminum ETN</h4><span class="ticker">JJA</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.45%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Direct futures exposure. Lower liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>China Hongqiao Group</h4><span class="ticker">1378</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>HKD</div>
+                    <div class="instrument-card-metric"><span>Type</span>Stock</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Stock in the world's largest aluminium producer. Good liquidity.</li><li>AEST Trading Hours: 11:30 AM - 6 PM</li></ul></div>
+            </div>
+        </div>
 
         <h3>Steel</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio / Type</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>VanEck Steel ETF</td>
-                    <td>SLX</td>
-                    <td>USD</td>
-                    <td>0.55%</td>
-                    <td>- Targeted ETF of global steel companies. Good liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-                <tr>
-                    <td>VanEck Global Resources ETF</td>
-                    <td>RARI</td>
-                    <td>AUD</td>
-                    <td>0.54%</td>
-                    <td>- Diversified miners including steel producers (BHP, RIO). Good liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>SGX Iron Ore Futures</td>
-                    <td>FEF</td>
-                    <td>USD</td>
-                    <td>N/A (Futures)</td>
-                    <td>- Global benchmark for iron ore (steel input). For advanced investors.<br>- AEST Trading Hours: 9 AM - 5 PM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>VanEck Steel ETF</h4><span class="ticker">SLX</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.55%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Targeted ETF of global steel companies. Good liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>VanEck Global Resources ETF</h4><span class="ticker">RARI</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.54%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Diversified miners including steel producers (BHP, RIO). Good liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>SGX Iron Ore Futures</h4><span class="ticker">FEF</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>Futures</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Global benchmark for iron ore (steel input). For advanced investors.</li><li>AEST Trading Hours: 9 AM - 5 PM</li></ul></div>
+            </div>
+        </div>
 
         <h3>Lithium</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio / Type</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Global X Battery Tech & Lithium</td>
-                    <td>ACDC</td>
-                    <td>AUD</td>
-                    <td>0.69%</td>
-                    <td>- Targeted ETF of global battery/lithium companies. Good liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>Global X Lithium & Battery Tech</td>
-                    <td>LIT</td>
-                    <td>USD</td>
-                    <td>0.75%</td>
-                    <td>- Largest global ETF for the lithium sector. Excellent liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-                <tr>
-                    <td>Ganfeng Lithium Group</td>
-                    <td>1772</td>
-                    <td>HKD</td>
-                    <td>N/A (Stock)</td>
-                    <td>- Stock in a top-tier global lithium producer. Excellent liquidity.<br>- AEST Trading Hours: 11:30 AM - 6 PM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Global X Battery Tech & Lithium</h4><span class="ticker">ACDC</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.69%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Targeted ETF of global battery/lithium companies. Good liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Global X Lithium & Battery Tech</h4><span class="ticker">LIT</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.75%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Largest global ETF for the lithium sector. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Ganfeng Lithium Group</h4><span class="ticker">1772</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>HKD</div>
+                    <div class="instrument-card-metric"><span>Type</span>Stock</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Stock in a top-tier global lithium producer. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 AM - 6 PM</li></ul></div>
+            </div>
+        </div>
 
         <h3>Copper</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio / Type</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Global X Copper Miners ETF</td>
-                    <td>WIRE</td>
-                    <td>AUD</td>
-                    <td>0.65%</td>
-                    <td>- ETF of global copper mining companies. Good liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>Global X Copper Miners ETF</td>
-                    <td>COPX</td>
-                    <td>USD</td>
-                    <td>0.65%</td>
-                    <td>- Largest global ETF of copper miners. Excellent liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-                <tr>
-                    <td>WisdomTree Copper ETC</td>
-                    <td>COPA</td>
-                    <td>USD</td>
-                    <td>0.65%</td>
-                    <td>- Direct futures exposure to copper price. Good liquidity.<br>- AEST Trading Hours: 6 PM - 2:30 AM</td>
-                </tr>
-                <tr>
-                    <td>Zijin Mining Group</td>
-                    <td>2899</td>
-                    <td>HKD</td>
-                    <td>N/A (Stock)</td>
-                    <td>- Stock in a major Chinese copper & gold producer. Excellent liquidity.<br>- AEST Trading Hours: 11:30 AM - 6 PM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Global X Copper Miners ETF</h4><span class="ticker">WIRE</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.65%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>ETF of global copper mining companies. Good liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Global X Copper Miners ETF</h4><span class="ticker">COPX</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.65%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Largest global ETF of copper miners. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>WisdomTree Copper ETC</h4><span class="ticker">COPA</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.65%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Direct futures exposure to copper price. Good liquidity.</li><li>AEST Trading Hours: 6 PM - 2:30 AM</li></ul></div>
+            </div>
+             <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Zijin Mining Group</h4><span class="ticker">2899</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>HKD</div>
+                    <div class="instrument-card-metric"><span>Type</span>Stock</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Stock in a major Chinese copper & gold producer. Excellent liquidity.</li><li>AEST Trading Hours: 11:30 AM - 6 PM</li></ul></div>
+            </div>
+        </div>
 
         <h3>Cobalt</h3>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Instrument</th>
-                    <th>Ticker</th>
-                    <th>Currency</th>
-                    <th>Expense Ratio / Type</th>
-                    <th>Key Features</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>WD Crtcl Minrls Fnd</td>
-                    <td>CXM</td>
-                    <td>AUD</td>
-                    <td>0.65%</td>
-                    <td>- ETF of Australian miners of cobalt, lithium, etc. Lower liquidity.<br>- AEST Trading Hours: 10 AM - 4 PM</td>
-                </tr>
-                <tr>
-                    <td>Sprott Cobalt Miners ETF</td>
-                    <td>COBT</td>
-                    <td>USD</td>
-                    <td>0.68%</td>
-                    <td>- Targeted ETF of global cobalt-exposed companies. Lower liquidity.<br>- AEST Trading Hours: 11:30 PM - 6 AM</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="instrument-grid">
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>WD Crtcl Minrls Fnd</h4><span class="ticker">CXM</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>AUD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.65%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>ETF of Australian miners of cobalt, lithium, etc. Lower liquidity.</li><li>AEST Trading Hours: 10 AM - 4 PM</li></ul></div>
+            </div>
+            <div class="instrument-card">
+                <div class="instrument-card-header"><h4>Sprott Cobalt Miners ETF</h4><span class="ticker">COBT</span></div>
+                <div class="instrument-card-metrics">
+                    <div class="instrument-card-metric"><span>Currency</span>USD</div>
+                    <div class="instrument-card-metric"><span>Type</span>0.68%</div>
+                </div>
+                <div class="instrument-card-features"><ul><li>Targeted ETF of global cobalt-exposed companies. Lower liquidity.</li><li>AEST Trading Hours: 11:30 PM - 6 AM</li></ul></div>
+            </div>
+        </div>
+
       </div>
     </details>
 
