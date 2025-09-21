@@ -4,7 +4,7 @@ layout: layout.html
 ---
 <div class="report-container">
 
-    <h2 style="font-size: 32px; color: #0a3d62; font-weight: 600; margin: 0 0 30px 0;">Executive Overview: The Strategic Value of Commitments of Traders (CoT) Data</h2>
+    <h2 style="font-size: 32px; color: #0a3d62; font-weight: 600; margin: 0 0 30px 0;">The Strategic Value of Commitments of Traders (CoT) Data</h2>
 
     <p style="font-size: 11pt; line-height: 1.7;">
         An analysis of the Commitments of Traders (CoT) report provides a quantitative and objective snapshot of market sentiment and participant positioning across all major asset classes. By detailing the aggregate long and short positions held by speculative and commercial traders, the data offers a transparent view of the underlying dynamics of futures markets. This intelligence is crucial for understanding market structure, identifying potential trend shifts, and assessing the conviction behind price movements.
