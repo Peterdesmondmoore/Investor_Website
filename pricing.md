@@ -18,4 +18,15 @@ This is where you can add details about your pricing tiers, features, and subscr
 - Feature D
 
 ## Trading Analysis Reports
-- [SLV Trading Analysis](/pricing-reports/slv_trading/)
+<details class="report-accordion">
+  <summary>
+    <span>Silver</span>
+  </summary>
+  <div class="report-content">
+    <ul>
+      <li><a href="/pricing-reports/slv_trading/">SLV Trading Analysis</a></li>
+      <li><a href="/pricing-reports/SLVR_trading/">SLVR Trading Analysis</a></li>
+      <li><a href="/pricing-reports/SSLN.L_trading/">SSLN.L Trading Analysis</a></li>
+    </ul>
+  </div>
+</details>
