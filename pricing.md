@@ -20,6 +20,18 @@ This is where you can add details about your pricing tiers, features, and subscr
 ## Trading Analysis Reports
 <details class="report-accordion">
   <summary>
+    <span>Gold</span>
+  </summary>
+  <div class="report-content">
+    <ul>
+      <li><a href="/pricing-reports/2840.HK_trading/">2840.HK Trading Analysis</a></li>
+      <li><a href="/pricing-reports/GLDM_trading/">GLDM Trading Analysis</a></li>
+      <li><a href="/pricing-reports/SGLD.L_trading/">SGLD.L Trading Analysis</a></li>
+    </ul>
+  </div>
+</details>
+<details class="report-accordion">
+  <summary>
     <span>Silver</span>
   </summary>
   <div class="report-content">
