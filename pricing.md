@@ -20,25 +20,70 @@ This is where you can add details about your pricing tiers, features, and subscr
 ## Trading Analysis Reports
 <details class="report-accordion">
   <summary>
-    <span>Gold</span>
+    <span>Precious Metals</span>
   </summary>
   <div class="report-content">
+    <h3>Gold</h3>
     <ul>
-      <li><a href="/pricing-reports/2840.HK_trading/">2840.HK Trading Analysis</a></li>
       <li><a href="/pricing-reports/GLDM_trading/">GLDM Trading Analysis</a></li>
       <li><a href="/pricing-reports/SGLD.L_trading/">SGLD.L Trading Analysis</a></li>
+      <li><a href="/pricing-reports/2840.HK_trading/">2840.HK Trading Analysis</a></li>
     </ul>
-  </div>
-</details>
-<details class="report-accordion">
-  <summary>
-    <span>Silver</span>
-  </summary>
-  <div class="report-content">
+    <h3>Silver</h3>
     <ul>
       <li><a href="/pricing-reports/slv_trading/">SLV Trading Analysis</a></li>
       <li><a href="/pricing-reports/SLVR_trading/">SLVR Trading Analysis</a></li>
       <li><a href="/pricing-reports/SSLN.L_trading/">SSLN.L Trading Analysis</a></li>
+    </ul>
+    <h3>Platinum</h3>
+    <ul>
+      <li><a href="#">ETPMPT Trading Analysis</a></li>
+      <li><a href="#">SPLT Trading Analysis</a></li>
+      <li><a href="#">PPLT Trading Analysis</a></li>
+    </ul>
+    <h3>Palladium</h3>
+    <ul>
+      <li><a href="#">ETPMPD Trading Analysis</a></li>
+      <li><a href="#">SPAL Trading Analysis</a></li>
+      <li><a href="#">PALL Trading Analysis</a></li>
+    </ul>
+  </div>
+</details>
+
+<details class="report-accordion">
+  <summary>
+    <span>Industrial Metals</span>
+  </summary>
+  <div class="report-content">
+    <h3>Aluminium</h3>
+    <ul>
+        <li><a href="#">LIAL Trading Analysis</a></li>
+        <li><a href="#">JJA Trading Analysis</a></li>
+        <li><a href="#">1378 Trading Analysis</a></li>
+    </ul>
+    <h3>Steel</h3>
+    <ul>
+        <li><a href="#">SLX Trading Analysis</a></li>
+        <li><a href="#">RARI Trading Analysis</a></li>
+        <li><a href="#">FEF Trading Analysis</a></li>
+    </ul>
+    <h3>Lithium</h3>
+    <ul>
+        <li><a href="#">ACDC Trading Analysis</a></li>
+        <li><a href="#">LIT Trading Analysis</a></li>
+        <li><a href="#">1772 Trading Analysis</a></li>
+    </ul>
+    <h3>Copper</h3>
+    <ul>
+        <li><a href="#">WIRE Trading Analysis</a></li>
+        <li><a href="#">COPX Trading Analysis</a></li>
+        <li><a href="#">COPA Trading Analysis</a></li>
+        <li><a href="#">2899 Trading Analysis</a></li>
+    </ul>
+    <h3>Cobalt</h3>
+    <ul>
+        <li><a href="#">CXM Trading Analysis</a></li>
+        <li><a href="#">COBT Trading Analysis</a></li>
     </ul>
   </div>
 </details>
