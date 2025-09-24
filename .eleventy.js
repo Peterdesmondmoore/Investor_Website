@@ -9,6 +9,11 @@ module.exports = function(eleventyConfig) {
     return collectionApi.getFilteredByGlob("summary-reports/*.html");
   });
 
+  // Create a custom collection for trading recommendations
+  eleventyConfig.addCollection("tradingRecommendations", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("trading-recommendation/*.html");
+  });
+
   // Tell Eleventy to copy the 'css' and 'images' folders to the output folder
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("images");
