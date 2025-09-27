@@ -34,3 +34,9 @@ module.exports = function(eleventyConfig) {
     htmlTemplateEngine: "liquid",
   };
 };
+
+module.exports = {
+  dir: {
+    output: "_site"
+  }
+};
