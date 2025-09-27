@@ -18,8 +18,8 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("images");
 
-  // Add a 'safe' filter to mark HTML as safe
-  eleventyConfig.addFilter("safe", function(value) {
+  // Add a 'safe' filter for Liquid templates
+  eleventyConfig.addLiquidFilter("safe", function(value) {
     return value;
   });
 
