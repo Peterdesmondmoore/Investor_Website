@@ -24,6 +24,7 @@ module.exports = function(eleventyConfig) {
   });
 
   return {
+    pathPrefix: "/Investor_Website/",
     dir: {
       input: ".",
       includes: "_includes",
