@@ -1,4 +1,9 @@
+const markdownIt = require("markdown-it");
+
 module.exports = function(eleventyConfig) {
+  // Set markdown-it as the library for rendering markdown files
+  eleventyConfig.setLibrary("md", markdownIt());
+
   // Create a custom collection for reports
   eleventyConfig.addCollection("reports", function(collectionApi) {
     return collectionApi.getFilteredByGlob("market-reports/*.html");
@@ -24,7 +29,7 @@ module.exports = function(eleventyConfig) {
   });
 
   return {
-    pathPrefix: "/Investor_Website/",
+    pathPrefix: "", // Set to empty string for local development
     dir: {
       input: ".",
       includes: "_includes",
