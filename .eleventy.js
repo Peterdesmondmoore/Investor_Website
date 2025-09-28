@@ -31,9 +31,10 @@ module.exports = function(eleventyConfig) {
   return {
     pathPrefix: "", // Set to empty string for local development
     dir: {
-      input: ".",
+      input: ".",      // Use the project root as the input directory
       includes: "_includes",
-      output: "_site",
+      data: "_data",
+      output: "_site"  // Default output directory
     },
     templateFormats: ["html", "md", "liquid"],
     markdownTemplateEngine: "liquid",
