@@ -19,6 +19,11 @@ module.exports = function(eleventyConfig) {
     return collectionApi.getFilteredByGlob("trading-recommendation/*.html");
   });
 
+  // Create a custom collection for China Industrial reports
+  eleventyConfig.addCollection("chinaIndustrial", function(collectionApi) {
+      return collectionApi.getFilteredByGlob("china-industrial/*.html");
+  });
+
   // Tell Eleventy to copy the 'css' and 'images' folders to the output folder
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("images");
@@ -41,8 +46,5 @@ module.exports = function(eleventyConfig) {
     htmlTemplateEngine: "liquid",
   };
 
-  // Create a custom collection for China Industrial reports
-  eleventyConfig.addCollection("chinaIndustrial", function(collectionApi) {
-      return collectionApi.getFilteredByGlob("china-industrial/*.html");
-  });
+
 };
