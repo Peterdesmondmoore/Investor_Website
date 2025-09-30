@@ -40,4 +40,9 @@ module.exports = function(eleventyConfig) {
     markdownTemplateEngine: "liquid",
     htmlTemplateEngine: "liquid",
   };
+
+  // Create a custom collection for China Industrial reports
+  eleventyConfig.addCollection("chinaIndustrial", function(collectionApi) {
+      return collectionApi.getFilteredByGlob("china-industrial/*.html");
+  });
 };
