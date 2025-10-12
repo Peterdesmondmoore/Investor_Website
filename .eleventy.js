@@ -19,6 +19,11 @@ module.exports = function(eleventyConfig) {
     return collectionApi.getFilteredByGlob("trading-recommendation/*.html");
   });
 
+  // Copy HTML files from investment-strategy folder
+  eleventyConfig.addPassthroughCopy("investment-strategy", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("investment-strategy/*.html");
+  });
+
   // Create a custom collection for China Industrial reports
   eleventyConfig.addCollection("chinaIndustrial", function(collectionApi) {
       return collectionApi.getFilteredByGlob("china-industrial/*.html");
@@ -27,6 +32,7 @@ module.exports = function(eleventyConfig) {
   // Tell Eleventy to copy the 'css' and 'images' folders to the output folder
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("images");
+
 
   // Add a 'safe' filter for Liquid templates
   eleventyConfig.addLiquidFilter("safe", function(value) {
