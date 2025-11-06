@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fed Inflation Signal — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    .kbd{border:1px solid #e5e7eb;padding:.1rem .35rem;border-radius:.35rem;background:#fff}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Fed Inflation Signal</h1>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible composite that infers <em>inflation pressure</em> from FRED data using robust rolling standardisation, explicit data-quality handling, and transparent weighting. Applicable across macro use‑cases; commodity examples (e.g., silver) appear only as illustrations.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We construct a monthly, rules‑based signal that blends headline/core CPI, breakevens (10Y), money/liquidity proxies (M2, Fed assets, ON RRP via sign inversion), growth/industry proxies (Industrial Production, copper), policy stance (Fed Funds Δ12m), USD (inverted YoY), and uncertainty (EPU). Each component is transformed to a comparable scale via rolling robust z‑scores, weighted, and summed to a <em>Composite Inflation Signal</em>. Regimes are mapped from the composite’s distribution to <span class="font-semibold">HOT</span>, <span class="font-semibold">NEUTRAL</span>, or <span class="font-semibold">COOL</span>.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (FRED Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>CPIAUCSL</b> (Headline CPI), <b>CPILFESL</b> (Core CPI ex‑food & energy)</li>
+        <li><b>GS10</b> (10Y UST), <b>DFII10</b> (10Y TIPS) → breakeven = GS10 − DFII10</li>
+        <li><b>M2SL</b> (M2 money stock), <b>WALCL</b> (Fed total assets)</li>
+        <li><b>DTWEXBGS</b> (Broad USD index, inverted for inflation pressure)</li>
+        <li><b>INDPRO</b> (Industrial production), <b>PCOPPUSDM</b> (Copper price)</li>
+        <li><b>USEPUINDXM</b> (Economic Policy Uncertainty index)</li>
+        <li><b>FEDFUNDS</b> (Fed Funds effective rate)</li>
+      </ul>
+      <p class="leading-7 mt-3">All series are coerced to monthly end via resampling and forward‑fill where appropriate. Metadata (titles) are optionally captured for documentation.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Data Quality, Cleaning & Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Recent availability check:</b> list last observation date and recent coverage for each series.</li>
+          <li><b>Bounded forward‑fill:</b> up to 2–3 months (configurable) to bridge publication lags.</li>
+          <li><b>Minimum history:</b> require ≥120 months overlapping data for robust rolling transforms.</li>
+          <li><b>Adaptive windows:</b> if history is short, shrink rolling window but log a warning.</li>
+        </ul>
+      </div>
+      <p class="leading-7 mt-3">These steps generate a <span class="font-mono">data_quality_flag</span> trail to enable downstream audit and confidence assessment.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Component Transforms</h2>
+      <p class="leading-7">Let <span class="eq">x_t</span> be a monthly series. We form level and impulse views via:</p>
+      <div class="box text-sm">
+        <div class="eq">YoY(x)_t = 100\times\frac{x_t - x_{t-12}}{x_{t-12}}</div>
+        <div class="eq">Ann\;3m(x)_t = 100\times\left(\left(\frac{x_t}{x_{t-3}}\right)^4 - 1\right)</div>
+        <div class="eq">Δ12m(x)_t = x_t - x_{t-12}}</div>
+      </div>
+      <p class="leading-7 mt-3">Constructed components (examples): headline_yoy, core_yoy, headline_3m_ann, core_3m_ann, breakeven10, m2_yoy, walcl_yoy, copper_yoy, <span class="italic">usd_yoy_neg</span> (note inversion), indpro_yoy, epu_level, fedfunds_delta_neg (inverted Δ12m).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Rolling z‑scores)</h2>
+      <p class="leading-7">We scale each component with a rolling window <span class="eq">W=120</span> months. Robust z‑scores use median/MAD; otherwise mean/std.</p>
+      <div class="box text-sm">
+        <div class="eq">z_t = \begin{cases}
+          \dfrac{x_t - \text{median}_{W}(x)}{1.4826\,\text{MAD}_{W}(x)} & \text{(robust)}\\[6pt]
+          \dfrac{x_t - \mu_W(x)}{\sigma_W(x)} & \text{(classical)}
+        \end{cases}</div>
+        <p class="mt-2">If insufficient history, use an adaptive window (≥60m) and emit a warning.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Weighting & Composite Construction</h2>
+      <p class="leading-7">Let <span class="eq">z^k_t</span> denote the z‑score for component <span class="eq">k</span>. With weights <span class="eq">w_k</span> (normalised over available non‑NaN inputs), the composite is</p>
+      <div class="box text-sm">
+        <div class="eq">S_t = \sum_k w_k\, z^k_t,\quad \sum_k w_k = 1.</div>
+      </div>
+      <p class="leading-7 mt-3">Default weights emphasise <span class="italic">core</span> and <span class="italic">breakevens</span>, with auxiliary influence from liquidity, USD, activity, and uncertainty. Missing inputs are re‑normalised out.</p>
+      <div class="box text-xs mt-3">
+<pre><code>{
+  "core_yoy_z": 0.22, "headline_yoy_z": 0.12,
+  "core_3m_ann_z": 0.12, "headline_3m_ann_z": 0.06,
+  "breakeven10_z": 0.18, "m2_yoy_z": 0.08,
+  "walcl_yoy_z": 0.05, "copper_yoy_z": 0.07,
+  "usd_yoy_neg_z": 0.06, "indpro_yoy_z": 0.02,
+  "epu_z": 0.01, "fedfunds_delta_neg_z": 0.01
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Scaling & Regime Mapping</h2>
+      <p class="leading-7">We provide a bounded 0–100 score and a categorical regime:</p>
+      <div class="box text-sm">
+        <div class="eq">S^{0\text{–}100}_t = 100\times\dfrac{S_t - \min_W S}{\max_W S - \min_W S}</div>
+        <ul class="list-disc pl-6 mt-2">
+          <li><b>HOT</b>: z(S)<sub>t</sub> ≥ 1.0 (rising inflation pressure)</li>
+          <li><b>NEUTRAL</b>: −0.5 &lt; z(S)<sub>t</sub> &lt; 1.0</li>
+          <li><b>COOL</b>: z(S)<sub>t</sub> ≤ −0.5 (disinflation/deflation risk)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># ➊ Fetch (fredapi) → monthly end
+s, title = fred.get_series('CPIAUCSL'), fred.get_series_info('CPIAUCSL').title
+# ➋ Transform components: YoY, 3m annualised, Δ12m, sign inversions
+# ➌ Robust rolling z-scores with adaptive window (default W=120)
+# ➍ Weight & sum available components (weights re-normalised)
+# ➎ Produce: composite, 0–100 scaled score, regime, and per-component contributions</code></pre>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">Reference functions: <code>_zscore</code> (robust/classical), <code>pct_change</code>, <code>_ann_3m</code>, <code>_delta_12m</code>, data‑quality helpers (recent‑availability, bounded ffill, sufficiency checks).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Reproducibility, Audit & Monitoring</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist series IDs, retrieval timestamps, library versions, and resampling policy.</li>
+        <li>Log cleaning actions (ffill count, proxies used), adaptive window changes, and missing‑input re‑weights.</li>
+        <li>Store panels: raw components, z‑scores, contributions, composite, regimes.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Interpretation & Applications</h2>
+      <p class="leading-7">The composite summarises inflation pressure for macro allocation, risk budgeting, and scenario analysis. For commodities (e.g., silver), <span class="italic">HOT</span> typically increases the risk of tighter policy and stronger USD headwinds; <span class="italic">COOL</span> the converse. Adapt signs/weights to specific asset sensitivities.</p>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">10. Governance & Change Control</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Quarterly review of components, thresholds, and weights with backtest diagnostics.</li>
+        <li>Document rationale for any component additions/removals and re‑weighting.</li>
+        <li>Maintain semantic versioning of the specification and outputs.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the Fed Inflation Signal.</footer>
+  </main>
+</body>
+</html>

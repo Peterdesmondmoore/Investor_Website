@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US Treasury Yield Curve Slope Signal — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">US Treasury Yield Curve Slope Signal</h1>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification for a level–trend regime signal using <strong>GS10</strong> and <strong>FEDFUNDS</strong> (monthly, FRED).</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This document formalises a rule-based signal derived from the US Treasury yield curve slope, defined as the difference between the 10-year constant-maturity Treasury rate (<code>GS10</code>) and the effective federal funds rate (<code>FEDFUNDS</code>). The slope is computed at a monthly frequency and paired with a 3-month moving-average trend to classify regimes relevant for risk assets—<em>Bullish</em>, <em>Neutral</em>, <em>Bearish</em>—using transparent thresholds and a simple steepening test.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>GS10</strong>: 10-Year Treasury Constant Maturity Rate (FRED).</li>
+        <li><strong>FEDFUNDS</strong>: Effective Federal Funds Rate (FRED).</li>
+      </ul>
+      <p class="leading-7 mt-3">Both series are converted to numeric, aligned to a monthly index (<code>MS</code>), and forward-filled within each series prior to merging on <code>Date</code>. Analysis is performed on percentages (level rates).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Methodology</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Monthly alignment:</strong> reindex each series to month-start (<code>MS</code>) over its span and forward-fill missing months.</li>
+        <li><strong>Merge & spread:</strong> create a panel with columns <code>Value_GS10</code>, <code>Value_FEDFUNDS</code>; compute the slope
+          <div class="box mt-2 text-sm"><div class="eq">Yield_Spread<sub>t</sub> = GS10<sub>t</sub> − FEDFUNDS<sub>t</sub></div></div>
+        </li>
+        <li><strong>Trend proxy:</strong> compute a short-horizon moving average as a steepening/flattening proxy
+          <div class="box mt-2 text-sm"><div class="eq">Yield_Spread_Trend<sub>t</sub> = Mean(Yield_Spread<sub>t−2:t</sub>)  (3 months)</div></div>
+        </li>
+        <li><strong>Classification:</strong> apply deterministic rules (for a silver-risk orientation) using level and steepening tests:
+          <div class="box mt-2 text-sm">
+            <ul class="list-disc pl-6">
+              <li><strong>Bullish:</strong> <span class="eq">Yield_Spread<sub>t</sub> ≤ 0%</span> (curve flat/inverted).</li>
+              <li><strong>Bearish:</strong> <span class="eq">Yield_Spread<sub>t</sub> > 1.5%</span> or steepening, i.e. <span class="eq">Yield_Spread<sub>t</sub> > Yield_Spread_Trend<sub>t</sub></span>.</li>
+              <li><strong>Neutral:</strong> <span class="eq">0 < Yield_Spread<sub>t</sub> ≤ 0.5%</span> or <span class="eq">0.5 < Yield_Spread<sub>t</sub> ≤ 1.5%</span> with <span class="eq">Yield_Spread<sub>t</sub> ≤ Yield_Spread_Trend<sub>t</sub></span>.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+      <p class="leading-7 mt-3">The neutral bands recognise that mildly positive slopes can be benign unless accompanied by steepening momentum.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code>def fetch_fred_series_df(series_id):
+    s = fred.get_series(series_id)
+    if s is None or s.empty:
+        return pd.DataFrame(columns=['Series_ID','title','Date','Value'])
+    df = s.reset_index(); df.columns = ['Date','Value']
+    try:
+        meta = fred.get_series_info(series_id); title = getattr(meta, 'title', None)
+    except Exception:
+        title = None
+    df['Series_ID'] = series_id; df['title'] = title
+    df['Date'] = pd.to_datetime(df['Date']); df['Value'] = pd.to_numeric(df['Value'], errors='coerce')
+    return df[['Series_ID','title','Date','Value']]
+
+gs10_df = fetch_fred_series_df('GS10')
+fedfunds_df = fetch_fred_series_df('FEDFUNDS')
+
+for d in (gs10_df, fedfunds_df):
+    d['Date'] = pd.to_datetime(d['Date']); d.set_index('Date', inplace=True)
+    d['Value'] = pd.to_numeric(d['Value'], errors='coerce')
+
+rng10 = pd.date_range(gs10_df.index.min(), gs10_df.index.max(), freq='MS')
+rngff = pd.date_range(fedfunds_df.index.min(), fedfunds_df.index.max(), freq='MS')
+GS10 = gs10_df['Value'].reindex(rng10).ffill()
+FF   = fedfunds_df['Value'].reindex(rngff).ffill()
+
+merged_yield_df = pd.concat([GS10, FF], axis=1); merged_yield_df.columns = ['Value_GS10','Value_FEDFUNDS']
+merged_yield_df.reset_index(inplace=True); merged_yield_df.rename(columns={'index':'Date'}, inplace=True)
+
+merged_yield_df['Yield_Spread'] = merged_yield_df['Value_GS10'] - merged_yield_df['Value_FEDFUNDS']
+merged_yield_df['Yield_Spread_Trend'] = merged_yield_df['Yield_Spread'].rolling(3).mean()
+
+def generate_yield_curve_signal(row):
+    s = row['Yield_Spread']; t = row['Yield_Spread_Trend']
+    if pd.isna(s) or pd.isna(t):
+        return 'Neutral'
+    if s <= 0:
+        return 'Bullish'
+    if s > 1.5 or s > t:
+        return 'Bearish'
+    if 0.5 < s <= 1.5 and s <= t:
+        return 'Neutral'
+    if 0 < s <= 0.5:
+        return 'Neutral'
+    return 'Neutral'
+
+merged_yield_df['Yield_Curve_Signal'] = merged_yield_df.apply(generate_yield_curve_signal, axis=1)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Sensitivity and Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Window length:</strong> 2–6 months: shorter windows are more reactive but noisier.</li>
+        <li><strong>Thresholds:</strong> 0.5%/1.5% bands can be shifted to match asset-class betas; steepening test may trigger earlier.</li>
+        <li><strong>Data issues:</strong> forward-fill assumes missing months carry prior values; consider calendar-month end alignment for alternatives.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Reproducibility</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Capture series IDs (<code>GS10</code>, <code>FEDFUNDS</code>), retrieval timestamps, and library versions.</li>
+        <li>Persist the merged monthly panel and the final <code>Yield_Curve_Signal</code> with timestamps.</li>
+        <li>Document any changes to window length or threshold tuning.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">6. Applications</h2>
+      <p class="leading-7">Useful as a macro overlay for duration/curve trades, as a conditioning variable in metals or cyclical-beta strategies, and for regime annotation in multi-asset dashboards.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly academic specification for the US Treasury Yield Curve Slope Signal.</footer>
+  </main>
+</body>
+</html>

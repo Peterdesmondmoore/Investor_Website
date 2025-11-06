@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>USD Index Signal — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">USD Index Signal</h1>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification using FRED <strong>DTWEXBGS</strong> (Broad U.S. Dollar Index) to derive a macro‑directional risk signal, applicable across asset classes. Silver and other commodities are used as examples for interpretation.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This document formalises a rules‑based signal from the Broad U.S. Dollar Index (<code>DTWEXBGS</code>). The method computes a 12‑month moving average and a 6‑month percentage change on a monthly series, then classifies regimes as <em>Strengthening</em>, <em>Neutral</em>, or <em>Weakening</em>. The framework is broadly applicable to global macro analysis, FX strategies, and commodity risk interpretation, with silver cited only as an illustrative example where a weaker USD tends to support precious metal prices.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>DTWEXBGS</strong> — Trade‑Weighted U.S. Dollar Index: Broad (FRED; daily observations resampled to monthly).</li>
+      </ul>
+      <p class="leading-7 mt-3">The series is fetched from FRED with optional title metadata, coerced to numeric, and normalised to a monthly calendar prior to indicator construction.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Alignment & Transformations</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Monthly alignment:</strong> resample to <code>MS</code> (month‑start) and take the last value in each month.</li>
+        <li><strong>Indicators:</strong> compute a 12‑month moving average and a 6‑month percentage change:
+          <div class="box mt-2 text-sm">
+            <div class="eq">USD_{12M\,MA,t} = MA_{12}(USD_t)</div>
+            <div class="eq">USD_{6M\,chg,t} = 100 \times \frac{USD_t - USD_{t-6}}{USD_{t-6}}</div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Signal Classification</h2>
+      <p class="leading-7">Interpretation is generic: a falling USD reflects potential easing in financial conditions, while a strengthening USD indicates tightening. For commodities such as silver, this relationship typically implies inverse price sensitivity.</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><strong>Weakening (USD):</strong> <span class="eq">USD_{6M\,chg} &lt; −5\%</span> <em>or</em> <span class="eq">USD_t &lt; USD_{12M\,MA,t}</span>.</li>
+          <li><strong>Strengthening (USD):</strong> <span class="eq">USD_{6M\,chg} &gt; +5\%</span> <em>or</em> <span class="eq">USD_t &gt; USD_{12M\,MA,t}</span>.</li>
+          <li><strong>Neutral:</strong> otherwise or when inputs are missing.</li>
+        </ul>
+      </div>
+      <p class="leading-7 mt-3">Thresholds (±5%) are heuristic and may be tuned to volatility regimes or target applications.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code>def fetch_fred_series_df(series_id):
+    try:
+        s = fred.get_series(series_id)
+        if s is None or s.empty:
+            return pd.DataFrame(columns=['Series_ID','title','Date','Value'])
+        df = s.reset_index(); df.columns = ['Date','Value']
+        df['Series_ID'] = series_id
+        try:
+            meta = fred.get_series_info(series_id)
+            df['title'] = getattr(meta, 'title', None)
+        except Exception:
+            df['title'] = None
+        df['Date'] = pd.to_datetime(df['Date'])
+        df['Value'] = pd.to_numeric(df['Value'], errors='coerce')
+        return df[['Series_ID','title','Date','Value']]
+    except Exception as e:
+        print(f"✗ Error fetching {series_id}: {e}")
+        return pd.DataFrame(columns=['Series_ID','title','Date','Value'])
+
+# Fetch
+usd_df = fetch_fred_series_df('DTWEXBGS')
+
+# Monthly indicators
+monthly = usd_df.set_index('Date')['Value'].resample('MS').last().to_frame()
+monthly.columns = ['Value_Monthly']
+monthly['USD_12Month_MA']    = monthly['Value_Monthly'].rolling(12).mean()
+monthly['USD_6Month_Change'] = monthly['Value_Monthly'].pct_change(6) * 100
+
+def generate_usd_signal(row):
+    chg6 = row['USD_6Month_Change']
+    val  = row['Value_Monthly']
+    ma12 = row['USD_12Month_MA']
+    if pd.isna(chg6) or pd.isna(val) or pd.isna(ma12):
+        return 'Neutral'
+    if (chg6 < -5) or (val < ma12):
+        return 'Weakening'
+    if (chg6 > 5)  or (val > ma12):
+        return 'Strengthening'
+    return 'Neutral'
+
+monthly['USD_Signal'] = monthly.apply(generate_usd_signal, axis=1)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Assumptions & Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>End‑of‑month sampling approximates period closes; averaging can smooth volatility if preferred.</li>
+        <li>Static ±5% bands are illustrative; calibrate dynamically to USD volatility or risk tolerance.</li>
+        <li>Signal is USD‑centric but broadly interpretable across FX, commodities, equities, and macro indicators.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Reproducibility</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist series ID (<code>DTWEXBGS</code>), retrieval timestamps, and library versions.</li>
+        <li>Record resampling policy (<code>MS</code> + last‑of‑month), window lengths, and thresholds.</li>
+        <li>Store the monthly panel with <code>USD_12Month_MA</code>, <code>USD_6Month_Change</code>, and <code>USD_Signal</code>.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">7. Applications</h2>
+      <p class="leading-7">The USD Index Signal serves as a broad macro indicator of currency strength, risk sentiment, and financial conditions. It can be applied to FX positioning, commodity hedging (e.g., silver and gold), equity rotation strategies, and multi‑factor macro regime models alongside liquidity, rates, and inflation metrics.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the USD Index Signal.</footer>
+  </main>
+</body>
+</html>

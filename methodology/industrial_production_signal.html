@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Industrial Production Signal — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Industrial Production Signal</h1>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification combining <strong>INDPRO</strong> (US Industrial Production) and <strong>RIWG21222S</strong> (Mining share of GDP) into a monthly, rules‑based demand/supply signal for cyclical and metals exposures.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This document formalises a two‑factor signal: (i) industrial demand via <code>INDPRO</code> year‑over‑year growth and (ii) a proxy for primary supply pressure via the mining value‑added share of GDP (<code>RIWG21222S</code>). Series are aligned to a monthly index and transformed to YoY rates. Regimes—<em>Bullish</em>, <em>Neutral</em>, and <em>Bearish</em>—are assigned with transparent thresholds oriented to silver/cyclical risk.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>INDPRO</strong> — Industrial Production Index (monthly, FRED).</li>
+        <li><strong>RIWG21222S</strong> — Value Added by Industry: Mining as a Share of GDP (frequency varies on FRED; aligned to month‑start for panel merge).</li>
+      </ul>
+      <p class="leading-7 mt-3">Each series is fetched from FRED with title metadata. Values are coerced to numeric and reindexed to a common monthly calendar.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Alignment & Transformations</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Monthly alignment:</strong> set <code>Date</code> as index and reindex each series to <code>MS</code> (month‑start), forward‑filling within series.</li>
+        <li><strong>Merge panel:</strong> concatenate aligned series and reset the index to a <code>Date</code> column.</li>
+        <li><strong>Rates of change:</strong> compute 12‑month percentage changes for both inputs:
+          <div class="box mt-2 text-sm">
+            <div class="eq">INDPRO_{YoY,t} = 100 \times \frac{INDPRO_t - INDPRO_{t-12}}{INDPRO_{t-12}}</div>
+            <div class="eq">RIWG_{YoY,t}   = 100 \times \frac{RIWG_t - RIWG_{t-12}}{RIWG_{t-12}}</div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Signal Classification</h2>
+      <p class="leading-7">Define thresholds consistent with a demand‑versus‑supply framing for metals:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><strong>Bullish:</strong> <span class="eq">INDPRO_{YoY} &gt; +3%</span> <em>and</em> <span class="eq">RIWG_{YoY} ≤ 0%</span> (robust demand, no rising mining share).</li>
+          <li><strong>Bearish:</strong> <span class="eq">INDPRO_{YoY} &lt; 0%</span> <em>and</em> <span class="eq">RIWG_{YoY} &gt; 0%</span> (weak demand alongside rising mining share).</li>
+          <li><strong>Neutral:</strong> otherwise.</li>
+        </ul>
+      </div>
+      <p class="leading-7 mt-3">Missing inputs default to <em>Neutral</em>. Thresholds are illustrative and can be calibrated via backtests.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code>def fetch_fred_series_df(series_id):
+    try:
+        s = fred.get_series(series_id)
+        df = s.reset_index(); df.columns = ['Date','Value']
+        df['Series_ID'] = series_id
+        try:
+            meta = fred.get_series_info(series_id)
+            df['title'] = getattr(meta, 'title', None)
+        except Exception:
+            df['title'] = None
+        df['Date'] = pd.to_datetime(df['Date'])
+        df['Value'] = pd.to_numeric(df['Value'], errors='coerce')
+        return df[['Series_ID','title','Date','Value']]
+    except Exception:
+        return pd.DataFrame(columns=['Series_ID','title','Date','Value'])
+
+# Fetch
+indpro_df     = fetch_fred_series_df('INDPRO')
+riwg21222s_df = fetch_fred_series_df('RIWG21222S')
+
+# Monthly alignment (MS) & forward-fill
+for d in (indpro_df, riwg21222s_df):
+    d['Date'] = pd.to_datetime(d['Date'])
+    d.set_index('Date', inplace=True)
+    d['Value'] = pd.to_numeric(d['Value'], errors='coerce')
+
+IND = indpro_df['Value'].reindex(pd.date_range(indpro_df.index.min(), indpro_df.index.max(), freq='MS')).ffill()
+RIW = riwg21222s_df['Value'].reindex(pd.date_range(riwg21222s_df.index.min(), riwg21222s_df.index.max(), freq='MS')).ffill()
+
+merged = pd.concat([IND, RIW], axis=1)
+merged.columns = ['Value_INDPRO','Value_RIWG21222S']
+merged = merged.reset_index().rename(columns={'index':'Date'})
+
+# YoY transforms
+merged['INDPRO_YoY']     = merged['Value_INDPRO'].pct_change(12) * 100
+merged['RIWG21222S_YoY'] = merged['Value_RIWG21222S'].pct_change(12) * 100
+
+# Signal rules
+def generate_industrial_mining_signal(row):
+    indpro_yoy = row['INDPRO_YoY']
+    riwg_yoy   = row['RIWG21222S_YoY']
+    if pd.isna(indpro_yoy) or pd.isna(riwg_yoy):
+        return 'Neutral'
+    if (indpro_yoy > 3) and (riwg_yoy <= 0):
+        return 'Bullish'
+    if (indpro_yoy < 0) and (riwg_yoy > 0):
+        return 'Bearish'
+    return 'Neutral'
+
+merged['Industrial_Mining_Signal'] = merged.apply(generate_industrial_mining_signal, axis=1)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Assumptions & Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Forward‑fill of RIWG21222S assumes within‑period stability; consider quarterly alignment if higher fidelity is required.</li>
+        <li>YoY rates can be distorted by base effects around recessions or commodity booms; review alternative windows when applicable.</li>
+        <li>Thresholds (3%, 0%) are heuristic; tune by asset class and loss function.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Reproducibility</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist series IDs (INDPRO, RIWG21222S), retrieval timestamps, and library versions.</li>
+        <li>Record resampling policy (<code>MS</code> + forward‑fill) and any threshold overrides.</li>
+        <li>Store the final panel with <code>INDPRO_YoY</code>, <code>RIWG21222S_YoY</code>, and <code>Industrial_Mining_Signal</code> for audit.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">7. Applications</h2>
+      <p class="leading-7">Useful as a demand‑supply overlay for metals (e.g., silver) and cyclicals, and as an explanatory variable in macro factor models. Naturally complements liquidity and real‑yield signals for regime triangulation.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the Industrial Production Signal.</footer>
+  </main>
+</body>
+</html>
