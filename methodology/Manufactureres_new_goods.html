@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Durable Goods ex-Transportation — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000} a{color:#000;text-decoration:underline}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    pre code{display:block;overflow:auto}
+    .tag{font-size:.7rem;border:1px solid #e5e7eb;border-radius:.35rem;padding:.1rem .35rem;background:#fff}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Manufacturers’ New Durable Goods Orders (Ex‑Transportation)</h1>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible, monthly signal derived from FRED series <span class="font-semibold">ADXTNO</span> that tracks momentum in core U.S. manufacturing orders by excluding transportation volatility. We use year‑over‑year and 3‑month changes, an optional robust z‑score, and simple regime rules.</p>
+      <div class="mt-3 flex gap-2 text-xs text-slate-600">
+        <span class="tag">FRED</span>
+        <span class="tag">ADXTNO</span>
+        <span class="tag">YoY &amp; 3M Momentum</span>
+        <span class="tag">Robust Z</span>
+        <span class="tag">Regime Classification</span>
+      </div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We construct a monthly <span class="font-semibold">Durable Goods ex‑Transportation</span> signal from the FRED series ADXTNO. The series is aligned to month‑end, with within‑month forward‑fill to ensure a complete monthly time series. We compute year‑over‑year and 3‑month percentage changes, optionally standardise YoY with a robust rolling z‑score, and classify regimes (<span class="font-semibold">Bullish</span>, <span class="font-semibold">Neutral</span>, <span class="font-semibold">Bearish</span>) using transparent thresholds.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (FRED Identifier)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>ADXTNO</b>: Manufacturers’ New Orders: Durable Goods Excluding Transportation</li>
+      </ul>
+      <p class="leading-7 mt-3">We work at a <span class="font-semibold">month‑end</span> frequency (<code>"M"</code>) and forward‑fill within month to align release dates.</p>
+      <div class="box text-sm mt-3">
+<pre><code># Fetch & align (fredapi)
+durables = fred.get_series("ADXTNO")
+df_durables = pd.DataFrame(durables, columns=["DurableGoods_Ex_Trans"])
+df_durables = df_durables.resample("M").last().ffill()</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Signal Construction</h2>
+      <p class="leading-7">We compute momentum using both long‑run (YoY) and near‑term (3M) percentage changes. With \(X_t\) as the level:</p>
+      <div class="box text-sm">
+        <div class="eq">\( \text{YoY\_pct}_t = 100\times\left(\dfrac{X_t}{X_{t-12}}-1\right) \)</div>
+        <div class="eq mt-1">\( \text{3M\_pct}_t = 100\times\left(\dfrac{X_t}{X_{t-3}}-1\right) \)</div>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>df_durables["YoY_pct"] = df_durables["DurableGoods_Ex_Trans"].pct_change(12) * 100
+df_durables["3M_pct"]  = df_durables["DurableGoods_Ex_Trans"].pct_change(3)  * 100</code></pre>
+      </div>
+      <p class="leading-7 mt-3">Optionally, we compute a <span class="font-semibold">robust z‑score</span> on YoY to stabilise scaling against outliers:</p>
+      <div class="box text-sm">
+        <div class="eq">\( z_t = \dfrac{y_t - \text{median}_{W}(y)}{1.4826\,\text{MAD}_{W}(y)} \)</div>
+        <p class="mt-2 text-sm">Default rolling window \(W=60\) months; observations with \(\text{MAD}=0\) yield undefined z and are left as NaN.</p>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def robust_z(series, window=60):
+    med = series.rolling(window).median()
+    mad = (series - med).abs().rolling(window).median()
+    return (series - med) / (1.4826 * mad.replace(0, np.nan))
+
+df_durables["YoY_z"] = robust_z(df_durables["YoY_pct"], window=60)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Regime Classification</h2>
+      <p class="leading-7">We map momentum into categorical regimes using transparent rules. Neutral bands avoid whipsaw:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Bullish</b>: YoY &gt; +5% <em>or</em> 3M &gt; +1%</li>
+          <li><b>Bearish</b>: YoY &lt; −3% <em>or</em> 3M &lt; −1%</li>
+          <li><b>Neutral</b>: otherwise</li>
+        </ul>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def classify_durables(row, yoy_hi=5, yoy_lo=-3, m3_hi=1, m3_lo=-1):
+    yoy, m3 = row["YoY_pct"], row["3M_pct"]
+    if np.isnan(yoy) or np.isnan(m3):
+        return "Neutral"
+    if (yoy &gt; yoy_hi) or (m3 &gt; m3_hi):
+        return "Bullish"
+    if (yoy &lt; yoy_lo) or (m3 &lt; m3_lo):
+        return "Bearish"
+    return "Neutral"
+
+df_durables["DurableGoods_Signal"] = df_durables.apply(classify_durables, axis=1)</code></pre>
+      </div>
+      <p class="text-sm mt-2 text-slate-600">Thresholds can be tuned (e.g., based on backtests or sector sensitivity).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Outputs & Columns</h2>
+      <div class="box text-sm">
+<pre><code># Core columns created
+["DurableGoods_Ex_Trans","YoY_pct","3M_pct","YoY_z(optional)","DurableGoods_Signal"]</code></pre>
+      </div>
+      <p class="leading-7 mt-3">Console prints provide quick verification (tail of raw and final frames).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Data Handling & Validation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Frequency alignment:</b> resample to month‑end (<code>"M"</code>), <code>.last()</code> for end‑of‑month value, then <code>.ffill()</code> to fill gaps.</li>
+        <li><b>NaN policy:</b> percentage changes produce NaNs for initial lags; classification defaults to Neutral when YoY/3M are NaN.</li>
+        <li><b>Robust scaling:</b> optional YoY z‑score uses rolling median/MAD; where MAD=0, z is NaN rather than inf.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Interpretation & Use Cases</h2>
+      <p class="leading-7">ADXTNO strips transportation to better capture <em>core</em> order momentum. <span class="font-semibold">Bullish</span> regimes suggest firming manufacturing demand, supportive of cyclical risk appetite and upstream commodities; <span class="font-semibold">Bearish</span> regimes indicate softening order books and potential growth downgrades. Combine with broader macro pillars (growth, inflation, financial conditions) for multi‑signal frameworks.</p>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">7. Governance & Change Control</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Re‑evaluate thresholds (+5/−3 YoY, +1/−1 3M) semi‑annually with out‑of‑sample tests.</li>
+        <li>Version methodology changes and retain data‑quality logs.</li>
+        <li>Document any deviations from the default window length or classification rules.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly specification for the Durable Goods ex‑Transportation signal.</footer>
+  </main>
+</body>
+</html>

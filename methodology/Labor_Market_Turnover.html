@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labor Market Turnover Differential — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000} a{color:#000;text-decoration:underline}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    pre code{display:block;overflow:auto}
+    .kbd{border:1px solid #e5e7eb;padding:.1rem .35rem;border-radius:.35rem;background:#fff}
+    .tag{font-size:.7rem;border:1px solid #e5e7eb;border-radius:.35rem;padding:.1rem .35rem;background:#fff}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Labor Market Turnover Differential</h1>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible, monthly signal that gauges <em>labor‑market tightness</em> by comparing worker‑initiated quits to employer‑initiated layoffs & discharges. Built from FRED JOLTS series using robust z‑scores and clear regime rules.</p>
+      <div class="mt-3 flex gap-2 text-xs text-slate-600">
+        <span class="tag">FRED</span>
+        <span class="tag">JOLTS</span>
+        <span class="tag">Robust Z</span>
+        <span class="tag">Regime Classification</span>
+      </div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We compute the monthly <span class="font-semibold">Turnover Differential</span> as the quits rate minus the layoffs &amp; discharges rate. Intuition: a rising gap (quits ≫ layoffs) reflects worker confidence and tight conditions; a shrinking or negative gap signals loosening. We standardise the differential with a robust rolling z‑score and map it, alongside the level, into categorical regimes (<span class="font-semibold">Bullish</span>, <span class="font-semibold">Neutral</span>, <span class="font-semibold">Bearish</span>) for downstream macro &amp; markets use.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (FRED Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>JTSQUR</b>: Quits Rate (%), total nonfarm</li>
+        <li><b>JTSLDR</b>: Layoffs &amp; Discharges Rate (%), total nonfarm</li>
+      </ul>
+      <p class="leading-7 mt-3">Both are monthly. We coerce to a common monthly index at Month‑Start (<code>"MS"</code>) and forward‑fill within month to handle publication alignment.</p>
+      <div class="box text-sm mt-3">
+<pre><code># Fetch & align (fredapi)
+q = fred.get_series("JTSQUR").to_frame("QuitsRate")
+l = fred.get_series("JTSLDR").to_frame("LayoffRate")
+q.index = pd.to_datetime(q.index); l.index = pd.to_datetime(l.index)
+
+turnover_raw_df = (
+  pd.concat([q, l], axis=1).sort_index()
+    .resample("MS").last().ffill().reset_index()
+    .rename(columns={"index": "Date"})
+)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Signal Construction</h2>
+      <p class="leading-7">The level differential (percentage points) is:</p>
+      <div class="box text-sm">
+        <div class="eq">\( \text{Turnover\_Diff}^{pp}_t = \text{QuitsRate}_t - \text{LayoffRate}_t \)</div>
+      </div>
+      <p class="leading-7 mt-3">We then compute a <span class="font-semibold">robust z‑score</span> using a rolling window with median and MAD, guarding against outliers and short histories.</p>
+      <div class="box text-sm">
+        <div class="eq">\( z_t = \dfrac{x_t - \text{median}_{W}(x)}{1.4826\,\text{MAD}_{W}(x)} \)</div>
+        <p class="mt-2 text-sm">Default window \(W=60\) months with a minimum of 24. If history is shorter, the window adapts: \(W = \max(24, \lfloor0.8\cdot N\rfloor)\).</p>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def _robust_z(s, window=60, min_window=24):
+    s = pd.to_numeric(s, errors="coerce").astype(float)
+    n = s.notna().sum()
+    w = max(min_window, window if n >= window else int(n * 0.8) if n else min_window)
+    med = s.rolling(w, min_periods=min_window).median()
+    mad = (s - med).abs().rolling(w, min_periods=min_window).median()
+    return (s - med) / (mad.replace(0, np.nan) * 1.4826)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Regime Classification</h2>
+      <p class="leading-7">We combine information from the level (pp) and the robust z‑score into three regimes. Neutral “bands” prevent over‑trading on noise:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Level neutral band (pp):</b> [-0.20, 0.50]</li>
+          <li><b>Z neutral band:</b> [-0.50, 0.50]</li>
+        </ul>
+        <div class="mt-3">
+          <div class="eq">If level &lt; −0.20 <span class="italic">or</span> z &lt; −0.50 → <b>Bearish</b></div>
+          <div class="eq">Else if level &gt; 0.50 <span class="italic">and</span> z &gt; 0.50 → <b>Bullish</b></div>
+          <div class="eq">Else → <b>Neutral</b></div>
+        </div>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def _classify(row):
+    lvl, z = row["Turnover_Diff_pp"], row["Turnover_Diff_z"]
+    if pd.isna(lvl) or pd.isna(z): return "Neutral"
+    if (lvl &lt; -0.20) or (z &lt; -0.50): return "Bearish"
+    if (lvl &gt;  0.50) and (z &gt;  0.50): return "Bullish"
+    return "Neutral"</code></pre>
+      </div>
+      <p class="text-sm mt-2 text-slate-600">Thresholds are configurable via <code>level_neutral_band</code> and <code>z_neutral_band</code>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Outputs & Metadata</h2>
+      <div class="box text-sm">
+<pre><code># Core columns
+["Date","QuitsRate","LayoffRate",
+ "Turnover_Diff_pp","Turnover_Diff_z","Turnover_Regime"]
+
+# Attached metadata
+attrs["series"] = {"quits": "JTSQUR", "layoffs": "JTSLDR"}
+attrs["generated_at"] = datetime.utcnow().isoformat() + "Z"
+attrs["rules"] = {
+  "level_neutral_band_pp": (-0.20, 0.50),
+  "z_neutral_band": (-0.50, 0.50),
+  "definition": "Bullish if quits ≫ layoffs; Bearish if layoffs ≥ quits and/or negative momentum."
+}</code></pre>
+      </div>
+      <p class="leading-7 mt-3">For reporting, the last five years can be rendered as an HTML table for dashboards or emails.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Data Handling & Validation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Frequency alignment:</b> resample to Month‑Start and forward‑fill within month to ensure synchronous comparisons.</li>
+        <li><b>Short‑history safety:</b> adaptive robust z‑window prevents unstable scaling during early sample periods.</li>
+        <li><b>NaN policy:</b> coercion to numeric; z‑scores undefined where MAD = 0 are set to NaN and naturally mapped to Neutral.</li>
+        <li><b>Preview hooks:</b> print/display last rows of the raw and final data frames for quick inspection.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Interpretation & Use Cases</h2>
+      <p class="leading-7">The Turnover Differential is a concise barometer of labor‑market tightness. <span class="font-semibold">Bullish</span> (quits ≫ layoffs) historically co‑moves with strong wage pressure and resilient consumption; <span class="font-semibold">Bearish</span> regimes often precede labor softening and increased recession risk. Use alongside other macro pillars (growth, inflation, financial conditions) to condition asset‑allocation tilts.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># ➊ Fetch & harmonise monthly series (fredapi)
+# ➋ Compute level differential in percentage points
+# ➌ Apply robust rolling z-score with adaptive window
+# ➍ Classify regimes with level & z neutral bands
+# ➎ Persist metadata & (optional) HTML table for last 5y</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">8. Governance & Change Control</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Review thresholds and windows semi‑annually with backtests around turning points.</li>
+        <li>Document rationale for any rule changes (e.g., neutral bands, window length).</li>
+        <li>Version outputs and store data‑quality logs for auditability.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly specification for the Labor Market Turnover Differential.</footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UMich Consumer Sentiment (UMCSENT) — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000} a{color:#000;text-decoration:underline}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    pre code{display:block;overflow:auto}
+    .tag{font-size:.7rem;border:1px solid #e5e7eb;border-radius:.35rem;padding:.1rem .35rem;background:#fff}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">University of Michigan Consumer Sentiment (UMCSENT)</h1>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible, monthly demand signal from <span class="font-semibold">FRED: UMCSENT</span>. We align to month‑end, compute YoY and 3‑month momentum, apply a robust z‑score to the <em>level</em> to capture relative optimism/pessimism, and classify regimes. No plotting is required.</p>
+      <div class="mt-3 flex gap-2 text-xs text-slate-600">
+        <span class="tag">FRED</span>
+        <span class="tag">UMCSENT</span>
+        <span class="tag">Momentum</span>
+        <span class="tag">Robust Z (Level)</span>
+        <span class="tag">Regime Classification</span>
+      </div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We transform the University of Michigan Consumer Sentiment index into a monthly, classification‑ready signal. After resampling to month‑end and forward‑filling, we derive YoY and 3‑month percent changes to capture momentum. We also standardise the <em>level</em> of sentiment with a robust rolling z‑score (median &amp; MAD) that adapts to shorter histories. The final regime (<span class="font-semibold">Bullish</span>, <span class="font-semibold">Neutral</span>, <span class="font-semibold">Bearish</span>) is determined by combining level context (z) with momentum (YoY/3M).</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1) Data (FRED Identifier)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>UMCSENT</b>: University of Michigan: Consumer Sentiment®</li>
+      </ul>
+      <p class="leading-7 mt-3">We standardise to a <span class="font-semibold">month‑end</span> frequency (<code>"M"</code>) and <code>.ffill()</code> within month to avoid gaps around release dates.</p>
+      <div class="box text-sm mt-3">
+<pre><code># Fetch & align (fredapi)
+umich = fred.get_series("UMCSENT")
+df_sent = pd.DataFrame(umich, columns=["UMCSENT"])
+df_sent = df_sent.resample("M").last().ffill()
+print("✅ UMCSENT retrieved."); print(df_sent.tail())</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2) Feature Engineering</h2>
+      <p class="leading-7">We compute long‑ and short‑horizon momentum on the level \(X_t\):</p>
+      <div class="box text-sm">
+        <div class="eq">\( \text{YoY\_pct}_t = 100\times\left(\dfrac{X_t}{X_{t-12}}-1\right) \)</div>
+        <div class="eq mt-1">\( \text{3M\_pct}_t = 100\times\left(\dfrac{X_t}{X_{t-3}}-1\right) \)</div>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>df_sent["YoY_pct"] = df_sent["UMCSENT"].pct_change(12) * 100
+df_sent["3M_pct"]  = df_sent["UMCSENT"].pct_change(3)  * 100</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3) Robust Z‑Score on Level</h2>
+      <p class="leading-7">To contextualise the absolute level versus its own history, we compute a robust z‑score with an adaptive window (default 120 months, minimum 36). The median &amp; MAD provide resilience to outliers. If history is shorter than the target window, we scale to at least 36 months or 80% of available observations.</p>
+      <div class="box text-sm">
+        <div class="eq">\( z_t = \dfrac{X_t - \text{median}_W(X)}{1.4826\,\text{MAD}_W(X)} \)</div>
+        <p class="mt-2 text-sm">Window choice: \(W = \max\{36, \min(120, \lfloor 0.8\,N \rfloor)\}\) where \(N\) is the number of non‑missing observations.</p>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def robust_z(series, window=120, min_window=36):
+    s = series.astype(float)
+    w = max(min_window, window if s.notna().sum() >= window else int(max(min_window, s.notna().sum()*0.8)))
+    med = s.rolling(w, min_periods=min_window).median()
+    mad = (s - med).abs().rolling(w, min_periods=min_window).median()
+    return (s - med) / (1.4826 * mad.replace(0, np.nan))
+
+df_sent["Level_z"] = robust_z(df_sent["UMCSENT"], window=120, min_window=36)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4) Regime Classification</h2>
+      <p class="leading-7">We combine <em>level context</em> (z) with <em>momentum</em> (YoY/3M) to form regimes:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Bullish</b> (demand tailwind): <code>Level_z &gt; +0.5</code> and (<code>YoY_pct &gt; 0</code> <em>or</em> <code>3M_pct &gt; +1</code>)</li>
+          <li><b>Bearish</b> (demand headwind): <code>Level_z &lt; −0.5</code> and (<code>YoY_pct &lt; 0</code> <em>or</em> <code>3M_pct &lt; −1</code>)</li>
+          <li><b>Neutral</b>: otherwise (including any NaNs)</li>
+        </ul>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def classify_umich(row, z_hi=0.5, z_lo=-0.5, yoy_up=0.0, yoy_dn=0.0, m3_up=1.0, m3_dn=-1.0):
+    z, yoy, m3 = row["Level_z"], row["YoY_pct"], row["3M_pct"]
+    if np.isnan(z) or np.isnan(yoy) or np.isnan(m3):
+        return "Neutral"
+    if (z &gt; z_hi) and ((yoy &gt; yoy_up) or (m3 &gt; m3_up)):
+        return "Bullish"
+    if (z &lt; z_lo) and ((yoy &lt; yoy_dn) or (m3 &lt; m3_dn)):
+        return "Bearish"
+    return "Neutral"
+
+df_sent["UMCSENT_Signal"] = df_sent.apply(classify_umich, axis=1)</code></pre>
+      </div>
+      <p class="text-sm mt-2 text-slate-600">Thresholds are tunable for your downstream use (e.g., sensitivity to inflections).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5) Outputs & Columns</h2>
+      <div class="box text-sm">
+<pre><code># Core columns
+["UMCSENT","YoY_pct","3M_pct","Level_z","UMCSENT_Signal"]</code></pre>
+      </div>
+      <p class="leading-7 mt-3">Console prints echo the tail of the aligned series and the final signal columns for a quick sanity check. No plots are generated by design.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6) Data Handling & Validation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Frequency alignment:</b> resample to month‑end (<code>"M"</code>) with <code>.last()</code> and <code>.ffill()</code>.</li>
+        <li><b>NaN policy:</b> initial lags from percentage change calculations are NaN; regime treats any NaN as Neutral.</li>
+        <li><b>Robust scaling:</b> level z‑scores use median/MAD; if MAD = 0, z is NaN rather than infinite.</li>
+        <li><b>Reproducibility:</b> all transformations are deterministic given the UMCSENT series.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">7) Interpretation & Use</h2>
+      <p class="leading-7">Higher consumer sentiment is historically associated with stronger consumption growth. <span class="font-semibold">Bullish</span> regimes suggest a supportive demand backdrop; <span class="font-semibold">Bearish</span> regimes warn of headwinds. Use this alongside labor, inflation, and financial‑conditions signals to triangulate macro regime.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly specification for the UMCSENT demand signal.</footer>
+  </main>
+</body>
+</html>
