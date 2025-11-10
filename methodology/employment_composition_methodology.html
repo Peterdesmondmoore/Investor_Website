@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employment Composition — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Employment Composition (CPS)</h1>
+      <p class="mt-2 text-slate-600 text-sm">Monthly composite of <strong>labor market health</strong> from CPS: Participation, Employment–Population Ratio, and Unemployment Rate. Robust z‑scores, momentum diagnostics, 0–100 scaling, and categorical regimes.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: Higher participation and employment with lower unemployment indicate a tighter, healthier labor market; the inverse signals rising slack.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We construct a monthly index from three CPS (household survey) series: <strong>Participation</strong>, <strong>Employment–Population</strong>, and <strong>Unemployment</strong>. Each is standardized with a robust rolling z‑score. We then build a weighted composite (participation 0.4, emp‑pop 0.4, unemployment −0.2), apply smoothing, scale it to 0–100, and classify regimes.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (BLS CPS Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>LNS11300000</b> — Labor force participation rate (%)</li>
+        <li><b>LNS12300000</b> — Employment–population ratio (%)</li>
+        <li><b>LNS14000000</b> — Unemployment rate (%)</li>
+      </ul>
+      <p class="leading-7 mt-3">Inputs are monthly. If any required ID is missing from the initial subset, the pipeline augments from <code>long_df</code> (or <code>many</code>) before pivoting.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Data Handling & Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Types & dates:</b> Coerce <code>value</code> to numeric; parse <code>date</code> to month‑start timestamps.</li>
+          <li><b>Pivot & grid:</b> Wide pivot by <code>series_id</code> → monthly start grid via <code>asfreq('MS')</code>.</li>
+          <li><b>Gaps:</b> Bounded forward‑fill <code>ffill(limit=2)</code>; larger gaps remain NaN.</li>
+          <li><b>Fail‑fast:</b> raise if any of the three core series is entirely missing after pivot.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Feature Engineering</h2>
+      <div class="box text-sm">
+        <div class="italic">Participation_vs_EmpRatio = Participation / EmpPop</div>
+        <div class="italic mt-1">Labor_Slack_Index = (1 − Unemployment/10) × Participation</div>
+        <p class="mt-2">Momentum diagnostics: 3‑month differences for each core rate (<code>diff(3)</code>).</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Robust Rolling z‑scores)</h2>
+      <p class="leading-7">Each series is scaled with a median/MAD z‑score using an adaptive window.</p>
+      <div class="box text-sm">
+        <div class="italic">z<sub>t</sub>(x) = (x<sub>t</sub> − median<sub>W</sub>(x)) / (1.4826·MAD<sub>W</sub>(x)),\ W = min(36, max(8, ⌊0.8·N<sub>valid</sub>⌋))</div>
+        <p class="mt-2">Unemployment enters <em>negatively</em> via <code>unemp_z_neg = −z(unemployment)</code>.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Weighting & Composite Construction</h2>
+      <p class="leading-7">Weights reflect economic intuition: participation and employment carry equal weight; unemployment detracts.</p>
+      <div class="box text-xs mt-3">
+<pre><code>{
+  "part_z": 0.40,
+  "empr_z": 0.40,
+  "unemp_z_neg": 0.20
+}</code></pre>
+      </div>
+      <div class="box text-sm mt-3">
+        <div class="italic">Employment_Composition<sub>z</sub> = 0.40·part<sub>z</sub> + 0.40·empr<sub>z</sub> + 0.20·unemp<sub>z_neg</sub></div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Smoothing, Scaling & Regimes</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Headline smoothing:</b> 3‑period EMA on the composite z‑score.</li>
+        <li><b>Score (0–100):</b> min–max scaling over observed history; returns NaN if flat.</li>
+        <li><b>Regimes:</b> thresholds on the unsmoothed composite z‑score.</li>
+      </ul>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>HOT (healthy/tight):</b> &gt; +0.75</li>
+          <li><b>NEUTRAL:</b> −0.75 to +0.75</li>
+          <li><b>COOL (slack rising):</b> &lt; −0.75</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Output Panel</h2>
+      <div class="box text-xs">
+<pre><code>[
+  "participation_rate","emp_pop_ratio","unemployment_rate",
+  "Participation_vs_EmpRatio","Labor_Slack_Index",
+  "part_mom_3m","empr_mom_3m","unemp_mom_3m",
+  "part_z","empr_z","unemp_z_neg",
+  "Employment_Composition_z","Employment_Composition_0_100",
+  "Employment_Composition_Smoothed","Employment_Regime"
+]</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Expect columns: date, series_id, value
+REQ = ["LNS11300000","LNS12300000","LNS14000000"]
+# Merge in any missing IDs from long_df/many prior to pivot; align to MS grid; ffill(limit=2)
+# Apply robust_z(), momentum, composite, EMA smoothing, regime, and 0–100 scale as specified above.
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">9. Interpretation & Use</h2>
+      <p class="leading-7">A <em>HOT</em> employment composition reading aligns with historically tight labor conditions and potential wage pressure; a <em>COOL</em> reading indicates rising slack. Use alongside wage, inflation, and liquidity signals for cross‑validation.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Employment Composition signal specification.</footer>
+  </main>
+</body>
+</html>
