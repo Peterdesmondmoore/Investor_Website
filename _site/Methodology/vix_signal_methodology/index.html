@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market Volatility — VIX (VIXCLS) — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Market Volatility — VIX</h1>
+      <p class="mt-2 text-slate-600 text-sm">Dedicated “Market Volatility Signal” capturing option-implied risk sentiment from the S&amp;P 500 (CBOE VIX). Complements Liquidity, Credit, and USD signals.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: Captures risk sentiment in S&amp;P 500 options. Source: CBOE / FRED (<code>VIXCLS</code>). Interpretation: &lt;20 = calm; ≥30 = stress.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">Abstract</h2>
+      <p class="leading-7 mt-2">We build a daily-to-monthly <em>Market Volatility Signal (MVS)</em> using the closing VIX index (<b>VIXCLS</b>). Components include level, short/medium-term momentum, and percentile rank vs. history. A composite score maps to regimes—<span class="font-semibold">CALM</span>, <span class="font-semibold">NORMAL</span>, <span class="font-semibold">ELEVATED</span>, <span class="font-semibold">STRESSED</span>, <span class="font-semibold">CRISIS</span>—anchored to intuitive thresholds (&lt;20 calm; ≥30 stress) and robust z-scores.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">1) Data</h2>
+      <ul class="list-disc pl-6 leading-7 mt-2">
+        <li><b>VIXCLS</b> — CBOE Volatility Index: VIX (close, % annualised).</li>
+      </ul>
+      <p class="leading-7 mt-3">Frequency: business daily. For monthly reporting, we snapshot month-end; for weekly, last business day of week. Bounded forward-fill is allowed for calendar alignment (≤3 business days).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">2) Data Quality &amp; Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Staleness:</b> flag if last obs &gt; 3 business days old.</li>
+          <li><b>Bounds &amp; outliers:</b> winsorise at 0.5–99.5th pct for stability; VIX is strictly non-negative.</li>
+          <li><b>Minimum history:</b> ≥ 5 years preferred for percentile/z-scores; adaptive window ≥ 2 years allowed.</li>
+          <li><b>Trading holidays:</b> treat gaps as non-trading days; no interpolation beyond <code>limit=3</code>.</li>
+        </ul>
+      </div>
+      <p class="text-sm mt-2"><code>data_quality_flag</code> records staleness, winsorisation, and window adaptations.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">3) Component Transforms</h2>
+      <p class="leading-7">For daily series <span class="eq">v_t</span> (index points):</p>
+      <div class="box text-sm">
+        <div class="eq">Level_t = v_t</div>
+        <div class="eq">Δ5d_t = v_t - v_{t-5}</div>
+        <div class="eq">Δ20d_t = v_t - v_{t-20}</div>
+        <div class="eq">PctRank_{2y}(t) = \text{percentile rank of } v_t \text{ in last 504 trading days}</div>
+        <div class="eq">EMA_{20}(t) = \text{exponential moving average over 20d}</div>
+      </div>
+      <p class="leading-7 mt-3">We form gaps to intuitive thresholds: <i>gap20</i> = <span class="eq">v_t - 20</span>, <i>gap30</i> = <span class="eq">v_t - 30</span>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">4) Standardisation (Rolling z-scores)</h2>
+      <p class="leading-7">Z-scores computed over rolling windows with robust median/MAD; fallback to mean/std if needed.</p>
+      <div class="box text-sm">
+        <div class="eq">z_t = \dfrac{x_t - \text{median}_{W}(x)}{1.4826\,\text{MAD}_{W}(x)}</div>
+        <p class="mt-2">Suggested windows: W=504d (~2y) for level-based components; W=252d (~1y) for momentum.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">5) Weighting &amp; Composite Construction</h2>
+      <p class="leading-7">We emphasise the level and percentile rank, with secondary weight to short-term momentum:</p>
+      <div class="box text-xs mt-3">
+<pre><code>{
+  "level_z": 0.40, "pct_rank": 0.25,
+  "gap20_z": 0.10, "gap30_z": 0.10,
+  "d5_z": 0.10, "d20_z": 0.05
+}</code></pre>
+      </div>
+      <div class="box text-sm mt-3">
+        <div class="eq">MVS_t = \sum_k w_k\, z^k_t,\quad \sum_k w_k = 1</div>
+      </div>
+      <p class="text-sm mt-2">Missing components are renormalised out; contributions are stored for audit.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">6) Scaling &amp; Regime Mapping</h2>
+      <p class="leading-7">Regimes reflect absolute thresholds and relative elevation:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>CALM:</b> VIX &lt; 16 and MVS z &lt; 0</li>
+          <li><b>NORMAL:</b> 16 ≤ VIX &lt; 20 or MVS z in [0, +0.5)</li>
+          <li><b>ELEVATED:</b> 20 ≤ VIX &lt; 30 or MVS z in [+0.5, +1.0)</li>
+          <li><b>STRESSED:</b> VIX ≥ 30 or MVS z ≥ +1.0</li>
+          <li><b>CRISIS:</b> VIX ≥ 45 or MVS z ≥ +2.0 sustained ≥ 5d</li>
+        </ul>
+      </div>
+      <p class="text-sm mt-2">We also report a 0–100 score using rolling min–max scaling over 2–5 years.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">7) Comparison Hooks</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Liquidity Composite:</b> Rising VIX with tight liquidity reinforces risk-off.</li>
+          <li><b>Credit Spreads:</b> High-yield OAS widening with ELEVATED/ STRESSED VIX strengthens stress signal.</li>
+          <li><b>USD / Real Yields:</b> Risk-off often coincides with stronger USD and higher real yields; note divergences.</li>
+        </ul>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">Only the other signals’ latest regime/score are required; no structural dependency assumed.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">8) Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># FRED series (daily closes)
+vix = fred.get_series("VIXCLS")
+
+# Align to business daily; bounded ffill (<=3)
+vix_d = vix.asfreq("B").ffill(limit=3)
+
+# Components
+import pandas as pd
+d5  = vix_d - vix_d.shift(5)
+d20 = vix_d - vix_d.shift(20)
+gap20 = vix_d - 20.0
+gap30 = vix_d - 30.0
+ema20 = vix_d.ewm(span=20, adjust=False).mean()
+
+# Robust z-scores on rolling windows (252-504d), then weighted sum -> MVS, map regimes as specified.
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">9) Reproducibility &amp; Monitoring</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist source ID (<code>VIXCLS</code>), retrieval timestamps, resampling policy, and windows.</li>
+        <li>Log winsorisation bounds, staleness flags, and window adaptations.</li>
+        <li>Store panels: raw, transforms, z-scores, contributions, composite, regimes.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">10) Interpretation &amp; Applications</h2>
+      <p class="leading-7">VIX is a short-horizon risk gauge. Values below 20 are generally consistent with calm conditions; 30 and above indicate market stress. Use alongside Liquidity and Credit to calibrate risk-on/off stance and to set expectations for drawdown risk.</p>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold">11) Governance &amp; Change Control</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Quarterly review of components, thresholds, weights, and backtests.</li>
+        <li>Document rationale for changes; maintain semantic versioning.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly specification for the Market Volatility — VIX signal.</footer>
+  </main>
+</body>
+</html>

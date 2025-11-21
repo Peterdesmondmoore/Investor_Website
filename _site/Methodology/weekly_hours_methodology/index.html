@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Hours — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Weekly Hours (CES)</h1>
+      <p class="mt-2 text-slate-600 text-sm">Lead indicator of demand derived from <strong>Total Private</strong> and <strong>Manufacturing</strong> average weekly hours. Produces 3‑month change diagnostics, robust level z‑scores, a composite, EMA smoothing, 0–100 scaling, and regimes.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: Firms adjust hours before headcount; rising hours often precede hiring and production upturns.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We build a monthly signal from CES weekly hours for total private and manufacturing. After alignment and cleaning, we compute 3‑month changes and robust level z‑scores, average them into a composite, smooth the headline, scale to 0–100, and classify regimes indicating strength or softness in labor demand.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (BLS CES Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>CES0500000002</b> — Total Private: Average Weekly Hours (SA)</li>
+        <li><b>CES3000000002</b> — Manufacturing: Average Weekly Hours (SA)</li>
+      </ul>
+      <p class="leading-7 mt-3">Inputs are monthly. We require <code>date</code>, <code>series_id</code>, and <code>value</code> columns.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Data Handling & Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Types & dates:</b> Coerce numeric values; normalize <code>date</code> to month‑start timestamps.</li>
+          <li><b>Pivot & grid:</b> Wide pivot by <code>series_id</code>; align to <code>asfreq('MS')</code>.</li>
+          <li><b>Gaps:</b> Bounded forward‑fill <code>ffill(limit=2)</code>.</li>
+          <li><b>Fail‑fast:</b> raise if either hours series is fully missing after pivot.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Measures & Diagnostics</h2>
+      <div class="box text-sm">
+        <div class="italic">total_hours_chg_3m = Δ<sub>3m</sub>(Total Private Hours)</div>
+        <div class="italic mt-1">mfg_hours_chg_3m = Δ<sub>3m</sub>(Manufacturing Hours)</div>
+        <p class="mt-2">Composite of 3‑month changes and its 3‑month moving average summarise short‑run momentum.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Robust Rolling z‑scores)</h2>
+      <p class="leading-7">Levels are scaled with a median/MAD z‑score using an adaptive window.</p>
+      <div class="box text-sm">
+        <div class="italic">z<sub>t</sub>(x) = (x<sub>t</sub> − median<sub>W</sub>(x)) / (1.4826·MAD<sub>W</sub>(x)),\ W = min(24, max(8, ⌊0.8·N<sub>valid</sub>⌋))</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Composite, Smoothing & Regimes</h2>
+      <p class="leading-7">We average the two level z‑scores and derive regimes from the unsmoothed composite.</p>
+      <div class="box text-sm">
+        <div class="italic">Hours_Level_Composite<sub>z</sub> = mean( z(Total Private Hours), z(Manufacturing Hours) )</div>
+      </div>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li>3‑period EMA for the headline.</li>
+        <li>Min–max 0–100 scaling over observed history (NaN if flat).</li>
+        <li>Regimes: HOT &gt; +0.75, COOL &lt; −0.75 (unsmoothed composite).</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Output Panel</h2>
+      <div class="box text-xs">
+<pre><code>[
+  "total_private_hours","manufacturing_hours",
+  "total_hours_chg_3m","mfg_hours_chg_3m",
+  "Hours_Change_3m_Composite","Hours_Change_3m_Composite_ma3",
+  "total_hours_z","mfg_hours_z",
+  "Hours_Level_Composite_z","Hours_Level_Composite_Smoothed","Hours_Level_Composite_0_100",
+  "Weekly_Hours_Regime"
+]</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Expect monthly CES hours with columns: date, series_id, value
+# Align to MS grid; ffill(limit=2); compute 3m changes; robust_z() on levels; 
+# build composite, EMA smoothing, 0–100 scaling; classify regimes.
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">8. Interpretation & Use</h2>
+      <p class="leading-7">A <em>HOT</em> weekly‑hours regime indicates firming labor demand and near‑term production momentum; a <em>COOL</em> regime flags softening demand. Use with payroll growth and order‑book signals.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Weekly Hours signal specification.</footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market‑Implied Inflation Expectations — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    .kbd{border:1px solid #e5e7eb;padding:.1rem .35rem;border-radius:.35rem;background:#fff}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Market‑Implied Inflation Expectations</h1>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible signal that summarises <em>forward inflation expectations</em> inferred from TIPS breakevens. Built to complement the Fed Inflation signal by focusing on <strong>market pricing</strong> rather than realised CPI.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: CPI shows history; TIPS breakevens reveal forward expectations. Sources: FRED (T5YIE, T10YIE).</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We construct a monthly signal using FRED’s <b>T5YIE</b> (5‑Year Forward Inflation Expectation Rate) and <b>T10YIE</b> (10‑Year Breakeven Inflation Rate). Each is transformed to YoY and 3‑month annualised changes, standardised via robust rolling z‑scores, and combined into a <em>Market‑Implied Inflation Expectations (MIIE)</em> composite. Regimes map to <span class="font-semibold">RISING</span>, <span class="font-semibold">STABLE</span>, or <span class="font-semibold">FALLING</span> expectations. A comparison hook aligns MIIE with the <em>Fed Inflation</em> and <em>CPI vs PPI</em> signals.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (FRED Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>T5YIE</b> — 5‑Year Forward Inflation Expectation Rate (breakeven implied, % p.a.)</li>
+        <li><b>T10YIE</b> — 10‑Year Breakeven Inflation Rate (UST10 − TIPS10, % p.a.)</li>
+      </ul>
+      <p class="leading-7 mt-3">Both series are resampled to month‑end with bounded forward‑fill (≤2 months) to accommodate publication lags. Titles and last‑observation dates are captured for documentation.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Data Quality, Cleaning &amp; Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Recent availability check:</b> log last observation date; flag stale (&gt;62 days) inputs.</li>
+          <li><b>Bounded forward‑fill:</b> up to 2 months max; else mark as <code>missing_critical</code>.</li>
+          <li><b>Minimum history:</b> require ≥120 months coverage for robust transforms; otherwise adapt window (≥60 months) and emit a warning.</li>
+          <li><b>Outlier guard:</b> winsorise 0.5–99.5th percentiles before z‑scoring (configurable).</li>
+        </ul>
+      </div>
+      <p class="leading-7 mt-3">A <span class="font-mono">data_quality_flag</span> field records staleness, ffill counts, and window adaptations.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Component Transforms</h2>
+      <p class="leading-7">Given monthly series <span class="eq">x_t</span> in pct points:</p>
+      <div class="box text-sm">
+        <div class="eq">YoY(x)_t = x_t - x_{t-12}</div>
+        <div class="eq">Ann\;3m(x)_t = 4 \times (x_t - x_{t-3})</div>
+        <div class="eq">Level(x)_t = x_t</div>
+      </div>
+      <p class="leading-7 mt-3">Constructed components: <span class="italic">t5yie_level</span>, <span class="italic">t5yie_yoy</span>, <span class="italic">t5yie_ann3m</span>, <span class="italic">t10yie_level</span>, <span class="italic">t10yie_yoy</span>, <span class="italic">t10yie_ann3m</span>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Rolling z‑scores)</h2>
+      <p class="leading-7">Each component is scaled using a rolling window <span class="eq">W=120</span> months. Robust z‑scores use median/MAD; otherwise mean/std.</p>
+      <div class="box text-sm">
+        <div class="eq">z_t = \dfrac{x_t - \text{median}_{W}(x)}{1.4826\,\text{MAD}_{W}(x)} \quad \text{(robust)}</div>
+        <p class="mt-2">If insufficient history, use adaptive window (≥60m) and emit a warning.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Weighting &amp; Composite Construction</h2>
+      <p class="leading-7">Let <span class="eq">z^k_t</span> be the z‑score for component <span class="eq">k</span>. Default weights emphasise levels (forward expectation) with supporting momentum (YoY, 3m ann.). Missing inputs are re‑normalised out.</p>
+      <div class="box text-xs mt-3">
+<pre><code>{
+  "t5yie_level_z": 0.35, "t5yie_yoy_z": 0.15, "t5yie_ann3m_z": 0.10,
+  "t10yie_level_z": 0.30, "t10yie_yoy_z": 0.07, "t10yie_ann3m_z": 0.03
+}</code></pre>
+      </div>
+      <div class="box text-sm mt-3">
+        <div class="eq">MIIE_t = \sum_k w_k\, z^k_t,\quad \sum_k w_k = 1</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Scaling &amp; Regime Mapping</h2>
+      <p class="leading-7">We provide a bounded score (0–100) and categorical regimes for communication:</p>
+      <div class="box text-sm">
+        <div class="eq">Score_t = 100\times\dfrac{MIIE_t - \min_W MIIE}{\max_W MIIE - \min_W MIIE}</div>
+        <ul class="list-disc pl-6 mt-2">
+          <li><b>RISING</b>: z(MIIE)<sub>t</sub> ≥ 1.0 (expectations moving higher)</li>
+          <li><b>STABLE</b>: −0.5 &lt; z(MIIE)<sub>t</sub> &lt; 1.0</li>
+          <li><b>FALLING</b>: z(MIIE)<sub>t</sub> ≤ −0.5 (expectations moving lower)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Comparison Hooks</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Fed Inflation Signal:</b> Compare MIIE regime to composite inflation pressure; divergence suggests markets pricing a turn ahead of CPI.</li>
+          <li><b>CPI vs PPI:</b> If PPI &lt; CPI while MIIE is FALLING, it strengthens a disinflation narrative; the converse signals pressure.</li>
+        </ul>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">These hooks require only the other signals’ latest regime/score; no structural coupling is assumed.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Fetch (fredapi) → monthly end
+t5 = fred.get_series("T5YIE")
+t10 = fred.get_series("T10YIE")
+
+# Resample to month-end & bounded ffill (<=2)
+t5m = t5.resample("M").last().ffill(limit=2)
+t10m = t10.resample("M").last().ffill(limit=2)
+
+# Transforms (levels, YoY, 3m ann. in pct points)
+def ann_3m(s): return 4*(s - s.shift(3))
+components = {
+  "t5yie_level": t5m, "t5yie_yoy": t5m - t5m.shift(12), "t5yie_ann3m": ann_3m(t5m),
+  "t10yie_level": t10m, "t10yie_yoy": t10m - t10m.shift(12), "t10yie_ann3m": ann_3m(t10m),
+}
+
+# Robust rolling z-scores (W=120, fallback >=60)
+# Combine with weights → MIIE, then scale to 0–100 and map regime.
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Reproducibility, Audit &amp; Monitoring</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist FRED IDs, retrieval timestamps, resampling policy, and z‑score window.</li>
+        <li>Log cleaning (ffill count), staleness flags, and window adaptations.</li>
+        <li>Store panels: raw, transforms, z‑scores, contributions, composite, regimes.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">10. Interpretation &amp; Applications</h2>
+      <p class="leading-7">MIIE reflects how markets price medium‑ to long‑term inflation. <span class="italic">RISING</span> heightens the risk of tighter policy and higher real yields; <span class="italic">FALLING</span> supports a disinflationary bias. Use in synthesis with liquidity, credit, and growth signals.</p>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">11. Governance &amp; Change Control</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Quarterly review of components, thresholds, weights, and backtests.</li>
+        <li>Document rationale for changes; maintain semantic versioning.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly specification for the Market‑Implied Inflation Expectations signal.</footer>
+  </main>
+</body>
+</html>
