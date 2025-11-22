@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Macro Themes from CoT — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Macro Themes from CoT</h1>
+      <div class="mt-2 text-slate-600 text-sm">Daily macro-theme classifier built from sector-level CoT positioning, flows, and hedger behaviour. Identifies Inflation Impulse, Disinflation, Global Slowdown, and Supply Stress regimes from futures positioning.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This signal maps cross-market CoT positioning into intuitive macro themes. Using sector classifications (Energy, Metals, Ags, FX, Rates), speculative crowding, and hedger deep-short/deep-long behaviour, it defines four daily themes: <em>Inflation Impulse</em>, <em>Disinflation</em>, <em>Global Slowdown</em>, and <em>Supply Stress</em>. Each theme is triggered when specific sector-level breadth conditions are met, and the results are stored as boolean flags and an aggregated Active_Macro_Themes list.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Inputs</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>df_cot_signals</strong> — unified enriched CoT dataset.</li>
+        <li><strong>Spec_zscore, Hedger_zscore</strong> — speculative and commercial z-scores.</li>
+        <li><strong>crowded_long, crowded_short</strong> — speculative crowding flags.</li>
+        <li><strong>Commodity_Class / Classification / Sub-Classification / Commodity_SubClass</strong> — where available, used for sector mapping.</li>
+        <li><strong>Market_and_Exchange_Names</strong> — used as a fallback for sector classification and breadth counts.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Sector Classification</h2>
+      <p class="leading-7">Markets are mapped into macro sectors using metadata first and name-based heuristics second. Sectors are consistent with other CoT sector signals:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li>Energy</li>
+        <li>Metals (Precious &amp; Base)</li>
+        <li>Ags (Grains, Softs, Livestock)</li>
+        <li>FX</li>
+        <li>Rates</li>
+        <li>Other</li>
+      </ul>
+      <p class="leading-7 mt-3">This classification is used downstream to pivot speculative crowding and hedger pressure into sector-wide time series.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Hedger Deep Short / Long Flags</h2>
+      <p class="leading-7">Commercial hedger extremes are defined from their z-scores:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">hedger\_deep\_short = Hedger\_zscore ≤ −1.0</div>
+        <div class="eq">hedger\_deep\_long = Hedger\_zscore ≥ +1.0</div>
+      </div>
+      <p class="leading-7 mt-3">Deep shorts indicate aggressive supply hedging (e.g., producers selling forward), while deep longs indicate shortage or stress in physical markets (e.g., users hedging consumption risk).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Sector-Level Aggregation</h2>
+      <p class="leading-7">For each sector and report date, the following breadth metrics are computed:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><strong>spec_crowded_long_share</strong> — share of markets crowded long.</li>
+        <li><strong>spec_crowded_short_share</strong> — share of markets crowded short.</li>
+        <li><strong>hedger_deep_short_share</strong> — share of markets where hedgers are deeply short.</li>
+        <li><strong>hedger_deep_long_share</strong> — share of markets where hedgers are deeply long.</li>
+        <li><strong>avg_spec_zscore, avg_hedger_zscore</strong> — average z-scores for context.</li>
+      </ul>
+      <p class="leading-7 mt-3">These are then pivoted into sector-wide time series (Energy, Metals, Ags, etc.) to enable sector-specific threshold logic.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Overall Risk-On / Risk-Off Breadth</h2>
+      <p class="leading-7">Separately from sector detail, an overall Risk-On / Risk-Off tone is computed from global crowding:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">crowded\_long\_share = crowded\_long\_count / n\_markets</div>
+        <div class="eq">crowded\_short\_share = crowded\_short\_count / n\_markets</div>
+        <div class="eq">net\_tone = crowded\_long\_share − crowded\_short\_share</div>
+      </div>
+      <p class="leading-7 mt-3">This aligns the macro theme logic with a broad Risk-On / Risk-Off backdrop.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Theme Construction</h2>
+      <p class="leading-7">Four macro themes are defined by combining sector breadth and overall tone thresholds. Each is a boolean flag per day:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><strong>Inflation_Impulse</strong><br/><span class="text-sm text-slate-600">Specs crowded long in Energy and Metals, with hedgers deeply short in at least one of those sectors (supply-expansion hedging):</span>
+          <div class="box text-sm mt-2">
+            <div class="eq">cl\_energy ≥ 0.40 \wedge cl\_metals ≥ 0.30 \wedge (hd\_short\_energy ≥ 0.20 \vee hd\_short\_metals ≥ 0.20)</div>
+          </div>
+        </li>
+        <li><strong>Disinflation</strong><br/><span class="text-sm text-slate-600">Low broad speculative crowding and light energy/metals hedging (no strong inflation hedging pressure):</span>
+          <div class="box text-sm mt-2">
+            <div class="eq">cl\_total ≤ 0.20 \wedge cs\_total ≤ 0.25 \wedge hd\_short\_energy ≤ 0.20 \wedge hd\_short\_metals ≤ 0.20</div>
+          </div>
+        </li>
+        <li><strong>Global_Slowdown</strong><br/><span class="text-sm text-slate-600">Metals crowded short (industrial weakness) combined with a risk-off cluster:</span>
+          <div class="box text-sm mt-2">
+            <div class="eq">cs\_metals ≥ 0.35 \wedge (net\_tone ≤ −0.20 \wedge cs\_total ≥ 0.30)</div>
+          </div>
+        </li>
+        <li><strong>Supply_Stress</strong><br/><span class="text-sm text-slate-600">Hedgers deeply long in Energy or Ags, signalling physical shortage or stress:</span>
+          <div class="box text-sm mt-2">
+            <div class="eq">hd\_long\_energy ≥ 0.20 \vee hd\_long\_ags ≥ 0.20</div>
+          </div>
+        </li>
+      </ul>
+      <p class="leading-7 mt-3">Finally, an <strong>Active_Macro_Themes</strong> string is built per date by listing all active themes (or "None" if no conditions are met).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>df_theme = df_cot_signals.copy()
+df_theme["Report_Date"] = pd.to_datetime(df_theme["Report_Date"], errors="coerce")
+
+# Sector classification
+if "Sector" not in df_theme.columns:
+    df_theme["Sector"] = df_theme.apply(_classify_sector_theme, axis=1)
+
+# Hedger deep flags
+hz = pd.to_numeric(df_theme["Hedger_zscore"], errors="coerce")
+HEDGER_DEEP_SHORT_Z = -1.0
+HEDGER_DEEP_LONG_Z  =  1.0
+
+df_theme["hedger_deep_short"] = hz &lt;= HEDGER_DEEP_SHORT_Z
+    
+df_theme["hedger_deep_long"]  = hz &gt;= HEDGER_DEEP_LONG_Z
+
+# Sector-level aggregation
+group_cols = ["Report_Date", "Sector"]
+
+df_sector_theme = (
+    df_theme
+    .groupby(group_cols)
+    .agg(
+        n_markets=("Market_and_Exchange_Names", "nunique"),
+        spec_crowded_long_share=("crowded_long", "mean"),
+        spec_crowded_short_share=("crowded_short", "mean"),
+        hedger_deep_short_share=("hedger_deep_short", "mean"),
+        hedger_deep_long_share=("hedger_deep_long", "mean"),
+        avg_spec_zscore=("Spec_zscore", "mean"),
+        avg_hedger_zscore=("Hedger_zscore", "mean"),
+    )
+    .reset_index()
+)
+
+# Wide sector views
+cl = df_sector_theme.pivot(index="Report_Date", columns="Sector", values="spec_crowded_long_share")
+cs = df_sector_theme.pivot(index="Report_Date", columns="Sector", values="spec_crowded_short_share")
+hd_short = df_sector_theme.pivot(index="Report_Date", columns="Sector", values="hedger_deep_short_share")
+hd_long  = df_sector_theme.pivot(index="Report_Date", columns="Sector", values="hedger_deep_long_share")
+
+# Helper to get sector columns
+def _get_col(df, col_name):
+    if df is None or col_name not in df.columns:
+        return pd.Series(np.nan, index=df.index if df is not None else None)
+    return df[col_name]
+
+cl_energy   = _get_col(cl, "Energy")
+cl_metals   = _get_col(cl, "Metals")
+cl_ags      = _get_col(cl, "Ags")
+
+cs_metals   = _get_col(cs, "Metals")
+cs_energy   = _get_col(cs, "Energy")
+cs_ags      = _get_col(cs, "Ags")
+
+hd_short_energy = _get_col(hd_short, "Energy")
+hd_short_metals = _get_col(hd_short, "Metals")
+hd_short_ags    = _get_col(hd_short, "Ags")
+
+hd_long_energy  = _get_col(hd_long, "Energy")
+hd_long_ags     = _get_col(hd_long, "Ags")
+
+# Overall breadth
+df_overall = (
+    df_theme
+    .groupby("Report_Date")
+    .agg(
+        n_markets=("Market_and_Exchange_Names", "nunique"),
+        crowded_long_count=("crowded_long", "sum"),
+        crowded_short_count=("crowded_short", "sum"),
+    )
+    .reset_index()
+)
+
+df_overall["n_markets"] = df_overall["n_markets"].replace(0, np.nan)
+df_overall["crowded_long_share"]  = df_overall["crowded_long_count"]  / df_overall["n_markets"]
+df_overall["crowded_short_share"] = df_overall["crowded_short_count"] / df_overall["n_markets"]
+df_overall["net_tone"] = df_overall["crowded_long_share"] - df_overall["crowded_short_share"]
+
+# Align indices
+idx = cl.index.union(df_overall.set_index("Report_Date").index)
+
+
+df_overall = df_overall.set_index("Report_Date").reindex(idx)
+cl_energy   = cl_energy.reindex(idx)
+cl_metals   = cl_metals.reindex(idx)
+cl_ags      = cl_ags.reindex(idx)
+cs_metals   = cs_metals.reindex(idx)
+hd_short_energy = hd_short_energy.reindex(idx)
+hd_short_metals = hd_short_metals.reindex(idx)
+hd_short_ags    = hd_short_ags.reindex(idx)
+hd_long_energy  = hd_long_energy.reindex(idx)
+hd_long_ags     = hd_long_ags.reindex(idx)
+
+# Theme flags
+df_macro_themes_daily = pd.DataFrame(index=idx)
+df_macro_themes_daily.index.name = "Report_Date"
+
+cl_total = df_overall["crowded_long_share"]
+cs_total = df_overall["crowded_short_share"]
+net_tone = df_overall["net_tone"]
+
+# Inflation impulse
+df_macro_themes_daily["Inflation_Impulse"] = (
+    (cl_energy &gt;= 0.40) &amp;
+    (cl_metals &gt;= 0.30) &amp;
+    ((hd_short_energy &gt;= 0.20) | (hd_short_metals &gt;= 0.20))
+)
+
+# Disinflation
+df_macro_themes_daily["Disinflation"] = (
+    (cl_total &lt;= 0.20) &amp;
+    (cs_total &lt;= 0.25) &amp;
+    (hd_short_energy &lt;= 0.20) &amp;
+    (hd_short_metals &lt;= 0.20)
+)
+
+# Global slowdown
+risk_off_cluster = (
+    (net_tone &lt;= -0.20) &amp;
+    (cs_total &gt;= 0.30)
+)
+
+
+df_macro_themes_daily["Global_Slowdown"] = (
+    (cs_metals &gt;= 0.35) &amp; risk_off_cluster
+)
+
+# Supply stress
+df_macro_themes_daily["Supply_Stress"] = (
+    (hd_long_energy &gt;= 0.20) | (hd_long_ags &gt;= 0.20)
+)
+
+# Active theme list
+theme_cols = ["Inflation_Impulse", "Disinflation", "Global_Slowdown", "Supply_Stress"]
+
+
+def _active_theme_list(row: pd.Series) -&gt; str:
+    active = [name for name in theme_cols if bool(row.get(name, False))]
+    return ", ".join(active) if active else "None"
+
+
+df_macro_themes_daily["Active_Macro_Themes"] = df_macro_themes_daily.apply(_active_theme_list, axis=1)
+
+# Column-based frame
+
+df_macro_themes_daily = df_macro_themes_daily.reset_index()
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Inflation_Impulse</strong> — speculative longs and producer hedging in Energy/Metals point to an upswing in inflation-sensitive assets.</li>
+        <li><strong>Disinflation</strong> — subdued crowding and light hedging suggest easing inflation pressure and muted inflation narratives.</li>
+        <li><strong>Global_Slowdown</strong> — metals shorts and broad risk-off tone highlight weakening industrial demand and macro growth risk.</li>
+        <li><strong>Supply_Stress</strong> — hedger longs in Energy/Ags indicate physical tightness, supply disruptions, or weather/geo-political stress.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Thresholds are static and may require recalibration across cycles or as market composition evolves.</li>
+        <li>Sector classification via heuristics can mislabel niche or composite contracts.</li>
+        <li>Themes are binary flags and do not encode intensity; extensions could include z-scores or probability scores.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">10. Practical Use Cases</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Tag historical periods by dominant macro theme to study asset performance under each regime.</li>
+        <li>Use themes as conditioning variables in macro or cross-asset models (e.g., only trade certain strategies in specific themes).</li>
+        <li>Integrate the Active_Macro_Themes output into dashboards as a top-level macro narrative overlay.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Macro Themes from CoT signal.</footer>
+  </main>
+</body>
+</html>
