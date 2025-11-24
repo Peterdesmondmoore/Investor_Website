@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Single-Market CoT Diagnostics — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 960px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    code { background:#f6f8fa; padding:.15rem .35rem; border-radius:.35rem; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+  <header class="mb-10">
+    <h1 class="text-3xl font-semibold text-slate-900">Single-Market CoT Diagnostics</h1>
+    <p class="text-slate-600 mt-2 text-sm">
+      A structured framework for analysing futures positioning, flow, and reversal risk for an individual market,
+      with optional price overlays from yfinance.
+    </p>
+  </header>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">Abstract</h2>
+    <p class="leading-7">
+      The Single-Market CoT Diagnostics framework turns weekly Commitment of Traders (CoT) data into a compact,
+      trade-focused view for one market at a time. It combines net positioning, positioning stretch, recent flow,
+      and a composite reversal score with regime flags (crowding, squeeze risk, exhaustion risk, hedger extremes).
+      When available, daily prices from yfinance are aligned to CoT dates and displayed both as an overlay and as
+      a dedicated price panel, enabling visual inspection of how positioning regimes interact with price trends.
+    </p>
+  </section>
+
+  <div class="rule mb-10"></div>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">1. Objective</h2>
+    <p class="leading-7">
+      The goal is to answer: <em>“Who controls the market, how stretched are they, what is the recent flow doing,
+      and is there evidence of a tactical reversal setup?”</em> The tool is:
+    </p>
+    <ul class="list-disc pl-6 leading-7 mt-3">
+      <li><strong>Consistent</strong> across markets.</li>
+      <li><strong>Action-oriented</strong> for trading preparation.</li>
+      <li><strong>Price-aware</strong> through aligned futures or spot data.</li>
+    </ul>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">2. Inputs & Data Sources</h2>
+    <p class="leading-7 mb-3">The tool expects a per-market dataframe with fields such as:</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><strong>Report_Date</strong></li>
+      <li><strong>Spec_Net_%OI</strong>, <strong>Hedger_Net_%OI</strong></li>
+      <li><strong>Spec_zscore</strong>, <strong>Hedger_zscore</strong></li>
+      <li><strong>Flow_4w</strong> and optional <strong>Flow_4w_3w_ma</strong></li>
+      <li><strong>Binary regime flags</strong> including crowding, squeeze, exhaustion, hedger extremes, divergence</li>
+      <li><strong>Price</strong> or a <strong>ticker</strong> for yfinance pull</li>
+    </ul>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">3. Pre‑processing & Lookback</h2>
+    <p class="leading-7">
+      Data is sorted, coerced to datetime, and trimmed to a rolling window (default 52 weeks). This focuses the
+      visualisation on the most relevant trading conditions.
+    </p>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">4. Price Integration (yfinance)</h2>
+    <p class="leading-7">
+      If a ticker is supplied, daily prices are fetched, aligned to CoT dates, and forward‑filled. This places
+      positioning signals directly beside price behaviour.
+    </p>
+    <div class="box text-sm mt-3">
+      <pre><code>start = df["Report_Date"].min() - pd.Timedelta(days=10)
+end   = df["Report_Date"].max() + pd.Timedelta(days=2)
+data = yf.download(ticker, start=start, end=end, auto_adjust=True)
+price = data["Adj Close"]
+df = df.set_index("Report_Date")
+df["Price"] = price.reindex(df.index).ffill()</code></pre>
+    </div>
+  </section>
+
+  <div class="rule mb-10"></div>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">5. Panel 1 — Net % of Open Interest</h2>
+    <p class="leading-7">
+      Shows whether speculative traders or hedgers are in control. Price overlay adds context for whether crowding
+      occurs at highs, lows, or mid‑trend.
+    </p>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">6. Panel 2 — Positioning Stretch (Z‑Scores)</h2>
+    <p class="leading-7">
+      ±2 z‑score bands highlight extreme positioning. Shading makes stretched markets easy to identify.
+    </p>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">7. Panel 3 — 4‑Week Flow & Momentum</h2>
+    <p class="leading-7">
+      Tracks whether traders are adding to positions or backing off. Acceleration and fading markers provide early
+      indications of flow turning points.
+    </p>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">8. Panel 4 — Reversal Score & Regime Flags</h2>
+    <p class="leading-7">
+      Combines stretch, crowding, flow, and hedger signals into a reversal score, with layered binary flags beneath
+      it to highlight tactical setup conditions.
+    </p>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">9. Panel 5 — Price with Regime Signals</h2>
+    <p class="leading-7">
+      When price is available, squeeze and exhaustion risk points are marked directly on the price trend. This
+      enables visual back‑testing of whether CoT conditions coincide with turning points.
+    </p>
+  </section>
+
+  <div class="rule mb-10"></div>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">10. Implementation Sketch</h2>
+    <div class="box text-sm mt-3">
+      <pre><code>df = df_signal.copy()
+df["Report_Date"] = pd.to_datetime(df["Report_Date"])
+if ticker is not None:
+    price = self._get_yf_price_series(ticker, start, end)
+    df = df.set_index("Report_Date")
+    df["Price"] = price.reindex(df.index).ffill()
+    df = df.reset_index()
+cutoff = df["Report_Date"].max() - pd.Timedelta(weeks=self.lookback_weeks)
+df_plot = df[df["Report_Date"] >= cutoff]</code></pre>
+    </div>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">11. Interpretation & Trading Use</h2>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Use extremes and flow shifts to avoid poor entries.</li>
+      <li>Monitor reversal_score spikes for tactical setups.</li>
+      <li>Use squeeze/exhaustion regimes for risk management.</li>
+      <li>Compare markets consistently using the same structure.</li>
+    </ul>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">12. Limitations & Extensions</h2>
+    <ul class="list-disc pl-6 leading-7">
+      <li><strong>Reporting lag</strong> — CoT data is weekly and delayed.</li>
+      <li><strong>Persistent extremes</strong> — trends can sustain crowded regimes.</li>
+      <li><strong>Market depth</strong> — thinner markets create noisier signals.</li>
+    </ul>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">13. Full Panel Logic Summary</h2>
+    <ul class="list-disc pl-6 leading-7">
+      <li><strong>Panel 1:</strong> Net positioning dominance.</li>
+      <li><strong>Panel 2:</strong> Positioning stretch via z‑scores.</li>
+      <li><strong>Panel 3:</strong> Positioning flow and momentum.</li>
+      <li><strong>Panel 4:</strong> Reversal conditions + regime states.</li>
+      <li><strong>Panel 5:</strong> Price alignment with tactical signals.</li>
+    </ul>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-2xl font-semibold mb-3">14. Recommended Enhancements</h2>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Forward‑return tagging (1–4w) for empirical validation.</li>
+      <li>Regime shading on price for visual back‑testing.</li>
+      <li>Long/short setup rules integrated into output.</li>
+      <li>Macro or volatility overlays for multi‑factor signals.</li>
+    </ul>
+  </section>
+
+  <footer class="text-sm text-slate-500 border-t pt-6 mt-10 mb-10">
+    © 2025. Single‑Market CoT Diagnostics Methodology.
+  </footer></h2>
+    <ul class="list-disc pl-6 leading-

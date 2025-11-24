@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CoT Early Warning Index — Methodology</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+ body{font-family:"Merriweather",serif}
+ h1,h2,h3{font-family:"Inter",sans-serif}
+ .container{max-width:960px}
+ .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+ .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+ code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+</style>
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+<h1 class="text-3xl font-semibold text-slate-900">CoT Early Warning Index</h1>
+<p class="text-slate-600 mt-2 text-sm">A cross‑market instability signal detecting extremes, crowding, squeeze/exhaustion pressure, and broad risk accumulation in futures positioning.</p>
+</header>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">Abstract</h2>
+<p class="leading-7">The Early Warning Index aggregates multiple instability dimensions across global futures markets: extreme positioning, crowded trades, and squeeze/exhaustion risks. These elements are normalised and combined to identify elevated stress conditions, signalling the potential for volatility clusters, forced unwinds, and cross‑asset regime shifts.</p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">1. Inputs</h2>
+<ul class="list-disc pl-6 leading-7">
+ <li><strong>df_cot_signals</strong> — enriched unified CoT dataset.</li>
+ <li><strong>Spec_zscore, Hedger_zscore</strong> — primary z‑score measures.</li>
+ <li><strong>crowded_long / crowded_short</strong> — crowding flags.</li>
+ <li><strong>squeeze_risk / exhaustion_risk</strong> — tactical reversal pressure.</li>
+ <li><strong>Market_and_Exchange_Names</strong> — breadth denominator.</li>
+</ul>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">2. Extreme Positioning Flags</h2>
+<p class="leading-7">Extreme conditions are identified using ±2σ thresholds:</p>
+<div class="box text-sm mt-3">
+<div>spec_extreme = |Spec_zscore| ≥ 2</div>
+<div>hedger_extreme = |Hedger_zscore| ≥ 2</div>
+</div>
+<p class="leading-7 mt-3">These identify statistically significant deviations indicative of stress, imbalance, or unsustainable positioning.</p>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">3. Daily Aggregation</h2>
+<p class="leading-7">Counts and shares are computed across all markets:</p>
+<ul class="list-disc pl-6 leading-7 mt-3">
+ <li>spec_extreme_count</li>
+ <li>hedger_extreme_count</li>
+ <li>any_extreme_count</li>
+ <li>crowded_long_count / crowded_short_count</li>
+ <li>squeeze_count / exhaustion_count</li>
+</ul>
+<p class="leading-7 mt-3">All counts are normalised into breadth shares by dividing by the number of active markets.</p>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">4. Normalisation</h2>
+<p class="leading-7">A robust z‑score is applied to each breadth measure to create stable, comparable indicators:</p>
+<div class="box text-sm mt-3">
+<div>z = (X − median(X)) / (1.4826 × MAD)</div>
+</div>
+<p class="leading-7 mt-3">Robust statistics protect the signal from fat‑tailed shocks and structural drift in market composition.</p>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">5. Composite Early Warning Index</h2>
+<p class="leading-7">The composite index averages the core instability dimensions:</p>
+<div class="box text-sm mt-3">
+<div>Early_Warning_Index = mean(z_extremes, z_crowding, z_squeeze, z_exhaustion)</div>
+</div>
+<p class="leading-7 mt-3">Higher values reflect broad, multi‑factor pressure consistent with rising reversal or volatility risk.</p>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">6. Regime Labels</h2>
+<div class="box text-sm mt-3">
+<div>x ≥ 1.0 → High Alert</div>
+<div>0.5 ≤ x &lt; 1.0 → Elevated</div>
+<div>−0.5 &lt; x &lt; 0.5 → Normal</div>
+<div>x ≤ −0.5 → Subdued</div>
+</div>
+<p class="leading-7 mt-3">High Alert phases often precede VAR spikes, deleveraging cycles, or trend exhaustion.</p>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">7. Implementation (Python)</h2>
+<div class="box text-sm"><pre><code># Prep and validation
+spec_z = pd.to_numeric(df_ew["Spec_zscore"], errors="coerce")
+hedger_z = pd.to_numeric(df_ew["Hedger_zscore"], errors="coerce")
+
+# Extreme flags
+df_ew["spec_extreme"] = spec_z.abs() >= 2.0
+df_ew["hedger_extreme"] = hedger_z.abs() >= 2.0
+df_ew["any_extreme"] = df_ew["spec_extreme"] | df_ew["hedger_extreme"]
+
+# Daily aggregation
+df_cot_early_warning_daily = df_ew.groupby("Report_Date").agg(...)
+
+# Robust z
+for name in [...]:
+    df_cot_early_warning_daily[f"{name}_z"] = _robust_z(df_cot_early_warning_daily[name])
+
+# Composite index
+df_cot_early_warning_daily["Early_Warning_Index"] = \
+ df_cot_early_warning_daily[components].mean(axis=1)
+</code></pre></div>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">8. Interpretation</h2>
+<ul class="list-disc pl-6 leading-7">
+ <li><strong>High Alert</strong> — broad instability, positioning extremes, high squeeze/exhaustion probability.</li>
+ <li><strong>Elevated</strong> — increasing risk of rotation, volatility or unwind.</li>
+ <li><strong>Normal</strong> — typical market functioning.</li>
+ <li><strong>Subdued</strong> — markets unusually aligned and calm.</li>
+</ul>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">9. Limitations</h2>
+<ul class="list-disc pl-6 leading-7">
+ <li>CoT reporting lag may delay early-warning detection.</li>
+ <li>Extremes can persist in trending environments.</li>
+ <li>Thin markets can overweight certain signals.</li>
+</ul>
+</section>
+
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">10. Practical Use Cases</h2>
+<ul class="list-disc pl-6 leading-7">
+ <li>Portfolio VAR adjustments and hedging overlays.</li>
+ <li>Identifying cross‑asset stress build‑up.</li>
+ <li>Timing reversals in speculative positioning.</li>
+ <li>Macro regime transition monitoring.</li>
+</ul>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">© 2025. Methodology reference for the Early Warning Index.</footer>
+
+</main>
+</body>
+</html>

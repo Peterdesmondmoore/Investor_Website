@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoT Market Tone — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">CoT Market Tone</h1>
+      <div class="mt-2 text-slate-600 text-sm">A macro-level breadth and sentiment indicator derived from speculative crowding across all futures markets in the CoT dataset. Measures systemic Risk-On vs Risk-Off tone using crowding breadth, net tone, and robust z-score normalisation.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">The CoT Market Tone signal aggregates daily positioning across all markets to determine whether speculative futures activity is broadly Risk-On or Risk-Off. By comparing crowded-long vs crowded-short breadth, constructing a net tone index, and applying robust z-score scaling, the model classifies market tone into regimes ranging from Strong Risk-On to Strong Risk-Off.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Inputs</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>df_cot_signals</strong> — unified enriched CoT dataset with market-level signals.</li>
+        <li><strong>crowded_long / crowded_short</strong> flags — indicate extreme speculative positioning.</li>
+        <li><strong>Market_and_Exchange_Names</strong> — used to count unique markets per report date.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Daily Aggregation: Breadth Metrics</h2>
+      <p class="leading-7">For each CoT reporting date, the model aggregates market-level information to compute Risk-On vs Risk-Off breadth:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><strong>crowded_long_count:</strong> number of markets flagged crowded long.</li>
+        <li><strong>crowded_short_count:</strong> number of markets flagged crowded short.</li>
+        <li><strong>n_markets:</strong> number of unique markets in the dataset.</li>
+      </ul>
+      <p class="leading-7 mt-3">These are used to compute:</p>
+      <div class="box text-sm">
+        <div class="eq">crowded\_long\_share = crowded\_long\_count / n\_markets</div>
+        <div class="eq">crowded\_short\_share = crowded\_short\_count / n\_markets</div>
+        <div class="eq">net\_tone = crowded\_long\_share − crowded\_short\_share</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Robust Z-Score Normalisation</h2>
+      <p class="leading-7">A robust z-score is applied to the daily net tone to stabilise the signal and reduce sensitivity to outliers:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z\_{rob}(X) = \dfrac{X − median(X)}{1.4826 · MAD(X)}</div>
+      </div>
+      <p class="leading-7 mt-3">This transformation ensures that extreme values, skewed distributions, and structural shifts do not distort the market tone classification.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Regime Classification</h2>
+      <p class="leading-7">The robust z-score is mapped to qualitative market regimes:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z ≥ 1.0 → Strong Risk-On</div>
+        <div class="eq">0.5 ≤ z < 1.0 → Risk-On</div>
+        <div class="eq">−0.5 < z < 0.5 → Neutral</div>
+        <div class="eq">−1.0 < z ≤ −0.5 → Risk-Off</div>
+        <div class="eq">z ≤ −1.0 → Strong Risk-Off</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>df_tone = df_cot_signals.copy()
+df_tone["Report_Date"] = pd.to_datetime(df_tone["Report_Date"], errors="coerce")
+
+# Aggregation
+df_cot_tone_daily = (
+    df_tone.groupby("Report_Date").agg(
+        n_markets=("Market_and_Exchange_Names", "nunique"),
+        crowded_long_count=("crowded_long", "sum"),
+        crowded_short_count=("crowded_short", "sum"),
+    ).reset_index()
+)
+
+df_cot_tone_daily["crowded_long_share"] = df_cot_tone_daily["crowded_long_count"] / df_cot_tone_daily["n_markets"]
+df_cot_tone_daily["crowded_short_share"] = df_cot_tone_daily["crowded_short_count"] / df_cot_tone_daily["n_markets"]
+
+df_cot_tone_daily["net_tone"] = df_cot_tone_daily["crowded_long_share"] - df_cot_tone_daily["crowded_short_share"]
+
+# Robust z-score
+med = df_cot_tone_daily["net_tone"].median()
+mad = (df_cot_tone_daily["net_tone"] - med).abs().median()
+df_cot_tone_daily["CoT_Market_Tone_z"] = (df_cot_tone_daily["net_tone"] - med) / (1.4826 * mad)
+
+# Regimes
+def _tone_label(z):
+    if pd.isna(z): return "Unknown"
+    if z >= 1.0: return "Strong Risk-On"
+    if z >= 0.5: return "Risk-On"
+    if z > -0.5: return "Neutral"
+    if z > -1.0: return "Risk-Off"
+    return "Strong Risk-Off"
+
+df_cot_tone_daily["CoT_Market_Tone_Regime"] = df_cot_tone_daily["CoT_Market_Tone_z"].apply(_tone_label)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Risk-On tone</strong> indicates speculative appetite and broad directional alignment in long positioning.</li>
+        <li><strong>Risk-Off tone</strong> reflects defensive or uncertain market behaviour with increased short positioning breadth.</li>
+        <li><strong>Neutral tone</strong> signals a balanced speculative environment lacking strong macro conviction.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Breadth measures may mask sector‑specific divergences.</li>
+        <li>Some markets have thin liquidity, which can distort crowding flags.</li>
+        <li>Static regime thresholds may not reflect structural shifts in futures participation.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Practical Use Cases</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Detect broad speculative sentiment shifts for macro allocation.</li>
+        <li>Combine with volatility or yield‑curve signals to confirm risk regime transitions.</li>
+        <li>Use as an input to multi‑factor macro composites or tactical models.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

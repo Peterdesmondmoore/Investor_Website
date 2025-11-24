@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Signal Map</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #10152a 0%, #050712 40%, #000000 100%);
+    }
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+    #graph {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+    .node circle {
+      stroke: #333;
+      stroke-width: 1px;
+      transition: stroke 0.25s ease, stroke-width 0.25s ease, opacity 0.25s ease;
+    }
+    .node text {
+      font-size: 10px;
+      pointer-events: none;
+      fill: #e5e9ff;
+    }
+    .link {
+      stroke: #6f7ba5;
+      stroke-opacity: 0.4;
+      transition: stroke 0.25s ease, stroke-width 0.25s ease, stroke-opacity 0.25s ease;
+    }
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(5, 10, 30, 0.92);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      line-height: 1.4;
+      max-width: 260px;
+      opacity: 0;
+      border: 1px solid rgba(120, 198, 255, 0.6);
+      box-shadow: 0 0 12px rgba(80, 170, 255, 0.4);
+      backdrop-filter: blur(4px);
+      transition: opacity 0.15s ease-out;
+      z-index: 30;
+    }
+    #controls {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(5, 10, 30, 0.9);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      border: 1px solid rgba(120, 198, 255, 0.5);
+      color: #e5e9ff;
+      z-index: 40;
+      backdrop-filter: blur(6px);
+    }
+    #controls label {
+      display: block;
+      margin-bottom: 3px;
+      cursor: pointer;
+    }
+    #controls .title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .node.highlight circle {
+      stroke: #ff9800;
+      stroke-width: 3px;
+      filter: drop-shadow(0 0 6px rgba(255, 152, 0, 0.9));
+    }
+    .link.highlight {
+      stroke: #ffb347;
+      stroke-width: 3px;
+      stroke-opacity: 0.95;
+    }
+    .node.dimmed circle {
+      opacity: 0.18;
+    }
+    .link.dimmed {
+      stroke-opacity: 0.12;
+    }
+  </style>
+</head>
+<body>
+  <!-- Futuristic animated background -->
+  <canvas id="bg"></canvas>
+
+  <!-- Main signal graph -->
+  <svg id="graph"></svg>
+  <div id="tooltip" class="tooltip"></div>
+  <div id="controls">
+    <div class="title">Filter</div>
+    <label><input type="checkbox" data-filter="signals" checked> Signals</label>
+    <label><input type="checkbox" data-filter="groups" checked> Groups</label>
+    <label><input type="checkbox" data-filter="outputs" checked> Outputs</label>
+    <label><input type="checkbox" data-filter="cot" checked> CoT nodes</label>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    // =========================
+    // FUTURISTIC BACKGROUND (animated particle grid)
+    // =========================
+    (function initBackground() {
+      const canvas = document.getElementById('bg');
+      const ctx = canvas.getContext('2d');
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let particles = [];
+      const GRID_SPACING = 80;
+      const MAX_OFFSET = 18;
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width * window.devicePixelRatio;
+        canvas.height = height * window.devicePixelRatio;
+        ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
+        buildParticles();
+      }
+
+      function buildParticles() {
+        particles = [];
+        const cols = Math.ceil(width / GRID_SPACING) + 2;
+        const rows = Math.ceil(height / GRID_SPACING) + 2;
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < rows; j++) {
+            const baseX = i * GRID_SPACING;
+            const baseY = j * GRID_SPACING;
+            particles.push({
+              bx: baseX,
+              by: baseY,
+              x: baseX + (Math.random() - 0.5) * MAX_OFFSET,
+              y: baseY + (Math.random() - 0.5) * MAX_OFFSET,
+              phase: Math.random() * Math.PI * 2,
+              speed: 0.001 + Math.random() * 0.002
+            });
+          }
+        }
+      }
+
+      function draw(time) {
+        ctx.clearRect(0, 0, width, height);
+
+        // subtle glow wash
+        const grad = ctx.createRadialGradient(
+          width * 0.5,
+          height * 0.2,
+          0,
+          width * 0.5,
+          height * 0.5,
+          Math.max(width, height)
+        );
+        grad.addColorStop(0, 'rgba(80, 170, 255, 0.11)');
+        grad.addColorStop(0.4, 'rgba(32, 60, 120, 0.14)');
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        // update & draw particles
+        ctx.lineWidth = 0.3;
+        ctx.strokeStyle = 'rgba(120, 198, 255, 0.3)';
+        ctx.fillStyle = 'rgba(173, 216, 255, 0.85)';
+
+        // precompute time factor
+        const t = time || 0;
+
+        // animate particles
+        for (const p of particles) {
+          const wobble = Math.sin(p.phase + t * p.speed) * MAX_OFFSET * 0.3;
+          const wobbleY = Math.cos(p.phase + t * p.speed * 1.2) * MAX_OFFSET * 0.25;
+          p.x = p.bx + wobble;
+          p.y = p.by + wobbleY;
+        }
+
+        // draw connecting lines (short range)
+        const maxDist = GRID_SPACING * 1.15;
+        for (let i = 0; i < particles.length; i++) {
+          const a = particles[i];
+          for (let j = i + 1; j < particles.length; j++) {
+            const b = particles[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < maxDist) {
+              const alpha = 0.15 * (1 - dist / maxDist);
+              ctx.strokeStyle = `rgba(120, 198, 255, ${alpha})`;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // draw points
+        for (const p of particles) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 1.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      requestAnimationFrame(draw);
+    })();
+
+    // =========================
+    // DATA (with example hover fields)
+    // =========================
+    const nodes = [
+      { id: "macro_composite", type: "composite", label: "Overarching Macro Composite",
+        description: "Top-level blend of all macro and CoT groups.",
+        regime: "Cautious Neutral"
+      },
+
+      { id: "growth_cycle_group", type: "group", label: "Growth & Cycle", description: "Growth direction is the primary driver of risk assets and cyclical rotations." },
+      { id: "inflation_group", type: "group", label: "Inflation", description: "Inflation sets the direction of monetary policy → affects yields, FX, equities, and credit." },
+      { id: "labor_group", type: "group", label: "Labour Market", description: "The labour market is one of the Fed’s core constraints; it leads consumption and inflation." },
+      { id: "liquidity_monetary_group", type: "group", label: "Liquidity & Monetary", description: "Liquidity drives asset multiples, credit spreads, and volatility." },
+      { id: "credit_stress_group", type: "group", label: "Credit Stress", description: "Credit deteriorates before recessions and risk-off episodes." },
+      { id: "sentiment_positioning_group", type: "group", label: "Sentiment/Positioning", description: "Helps anticipate near-term reversals, squeezes, or extensions." },
+      { id: "global_macro_group", type: "group", label: "Global Macro", description: "Global cycles and currency shifts often lead commodity and equity regimes." },
+      { id: "commodity_industrial_group", type: "group", label: "Commodity/Industrial", description: "Great forward signals for manufacturing cycles and risk appetite." },
+      { id: "housing_consumer_group", type: "group", label: "Housing & Consumer", description: "Households drive 70% of U.S. GDP; trends here anchor long-cycle turns." },
+      { id: "technical_crossasset_group", type: "group", label: "Technical/Cross-Asset", description: "Gives immediate read on trend strength and turning points." },
+
+      // --- Signals with methodology links ---
+      { id: "fed_inflation_signal.html", type: "signal", label: "US Inflation Signal",
+        source: "FRED",
+        purpose: "To measure inflation pressure from multiple data sources and classify the regime as HOT, NEUTRAL, or COOL for policy risk assessment." },
+
+      { id: "wage_growth_and_inflation_methodology.html", type: "signal", label: "Wage Growth Composite",
+        source: "BLS",
+        purpose: "To track wage inflation pressure and labor market tightness for identifying persistent inflation risk or disinflationary relief." },
+
+      { id: "Durable_goods_capex_intent_methodology.html", type: "signal", label: "Durables / Capex Intent",
+        source: "FRED",
+        purpose: "To infer forward business investment trends and detect expansion, neutral, or contraction phases in capital expenditure cycles." },
+
+      { id: "labor_market_tightness_methodology.html", type: "signal", label: "Labor Market Tightness",
+        source: "BLS",
+        purpose: "To assess labor market tightness by tracking quits, layoffs, and job openings for identifying wage pressure and hiring frictions." },
+
+      { id: "weekly_hours_methodology.html", type: "signal", label: "Average Weekly Hours",
+        source: "BLS",
+        purpose: "To provide a lead indicator of labor demand, as firms adjust hours before headcount changes." },
+
+      { id: "Federal_Reserve_Liquidity_Composite.html", type: "signal", label: "Fed Liquidity Composite",
+        source: "FRED",
+        purpose: "To track Fed liquidity conditions by blending M2, balance sheet channels, and ON RRP into expansion, neutral, or contraction regimes." },
+
+      { id: "yield_curve_slope_methodology.html", type: "signal", label: "Yield Curve Slope",
+        source: "FRED",
+        purpose: "To track whether the economy is entering a recovery, staying neutral, or heading toward stress by reading the shape of the yield curve." },
+
+      { id: "US_Treasury_Yield_Curve_Slope.html", type: "signal", label: "US Treasury Yield Curve Slope (GS10-FEDFUNDS)",
+        source: "FRED",
+        purpose: "To derive a level-trend regime signal from 10Y-FFR spread using transparent thresholds and steepening tests for risk asset classification." },
+
+      { id: "credit_spreads_methodology.html", type: "signal", label: "Credit Spreads",
+        source: "FRED",
+        purpose: "To measure corporate funding stress through ICE BofA option-adjusted spreads and identify easy, normal, tightening, or stressed credit regimes." },
+
+      { id: "financial_stress_composite_methodology.html", type: "signal", label: "Financial Stress Composite",
+        source: "FRED",
+        purpose: "To assess market stress levels by integrating credit spreads, yield-curve inversion, and systemic stress indicators." },
+
+      { id: "usd_index_signal.html", type: "signal", label: "USD Index",
+        source: "FRED",
+        purpose: "To derive a macro-directional risk signal from the Broad U.S. Dollar Index for FX strategies and commodity risk interpretation." },
+
+      { id: "vix_signal_methodology.html", type: "signal", label: "Market Volatility (VIX)",
+        source: "CBOE",
+        purpose: "To capture option-implied risk sentiment from S&P 500 volatility and classify regimes from calm to crisis conditions." },
+
+      { id: "Consumer_Sentiment.html", type: "signal", label: "UMich Sentiment",
+        source: "FRED",
+        purpose: "To transform consumer sentiment into a monthly demand signal capturing relative optimism or pessimism with momentum context." },
+
+      { id: "Cross_Sector_Positioning_Pressure.html", type: "signal", label: "CoT Cross-Sector Positioning",
+        source: "CFTC",
+        purpose: "To aggregate market-level CoT positioning into macro sectors for identifying speculative crowding and unwind risk." },
+
+      { id: "Squeeze_Exhaustion_Targets.html", type: "signal", label: "CoT Squeeze / Exhaustion",
+        source: "CFTC",
+        purpose: "To measure how broadly squeeze and exhaustion conditions appear across futures markets for tactical reversal signals." },
+
+      { id: "specs_vs_hedgers_divergence_methodology.html", type: "signal", label: "Specs vs Hedgers",
+        source: "CFTC",
+        purpose: "To capture positioning tension between speculators and hedgers for highlighting periods of potential reversal and unstable market structure." },
+
+      { id: "single_market_cot_methodology.html", type: "signal", label: "Gold CoT Signal",
+        source: "CFTC",
+        purpose: "To analyze positioning, flow, and reversal risk for gold futures to support precious metals tactical decisions." },
+
+      { id: "single_market_cot_methodology.html", type: "signal", label: "Silver CoT Signal",
+        source: "CFTC",
+        purpose: "To analyze positioning, flow, and reversal risk for silver futures to support precious metals tactical decisions." },
+
+      { id: "single_market_cot_methodology.html", type: "signal", label: "Copper CoT Signal",
+        source: "CFTC",
+        purpose: "To analyze positioning, flow, and reversal risk for copper futures to support industrial metals tactical decisions." },
+
+      { id: "credit_conditions_methodology.html", type: "signal", label: "Credit Conditions",
+        source: "FRED",
+        purpose: "To proxy credit conditions by combining spread-level stress from corporate bond markets with equity volatility for assessing funding conditions." },
+
+      { id: "employment_composition_methodology.html", type: "signal", label: "Employment Composition",
+        source: "BLS",
+        purpose: "To construct a monthly index of labor market health from participation, employment-population ratio, and unemployment for identifying market slack." },
+
+      { id: "housing_lead_methodology.html", type: "signal", label: "Housing Lead",
+        source: "FRED",
+        purpose: "To blend forward indicators of residential activity with mortgage rate constraints for anticipating housing cycle turns." },
+
+      { id: "industrial_production_signal.html", type: "signal", label: "Industrial Production",
+        source: "FRED",
+        purpose: "To combine industrial demand and mining supply pressure for generating cyclical and metals exposure signals." },
+
+      { id: "m_2_money_supply.html", type: "signal", label: "M2 Money Supply",
+        source: "FRED",
+        purpose: "To derive a macro liquidity signal from M2 growth and momentum for precious metals and cyclical risk applications." },
+
+      { id: "job_flows_labor_methodology.html", type: "signal", label: "Job Flows & Labor Dynamism",
+        source: "BLS",
+        purpose: "To track firm dynamism and hiring appetite through gross job gains and losses for identifying labor market deterioration." },
+
+      { id: "private_credit_impulse_methodology.html", type: "signal", label: "Private Credit Impulse",
+        source: "FRED",
+        purpose: "To quantify acceleration or deceleration in private-sector credit growth for identifying credit regime changes." },
+
+      { id: "Real_Interest_Rate_Trend_Signal.html", type: "signal", label: "Real Interest Rate",
+        source: "FRED",
+        purpose: "To derive market regime signals from the 10-year real yield for aligning monetary conditions with macro interpretation." },
+
+      { id: "energy_adjusted_metals_tailwind_methodology.html", type: "signal", label: "Energy-Adjusted Metals Tailwind",
+        source: "FRED",
+        purpose: "To extract copper-specific demand residual after controlling for energy and USD to identify metals demand tailwinds." },
+
+      { id: "inflation_term_structure_methodology.html", type: "signal", label: "Inflation Term Structure",
+        source: "FRED",
+        purpose: "To blend breakeven curve slope and real yields for classifying reflation, neutral, or disinflation regimes." },
+
+      { id: "labour_market_momentum_methodology.html", type: "signal", label: "Labour Market Momentum",
+        source: "FRED",
+        purpose: "To measure labour market strength by combining jobless claims trends with payroll growth for identifying tightening or softening dynamics." },
+
+      { id: "sectoral_employment_methodology.html", type: "signal", label: "Sectoral Employment Diffusion",
+        source: "BLS",
+        purpose: "To track breadth and momentum of payroll growth across sectors for anticipating durable expansions or slowdowns." },
+
+      { id: "underemployment_risk_methodology.html", type: "signal", label: "Underemployment Risk",
+        source: "BLS",
+        purpose: "To construct a stress indicator from U-6 underutilization and unemployment duration for identifying labor market slack." },
+
+      { id: "market_implied_inflation_signal.html", type: "signal", label: "Market-Implied Inflation",
+        source: "FRED",
+        purpose: "To summarize forward inflation expectations from TIPS breakevens for identifying rising, stable, or falling expectations." },
+
+      { id: "policy_relevant_inflation_pce_methodology.html", type: "signal", label: "Policy-Relevant Inflation (PCE)",
+        source: "FRED",
+        purpose: "To combine headline and core PCE inflation for mirroring the Fed's policy focus with hot, neutral, or cool regimes." },
+
+      { id: "US_CPI_vs_PPI_Divergence_Inflation.html", type: "signal", label: "CPI vs PPI Divergence",
+        source: "FRED",
+        purpose: "To exploit producer-consumer price divergence for detecting inflationary pressure and regime transitions." },
+
+      { id: "Financial_Stress.html", type: "signal", label: "Financial Stress Index (STLFSI4)",
+        source: "FRED",
+        purpose: "To convert the St. Louis Fed's composite financial stress index into a weekly risk-on/risk-off classifier using robust z-score and regime rules." },
+
+      { id: "Forward_Indicators_Economic_Cycles.html", type: "signal", label: "Sector Flow & Momentum",
+        source: "CFTC",
+        purpose: "To aggregate 4-week speculative flows across futures sectors for identifying economic cycle dynamics and turning points." },
+
+      { id: "Global_Risk_OnOff_Positioning_Tone.html", type: "signal", label: "CoT Market Tone",
+        source: "CFTC",
+        purpose: "To measure systemic Risk-On vs Risk-Off tone using speculative crowding breadth across all futures markets." },
+
+      { id: "Hedger_Pressure_Indicator.html", type: "signal", label: "Hedger Pressure",
+        source: "CFTC",
+        purpose: "To capture commercial hedger sentiment for identifying supply expansion stress or physical shortage signals." },
+
+      { id: "Labor_Market_Turnover.html", type: "signal", label: "Labor Market Turnover Differential",
+        source: "FRED",
+        purpose: "To gauge labor market tightness by comparing worker quits to employer layoffs for identifying confidence and slack." },
+
+      { id: "Manufactureres_new_goods.html", type: "signal", label: "Durable Goods ex-Transportation",
+        source: "FRED",
+        purpose: "To track momentum in core U.S. manufacturing orders for identifying capex trends without transportation volatility." },
+
+      { id: "Portfolio_Level_Early_Warning_System.html", type: "signal", label: "CoT Early Warning Index",
+        source: "CFTC",
+        purpose: "To detect cross-market instability through extremes, crowding, and squeeze/exhaustion pressure for volatility cluster warnings." },
+
+      { id: "Regime_Specific_Macro_Themes.html", type: "signal", label: "Macro Themes from CoT",
+        source: "CFTC",
+        purpose: "To map cross-market positioning into macro themes identifying inflation impulse, disinflation, global slowdown, and supply stress." },
+
+      { id: "output_macro_reco", type: "output", label: "Macro Recommendation",
+        description: "Top-down stance (e.g., Cautious Neutral, Risk-On, Risk-Off)." },
+      { id: "output_precious_metals", type: "output", label: "Precious Metals Recs",
+        description: "Gold and silver tilt using macro + CoT." },
+      { id: "output_industrial_metals", type: "output", label: "Industrial Metals Recs",
+        description: "Copper and broader industrial metals tilt." }
+    ];
+
+    // Link importance: higher = thicker
+    const links = [
+      { source: "fed_inflation_signal.html", target: "inflation_group", importance: 1.2 },
+      { source: "wage_growth_and_inflation_methodology.html", target: "inflation_group", importance: 1.2 },
+      { source: "inflation_term_structure_methodology.html", target: "inflation_group", importance: 1.1 },
+      { source: "market_implied_inflation_signal.html", target: "inflation_group", importance: 1.1 },
+      { source: "policy_relevant_inflation_pce_methodology.html", target: "inflation_group", importance: 1.2 },
+      { source: "US_CPI_vs_PPI_Divergence_Inflation.html", target: "inflation_group", importance: 1.1 },
+      { source: "Durable_goods_capex_intent_methodology.html", target: "growth_cycle_group", importance: 1.2 },
+      { source: "industrial_production_signal.html", target: "growth_cycle_group", importance: 1.2 },
+      { source: "yield_curve_slope_methodology.html", target: "growth_cycle_group", importance: 1.5 },
+      { source: "US_Treasury_Yield_Curve_Slope.html", target: "growth_cycle_group", importance: 1.4 },
+      { source: "labor_market_tightness_methodology.html", target: "labor_group", importance: 1.2 },
+      { source: "weekly_hours_methodology.html", target: "labor_group", importance: 1.0 },
+      { source: "employment_composition_methodology.html", target: "labor_group", importance: 1.1 },
+      { source: "job_flows_labor_methodology.html", target: "labor_group", importance: 1.0 },
+      { source: "labour_market_momentum_methodology.html", target: "labor_group", importance: 1.1 },
+      { source: "sectoral_employment_methodology.html", target: "labor_group", importance: 1.0 },
+      { source: "underemployment_risk_methodology.html", target: "labor_group", importance: 1.1 },
+      { source: "Labor_Market_Turnover.html", target: "labor_group", importance: 1.1 },
+      { source: "Federal_Reserve_Liquidity_Composite.html", target: "liquidity_monetary_group", importance: 1.5 },
+      { source: "m_2_money_supply.html", target: "liquidity_monetary_group", importance: 1.3 },
+      { source: "Real_Interest_Rate_Trend_Signal.html", target: "liquidity_monetary_group", importance: 1.4 },
+      { source: "credit_spreads_methodology.html", target: "credit_stress_group", importance: 1.4 },
+      { source: "financial_stress_composite_methodology.html", target: "credit_stress_group", importance: 1.6 },
+      { source: "Financial_Stress.html", target: "credit_stress_group", importance: 1.5 },
+      { source: "credit_conditions_methodology.html", target: "credit_stress_group", importance: 1.4 },
+      { source: "private_credit_impulse_methodology.html", target: "credit_stress_group", importance: 1.3 },
+      { source: "usd_index_signal.html", target: "global_macro_group", importance: 1.2 },
+      { source: "vix_signal_methodology.html", target: "sentiment_positioning_group", importance: 1.3 },
+      { source: "Consumer_Sentiment.html", target: "housing_consumer_group", importance: 1.0 },
+      { source: "housing_lead_methodology.html", target: "housing_consumer_group", importance: 1.2 },
+
+      { source: "Cross_Sector_Positioning_Pressure.html", target: "sentiment_positioning_group", importance: 1.4 },
+      { source: "Squeeze_Exhaustion_Targets.html", target: "sentiment_positioning_group", importance: 1.4 },
+      { source: "specs_vs_hedgers_divergence_methodology.html", target: "sentiment_positioning_group", importance: 1.4 },
+      { source: "Global_Risk_OnOff_Positioning_Tone.html", target: "sentiment_positioning_group", importance: 1.4 },
+      { source: "Hedger_Pressure_Indicator.html", target: "sentiment_positioning_group", importance: 1.3 },
+      { source: "Portfolio_Level_Early_Warning_System.html", target: "sentiment_positioning_group", importance: 1.5 },
+
+      { source: "single_market_cot_methodology.html", target: "commodity_industrial_group", importance: 1.3 },
+      { source: "energy_adjusted_metals_tailwind_methodology.html", target: "commodity_industrial_group", importance: 1.2 },
+      { source: "Forward_Indicators_Economic_Cycles.html", target: "commodity_industrial_group", importance: 1.3 },
+      { source: "Regime_Specific_Macro_Themes.html", target: "commodity_industrial_group", importance: 1.4 },
+      { source: "Manufactureres_new_goods.html", target: "growth_cycle_group", importance: 1.2 },
+
+      { source: "inflation_group", target: "macro_composite", importance: 2.0 },
+      { source: "growth_cycle_group", target: "macro_composite", importance: 2.0 },
+      { source: "labor_group", target: "macro_composite", importance: 2.0 },
+      { source: "liquidity_monetary_group", target: "macro_composite", importance: 2.0 },
+      { source: "credit_stress_group", target: "macro_composite", importance: 2.0 },
+      { source: "sentiment_positioning_group", target: "macro_composite", importance: 1.8 },
+      { source: "global_macro_group", target: "macro_composite", importance: 1.6 },
+      { source: "commodity_industrial_group", target: "macro_composite", importance: 1.6 },
+      { source: "housing_consumer_group", target: "macro_composite", importance: 1.4 },
+      { source: "technical_crossasset_group", target: "macro_composite", importance: 1.4 },
+
+      { source: "macro_composite", target: "output_macro_reco", importance: 2.2 },
+      { source: "macro_composite", target: "output_precious_metals", importance: 1.9 },
+      { source: "commodity_industrial_group", target: "output_precious_metals", importance: 1.8 },
+      { source: "macro_composite", target: "output_industrial_metals", importance: 1.9 },
+      { source: "commodity_industrial_group", target: "output_industrial_metals", importance: 1.8 }
+    ];
+
+    // Group membership for expand/contract
+    const groupMembers = {
+      inflation_group: ["fed_inflation_signal.html", "wage_growth_and_inflation_methodology.html", "inflation_term_structure_methodology.html", "market_implied_inflation_signal.html", "policy_relevant_inflation_pce_methodology.html", "US_CPI_vs_PPI_Divergence_Inflation.html"],
+      growth_cycle_group: ["Durable_goods_capex_intent_methodology.html", "yield_curve_slope_methodology.html", "US_Treasury_Yield_Curve_Slope.html", "industrial_production_signal.html", "Manufactureres_new_goods.html"],
+      labor_group: ["labor_market_tightness_methodology.html", "weekly_hours_methodology.html", "employment_composition_methodology.html", "job_flows_labor_methodology.html", "labour_market_momentum_methodology.html", "sectoral_employment_methodology.html", "underemployment_risk_methodology.html", "Labor_Market_Turnover.html"],
+      liquidity_monetary_group: ["Federal_Reserve_Liquidity_Composite.html", "m_2_money_supply.html", "Real_Interest_Rate_Trend_Signal.html"],
+      credit_stress_group: ["credit_spreads_methodology.html", "financial_stress_composite_methodology.html", "Financial_Stress.html", "credit_conditions_methodology.html", "private_credit_impulse_methodology.html"],
+      sentiment_positioning_group: ["vix_signal_methodology.html", "Cross_Sector_Positioning_Pressure.html", "Squeeze_Exhaustion_Targets.html", "specs_vs_hedgers_divergence_methodology.html", "Global_Risk_OnOff_Positioning_Tone.html", "Hedger_Pressure_Indicator.html", "Portfolio_Level_Early_Warning_System.html"],
+      global_macro_group: ["usd_index_signal.html"],
+      commodity_industrial_group: ["single_market_cot_methodology.html", "energy_adjusted_metals_tailwind_methodology.html", "Forward_Indicators_Economic_Cycles.html", "Regime_Specific_Macro_Themes.html"],
+      housing_consumer_group: ["Consumer_Sentiment.html", "housing_lead_methodology.html"],
+      technical_crossasset_group: []
+    };
+
+    const collapsedGroups = new Set();
+    const idToNode = {};
+    nodes.forEach(n => { idToNode[n.id] = n; });
+
+    // =========================
+    // FORCE GRAPH SETUP
+    // =========================
+    const svg = d3.select("#graph");
+    const tooltip = d3.select("#tooltip");
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    svg.attr("width", width).attr("height", height);
+
+    // Dynamic colour coding
+    function getNodeColor(d) {
+      if (d.type === "signal" && d.zScore) {
+        const v = parseFloat(d.zScore);
+        if (!isNaN(v)) {
+          if (v >= 0.75) return "#ff4d4d";      // HOT
+          if (v <= -0.75) return "#4da6ff";    // COOL
+          return "#7fbfff";                    // Neutral signal
+        }
+      }
+      if (d.type === "group") return "#7dd47b";
+      if (d.type === "composite") return "#ff9fa9";
+      if (d.type === "output") return "#d2b6ff";
+      return "#cccccc";
+    }
+
+    const radius = (d) => {
+      if (d.type === "composite") return 16;
+      if (d.type === "group") return 14;
+      if (d.type === "output") return 14;
+      return 10;
+    };
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(130).strength(0.6))
+      .force("charge", d3.forceManyBody().strength(-250))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collide", d3.forceCollide().radius(d => radius(d) + 6));
+
+    const link = svg.append("g")
+      .attr("stroke-width", 1.2)
+      .selectAll("line")
+      .data(links)
+      .enter()
+      .append("line")
+      .attr("class", "link")
+      .attr("stroke-width", d => d.importance || 1.2);
+
+    const node = svg.append("g")
+      .selectAll("g")
+      .data(nodes)
+      .enter()
+      .append("g")
+      .attr("class", "node")
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended)
+      );
+
+    node.append("circle")
+      .attr("r", d => radius(d))
+      .attr("fill", d => getNodeColor(d));
+
+    node.append("text")
+      .attr("x", d => radius(d) + 3)
+      .attr("y", 3)
+      .text(d => d.label);
+
+    // =========================
+    // HOVER TOOLTIP
+    // =========================
+    node.on("mouseover", (event, d) => {
+      const isSignal = d.type === "signal";
+      let html = `<strong>${d.label}</strong><br/><em>Type: ${d.type}</em>`;
+
+      if (isSignal) {
+        if (d.source) html += `<br/><strong>Source:</strong> ${d.source}`;
+        if (d.purpose) html += `<br/><strong>Purpose:</strong> ${d.purpose}`;
+      } else {
+        if (d.regime) html += `<br/><strong>Regime:</strong> ${d.regime}`;
+        if (d.description) html += `<br/><strong>Summary:</strong> ${d.description}`;
+      }
+
+      tooltip
+        .style("opacity", 1)
+        .html(html);
+    })
+    .on("mousemove", (event) => {
+      const padding = 12;
+      tooltip
+        .style("left", (event.pageX + padding) + "px")
+        .style("top", (event.pageY + padding) + "px");
+    })
+    .on("mouseout", () => {
+      tooltip.style("opacity", 0);
+    })
+    .on("click", (event, d) => {
+      // Expand/contract for groups
+      if (d.type === "group" && groupMembers[d.id]) {
+        if (collapsedGroups.has(d.id)) {
+          collapsedGroups.delete(d.id);
+        } else {
+          collapsedGroups.add(d.id);
+        }
+        updateVisibility();
+      }
+
+      // Clicking macro_composite opens your macro page
+      if (d.id === "macro_composite") {
+        window.open("https://sensational-stroopwafel-d10a4c.netlify.app/", "_blank");
+      }
+
+      // Clicking a signal opens its methodology page
+      if (d.type === "signal") {
+        const methodologyUrl = `https://sensational-stroopwafel-d10a4c.netlify.app/methodology/${d.id}`;
+        window.open(methodologyUrl, "_blank");
+      }
+
+      // Highlight path from the clicked node
+      highlightPathFrom(d.id);
+    });
+
+    // =========================
+    // TICK UPDATE
+    // =========================
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+    // Zoom & pan
+    const zoom = d3.zoom()
+      .scaleExtent([0.2, 3])
+      .on("zoom", (event) => {
+        svg.selectAll("g").attr("transform", event.transform);
+      });
+
+    svg.call(zoom);
+
+    // =========================
+    // FILTERING & VISIBILITY
+    // =========================
+    const filterState = {
+      signals: true,
+      groups: true,
+      outputs: true,
+      cot: true
+    };
+
+    function isCoTNode(d) {
+      return d.id.startsWith("cot_");
+    }
+
+    function updateVisibility() {
+      // Mark hidden flag on nodes
+      node.each(function(d) {
+        let hidden = false;
+
+        if (d.type === "signal" && !filterState.signals) hidden = true;
+        if (d.type === "group" && !filterState.groups) hidden = true;
+        if (d.type === "output" && !filterState.outputs) hidden = true;
+        if (!filterState.cot && isCoTNode(d)) hidden = true;
+
+        // Collapsed groups hide their members
+        for (const g of collapsedGroups) {
+          const members = groupMembers[g] || [];
+          if (members.includes(d.id)) {
+            hidden = true;
+          }
+        }
+
+        d.hidden = hidden;
+        d3.select(this).style("display", hidden ? "none" : null);
+      });
+
+      // Hide links if either endpoint is hidden
+      link.each(function(d) {
+        const hidden = d.source.hidden || d.target.hidden;
+        d3.select(this).style("display", hidden ? "none" : null);
+      });
+    }
+
+    // Controls events
+    document.querySelectorAll('#controls input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const key = e.target.getAttribute('data-filter');
+        const checked = e.target.checked;
+        if (key in filterState) {
+          filterState[key] = checked;
+          updateVisibility();
+        }
+      });
+    });
+
+    // Initial visibility
+    updateVisibility();
+
+    // =========================
+    // PATH HIGHLIGHTING
+    // =========================
+    function clearHighlights() {
+      node.classed("highlight", false).classed("dimmed", false);
+      link.classed("highlight", false).classed("dimmed", false);
+    }
+
+    function highlightPathFrom(startId) {
+      clearHighlights();
+
+      // BFS from start node across visible links only
+      const visited = new Set();
+      const queue = [startId];
+      visited.add(startId);
+
+      while (queue.length > 0) {
+        const current = queue.shift();
+        links.forEach(l => {
+          const s = typeof l.source === 'object' ? l.source.id : l.source;
+          const t = typeof l.target === 'object' ? l.target.id : l.target;
+
+          if (s === current && !visited.has(t)) {
+            visited.add(t);
+            queue.push(t);
+          } else if (t === current && !visited.has(s)) {
+            visited.add(s);
+            queue.push(s);
+          }
+        });
+      }
+
+      // Apply highlight/dim classes
+      node.classed("highlight", d => visited.has(d.id) && !d.hidden)
+          .classed("dimmed", d => !visited.has(d.id) && !d.hidden);
+
+      link.classed("highlight", d => {
+            const sId = typeof d.source === 'object' ? d.source.id : d.source;
+            const tId = typeof d.target === 'object' ? d.target.id : d.target;
+            return visited.has(sId) && visited.has(tId) && !(d.source.hidden || d.target.hidden);
+          })
+          .classed("dimmed", d => {
+            const sId = typeof d.source === 'object' ? d.source.id : d.source;
+            const tId = typeof d.target === 'object' ? d.target.id : d.target;
+            const visible = !(d.source.hidden || d.target.hidden);
+            return visible && !(visited.has(sId) && visited.has(tId));
+          });
+    }
+  </script>
+</body>
+</html>
