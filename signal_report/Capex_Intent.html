@@ -111,108 +111,26 @@
 
   <hr class="rule" />
 
-  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report">This is an excellent, well-structured methodology for inferring capital expenditure intent from durable goods orders. The use of robust statistical methods (median, MAD) and adaptive weighting demonstrates a sophisticated approach.
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+        <p>
+            The market currently reflects significant volatility in business investment sentiment, as indicated by the Capex Intent signal. After registering an 'Expansion' in May 2025 (Capex Intent: 4.98), the signal sharply reversed to 'Contraction' in August 2025 (Capex Intent: -1.55), reflecting weakening durable goods orders. The latest data for September 2025 shows a rebound to a 'Neutral' regime (Capex Intent: 0.14), with durable goods orders seeing a 7.24% YoY growth and 2.45% 3-month annualized growth. This rapid oscillation suggests underlying uncertainty for corporate earnings, potential headwinds for industrial metals, and mixed signals for broader economic growth impacting bonds and safe-haven assets.
+        </p> 
+        <p>
+            <strong>Technical Summary:</strong>
+            Technically, the Capex Intent signal exhibits extreme short-term volatility and a lack of sustained trend. The rapid shift from Expansion to Contraction and back to Neutral within months (e.g., +4.98 in May, -1.55 in August, +0.14 in September) suggests an environment where short-term momentum shifts quickly, potentially leading to whipsaws. The rebound to Neutral from Contraction could be seen as a corrective bounce, but the overall pattern suggests continued choppiness in capital expenditure cycles.
+        </p>
+        <p>
+            <strong>References:</strong>
+            <ul>
+                <li>Manufacturers’ New Orders: Durable Goods (DGORDER) from FRED (Latest: 2025-09-30). *Highly relevant, forms the basis of the Capex Intent signal.*</li>
+                <li>`Capex_Intent` and `Capex_Regime` signals (Latest: 2025-09-30). *These composite signals directly interpret the investment cycle.*</li>
+                <li>`DGORDER_YoY` and `DGORDER_3mAnn` growth rates (Latest: 2025-09-30). *Essential for understanding underlying momentum.*</li>
+            </ul>
+            To enhance future analysis, incorporating `ADXTNO` (Durable Goods Ex-Transportation) from FRED would provide a clearer view by removing volatile transport components. Broader macroeconomic indicators like ISM Manufacturing PMI and corporate earnings guidance would also offer valuable context for market positioning.
+        </p>
+    </div></div></section>
 
-To further enhance your understanding of the state of the US market, especially as it relates to this "Capex Intent" signal, here's some advice focusing on practical, free sources, prioritized for impact:
-
----
-
-### Key Areas for Additional Analysis
-
-The current signal focuses solely on durable goods orders. While highly relevant, business investment is influenced by and impacts a much broader set of economic indicators. Bringing in these external perspectives will provide crucial context and allow for deeper interpretation of the Capex Intent signal.
-
----
-
-### **High Priority - Essential Context & Leading Indicators**
-
-These suggestions will significantly broaden your understanding by linking the Capex Intent to core economic performance, inflation, and forward-looking sentiment.
-
-#### 1. **Inflation-Adjusted Durable Goods Data (Real Capex Intent)**
-
-*   **Rationale:** Your current data (DGORDER) is nominal. Capital expenditure decisions are often made based on *real* growth expectations, not just nominal. High inflation can make nominal growth appear strong even if real growth is flat or negative, giving a misleading signal of actual investment momentum. Adjusting for inflation will provide a more accurate picture of the *volume* of orders and thus the true "intent."
-*   **Implementation:**
-    1.  **Source a Price Deflator:** Use a relevant price index from FRED. Good candidates include:
-        *   **PPI: Durable Manufacturing (WPSFD49000)**: Producer Price Index for finished goods in durable manufacturing. This is arguably the most direct deflator for your input data.
-        *   **PCE Price Index (PCEPI):** Broader measure of consumer inflation, but good for general economic context.
-        *   **GDP Implicit Price Deflator for Fixed Investment (A794RC1Q027SBEA):** This is for actual investment, not orders, but offers a relevant deflator.
-    2.  **Deflate DGORDER/ADXTNO:** Divide your raw `DGORDER` (and `ADXTNO` if available) series by the chosen deflator (converted to a monthly index if not already).
-    3.  **Recalculate Capex Intent:** Apply your existing transformations (YoY, 3mAnn, robust_z, composite) to the *real* (inflation-adjusted) durable goods data.
-*   **How it Enhances Understanding:** You'll now have two Capex Intent signals (nominal and real). Divergences between them (e.g., nominal strong, real weak) will immediately flag inflation as a significant factor influencing investment decisions, providing a much richer diagnostic.
-
-#### 2. **ISM Manufacturing PMI (New Orders, Production, Backlog, Inventories)**
-
-*   **Rationale:** The Institute for Supply Management (ISM) Manufacturing PMI is a highly respected, forward-looking indicator based on surveys of purchasing managers. It captures sentiment and actual activity intentions *before* they fully materialize in official statistics like durable goods orders. Its "New Orders" sub-component is particularly relevant and often leads official orders data. Other components like Production, Inventories, and Backlog of Orders provide critical context on supply-demand dynamics and capacity pressures.
-*   **Implementation:**
-    1.  **Source Data:** Headline PMI and its sub-components are widely reported monthly (e.g., on FRED under "NAPMII" for headline, "NAPMNOI" for New Orders, "NAPMPI" for Production, "NAPMIOI" for Inventories, etc.).
-    2.  **Compare Trends:** Plot the ISM New Orders Index alongside your Capex Intent signal. Look for:
-        *   **Confirmations:** Both signals moving in the same direction reinforce the trend.
-        *   **Divergences:** ISM New Orders leading or diverging from Capex Intent could signal an upcoming shift or a difference in what the two indicators are capturing.
-        *   **Context from other sub-indices:** High backlog alongside strong new orders and low inventories suggests capacity constraints that would *require* future capex.
-*   **How it Enhances Understanding:** Provides a real-time, sentiment-based "check" on your orders-based signal. ISM often offers earlier insights into turning points in the manufacturing sector.
-
-#### 3. **Gross Private Domestic Investment (GPDI) / Business Fixed Investment (BFI)**
-
-*   **Rationale:** Your Capex Intent is based on *orders*, which are forward-looking commitments. GPDI and its sub-components (like BFI) from the Bureau of Economic Analysis (part of GDP) represent *actual* spending on capital goods. Comparing your intent signal to realized investment provides a critical validation and helps you understand how well orders translate into actual spending.
-*   **Implementation:**
-    1.  **Source Data:** FRED provides various components of GDP.
-        *   `GPDI`: Gross Private Domestic Investment (Total).
-        *   `PNFI`: Private Nonresidential Fixed Investment (the most direct comparison for business capex). You can also find components like "Structures" (`PNFIST`) and "Equipment" (`PNFIEQ`).
-    2.  **Calculate Growth Rates:** Apply YoY or QoQ (quarter-over-quarter annualised) growth rates to these series, similar to your Capex Intent.
-    3.  **Compare & Analyze:** Overlay the growth rates of GPDI/BFI with your Capex Intent signal. Analyze lead/lag relationships. Does your signal reliably precede changes in actual investment? How large are the divergences?
-*   **How it Enhances Understanding:** Directly links your "intent" signal to the "actual" outcome. Helps determine the predictive power and accuracy of your Capex Intent signal. Discrepancies could indicate supply chain issues, changes in business confidence, or other factors preventing orders from becoming completed projects.
-
----
-
-### **Medium Priority - Broad Economic & Financial Context**
-
-These suggestions add further layers of macroeconomic understanding, helping to explain *why* Capex Intent might be moving in a certain direction.
-
-#### 4. **Interest Rates (Corporate Bond Yields / Federal Funds Rate)**
-
-*   **Rationale:** The cost of capital is a fundamental driver of investment decisions. Higher interest rates make borrowing more expensive, potentially dampening business investment. Analyzing interest rate trends alongside Capex Intent can provide insights into the financial conditions influencing investment.
-*   **Implementation:**
-    1.  **Source Data:** FRED is excellent for this.
-        *   **Moody's Seasoned Aaa Corporate Bond Yield (AAA):** Represents borrowing costs for highly-rated corporations.
-        *   **Federal Funds Effective Rate (FEDFUNDS):** The benchmark rate set by the Federal Reserve, influencing all other rates.
-        *   **10-Year Treasury Constant Maturity Rate (DGS10):** A key long-term interest rate that influences longer-term investment.
-    2.  **Trend Analysis:** Observe how these rates change relative to your Capex Intent signal. Does a rise in rates precede a slowdown in Capex Intent? Is there a lag?
-*   **How it Enhances Understanding:** Helps you understand the monetary policy and credit environment impacting businesses' willingness and ability to invest.
-
-#### 5. **Capacity Utilization (Manufacturing Sector)**
-
-*   **Rationale:** Businesses typically invest in new capacity (capex) when their existing capacity is being fully utilized. If there's slack in the system (low capacity utilization), there's less immediate pressure or incentive to expand, even if orders are picking up.
-*   **Implementation:**
-    1.  **Source Data:** FRED: `IPUTIL` (Capacity Utilization: Total Industry) or `IPUM` (Capacity Utilization: Manufacturing).
-    2.  **Compare with Capex Intent:** Plot Capacity Utilization (as a percentage) against your Capex Intent. Look for scenarios where Capex Intent signals expansion, but capacity utilization is still low – this might indicate expectations for future growth, or perhaps sector-specific nuances hidden in the aggregate data.
-*   **How it Enhances Understanding:** Provides insight into the existing productive potential of the economy. High capacity utilization often precedes increased capex as businesses seek to meet growing demand.
-
----
-
-### **Lower Priority / Advanced - Refining the Signal & Broader Demand**
-
-These are valuable but might be slightly more involved or less directly impactful for a foundational understanding.
-
-#### 6. **Consumer Sentiment / Retail Sales**
-
-*   **Rationale:** While Capex Intent is business-focused, ultimately, business investment is driven by expected demand. Strong consumer confidence and spending (measured by retail sales) can signal a healthy future demand environment, encouraging businesses to invest. Conversely, weak consumer sentiment can precede a cautious approach to capex.
-*   **Implementation:**
-    1.  **Source Data:** FRED:
-        *   **University of Michigan Consumer Sentiment (UMCSENT)**
-        *   **Retail and Food Services Sales (RSMTS)** - also consider `CMRMTSPL` (Retail Sales: Nonstore Retailers) for e-commerce insights.
-    2.  **Analyze Lead/Lag:** How do changes in consumer demand indicators relate to changes in Capex Intent? Does consumer strength precede capex expansion, or vice-versa?
-*   **How it Enhances Understanding:** Provides insights into the demand-side pressures influencing business investment decisions, completing a full supply-demand picture.
-
----
-
-### **General Implementation Advice (Applicable to all suggestions):**
-
-*   **Use FRED's API (or `fredapi` Python library):** Since you're using Python, consider using `fredapi` to automate data downloads. It's free, well-documented, and integrates directly with Pandas DataFrames. This will streamline the process of getting new data series.
-*   **Visualizations are Key:** Plot your Capex Intent signal alongside these new indicators. Line charts are usually best for time series comparisons. Look for correlations, divergences, and lead/lag relationships.
-*   **Backtesting & Event Analysis:** Once you have these contextual indicators, revisit historical periods of "Expansion" and "Contraction" flagged by your Capex Intent. How did the other indicators behave around those times? Did they confirm, diverge, or provide early warnings? Analyze specific economic events (recessions, booms) to see how your signal and the complementary data reacted.
-
-By integrating these additional data points, you'll move beyond just calculating a signal to truly understanding the economic forces driving and being driven by capital expenditure momentum in the US market.</div></section>
-
-<section class="section"><h2 class="section-title">Capex Intent Chart</h2><div class="box chart-box"><img src="/images/US_Capex_Intent_signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Durable goods orders as a proxy for business investment intent.</p></div></section>
+<section class="section"><h2 class="section-title">Capex Intent Chart</h2><div class="box chart-box"><img src="../images/US_Capex_Intent_signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Durable goods orders as a proxy for business investment intent.</p></div></section>
 
 <section class="section"><details class="details"><summary class="expand-summary"><span>Capex Intent Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table class="dataframe table table-striped">
   <thead>
@@ -364,7 +282,7 @@ By integrating these additional data points, you'll move beyond just calculating
   </tbody>
 </table></div></div></details></section>
 
-<section class="section"><a href="/methodology/Durable_goods_capex_intent_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Capex Intent Signal</a></section>
+<section class="section"><a href="../methodology/Durable_goods_capex_intent_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Capex Intent Signal</a></section>
 </main>
 </body>
 </html>
