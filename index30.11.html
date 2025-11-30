@@ -160,7 +160,6 @@
     <label><input type="checkbox" data-filter="groups" checked> Macro Themes</label>
     <label><input type="checkbox" data-filter="composites" checked> Macro Composites</label>
     <label><input type="checkbox" data-filter="advisor" checked> Portfolio Advisor</label>
-    <label><input type="checkbox" data-filter="predictors"> Predictors</label>
     <button id="exportBtn" style="margin-top: 12px; width: 100%; padding: 8px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 12px;">Export Layout</button>
   </div>
 
@@ -323,12 +322,6 @@
       { id: "portfolio_characteristics", type: "portfolio", label: "Portfolio Characteristics",
         description: "Maps portfolio characteristics such as risk, liquidity, and factor tilts into portfolio advisor views.",
         regime: "Portfolio Lens"
-      },
-
-      // Predictor nodes
-      { id: "predictor_fed_rate_decision", type: "predictor", label: "Fed Rate Decision Predictor",
-        description: "Predicts the next Fed rate decision using US and global macro themes.",
-        regime: "Model Output"
       },
 
       // US Macro Groups
@@ -620,8 +613,7 @@ const NODE_URL_MAP = {
   "weekly_hours_methodology.html": "signal_report/Weekly_Hours_Signal.html",
   "yield_curve_slope_methodology.html": "signal_report/Yield_Curve_Slope.html",
   "portfolio_characteristics": "portfolio_characteristics/portfolio_characteristics_page.html",
-  "portfolio_advisor": "signal_report/Portfolio_Advisor_Portfolio_Guidance.html",
-  "predictor_fed_rate_decision": "signal_report/Predictor_Fed_Rate_Decision.html"
+  "portfolio_advisor": "signal_report/Portfolio_Advisor_Portfolio_Guidance.html"
 };
 
 const links = [
@@ -701,19 +693,6 @@ const links = [
       // Positioning connects to both composites
       { source: "positioning_sentiment_group", target: "us_macro_composite", importance: 1.6 },
       { source: "positioning_sentiment_group", target: "global_macro_composite", importance: 1.6 },
-
-      // Predictor: Fed Rate Decision Predictor links to all Macro Themes except Global Trade & Demand
-      { source: "predictor_fed_rate_decision", target: "us_growth_cycle_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_inflation_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_labor_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_liquidity_monetary_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_credit_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "global_growth_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "global_inflation_fx_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "positioning_sentiment_group", importance: 1.8 },
-
-      // Predictor feeds into US Macro Composite
-      { source: "predictor_fed_rate_decision", target: "us_macro_composite", importance: 2.2 },
 
       // Link the two composites together
       { source: "global_macro_composite", target: "us_macro_composite", importance: 2.5 },
@@ -968,12 +947,8 @@ const links = [
       "Regimes_specific_Macro_Themes_Continuous.html": {
         "x": 430,
         "y": 273
-      },
-      "predictor_fed_rate_decision": {
-        "x": 900,
-        "y": 360
       }
-};
+    };
 
     nodes.forEach(n => {
       if (hardcodedPositions[n.id]) {
@@ -1016,7 +991,6 @@ const links = [
       if (d.type === "composite") return "#3B82F6";   // Macro Composites - brand blue
       if (d.type === "advisor") return "#FBBF24";     // Portfolio Advisor - gold
       if (d.type === "portfolio") return "#C4407C";   // Portfolio Characteristics - magenta
-      if (d.type === "predictor") return "#22c55e";   // Predictors - green accent
       if (d.type === "output") return "#8b5cf6";      // Modern purple for outputs
       return "#94a3b8";                              // Modern slate
     }
@@ -1026,7 +1000,6 @@ const links = [
       if (d.type === "composite") return 16;
       if (d.type === "group") return 14;
       if (d.type === "portfolio") return 14;
-      if (d.type === "predictor") return 14;
       if (d.type === "output") return 14;
       return 10;
     };
@@ -1181,8 +1154,7 @@ const links = [
       composites: true,
       advisor: true,
       outputs: true,
-      cot: true,
-      predictors: false
+      cot: true
     };
 
     function isCoTNode(d) {
@@ -1199,8 +1171,6 @@ const links = [
         if (d.type === "composite" && !filterState.composites) hidden = true;
         if (d.type === "advisor" && !filterState.advisor) hidden = true;
         if (d.type === "output" && !filterState.outputs) hidden = true;
-        if (d.type === "predictor" && !filterState.predictors) hidden = true;
-
         if (!filterState.cot && isCoTNode(d)) hidden = true;
 
         // Collapsed groups hide their members
