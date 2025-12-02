@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palladium - Individual Market Analysis – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Palladium - Individual Market Analysis</div>
+    <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Palladium - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Palladium futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-10-14</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>State of the Market Summary:</strong></p>
+    <ul>
+        <li>Palladium prices have increased to 145.14 as of 2025-10-14.</li>
+        <li>Speculators' net short positioning decreased to -8.49% of Open Interest.</li>
+        <li>Hedgers significantly increased their net short exposure to -15.67% of Open Interest.</li>
+        <li>The market is currently flagged for "Crowded Long Risk Liquidation."</li>
+    </ul>
+
+    <p><strong>Technical Summary:</strong></p>
+    <ul>
+        <li>Speculators are stretched long relative to their historical range, with a z-score of 1.83.</li>
+        <li>Hedgers are stretched short with a z-score of -1.89, nearing an extreme.</li>
+        <li>Current 4-week flow is strong at +17.65% and shows accelerating momentum.</li>
+        <li>Hedger activity indicates a "Supply Expansion Pressure" regime.</li>
+        <li>The reversal score is 3, suggesting existing tactical reversal conditions.</li>
+    </ul>
+
+    <p><strong>References:</strong></p>
+    <ul>
+        <li>Palladium_CoT_Signals (Latest timestamp: 2025-10-14 00:00:00).</li>
+        <li>Key influencing datapoints were Spec_zscore, Hedger_zscore, and Flow_4w.</li>
+        <li>Daily price action data from yfinance would improve future analysis.</li>
+        <li>Public datasets on macro factors or volatility indexes could enhance insights.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Palladium CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_PALLADIUM_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Palladium futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Palladium CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report">
+        
+        <style>
+        #df_container_1933266312016 {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #212529;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #df_container_1933266312016 .df-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        #df_container_1933266312016 .df-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+            margin: 0;
+        }
+
+        #df_container_1933266312016 .df-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        #df_container_1933266312016 .df-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        #df_container_1933266312016 .df-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        #df_container_1933266312016 .df-button {
+            padding: 8px 16px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        #df_container_1933266312016 .df-button:hover {
+            opacity: 0.85;
+        }
+
+        #df_container_1933266312016 .df-table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        #df_container_1933266312016 table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        #df_container_1933266312016 th {
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        #df_container_1933266312016 th:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_1933266312016 th::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 10px;
+        }
+
+        #df_container_1933266312016 td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #dee2e6;
+            color: #212529;
+        }
+
+        #df_container_1933266312016 tr:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_1933266312016 .df-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+        }
+
+        #df_container_1933266312016 .df-no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        </style>
+        
+        <div id="df_container_1933266312016">
+            <div class="df-header">
+                <div>
+                    <h2 class="df-title">Palladium_CoT_Signals</h2>
+                    <div class="df-info">Rows: 15 | Columns: 40</div>
+                </div>
+            </div>
+            <div class="df-controls"><input type="text" id="df_1933166553680_search" class="df-search" placeholder="Search table..."><button id="df_1933166553680_download" class="df-button">📥 Download CSV</button></div>
+            <div class="df-table-wrapper">
+                <table id="df_1933166553680_table"><thead><tr><th>Report_Date</th><th>Market_and_Exchange_Names</th><th>controller</th><th>controller_gap_%OI</th><th>Spec_Net_%OI</th><th>Hedger_Net_%OI</th><th>Spec_zscore</th><th>Hedger_zscore</th><th>spec_extreme_1y</th><th>hedger_extreme_1y</th><th>any_extreme_1y</th><th>extreme_1y_side</th><th>Flow_4w</th><th>Flow_4w_3w_ma</th><th>Flow_4w_mom</th><th>flow_accelerating</th><th>flow_fading</th><th>flow_flat</th><th>crowded_long</th><th>crowded_short</th><th>crowd_alert</th><th>squeeze_risk</th><th>exhaustion_risk</th><th>tactical_signal</th><th>hedger_deep_short</th><th>hedger_deep_long</th><th>hedger_pressure_regime</th><th>specs_vs_hedgers_divergence</th><th>flow_fade_vs_spec</th><th>reversal_flag</th><th>position_concentration</th><th>flow_supports_trend</th><th>hedgers_oppose_specs</th><th>hedgers_align_with_specs</th><th>trend_stretched</th><th>position_stretch</th><th>hedger_imbalance</th><th>flow_confirmation_ratio</th><th>reversal_score</th><th>Price</th></tr></thead><tbody><tr><td>2025-07-08 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>15.3483</td><td>-25.2412</td><td>-9.8929</td><td>1.6416</td><td>-1.5661</td><td>False</td><td>False</td><td>False</td><td>None</td><td>3.3915</td><td>14.2590</td><td>-15.2095</td><td>False</td><td>True</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>False</td><td>0.7184</td><td>False</td><td>False</td><td>True</td><td>False</td><td>1.6416</td><td>1.5661</td><td>-3.3915</td><td>3</td><td>105.2950</td></tr><tr><td>2025-07-15 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>1.1577</td><td>-15.1105</td><td>-13.9528</td><td>2.2570</td><td>-2.1209</td><td>True</td><td>True</td><td>True</td><td>Spec_Extreme_Long</td><td>12.2374</td><td>11.4099</td><td>8.8460</td><td>True</td><td>False</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>True</td><td>0.5199</td><td>False</td><td>False</td><td>True</td><td>True</td><td>2.2570</td><td>2.1209</td><td>-12.2374</td><td>3</td><td>114.5850</td></tr><tr><td>2025-07-22 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>0.0288</td><td>-12.5702</td><td>-12.5414</td><td>2.2687</td><td>-1.8047</td><td>True</td><td>False</td><td>True</td><td>Spec_Extreme_Long</td><td>10.8869</td><td>8.8386</td><td>-1.3505</td><td>False</td><td>True</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>True</td><td>0.5006</td><td>False</td><td>False</td><td>True</td><td>True</td><td>2.2687</td><td>1.8047</td><td>-10.8869</td><td>3</td><td>122.0350</td></tr><tr><td>2025-07-29 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>-4.0456</td><td>-9.9868</td><td>-14.0324</td><td>2.2731</td><td>-1.9538</td><td>True</td><td>False</td><td>True</td><td>Spec_Extreme_Long</td><td>14.4217</td><td>12.5153</td><td>3.5348</td><td>True</td><td>False</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>True</td><td>0.4158</td><td>False</td><td>False</td><td>True</td><td>True</td><td>2.2731</td><td>1.9538</td><td>-14.4217</td><td>3</td><td>118.2600</td></tr><tr><td>2025-08-05 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>1.7854</td><td>-14.0577</td><td>-12.2722</td><td>1.8903</td><td>-1.6192</td><td>False</td><td>False</td><td>False</td><td>None</td><td>11.1835</td><td>12.1640</td><td>-3.2382</td><td>False</td><td>True</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>False</td><td>0.5339</td><td>False</td><td>False</td><td>True</td><td>False</td><td>1.8903</td><td>1.6192</td><td>-11.1835</td><td>3</td><td>113.9250</td></tr><tr><td>2025-08-12 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>15.0612</td><td>-24.2484</td><td>-9.1873</td><td>1.1899</td><td>-1.0839</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-9.1379</td><td>5.4891</td><td>-20.3215</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>False</td><td>False</td><td>0.7252</td><td>True</td><td>False</td><td>True</td><td>False</td><td>1.1899</td><td>1.0839</td><td>9.1379</td><td>1</td><td>108.5550</td></tr><tr><td>2025-08-19 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>20.8289</td><td>-28.5471</td><td>-7.7182</td><td>0.8847</td><td>-0.8096</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-15.9768</td><td>-4.6437</td><td>-6.8389</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>False</td><td>0.7872</td><td>True</td><td>False</td><td>True</td><td>False</td><td>0.8847</td><td>0.8096</td><td>15.9768</td><td>0</td><td>106.1250</td></tr><tr><td>2025-08-26 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>27.0772</td><td>-34.9577</td><td>-7.8805</td><td>0.4590</td><td>-0.8100</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-24.9709</td><td>-16.6952</td><td>-8.9941</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>False</td><td>0.8160</td><td>True</td><td>False</td><td>True</td><td>False</td><td>0.4590</td><td>0.8100</td><td>24.9709</td><td>0</td><td>104.0350</td></tr><tr><td>2025-09-02 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>25.5692</td><td>-34.3535</td><td>-8.7844</td><td>0.4722</td><td>-0.9474</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-20.2959</td><td>-20.4145</td><td>4.6751</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>False</td><td>0.7964</td><td>True</td><td>False</td><td>True</td><td>False</td><td>0.4722</td><td>0.9474</td><td>20.2959</td><td>0</td><td>108.7600</td></tr><tr><td>2025-09-09 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>21.8789</td><td>-30.6263</td><td>-8.7474</td><td>0.6812</td><td>-0.9162</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-6.3779</td><td>-17.2149</td><td>13.9180</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>False</td><td>0.7778</td><td>True</td><td>False</td><td>True</td><td>False</td><td>0.6812</td><td>0.9162</td><td>6.3779</td><td>0</td><td>107.8750</td></tr><tr><td>2025-09-16 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>15.6798</td><td>-26.1380</td><td>-10.4582</td><td>0.9492</td><td>-1.1970</td><td>False</td><td>False</td><td>False</td><td>None</td><td>2.4091</td><td>-8.0882</td><td>8.7869</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>False</td><td>True</td><td>False</td><td>0.7142</td><td>False</td><td>False</td><td>True</td><td>False</td><td>0.9492</td><td>1.1970</td><td>-2.4091</td><td>1</td><td>112.3000</td></tr><tr><td>2025-09-23 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>14.2146</td><td>-25.5202</td><td>-11.3056</td><td>0.9752</td><td>-1.3030</td><td>False</td><td>False</td><td>False</td><td>None</td><td>9.4376</td><td>1.8229</td><td>7.0285</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>False</td><td>True</td><td>False</td><td>0.6930</td><td>False</td><td>False</td><td>True</td><td>False</td><td>0.9752</td><td>1.3030</td><td>-9.4376</td><td>1</td><td>116.6200</td></tr><tr><td>2025-09-30 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>8.4694</td><td>-20.1679</td><td>-11.6985</td><td>1.2659</td><td>-1.3267</td><td>False</td><td>False</td><td>False</td><td>None</td><td>14.1856</td><td>8.6774</td><td>4.7481</td><td>True</td><td>False</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>False</td><td>0.6329</td><td>False</td><td>False</td><td>True</td><td>False</td><td>1.2659</td><td>1.3267</td><td>-14.1856</td><td>3</td><td>119.6300</td></tr><tr><td>2025-10-07 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Specs</td><td>5.0854</td><td>-17.8429</td><td>-12.7575</td><td>1.3541</td><td>-1.4605</td><td>False</td><td>False</td><td>False</td><td>None</td><td>12.7834</td><td>12.1355</td><td>-1.4022</td><td>False</td><td>True</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>False</td><td>0.5831</td><td>False</td><td>False</td><td>True</td><td>False</td><td>1.3541</td><td>1.4605</td><td>-12.7834</td><td>3</td><td>130.7500</td></tr><tr><td>2025-10-14 00:00:00</td><td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-7.1841</td><td>-8.4852</td><td>-15.6693</td><td>1.8262</td><td>-1.8900</td><td>False</td><td>False</td><td>False</td><td>None</td><td>17.6528</td><td>14.8739</td><td>4.8693</td><td>True</td><td>False</td><td>False</td><td>True</td><td>False</td><td>Crowded_Long_Risk_Liquidation</td><td>False</td><td>False</td><td>None</td><td>True</td><td>False</td><td>Supply_Expansion_Pressure</td><td>True</td><td>True</td><td>False</td><td>0.3513</td><td>False</td><td>False</td><td>True</td><td>False</td><td>1.8262</td><td>1.8900</td><td>-17.6528</td><td>3</td><td>145.1400</td></tr></tbody></table>
+            </div>
+            
+        <div class="df-footer">
+            <span id="df_1933166553680_row_count">Showing 15 of 15 rows</span>
+        </div>
+        
+        </div>
+        
+        <script>
+        (function() {
+            const containerId = 'df_container_1933266312016';
+            const tableId = 'df_1933166553680_table';
+
+            // Search functionality
+            const searchInput = document.getElementById('df_1933166553680_search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase();
+                    const table = document.getElementById(tableId);
+                    const rows = table.getElementsByTagName('tr');
+
+                    let visibleCount = 0;
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(filter)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+
+                    document.getElementById('df_1933166553680_row_count').textContent = 
+                        `Showing ${visibleCount} of ${rows.length - 1} rows`;
+                });
+            }
+
+            // Download CSV
+            const downloadBtn = document.getElementById('df_1933166553680_download');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    let csv = [];
+                    const rows = table.getElementsByTagName('tr');
+
+                    for (let row of rows) {
+                        if (row.style.display !== 'none') {
+                            const cols = row.querySelectorAll('td, th');
+                            const csvRow = Array.from(cols).map(col => 
+                                '"' + col.textContent.replace(/"/g, '""') + '"'
+                            ).join(',');
+                            csv.push(csvRow);
+                        }
+                    }
+
+                    const csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', 'Palladium_CoT_Signals.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+
+            // Sortable columns
+            const headers = document.querySelectorAll('#' + tableId + ' th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    const tbody = table.tBodies[0];
+                    const rows = Array.from(tbody.rows);
+
+                    const isNumeric = rows.every(row => {
+                        const cell = row.cells[index];
+                        return cell && !isNaN(parseFloat(cell.textContent));
+                    });
+
+                    const direction = header.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+
+                    rows.sort((a, b) => {
+                        const aVal = a.cells[index].textContent;
+                        const bVal = b.cells[index].textContent;
+
+                        if (isNumeric) {
+                            return direction === 'asc' 
+                                ? parseFloat(aVal) - parseFloat(bVal)
+                                : parseFloat(bVal) - parseFloat(aVal);
+                        } else {
+                            return direction === 'asc'
+                                ? aVal.localeCompare(bVal)
+                                : bVal.localeCompare(aVal);
+                        }
+                    });
+
+                    rows.forEach(row => tbody.appendChild(row));
+
+                    headers.forEach(h => h.dataset.sortDir = '');
+                    header.dataset.sortDir = direction;
+                });
+            });
+        })();
+        </script>
+        
+        </div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Palladium CoT Signals</a></section>
+</main>
+</body>
+</html>

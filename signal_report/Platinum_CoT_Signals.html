@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platinum - Individual Market Analysis – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Platinum - Individual Market Analysis</div>
+    <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Platinum - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Platinum futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-10-14</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+    <p style="margin-top:0.75rem;"></p>
+    <p><strong>State of the Market Summary:</strong></p>
+    <ul>
+        <li>Platinum futures saw significant price appreciation. Speculative net long positioning reached 19.12% of OI by 2025-10-14.</li>
+        <li>Hedger net short positioning reduced to -17.59% of OI.</li>
+        <li>Hedgers display the most extreme positioning with a z-score of 1.6821, signaling a "Shortage_or_Stress" regime.</li>
+    </ul>
+
+    <p><strong>Technical Summary:</strong></p>
+    <ul>
+        <li>Hedger positioning is significantly stretched on the long side (z-score 1.6821). Speculative positioning is also elevated (z-score 0.8246).</li>
+        <li>Recent 4-week flow for Platinum is positive at +6.0724. However, flow momentum is fading (-2.5309).</li>
+        <li>No crowding, squeeze, or exhaustion risk flags are active. The current reversal score remains low.</li>
+    </ul>
+
+    <p><strong>References:</strong></p>
+    <ul>
+        <li>Platinum_CoT_Signals dataset, latest data as of 2025-10-14.</li>
+        <li>Key inputs included Spec_Net_%OI, Hedger_Net_%OI, Spec_zscore, Hedger_zscore, Flow_4w, and flow_fading.</li>
+        <li>Daily spot Platinum prices would enhance price-action alignment.</li>
+        <li>Indices for broader precious metals market sentiment.</li>
+    </ul>
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Platinum CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_PLATINUM_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Platinum futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Platinum CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report">
+        
+        <style>
+        #df_container_1933166390032 {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #212529;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #df_container_1933166390032 .df-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        #df_container_1933166390032 .df-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+            margin: 0;
+        }
+
+        #df_container_1933166390032 .df-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        #df_container_1933166390032 .df-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        #df_container_1933166390032 .df-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        #df_container_1933166390032 .df-button {
+            padding: 8px 16px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        #df_container_1933166390032 .df-button:hover {
+            opacity: 0.85;
+        }
+
+        #df_container_1933166390032 .df-table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        #df_container_1933166390032 table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        #df_container_1933166390032 th {
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        #df_container_1933166390032 th:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_1933166390032 th::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 10px;
+        }
+
+        #df_container_1933166390032 td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #dee2e6;
+            color: #212529;
+        }
+
+        #df_container_1933166390032 tr:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_1933166390032 .df-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+        }
+
+        #df_container_1933166390032 .df-no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        </style>
+        
+        <div id="df_container_1933166390032">
+            <div class="df-header">
+                <div>
+                    <h2 class="df-title">Platinum_CoT_Signals</h2>
+                    <div class="df-info">Rows: 15 | Columns: 40</div>
+                </div>
+            </div>
+            <div class="df-controls"><input type="text" id="df_1933190267216_search" class="df-search" placeholder="Search table..."><button id="df_1933190267216_download" class="df-button">📥 Download CSV</button></div>
+            <div class="df-table-wrapper">
+                <table id="df_1933190267216_table"><thead><tr><th>Report_Date</th><th>Market_and_Exchange_Names</th><th>controller</th><th>controller_gap_%OI</th><th>Spec_Net_%OI</th><th>Hedger_Net_%OI</th><th>Spec_zscore</th><th>Hedger_zscore</th><th>spec_extreme_1y</th><th>hedger_extreme_1y</th><th>any_extreme_1y</th><th>extreme_1y_side</th><th>Flow_4w</th><th>Flow_4w_3w_ma</th><th>Flow_4w_mom</th><th>flow_accelerating</th><th>flow_fading</th><th>flow_flat</th><th>crowded_long</th><th>crowded_short</th><th>crowd_alert</th><th>squeeze_risk</th><th>exhaustion_risk</th><th>tactical_signal</th><th>hedger_deep_short</th><th>hedger_deep_long</th><th>hedger_pressure_regime</th><th>specs_vs_hedgers_divergence</th><th>flow_fade_vs_spec</th><th>reversal_flag</th><th>position_concentration</th><th>flow_supports_trend</th><th>hedgers_oppose_specs</th><th>hedgers_align_with_specs</th><th>trend_stretched</th><th>position_stretch</th><th>hedger_imbalance</th><th>flow_confirmation_ratio</th><th>reversal_score</th><th>Price</th></tr></thead><tbody><tr><td>2025-07-08 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-14.0142</td><td>13.3701</td><td>-27.3843</td><td>0.4608</td><td>0.5389</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-3.5921</td><td>-1.2615</td><td>-5.6576</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>True</td><td>False</td><td>0.3281</td><td>False</td><td>True</td><td>False</td><td>False</td><td>0.4608</td><td>-0.5389</td><td>-3.5921</td><td>1</td><td>124.7400</td></tr><tr><td>2025-07-15 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-15.8224</td><td>12.4883</td><td>-28.3107</td><td>0.3922</td><td>0.3437</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-1.2886</td><td>-0.9384</td><td>2.3035</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>True</td><td>False</td><td>0.3061</td><td>False</td><td>True</td><td>False</td><td>False</td><td>0.3922</td><td>-0.3437</td><td>-1.2886</td><td>1</td><td>124.2300</td></tr><tr><td>2025-07-22 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-7.7485</td><td>16.6724</td><td>-24.4209</td><td>0.7347</td><td>1.0379</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-0.2014</td><td>-1.6940</td><td>1.0872</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>True</td><td>False</td><td>0.4057</td><td>False</td><td>True</td><td>False</td><td>False</td><td>0.7347</td><td>-1.0379</td><td>-0.2014</td><td>1</td><td>131.0800</td></tr><tr><td>2025-07-29 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-7.8512</td><td>17.1233</td><td>-24.9745</td><td>0.7492</td><td>0.9002</td><td>False</td><td>False</td><td>False</td><td>None</td><td>2.8137</td><td>0.4412</td><td>3.0150</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>False</td><td>0.4068</td><td>True</td><td>True</td><td>False</td><td>False</td><td>0.7492</td><td>-0.9002</td><td>2.8137</td><td>0</td><td>127.4000</td></tr><tr><td>2025-08-05 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-10.9340</td><td>13.2109</td><td>-24.1449</td><td>0.3848</td><td>1.0244</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-0.1592</td><td>0.8177</td><td>-2.9728</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>True</td><td>False</td><td>0.3537</td><td>False</td><td>True</td><td>False</td><td>False</td><td>0.3848</td><td>-1.0244</td><td>-0.1592</td><td>1</td><td>119.9300</td></tr><tr><td>2025-08-12 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-10.4691</td><td>13.5024</td><td>-23.9716</td><td>0.3883</td><td>1.0252</td><td>False</td><td>False</td><td>False</td><td>None</td><td>1.0142</td><td>1.2229</td><td>1.1733</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>False</td><td>False</td><td>0.3603</td><td>True</td><td>True</td><td>False</td><td>False</td><td>0.3883</td><td>-1.0252</td><td>1.0142</td><td>0</td><td>121.9800</td></tr><tr><td>2025-08-19 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-9.4086</td><td>12.0481</td><td>-21.4567</td><td>0.2421</td><td>1.4233</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-4.6243</td><td>-1.2564</td><td>-5.6385</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>True</td><td>False</td><td>0.3596</td><td>False</td><td>True</td><td>False</td><td>False</td><td>0.2421</td><td>-1.4233</td><td>-4.6243</td><td>1</td><td>119.4600</td></tr><tr><td>2025-08-26 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-6.0356</td><td>15.6272</td><td>-21.6629</td><td>0.5414</td><td>1.3294</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-1.4961</td><td>-1.7021</td><td>3.1282</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>True</td><td>False</td><td>0.4191</td><td>False</td><td>True</td><td>False</td><td>False</td><td>0.5414</td><td>-1.3294</td><td>-1.4961</td><td>1</td><td>123.2200</td></tr><tr><td>2025-09-02 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>-3.9108</td><td>18.1116</td><td>-22.0224</td><td>0.7328</td><td>1.2522</td><td>False</td><td>False</td><td>False</td><td>None</td><td>4.9007</td><td>-0.4066</td><td>6.3968</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>False</td><td>False</td><td>0.4513</td><td>True</td><td>True</td><td>False</td><td>False</td><td>0.7328</td><td>-1.2522</td><td>4.9007</td><td>0</td><td>128.0800</td></tr><tr><td>2025-09-09 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-6.8077</td><td>12.4615</td><td>-19.2692</td><td>0.1894</td><td>1.6642</td><td>False</td><td>False</td><td>False</td><td>None</td><td>-1.0409</td><td>0.7879</td><td>-5.9416</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>True</td><td>False</td><td>0.3927</td><td>False</td><td>True</td><td>False</td><td>False</td><td>0.1894</td><td>-1.6642</td><td>-1.0409</td><td>1</td><td>125.0000</td></tr><tr><td>2025-09-16 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Hedgers</td><td>-6.2978</td><td>13.0483</td><td>-19.3461</td><td>0.2448</td><td>1.5769</td><td>False</td><td>False</td><td>False</td><td>None</td><td>1.0002</td><td>1.6200</td><td>2.0412</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>False</td><td>False</td><td>0.4028</td><td>True</td><td>True</td><td>False</td><td>False</td><td>0.2448</td><td>-1.5769</td><td>1.0002</td><td>0</td><td>126.8600</td></tr><tr><td>2025-09-23 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>-1.6351</td><td>18.9369</td><td>-20.5720</td><td>0.7963</td><td>1.3194</td><td>False</td><td>False</td><td>False</td><td>None</td><td>3.3097</td><td>1.0897</td><td>2.3094</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>False</td><td>False</td><td>0.4793</td><td>True</td><td>True</td><td>False</td><td>False</td><td>0.7963</td><td>-1.3194</td><td>3.3097</td><td>0</td><td>134.7500</td></tr><tr><td>2025-09-30 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>3.3955</td><td>22.9584</td><td>-19.5629</td><td>1.1841</td><td>1.4501</td><td>False</td><td>False</td><td>False</td><td>None</td><td>4.8468</td><td>3.0522</td><td>1.5371</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>False</td><td>False</td><td>0.5399</td><td>True</td><td>True</td><td>False</td><td>False</td><td>1.1841</td><td>-1.4501</td><td>4.8468</td><td>0</td><td>142.8800</td></tr><tr><td>2025-10-07 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>4.0565</td><td>21.0649</td><td>-17.0084</td><td>0.9945</td><td>1.8092</td><td>False</td><td>False</td><td>False</td><td>None</td><td>8.6034</td><td>5.5866</td><td>3.7566</td><td>True</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>False</td><td>False</td><td>0.5533</td><td>True</td><td>True</td><td>False</td><td>False</td><td>0.9945</td><td>-1.8092</td><td>8.6034</td><td>0</td><td>147.7900</td></tr><tr><td>2025-10-14 00:00:00</td><td>PLATINUM - NEW YORK MERCANTILE EXCHANGE</td><td>Balanced</td><td>1.5264</td><td>19.1207</td><td>-17.5944</td><td>0.8246</td><td>1.6821</td><td>False</td><td>False</td><td>False</td><td>None</td><td>6.0724</td><td>6.5075</td><td>-2.5309</td><td>False</td><td>True</td><td>False</td><td>False</td><td>False</td><td>Normal</td><td>False</td><td>False</td><td>None</td><td>False</td><td>True</td><td>Shortage_or_Stress</td><td>False</td><td>False</td><td>False</td><td>0.5208</td><td>True</td><td>True</td><td>False</td><td>False</td><td>0.8246</td><td>-1.6821</td><td>6.0724</td><td>0</td><td>149.4500</td></tr></tbody></table>
+            </div>
+            
+        <div class="df-footer">
+            <span id="df_1933190267216_row_count">Showing 15 of 15 rows</span>
+        </div>
+        
+        </div>
+        
+        <script>
+        (function() {
+            const containerId = 'df_container_1933166390032';
+            const tableId = 'df_1933190267216_table';
+
+            // Search functionality
+            const searchInput = document.getElementById('df_1933190267216_search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase();
+                    const table = document.getElementById(tableId);
+                    const rows = table.getElementsByTagName('tr');
+
+                    let visibleCount = 0;
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(filter)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+
+                    document.getElementById('df_1933190267216_row_count').textContent = 
+                        `Showing ${visibleCount} of ${rows.length - 1} rows`;
+                });
+            }
+
+            // Download CSV
+            const downloadBtn = document.getElementById('df_1933190267216_download');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    let csv = [];
+                    const rows = table.getElementsByTagName('tr');
+
+                    for (let row of rows) {
+                        if (row.style.display !== 'none') {
+                            const cols = row.querySelectorAll('td, th');
+                            const csvRow = Array.from(cols).map(col => 
+                                '"' + col.textContent.replace(/"/g, '""') + '"'
+                            ).join(',');
+                            csv.push(csvRow);
+                        }
+                    }
+
+                    const csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', 'Platinum_CoT_Signals.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+
+            // Sortable columns
+            const headers = document.querySelectorAll('#' + tableId + ' th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    const tbody = table.tBodies[0];
+                    const rows = Array.from(tbody.rows);
+
+                    const isNumeric = rows.every(row => {
+                        const cell = row.cells[index];
+                        return cell && !isNaN(parseFloat(cell.textContent));
+                    });
+
+                    const direction = header.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+
+                    rows.sort((a, b) => {
+                        const aVal = a.cells[index].textContent;
+                        const bVal = b.cells[index].textContent;
+
+                        if (isNumeric) {
+                            return direction === 'asc' 
+                                ? parseFloat(aVal) - parseFloat(bVal)
+                                : parseFloat(bVal) - parseFloat(aVal);
+                        } else {
+                            return direction === 'asc'
+                                ? aVal.localeCompare(bVal)
+                                : bVal.localeCompare(aVal);
+                        }
+                    });
+
+                    rows.forEach(row => tbody.appendChild(row));
+
+                    headers.forEach(h => h.dataset.sortDir = '');
+                    header.dataset.sortDir = direction;
+                });
+            });
+        })();
+        </script>
+        
+        </div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Platinum CoT Signals</a></section>
+</main>
+</body>
+</html>
