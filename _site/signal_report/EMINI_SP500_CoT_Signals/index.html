@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EMINI S&amp;P 500 - Individual Market Analysis – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>EMINI S&amp;P 500 - Individual Market Analysis</div>
+    <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>EMINI S&amp;P 500 - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for EMINI S&amp;P 500 futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+    <p style="margin-top:0.75rem;"></p>
+    <p><strong>State of the Market Summary:</strong></p>
+    <ul>
+        <li>The E-MINI S&P 500 shows speculative traders holding a net short position of -7.80%OI as of 2025-10-21.</li>
+        <li>Hedgers are net long at 2.70%OI.</li>
+        <li>Recent 4-week flow indicates a "Long_Build" of 1.00%OI, suggesting reduced short exposure or new long positions.</li>
+        <li>The market closed at 6,773.25 on the latest report date.</li>
+    </ul>
+
+    <p><strong>Technical Summary:</strong></p>
+    <ul>
+        <li>Neither speculative (-0.8584) nor hedger (0.4843) z-scores are currently in extreme ±2 bands.</li>
+        <li>No crowding, squeeze, or exhaustion risk flags are active.</li>
+        <li>The market is categorised as "Normal" in synthetic state with "Spec_Trend_Long" structure.</li>
+        <li>The current reversal score is 0, indicating no clear reversal setup.</li>
+        <li>Hedgers were "Deep_Long" from July to mid-September, but have since become "Neutral."</li>
+    </ul>
+
+    <p><strong>References:</strong></p>
+    <ul>
+        <li>EMINI_SP500_CoT_Signals, latest timestamp: 2025-10-21 00:00:00.</li>
+        <li>The analysis was primarily influenced by Spec_Net_%OI, Hedger_Net_%OI, Spec_zscore, Hedger_zscore, Flow_4w, and Price.</li>
+        <li>Daily futures prices for the E-MINI S&P 500 would enhance price-action alignment.</li>
+        <li>Implied volatility data would provide additional context on market risk perception.</li>
+    </ul>
+</div></div></section>
+
+<section class="section"><h2 class="section-title">EMINI S&amp;P 500 CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_EMINI_SP500_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">EMINI S&amp;P 500 futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>EMINI S&amp;P 500 CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report">
+        
+        <style>
+        #df_container_2970144490368 {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #212529;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #df_container_2970144490368 .df-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        #df_container_2970144490368 .df-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+            margin: 0;
+        }
+
+        #df_container_2970144490368 .df-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        #df_container_2970144490368 .df-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        #df_container_2970144490368 .df-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        #df_container_2970144490368 .df-button {
+            padding: 8px 16px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        #df_container_2970144490368 .df-button:hover {
+            opacity: 0.85;
+        }
+
+        #df_container_2970144490368 .df-table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        #df_container_2970144490368 table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        #df_container_2970144490368 th {
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        #df_container_2970144490368 th:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_2970144490368 th::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 10px;
+        }
+
+        #df_container_2970144490368 td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #dee2e6;
+            color: #212529;
+        }
+
+        #df_container_2970144490368 tr:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_2970144490368 .df-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+        }
+
+        #df_container_2970144490368 .df-no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        </style>
+        
+        <div id="df_container_2970144490368">
+            <div class="df-header">
+                <div>
+                    <h2 class="df-title">EMINI_SP500_CoT_Signals</h2>
+                    <div class="df-info">Rows: 15 | Columns: 48</div>
+                </div>
+            </div>
+            <div class="df-controls"><input type="text" id="df_2970338616784_search" class="df-search" placeholder="Search table..."><button id="df_2970338616784_download" class="df-button">📥 Download CSV</button></div>
+            <div class="df-table-wrapper">
+                <table id="df_2970338616784_table"><thead><tr><th>Report_Date</th><th>Market_and_Exchange_Names</th><th>Spec_Net_%OI</th><th>Hedger_Net_%OI</th><th>Spec_zscore</th><th>Hedger_zscore</th><th>Flow_4w</th><th>controller</th><th>controller_gap_%OI</th><th>spec_extreme_1y</th><th>hedger_extreme_1y</th><th>any_extreme_1y</th><th>extreme_side</th><th>flow_4w_label</th><th>flow_4w_strength</th><th>crowded_long</th><th>crowded_short</th><th>squeeze_risk</th><th>exhaustion_risk</th><th>hedger_pressure_regime</th><th>bullish_reversal_risk</th><th>bearish_reversal_risk</th><th>reversal_regime</th><th>market_structure_regime</th><th>positioning_tension_score</th><th>risk_flags_count</th><th>synthetic_state</th><th>CFTC_Contract_Market_Code</th><th>CFTC_Market_Code</th><th>CFTC_Region_Code</th><th>CFTC_Commodity_Code</th><th>Commodity_Class</th><th>Commodity_SubClass</th><th>Region_Class</th><th>COT_Index_Spec</th><th>Spec_Net_Contracts</th><th>Hedger_Net_Contracts</th><th>hedger_pressure</th><th>specs_vs_hedgers_divergence</th><th>source</th><th>Market and Exchange Names</th><th>CFTC Contract Market Code</th><th>CFTC Region Code</th><th>CFTC Commodity Code</th><th>hedger_deep_short</th><th>hedger_deep_long</th><th>reversal_score</th><th>Price</th></tr></thead><tbody><tr><td>2025-07-15 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.7000</td><td>5.0000</td><td>-1.9846</td><td>1.5254</td><td>-1.6000</td><td>Balanced</td><td>3.7000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-1.6000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.5101</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-167778</td><td>96835</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>0</td><td>6,284.00</td></tr><tr><td>2025-07-22 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.8000</td><td>5.1000</td><td>-1.8578</td><td>1.4640</td><td>-1.1000</td><td>Balanced</td><td>3.7000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-1.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.3218</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-168481</td><td>98168</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>0</td><td>6,346.75</td></tr><tr><td>2025-07-29 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.4000</td><td>4.2000</td><td>-1.6184</td><td>1.1932</td><td>-3.8000</td><td>Balanced</td><td>4.2000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-3.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.8116</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>3.2520</td><td>-163181</td><td>81752</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>0</td><td>6,406.00</td></tr><tr><td>2025-08-05 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-7.3000</td><td>3.3000</td><td>-1.2147</td><td>0.9452</td><td>0.1000</td><td>Balanced</td><td>4.0000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>0.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Long_Bias</td><td>2.1600</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>12.1951</td><td>-139646</td><td>63683</td><td>False</td><td>False</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>False</td><td>0</td><td>6,325.25</td></tr><tr><td>2025-08-12 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-9.8000</td><td>6.1000</td><td>-1.8624</td><td>1.5357</td><td>-1.1000</td><td>Balanced</td><td>3.7000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-1.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.3981</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-192057</td><td>118751</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>0</td><td>6,468.50</td></tr><tr><td>2025-08-19 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.7000</td><td>5.1000</td><td>-1.4543</td><td>1.2479</td><td>0.1000</td><td>Balanced</td><td>3.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>0.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>True</td><td>False</td><td>Bullish_Reversal_Risk</td><td>Balanced_Long_Bias</td><td>2.7022</td><td>1</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>8.2707</td><td>-171498</td><td>98790</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>1</td><td>6,432.50</td></tr><tr><td>2025-08-26 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-9.3000</td><td>5.3000</td><td>-1.5494</td><td>1.2452</td><td>-0.9000</td><td>Balanced</td><td>4.0000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-0.9000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.7946</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>3.7594</td><td>-187752</td><td>107645</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>0</td><td>6,482.50</td></tr><tr><td>2025-09-02 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.1000</td><td>4.5000</td><td>-1.1589</td><td>1.0279</td><td>-0.8000</td><td>Balanced</td><td>3.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-0.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.1868</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>12.7820</td><td>-161060</td><td>88921</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>0</td><td>6,425.50</td></tr><tr><td>2025-09-09 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.5000</td><td>4.5000</td><td>-1.2295</td><td>0.9990</td><td>1.3000</td><td>Balanced</td><td>4.0000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>1.3000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Long_Bias</td><td>2.2285</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>9.7744</td><td>-173665</td><td>90841</td><td>False</td><td>False</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>False</td><td>0</td><td>6,521.75</td></tr><tr><td>2025-09-16 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-9.2000</td><td>5.5000</td><td>-1.3737</td><td>1.1899</td><td>-0.5000</td><td>Balanced</td><td>3.7000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-0.5000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.5636</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>4.5113</td><td>-225074</td><td>134019</td><td>False</td><td>True</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>True</td><td>0</td><td>6,610.75</td></tr><tr><td>2025-09-23 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.8000</td><td>4.5000</td><td>-1.2184</td><td>0.9356</td><td>0.5000</td><td>Balanced</td><td>4.3000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>0.5000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Long_Bias</td><td>2.1540</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>7.5188</td><td>-172549</td><td>88637</td><td>False</td><td>False</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>False</td><td>0</td><td>6,715.00</td></tr><tr><td>2025-09-30 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-7.1000</td><td>2.5000</td><td>-0.7250</td><td>0.4670</td><td>1.0000</td><td>Balanced</td><td>4.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>1.0000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Long_Bias</td><td>1.1920</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>20.3008</td><td>-136689</td><td>49567</td><td>False</td><td>False</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>False</td><td>0</td><td>6,738.75</td></tr><tr><td>2025-10-07 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-7.4000</td><td>2.4000</td><td>-0.7933</td><td>0.4371</td><td>1.1000</td><td>Balanced</td><td>5.0000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>1.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Long_Bias</td><td>1.2304</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>18.0451</td><td>-144091</td><td>47444</td><td>False</td><td>False</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>False</td><td>0</td><td>6,761.50</td></tr><tr><td>2025-10-14 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-8.6000</td><td>3.8000</td><td>-1.1037</td><td>0.7517</td><td>0.6000</td><td>Balanced</td><td>4.8000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>0.6000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Long_Bias</td><td>1.8555</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>9.0226</td><td>-165683</td><td>72883</td><td>False</td><td>False</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>False</td><td>0</td><td>6,686.50</td></tr><tr><td>2025-10-21 00:00:00</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>-7.8000</td><td>2.7000</td><td>-0.8584</td><td>0.4843</td><td>1.0000</td><td>Specs</td><td>5.1000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>1.0000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Spec_Trend_Long</td><td>1.3427</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>15.0376</td><td>-145350</td><td>51577</td><td>False</td><td>False</td><td>legacy</td><td>E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE</td><td>13874A</td><td>0.0000</td><td>138.0000</td><td>False</td><td>False</td><td>0</td><td>6,773.25</td></tr></tbody></table>
+            </div>
+            
+        <div class="df-footer">
+            <span id="df_2970338616784_row_count">Showing 15 of 15 rows</span>
+        </div>
+        
+        </div>
+        
+        <script>
+        (function() {
+            const containerId = 'df_container_2970144490368';
+            const tableId = 'df_2970338616784_table';
+
+            // Search functionality
+            const searchInput = document.getElementById('df_2970338616784_search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase();
+                    const table = document.getElementById(tableId);
+                    const rows = table.getElementsByTagName('tr');
+
+                    let visibleCount = 0;
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(filter)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+
+                    document.getElementById('df_2970338616784_row_count').textContent = 
+                        `Showing ${visibleCount} of ${rows.length - 1} rows`;
+                });
+            }
+
+            // Download CSV
+            const downloadBtn = document.getElementById('df_2970338616784_download');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    let csv = [];
+                    const rows = table.getElementsByTagName('tr');
+
+                    for (let row of rows) {
+                        if (row.style.display !== 'none') {
+                            const cols = row.querySelectorAll('td, th');
+                            const csvRow = Array.from(cols).map(col => 
+                                '"' + col.textContent.replace(/"/g, '""') + '"'
+                            ).join(',');
+                            csv.push(csvRow);
+                        }
+                    }
+
+                    const csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', 'EMINI_SP500_CoT_Signals.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+
+            // Sortable columns
+            const headers = document.querySelectorAll('#' + tableId + ' th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    const tbody = table.tBodies[0];
+                    const rows = Array.from(tbody.rows);
+
+                    const isNumeric = rows.every(row => {
+                        const cell = row.cells[index];
+                        return cell && !isNaN(parseFloat(cell.textContent));
+                    });
+
+                    const direction = header.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+
+                    rows.sort((a, b) => {
+                        const aVal = a.cells[index].textContent;
+                        const bVal = b.cells[index].textContent;
+
+                        if (isNumeric) {
+                            return direction === 'asc' 
+                                ? parseFloat(aVal) - parseFloat(bVal)
+                                : parseFloat(bVal) - parseFloat(aVal);
+                        } else {
+                            return direction === 'asc'
+                                ? aVal.localeCompare(bVal)
+                                : bVal.localeCompare(aVal);
+                        }
+                    });
+
+                    rows.forEach(row => tbody.appendChild(row));
+
+                    headers.forEach(h => h.dataset.sortDir = '');
+                    header.dataset.sortDir = direction;
+                });
+            });
+        })();
+        </script>
+        
+        </div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: EMINI S&amp;P 500 CoT Signals</a></section>
+</main>
+</body>
+</html>

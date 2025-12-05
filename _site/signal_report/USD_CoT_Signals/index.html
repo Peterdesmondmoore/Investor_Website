@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>USD - Individual Market Analysis – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>USD - Individual Market Analysis</div>
+    <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>USD - Individual Market Analysis</h1>
+      <p class="subtitle">COT signals and diagnostics for USD futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-10-21</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+    <p style="margin-top:0.75rem;"></p>
+    <p><strong>State of the Market Summary:</strong></p>
+    <ul>
+        <li>In the USD INDEX market, speculative traders hold a significant short position at -43.40% of Open Interest as of October 21, 2025.</li>
+        <li>Hedgers maintain a substantial long position at 41.10% of Open Interest, indicating a persistent long bias.</li>
+        <li>The market shows extreme positioning in both speculative and hedger camps.</li>
+        <li>USD INDEX is experiencing a strong speculative long reduction, with a 4-week flow of -17.80%.</li>
+    </ul>
+
+    <p><strong>Technical Summary:</strong></p>
+    <ul>
+        <li>Speculative positioning is stretched short with a z-score of -1.7596, nearing extreme levels.</li>
+        <li>Hedger positioning is stretched long with a z-score of 1.6059, also approaching extremes.</li>
+        <li>No clear crowding, squeeze, or exhaustion risk signals are active currently.</li>
+        <li>Hedgers are consistently in a deep long regime, with persistent divergence against speculative traders.</li>
+        <li>The market registers a high positioning tension score of 3.3655, reflecting underlying stress.</li>
+    </ul>
+
+    <p><strong>References:</strong></p>
+    <ul>
+        <li>USD_CoT_Signals dataset, latest timestamp: 2025-10-21.</li>
+        <li>Key data influencing conclusions include Spec_Net_%OI, Hedger_Net_%OI, Spec_zscore, Hedger_zscore, and Flow_4w.</li>
+        <li>Integrating daily price data from yfinance would improve price-signal correlation analysis.</li>
+        <li>Adding macro or volatility overlays would enhance multi-factor signal generation.</li>
+    </ul>
+</div></div></section>
+
+<section class="section"><h2 class="section-title">USD CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_USD_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">USD futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>USD CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report">
+        
+        <style>
+        #df_container_2970364227280 {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #212529;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #df_container_2970364227280 .df-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        #df_container_2970364227280 .df-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+            margin: 0;
+        }
+
+        #df_container_2970364227280 .df-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        #df_container_2970364227280 .df-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        #df_container_2970364227280 .df-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        #df_container_2970364227280 .df-button {
+            padding: 8px 16px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        #df_container_2970364227280 .df-button:hover {
+            opacity: 0.85;
+        }
+
+        #df_container_2970364227280 .df-table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        #df_container_2970364227280 table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        #df_container_2970364227280 th {
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        #df_container_2970364227280 th:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_2970364227280 th::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 10px;
+        }
+
+        #df_container_2970364227280 td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #dee2e6;
+            color: #212529;
+        }
+
+        #df_container_2970364227280 tr:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_2970364227280 .df-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+        }
+
+        #df_container_2970364227280 .df-no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        </style>
+        
+        <div id="df_container_2970364227280">
+            <div class="df-header">
+                <div>
+                    <h2 class="df-title">USD_CoT_Signals</h2>
+                    <div class="df-info">Rows: 15 | Columns: 48</div>
+                </div>
+            </div>
+            <div class="df-controls"><input type="text" id="df_2970169323984_search" class="df-search" placeholder="Search table..."><button id="df_2970169323984_download" class="df-button">📥 Download CSV</button></div>
+            <div class="df-table-wrapper">
+                <table id="df_2970169323984_table"><thead><tr><th>Report_Date</th><th>Market_and_Exchange_Names</th><th>Spec_Net_%OI</th><th>Hedger_Net_%OI</th><th>Spec_zscore</th><th>Hedger_zscore</th><th>Flow_4w</th><th>controller</th><th>controller_gap_%OI</th><th>spec_extreme_1y</th><th>hedger_extreme_1y</th><th>any_extreme_1y</th><th>extreme_side</th><th>flow_4w_label</th><th>flow_4w_strength</th><th>crowded_long</th><th>crowded_short</th><th>squeeze_risk</th><th>exhaustion_risk</th><th>hedger_pressure_regime</th><th>bullish_reversal_risk</th><th>bearish_reversal_risk</th><th>reversal_regime</th><th>market_structure_regime</th><th>positioning_tension_score</th><th>risk_flags_count</th><th>synthetic_state</th><th>CFTC_Contract_Market_Code</th><th>CFTC_Market_Code</th><th>CFTC_Region_Code</th><th>CFTC_Commodity_Code</th><th>Commodity_Class</th><th>Commodity_SubClass</th><th>Region_Class</th><th>COT_Index_Spec</th><th>Spec_Net_Contracts</th><th>Hedger_Net_Contracts</th><th>hedger_pressure</th><th>specs_vs_hedgers_divergence</th><th>source</th><th>Market and Exchange Names</th><th>CFTC Contract Market Code</th><th>CFTC Region Code</th><th>CFTC Commodity Code</th><th>hedger_deep_short</th><th>hedger_deep_long</th><th>reversal_score</th><th>Price</th></tr></thead><tbody><tr><td>2025-07-15 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-10.4000</td><td>12.6000</td><td>-1.2193</td><td>1.1548</td><td>-0.7000</td><td>Balanced</td><td>-2.2000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-0.7000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.3741</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>14.2857</td><td>-3665</td><td>4422</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0253</td></tr><tr><td>2025-07-22 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-9.6000</td><td>11.1000</td><td>-1.1313</td><td>1.0462</td><td>9.8000</td><td>Balanced</td><td>-1.5000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>9.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>True</td><td>False</td><td>Bullish_Reversal_Risk</td><td>Balanced_Long_Bias</td><td>2.1775</td><td>1</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>15.5556</td><td>-3451</td><td>3988</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>1</td><td>0.0374</td></tr><tr><td>2025-07-29 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-12.6000</td><td>11.7000</td><td>-1.2281</td><td>1.0358</td><td>-0.8000</td><td>Balanced</td><td>0.9000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-0.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.2639</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>10.7937</td><td>-4156</td><td>3847</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0794</td></tr><tr><td>2025-08-05 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-23.4000</td><td>17.8000</td><td>-1.6581</td><td>1.2579</td><td>-12.0000</td><td>Specs</td><td>5.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-12.0000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Spec_Long_Unwind</td><td>2.9160</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-7030</td><td>5365</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0823</td></tr><tr><td>2025-08-12 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-20.5000</td><td>16.9000</td><td>-1.4426</td><td>1.1713</td><td>-10.1000</td><td>Balanced</td><td>3.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-10.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.6140</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>4.3284</td><td>-6247</td><td>5122</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0717</td></tr><tr><td>2025-08-19 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-20.7000</td><td>17.5000</td><td>-1.3864</td><td>1.1551</td><td>-11.1000</td><td>Balanced</td><td>3.2000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-11.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.5414</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>4.0299</td><td>-5988</td><td>5060</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0505</td></tr><tr><td>2025-08-26 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-19.4000</td><td>19.5000</td><td>-1.2734</td><td>1.1987</td><td>-6.8000</td><td>Balanced</td><td>-0.1000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-6.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.4720</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>5.9701</td><td>-6105</td><td>6163</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0539</td></tr><tr><td>2025-09-02 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-16.0000</td><td>18.3000</td><td>-1.0806</td><td>1.1086</td><td>7.4000</td><td>Balanced</td><td>-2.3000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>7.4000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>True</td><td>False</td><td>Bullish_Reversal_Risk</td><td>Balanced_Long_Bias</td><td>2.1892</td><td>1</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>11.0448</td><td>-5021</td><td>5790</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>1</td><td>0.0584</td></tr><tr><td>2025-09-09 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-14.6000</td><td>17.4000</td><td>-0.9877</td><td>1.0377</td><td>5.9000</td><td>Balanced</td><td>-2.8000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>5.9000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>True</td><td>False</td><td>Bullish_Reversal_Risk</td><td>Balanced_Long_Bias</td><td>2.0253</td><td>1</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>13.1343</td><td>-5558</td><td>6642</td><td>False</td><td>False</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>1</td><td>0.0499</td></tr><tr><td>2025-09-16 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-33.5000</td><td>35.1000</td><td>-1.7555</td><td>1.7161</td><td>-12.8000</td><td>Balanced</td><td>-1.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-12.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.4716</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-12894</td><td>13534</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0482</td></tr><tr><td>2025-09-23 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-25.6000</td><td>28.2000</td><td>-1.3486</td><td>1.3668</td><td>-6.2000</td><td>Balanced</td><td>-2.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-6.2000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.7154</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>10.2464</td><td>-10344</td><td>11375</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0353</td></tr><tr><td>2025-09-30 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-38.2000</td><td>38.7000</td><td>-1.7999</td><td>1.7156</td><td>-22.2000</td><td>Balanced</td><td>-0.5000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-22.2000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.5155</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-13636</td><td>13818</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0434</td></tr><tr><td>2025-10-07 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-33.9000</td><td>34.4000</td><td>-1.5454</td><td>1.4767</td><td>-19.3000</td><td>Balanced</td><td>-0.5000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-19.3000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.0222</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>5.2567</td><td>-13145</td><td>13314</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0497</td></tr><tr><td>2025-10-14 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-40.2000</td><td>37.1000</td><td>-1.7210</td><td>1.5203</td><td>-6.7000</td><td>Balanced</td><td>3.1000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-6.7000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.2413</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-14933</td><td>13766</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0459</td></tr><tr><td>2025-10-21 00:00:00</td><td>USD INDEX - ICE FUTURES U.S.</td><td>-43.4000</td><td>41.1000</td><td>-1.7596</td><td>1.6059</td><td>-17.8000</td><td>Balanced</td><td>2.3000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-17.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.3655</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-15367</td><td>14537</td><td>False</td><td>True</td><td>legacy</td><td>USD INDEX - ICE FUTURES U.S.</td><td>098662</td><td>1.0000</td><td>98.0000</td><td>False</td><td>True</td><td>0</td><td>0.0401</td></tr></tbody></table>
+            </div>
+            
+        <div class="df-footer">
+            <span id="df_2970169323984_row_count">Showing 15 of 15 rows</span>
+        </div>
+        
+        </div>
+        
+        <script>
+        (function() {
+            const containerId = 'df_container_2970364227280';
+            const tableId = 'df_2970169323984_table';
+
+            // Search functionality
+            const searchInput = document.getElementById('df_2970169323984_search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase();
+                    const table = document.getElementById(tableId);
+                    const rows = table.getElementsByTagName('tr');
+
+                    let visibleCount = 0;
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(filter)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+
+                    document.getElementById('df_2970169323984_row_count').textContent = 
+                        `Showing ${visibleCount} of ${rows.length - 1} rows`;
+                });
+            }
+
+            // Download CSV
+            const downloadBtn = document.getElementById('df_2970169323984_download');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    let csv = [];
+                    const rows = table.getElementsByTagName('tr');
+
+                    for (let row of rows) {
+                        if (row.style.display !== 'none') {
+                            const cols = row.querySelectorAll('td, th');
+                            const csvRow = Array.from(cols).map(col => 
+                                '"' + col.textContent.replace(/"/g, '""') + '"'
+                            ).join(',');
+                            csv.push(csvRow);
+                        }
+                    }
+
+                    const csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', 'USD_CoT_Signals.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+
+            // Sortable columns
+            const headers = document.querySelectorAll('#' + tableId + ' th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    const tbody = table.tBodies[0];
+                    const rows = Array.from(tbody.rows);
+
+                    const isNumeric = rows.every(row => {
+                        const cell = row.cells[index];
+                        return cell && !isNaN(parseFloat(cell.textContent));
+                    });
+
+                    const direction = header.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+
+                    rows.sort((a, b) => {
+                        const aVal = a.cells[index].textContent;
+                        const bVal = b.cells[index].textContent;
+
+                        if (isNumeric) {
+                            return direction === 'asc' 
+                                ? parseFloat(aVal) - parseFloat(bVal)
+                                : parseFloat(bVal) - parseFloat(aVal);
+                        } else {
+                            return direction === 'asc'
+                                ? aVal.localeCompare(bVal)
+                                : bVal.localeCompare(aVal);
+                        }
+                    });
+
+                    rows.forEach(row => tbody.appendChild(row));
+
+                    headers.forEach(h => h.dataset.sortDir = '');
+                    header.dataset.sortDir = direction;
+                });
+            });
+        })();
+        </script>
+        
+        </div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: USD CoT Signals</a></section>
+</main>
+</body>
+</html>

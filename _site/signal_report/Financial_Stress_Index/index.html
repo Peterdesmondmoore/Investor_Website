@@ -5,69 +5,279 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Financial Stress Index Signal – Signal Report</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
   <style>
-    body { background:#f1f5f9; margin:0; font-family:Merriweather,serif; color:#0f172a; }
-    h1,h2,h3 { font-family:Inter,sans-serif; }
-    .container { max-width:960px; margin:0 auto; padding:24px; }
-    nav { position:sticky; top:0; background:rgba(255,255,255,.9); backdrop-filter:blur(12px); border-bottom:1px solid #e5e7eb; }
-    .nav-inner { max-width:960px; margin:0 auto; padding:8px 24px; display:flex; justify-content:space-between; font-size:.8rem; color:#64748b; }
-    .home-link { font-size:.75rem; text-decoration:none; padding:4px 10px; border-radius:999px; border:1px solid #e5e7eb; color:#475569; }
-    .home-link:hover { background:#f1f5f9; }
-    .page-header { margin:28px 0; display:flex; flex-direction:column; gap:12px; }
-    .title-block h1 { margin:0; font-size:1.75rem; letter-spacing:.02em; }
-    .subtitle { margin:4px 0 0; font-size:.9rem; color:#64748b; }
-    .meta-pill { padding:3px 10px; border-radius:999px; background:#e0f2fe; color:#0369a1; font-weight:500; }
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
 
-    .section { margin-bottom:24px; }
-    .section-title { margin:0 0 12px; font-size:1rem; color:#0f172a; letter-spacing:.03em; text-transform:uppercase; font-weight:600; }
-    .box { background:#ffffff; border-radius:18px; padding:16px 18px; border:1px solid #e2e8f0; box-shadow:0 8px 20px rgba(15,23,42,.06); }
-    .summary-box { font-size:.9rem; line-height:1.5; }
-    .summary-box p { margin:0 0 .75rem; }
-    .summary-box ul, .summary-box ol { margin:0 0 .75rem 1.25rem; padding-left:1.25rem; }
-    .summary-box li { margin-bottom:.25rem; }
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-    .chart-box { text-align:center; }
-    .chart-img { max-width:100%; border-radius:12px; border:1px solid #e5e7eb; }
-    .chart-caption { margin-top:8px; font-size:.8rem; color:#64748b; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
 
-    .details { border:none; }
-    .expand-summary { list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:.85rem; color:#0f172a; font-weight:500; }
-    .expand-summary::-webkit-details-marker { display:none; }
-    .chevron { font-size:.85rem; color:#94a3b8; transition:transform .15s ease; }
-    .details[open] .chevron { transform:rotate(90deg); }
-    .expand-inner { max-height:0; overflow:hidden; transition:max-height .2s ease; }
-    .details[open] .expand-inner { max-height:9999px; }
-    .expand-inner.open { max-height:none; }
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
 
-    .details { border:none; }
-    .expand-summary { list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:.85rem; color:#0f172a; font-weight:500; }
-    .expand-summary::-webkit-details-marker { display:none; }
-    .chevron { font-size:.85rem; color:#94a3b8; transition:transform .15s ease; }
-    .details[open] .chevron { transform:rotate(90deg); }
-    .expand-inner { max-height:0; overflow:hidden; transition:max-height .2s ease; }
-    .details[open] .expand-inner { max-height:2000px; }
-    .expand-inner.open { max-height:none; }
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
 
-    .table-box { font-size:.8rem; overflow-x:auto; }
-    .table-box table { width:100%; border-collapse:collapse; font-size:.8rem; }
-    .table-box th, .table-box td { padding:6px 8px; border-bottom:1px solid #e5e7eb; }
-    .table-box th { text-align:left; font-weight:600; font-size:.75rem; color:#64748b; }
-    .table-box tr:nth-child(even) { background:#f8fafc; }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
 
-    iframe { width:100%; min-height:480px; border:none; border-radius:12px; }
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
 
-    .rule { border:none; border-top:1px solid #e5e7eb; margin:0 0 24px; }
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
 
-    /* Ensure bullets show even if Tailwind preflight ran elsewhere */
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
     .market-report ul,
     .market-report ol {
-      list-style: disc;
-      margin-left: 1.25rem;
+      margin: 0 0 0.8rem 1.25rem;
       padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
     }
 
     .methodology-button {
@@ -75,17 +285,20 @@
       align-items: center;
       padding: 6px 14px;
       border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      font-size: .8rem;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
       text-decoration: none;
-      background: #0f172a;
+      background: var(--accent);
       color: #f9fafb;
       cursor: pointer;
-      transition: background .15s ease, transform .1s ease;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
     }
+
     .methodology-button:hover {
-      background: #111827;
+      background: #e11d48;
       transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
     }
   </style>
 </head>
@@ -103,8 +316,8 @@
       <h1>Financial Stress Index Signal</h1>
       <p class="subtitle">Market-wide financial stress and systemic risk conditions.</p>
     </div>
-    <div style="font-size:.7rem; color:#94a3b8;">
-      <div>As of 2025-11-29</div>
+    <div class="meta-row">
+      <div>As of 2025-11-30</div>
       
     </div>
   </header>
@@ -112,27 +325,30 @@
   <hr class="rule" />
 
   <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
-        <p>
-            The market sentiment, as of November 21, 2025, reflects elevated financial stress, with the St. Louis Fed Financial Stress Index (STLFSI4) at -0.1331 and its z-score at 1.70. This translates into a "Bearish" financial stress signal. This marks a notable shift from earlier periods, such as July 2025, which saw "Bullish" signals (e.g., STLFSI4 -0.8797, z-score -1.123216 on July 4th). The consistent "Bearish" or "Neutral" signals since September indicate a clear increase in market caution, suggesting potential headwinds for equities and industrial metals, while driving demand for safe-haven assets like precious metals.
-        </p>
-        <p>
-            <strong>Technical Summary:</strong>
-            Technically, the rising trend in financial stress, evidenced by increasingly positive z-scores and frequent "Bearish" signals, points towards a risk-off environment. This pattern implies that technical breakouts or upward momentum in risk assets may encounter significant resistance. Investors are likely to favor defensive positions, indicating a period of heightened caution and potential for downside pressure across growth-sensitive market segments.
-        </p>
-        <p>
-            <strong>References:</strong>
-            <ul>
-                <li>St. Louis Fed Financial Stress Index (STLFSI4) and derived signals, latest data: 2025-11-21. *This data is particularly relevant for assessing overall market sentiment and positioning.*</li>
-                <li><strong>Publicly available data that would enhance the analysis in the future:</strong>
-                    <ul>
-                        <li>**Equity Volatility Indices (e.g., VIX):** To directly gauge investor fear and expected market swings.</li>
-                        <li>**Credit Spreads (e.g., Corporate Bond Spreads):** To assess perceived credit risk and liquidity conditions.</li>
-                        <li>**Yield Curve (e.g., 10-year minus 2-year Treasury yields):** To infer economic growth expectations and potential recession signals.</li>
-                    </ul>
-                </li>
-            </ul>
-        </p>
-    </div></div></section>
+    <p style="margin-top:0.75rem;"></p>
+    <p><strong>State of the Market Summary:</strong></p>
+    <ul>
+        <li>The financial market exhibits elevated stress. The STLFSI4 measured -0.1331 on 2025-11-21.</li>
+        <li>This corresponds to a Stress_z of 1.70. The current financial stress signal is Bearish.</li>
+        <li>The aggregated financial stress indicator shows extreme positioning. It suggests heightened systemic risk conditions.</li>
+    </ul>
+
+    <p><strong>Technical Summary:</strong></p>
+    <ul>
+        <li>The STLFSI4 shows significant stretch, having risen from recent lower stress levels.</li>
+        <li>A Stress_z of 1.70 indicates an elevated extreme relative to historical norms.</li>
+        <li>This z-score confirms the Bearish signal, suggesting increased systemic pressure.</li>
+        <li>The provided data does not offer direct indicators for crowding or unwind risk.</li>
+    </ul>
+
+    <p><strong>References:</strong></p>
+    <ul>
+        <li>Financial Stress Index Data, latest timestamp: 2025-11-21.</li>
+        <li>The STLFSI4 and Stress_z values for 2025-11-21 critically influenced conclusions.</li>
+        <li>Sector-specific stress indicators would improve future analysis.</li>
+        <li>Publicly available volatility indices and credit spreads would also enhance insights.</li>
+    </ul>
+</div></div></section>
 
 <section class="section"><h2 class="section-title">Financial Stress Index Chart</h2><div class="box chart-box"><img src="/images/US_Financial_Stress_Signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Composite financial stress conditions across markets.</p></div></section>
 

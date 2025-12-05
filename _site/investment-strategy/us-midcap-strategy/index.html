@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>U.S. Mid-Cap Value & Growth Strategy (VOE + IWP)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #3b82f6; /* Strategy accent: brand blue */
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --text-main: #f1f5f9;
+      --text-soft: #94a3b8;
+      --border-subtle: #1f2937;
+      --danger: #ef4444;
+      --positive: #22c55e;
+      --warn: #fbbf24;
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.4rem);
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .tabs {
+      margin-top: 16px;
+    }
+
+    .tab-list {
+      display: inline-flex;
+      gap: 8px;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .tab-button {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .tab-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .tab-panel {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .pill-hot {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--danger);
+    }
+
+    .pill-oppty {
+      border-color: rgba(74, 222, 128, 0.7);
+      color: var(--positive);
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    .section {
+      margin-top: 14px;
+    }
+
+    .section h3 {
+      font-size: 0.9rem;
+      margin: 0 0 6px;
+    }
+
+    .section p {
+      font-size: 0.8rem;
+      margin: 0 0 8px;
+      color: var(--text-soft);
+    }
+
+    .table-wrapper {
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    thead {
+      background: #020617;
+    }
+
+    th, td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .col-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .risk-low { color: var(--positive); }
+    .risk-medium { color: var(--warn); }
+    .risk-high { color: var(--danger); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--text-soft);
+    }
+
+    .tag-positive { color: var(--positive); border-color: rgba(34, 197, 94, 0.5); }
+    .tag-warn { color: var(--warn); border-color: rgba(250, 204, 21, 0.5); }
+    .tag-risk { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+
+    ul.bullet-tight {
+      padding-left: 18px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    a {
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #fbbf24;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <div>U.S. Mid-Cap Value &amp; Growth Strategy</div>
+      <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">
+        ← Back to dashboard
+      </a>
+    </div>
+  </nav>
+  <div class="page">
+    <header class="header">
+      <div class="eyebrow">Strategy Overview</div>
+      <h1>U.S. Mid-Cap Value &amp; Growth Strategy (VOE + IWP)</h1>
+      <p class="subtitle">
+        A rules-based mid-cap equity strategy combining value and growth exposures via VOE and IWP.
+        This page describes the investment thesis, deployment plan, macro-driven tilt rules, and
+        risk framework in a format that can be consumed by a model for interrogation and assessment.
+      </p>
+      <div class="meta-row">
+        <div class="chip"><span class="chip-dot"></span>Universe: U.S. mid-cap equities</div>
+        <div class="chip">Instruments: VOE (value) &amp; IWP (growth)</div>
+        <div class="chip">Capital: 100% portfolio (phased deployment)</div>
+        <div class="chip">Style: dynamic value/growth tilting</div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-button active" data-tab="overview">Overview &amp; Allocation</button>
+        <button class="tab-button" data-tab="macro">Macro Tilt &amp; Risk</button>
+      </div>
+      <div id="tab-overview" class="tab-panel active">
+        <main class="layout">
+      <!-- LEFT: STRATEGY LOGIC -->
+      <section class="card" aria-labelledby="strategy-core-heading">
+        <div class="card-title-row">
+          <h2 id="strategy-core-heading">Core Investment Thesis</h2>
+          <span class="pill pill-oppty">Mid-cap sweet spot</span>
+        </div>
+        <p>
+          The strategy targets the long-run outperformance potential of U.S. mid-cap equities while
+          managing style risk between value and growth. VOE provides diversified exposure to
+          fundamentally cheaper, income-generating mid-caps; IWP provides exposure to higher growth
+          mid-caps with stronger earnings trajectories. The combination seeks to capture the
+          historical "sweet spot" of mid-caps: established businesses with meaningful growth
+          runway.
+        </p>
+
+        <div class="section">
+          <h3>Why U.S. Mid-Caps?</h3>
+          <ul class="bullet-tight">
+            <li>Historically competitive or superior long-run total returns vs both large and small caps.</li>
+            <li>Favourable balance between business maturity, balance-sheet strength and growth optionality.</li>
+            <li>High sensitivity to real economic growth, especially in post-tightening and early-cycle recoveries.</li>
+            <li>Current valuations vs mega-cap leaders provide potential catch-up room as breadth improves.</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3>Role of VOE and IWP</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ETF</th>
+                  <th>Style &amp; Role</th>
+                  <th class="col-right">Behavioural Profile</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>VOE</td>
+                  <td>Mid-cap value; cheaper, often cash-generative companies; tilts to cyclicals and financials.</td>
+                  <td class="col-right risk-medium">Lower valuation risk; more resilient in inflationary or higher-rate regimes.</td>
+                </tr>
+                <tr>
+                  <td>IWP</td>
+                  <td>Mid-cap growth; higher earnings growth and reinvestment; more tech and innovation exposure.</td>
+                  <td class="col-right risk-high">More sensitive to real rates, liquidity and risk appetite.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Strategic Objectives</h3>
+          <ul class="bullet-tight">
+            <li>Capture mid-cap equity risk premium with a diversified, low-cost implementation.</li>
+            <li>Exploit style cycles by tilting between value and growth rather than choosing a single style.</li>
+            <li>Use macro conditions (rates, inflation, growth, liquidity) as primary input into tilt decisions.</li>
+            <li>Maintain a simple, transparent rule set that can be interrogated and stress-tested by a model.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- RIGHT: DEPLOYMENT & ALLOCATION RULES -->
+      <aside class="card" aria-labelledby="deployment-heading">
+        <div class="card-title-row">
+          <h2 id="deployment-heading">Deployment &amp; Baseline Allocation</h2>
+          <span class="pill">No leverage, no derivatives</span>
+        </div>
+        <p>
+          Capital is deployed in three tranches, with an initial neutral allocation and
+          subsequent tranches used to establish or reinforce style tilts based on macro data.
+        </p>
+
+        <div class="section">
+          <h3>Capital Deployment Plan (100% of portfolio)</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Timing</th>
+                  <th>Action</th>
+                  <th class="col-right">Indicative Split</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Month 0</td>
+                  <td>Establish core position in VOE and IWP.</td>
+                  <td class="col-right">50% deployed at 50/50</td>
+                </tr>
+                <tr>
+                  <td>Month 1</td>
+                  <td>Deploy second tranche based on macro signals (tilt begins).</td>
+                  <td class="col-right">25% deployed, tilted toward favoured style</td>
+                </tr>
+                <tr>
+                  <td>Month 2</td>
+                  <td>Deploy final tranche to move toward desired strategic tilt.</td>
+                  <td class="col-right">25% deployed, reinforcing tilt</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Baseline Allocation &amp; Bounds</h3>
+          <p>
+            The neutral allocation treats value and growth equally while allowing controlled style
+            tilts within predefined guardrails.
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Description</th>
+                  <th class="col-right">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Neutral split</td>
+                  <td>Starting point absent strong macro signal.</td>
+                  <td class="col-right">50% VOE / 50% IWP</td>
+                </tr>
+                <tr>
+                  <td>Standard tilt range</td>
+                  <td>Normal macro regimes, moderate conviction.</td>
+                  <td class="col-right">40–60% each ETF</td>
+                </tr>
+                <tr>
+                  <td>Maximum tilt range</td>
+                  <td>High-conviction macro regimes only.</td>
+                  <td class="col-right">30–70% bounds</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </aside>
+    </main>
+      </div>
+
+      <!-- SECOND ROW: MACRO TILT LOGIC & RISK -->
+      <div id="tab-macro" class="tab-panel">
+    <section class="layout" style="margin-top: 20px;">
+      <section class="card" aria-labelledby="macro-tilt-heading">
+        <div class="card-title-row">
+          <h2 id="macro-tilt-heading">Macro-Driven Tilt Rules</h2>
+          <span class="pill pill-hot">Regime-sensitive</span>
+        </div>
+        <p>
+          Style tilts are driven by observable macro variables rather than short-term price action.
+          The model can interrogate or simulate these rules by adjusting macro inputs and reviewing
+          the implied allocation.
+        </p>
+
+        <div class="section">
+          <h3>Tilt Toward VOE (Value-Heavy)</h3>
+          <ul class="bullet-tight">
+            <li>Inflation is elevated or re-accelerating; policy bias is toward tightening or higher-for-longer.</li>
+            <li>Nominal and real yields are rising, or yield curve is steepening in a bear-flattening/steepening move.</li>
+            <li>Credit spreads are widening and market is favouring cash flows and balance-sheet strength.</li>
+            <li>Leadership in cyclicals, financials, energy and other value-linked sectors.</li>
+          </ul>
+          <div class="tag-row">
+            <span class="tag tag-positive">Higher inflation</span>
+            <span class="tag tag-positive">Rising real rates</span>
+            <span class="tag tag-warn">Wider credit spreads</span>
+            <span class="tag tag-warn">Value sector leadership</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Tilt Toward IWP (Growth-Heavy)</h3>
+          <ul class="bullet-tight">
+            <li>Disinflation is progressing; inflation expectations are anchored or falling.</li>
+            <li>Policy rates are at or near peak; market prices a credible easing path, real yields stabilise or fall.</li>
+            <li>Liquidity conditions are improving; risk appetite broadens beyond mega caps.</li>
+            <li>Technology and other growth sectors exhibit sustained earnings upgrades and relative strength.</li>
+          </ul>
+          <div class="tag-row">
+            <span class="tag tag-positive">Disinflation</span>
+            <span class="tag tag-positive">Easing bias</span>
+            <span class="tag tag-warn">Liquidity improvement</span>
+            <span class="tag tag-warn">Growth sector leadership</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Rebalancing &amp; Profit-Taking Rules</h3>
+          <ul class="bullet-tight">
+            <li>Scheduled rebalance: at least annually back to chosen target weights.</li>
+            <li>Threshold rebalance: if either ETF drifts &gt; 10 percentage points from target weight.</li>
+            <li>Profit capture: if one ETF appreciates &gt; 25% over a short window, trim back to target and reallocate to the lagging ETF.</li>
+            <li>Extraordinary regimes: in extreme risk-off or recession scenarios, consider moving to maximum VOE tilt within bounds.</li>
+          </ul>
+        </div>
+      </section>
+
+      <aside class="card" aria-labelledby="risk-heading">
+        <div class="card-title-row">
+          <h2 id="risk-heading">Expected Returns &amp; Risk Framework</h2>
+          <span class="pill pill-hot">Equity risk accepted</span>
+        </div>
+        <p>
+          The strategy assumes equity-like volatility and drawdown risk in exchange for higher
+          expected returns. Risk is controlled through diversification across styles, bounded tilts
+          and explicit rebalance rules.
+        </p>
+
+        <div class="section">
+          <h3>Return Expectations (Long Horizon)</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Macro Backdrop</th>
+                  <th class="col-right">Indicative Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Base case</td>
+                  <td>Moderate growth, contained inflation, no prolonged crisis.</td>
+                  <td class="col-right">8–10% p.a. over a full cycle</td>
+                </tr>
+                <tr>
+                  <td>Favourable mid-cap cycle</td>
+                  <td>Broadening growth, easing policy, mid-caps re-rate vs mega caps.</td>
+                  <td class="col-right">10–12%+ p.a., strong single years possible</td>
+                </tr>
+                <tr>
+                  <td>Adverse regime</td>
+                  <td>Deep recession, policy error, or systemic shock.</td>
+                  <td class="col-right risk-high">Large drawdowns (&gt; 30%) possible</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Key Risks and Mitigations</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Risk</th>
+                  <th>Channel</th>
+                  <th class="col-right">Mitigation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Market volatility &amp; drawdowns</td>
+                  <td>Equity beta, mid-cap sensitivity to risk-off shocks.</td>
+                  <td class="col-right">Stay unlevered, diversify across styles, rebalance after large moves.</td>
+                </tr>
+                <tr>
+                  <td>Style underperformance</td>
+                  <td>Persistent value or growth lag vs the other.</td>
+                  <td class="col-right">Hold both styles; use macro-driven tilts rather than all-or-nothing bets.</td>
+                </tr>
+                <tr>
+                  <td>Macro misread</td>
+                  <td>Incorrect interpretation of policy or growth regime.</td>
+                  <td class="col-right">Keep tilts bounded; review data quarterly; allow fast reversal when evidence changes.</td>
+                </tr>
+                <tr>
+                  <td>Sector concentration</td>
+                  <td>VOE tilted to financials/cyclicals, IWP tilted to tech/innovation.</td>
+                  <td class="col-right">Diversify via both ETFs; use rebalancing to prevent extreme drift.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Intended Use by a Model</h3>
+          <p>
+            This page provides a structured description of the strategy that a model can interrogate
+            by:
+          </p>
+          <ul class="bullet-tight">
+            <li>Testing how allocation responds to different inflation, rates and growth scenarios.</li>
+            <li>Assessing whether tilt rules are internally consistent and aligned with historical style behaviour.</li>
+            <li>Evaluating trade-offs between expected return and drawdown risk under alternative macro paths.</li>
+            <li>Proposing refinements to thresholds, bounds or data inputs while preserving overall simplicity.</li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+      </div>
+    </div>
+  </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.tab-button');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    buttons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const target = btn.getAttribute('data-tab');
+        buttons.forEach(function (b) { b.classList.remove('active'); });
+        panels.forEach(function (p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        const panel = document.getElementById('tab-' + target);
+        if (panel) {
+          panel.classList.add('active');
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

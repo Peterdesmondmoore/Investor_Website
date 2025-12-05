@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAD - Individual Market Analysis – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>CAD - Individual Market Analysis</div>
+    <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>CAD - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for CAD futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-10-21</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+    <p style="margin-top:0.75rem;"></p>
+    <p><strong>State of the Market Summary:</strong></p>
+    <ul>
+        <li>Canadian Dollar futures show speculators net short -53.3% of Open Interest as of 2025-10-21.</li>
+        <li>Hedgers maintain a deeply net long position, at 58.1% of Open Interest.</li>
+        <li>The market is characterized by the Hedgers_Deep_Long regime, indicating extreme positioning.</li>
+    </ul>
+
+    <p><strong>Technical Summary:</strong></p>
+    <ul>
+        <li>Spectator net short positioning is significantly stretched with a z-score of -1.5963.</li>
+        <li>Hedgers' net long positioning is also stretched, indicated by a z-score of 1.5826.</li>
+        <li>A "Bullish_Reversal_Risk" flag is active, supported by a reversal score of 1.</li>
+        <li>Recent 4-week flow for speculators shows a slight long build (0.80%), potentially signalling a short unwind.</li>
+    </ul>
+
+    <p><strong>References:</strong></p>
+    <ul>
+        <li>CAD_CoT_Signals (Latest: 2025-10-21). Spec_Net_%OI, Hedger_Net_%OI, and reversal_score were key.</li>
+        <li>CAD futures price (Latest: 1.4033).</li>
+        <li>Additional data: Daily CAD/USD spot rates.</li>
+        <li>Additional data: Canadian and US economic indicators (e.g., inflation, interest rates).</li>
+    </ul>
+</div></div></section>
+
+<section class="section"><h2 class="section-title">CAD CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_CAD_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">CAD futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>CAD CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report">
+        
+        <style>
+        #df_container_2970312406608 {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #ffffff;
+            color: #212529;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #df_container_2970312406608 .df-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        #df_container_2970312406608 .df-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #212529;
+            margin: 0;
+        }
+
+        #df_container_2970312406608 .df-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        #df_container_2970312406608 .df-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        #df_container_2970312406608 .df-search {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            color: #212529;
+            font-size: 14px;
+        }
+
+        #df_container_2970312406608 .df-button {
+            padding: 8px 16px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        #df_container_2970312406608 .df-button:hover {
+            opacity: 0.85;
+        }
+
+        #df_container_2970312406608 .df-table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 600px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        #df_container_2970312406608 table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        #df_container_2970312406608 th {
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        #df_container_2970312406608 th:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_2970312406608 th::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            font-size: 10px;
+        }
+
+        #df_container_2970312406608 td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #dee2e6;
+            color: #212529;
+        }
+
+        #df_container_2970312406608 tr:hover {
+            background-color: #e9ecef;
+        }
+
+        #df_container_2970312406608 .df-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+        }
+
+        #df_container_2970312406608 .df-no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        </style>
+        
+        <div id="df_container_2970312406608">
+            <div class="df-header">
+                <div>
+                    <h2 class="df-title">CAD_CoT_Signals</h2>
+                    <div class="df-info">Rows: 15 | Columns: 48</div>
+                </div>
+            </div>
+            <div class="df-controls"><input type="text" id="df_2970236177744_search" class="df-search" placeholder="Search table..."><button id="df_2970236177744_download" class="df-button">📥 Download CSV</button></div>
+            <div class="df-table-wrapper">
+                <table id="df_2970236177744_table"><thead><tr><th>Report_Date</th><th>Market_and_Exchange_Names</th><th>Spec_Net_%OI</th><th>Hedger_Net_%OI</th><th>Spec_zscore</th><th>Hedger_zscore</th><th>Flow_4w</th><th>controller</th><th>controller_gap_%OI</th><th>spec_extreme_1y</th><th>hedger_extreme_1y</th><th>any_extreme_1y</th><th>extreme_side</th><th>flow_4w_label</th><th>flow_4w_strength</th><th>crowded_long</th><th>crowded_short</th><th>squeeze_risk</th><th>exhaustion_risk</th><th>hedger_pressure_regime</th><th>bullish_reversal_risk</th><th>bearish_reversal_risk</th><th>reversal_regime</th><th>market_structure_regime</th><th>positioning_tension_score</th><th>risk_flags_count</th><th>synthetic_state</th><th>CFTC_Contract_Market_Code</th><th>CFTC_Market_Code</th><th>CFTC_Region_Code</th><th>CFTC_Commodity_Code</th><th>Commodity_Class</th><th>Commodity_SubClass</th><th>Region_Class</th><th>COT_Index_Spec</th><th>Spec_Net_Contracts</th><th>Hedger_Net_Contracts</th><th>hedger_pressure</th><th>specs_vs_hedgers_divergence</th><th>source</th><th>Market and Exchange Names</th><th>CFTC Contract Market Code</th><th>CFTC Region Code</th><th>CFTC Commodity Code</th><th>hedger_deep_short</th><th>hedger_deep_long</th><th>reversal_score</th><th>Price</th></tr></thead><tbody><tr><td>2025-07-15 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-36.6000</td><td>35.9000</td><td>0.2558</td><td>-0.5366</td><td>-14.1000</td><td>Balanced</td><td>0.7000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-14.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>0.7924</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>48.5401</td><td>-74094</td><td>72766</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3705</td></tr><tr><td>2025-07-22 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-35.0000</td><td>35.6000</td><td>0.4540</td><td>-0.5567</td><td>-8.6000</td><td>Balanced</td><td>-0.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-8.6000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>1.0107</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>54.3796</td><td>-70343</td><td>71510</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3676</td></tr><tr><td>2025-07-29 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-37.9000</td><td>38.2000</td><td>0.0706</td><td>-0.2618</td><td>-6.7000</td><td>Balanced</td><td>-0.3000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-6.7000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>0.3324</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>43.7956</td><td>-76433</td><td>77288</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3734</td></tr><tr><td>2025-08-05 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-36.9000</td><td>39.5000</td><td>0.2012</td><td>-0.1126</td><td>-1.3000</td><td>Balanced</td><td>-2.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-1.3000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>0.3138</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>47.4453</td><td>-79420</td><td>84877</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3768</td></tr><tr><td>2025-08-12 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-40.7000</td><td>42.3000</td><td>-0.3108</td><td>0.2065</td><td>-4.1000</td><td>Balanced</td><td>-1.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-4.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>0.5173</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>33.5766</td><td>-90077</td><td>93571</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3774</td></tr><tr><td>2025-08-19 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-42.2000</td><td>45.7000</td><td>-0.5080</td><td>0.5917</td><td>-7.2000</td><td>Balanced</td><td>-3.5000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-7.2000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>1.0997</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>28.1022</td><td>-93079</td><td>100818</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3802</td></tr><tr><td>2025-08-26 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-46.2000</td><td>47.8000</td><td>-1.0339</td><td>0.8188</td><td>-8.3000</td><td>Balanced</td><td>-1.6000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-8.3000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>1.8527</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>13.5036</td><td>-105015</td><td>108560</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3859</td></tr><tr><td>2025-09-02 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-48.3000</td><td>51.2000</td><td>-1.2760</td><td>1.1798</td><td>-11.4000</td><td>Balanced</td><td>-2.9000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-11.4000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>2.4558</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>5.8394</td><td>-108976</td><td>115358</td><td>False</td><td>True</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>True</td><td>0</td><td>1.3747</td></tr><tr><td>2025-09-09 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-43.7000</td><td>46.1000</td><td>-0.6282</td><td>0.5677</td><td>-3.0000</td><td>Balanced</td><td>-2.4000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-3.0000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>1.1959</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>22.6277</td><td>-108917</td><td>115041</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3795</td></tr><tr><td>2025-09-16 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-40.1000</td><td>42.8000</td><td>-0.1251</td><td>0.1725</td><td>2.1000</td><td>Balanced</td><td>-2.7000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>2.1000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Neutral</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Long_Bias</td><td>0.2976</td><td>0</td><td>Normal</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>35.7664</td><td>-107177</td><td>114181</td><td>False</td><td>False</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>False</td><td>0</td><td>1.3774</td></tr><tr><td>2025-09-23 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-54.1000</td><td>58.5000</td><td>-1.9626</td><td>1.9332</td><td>-7.9000</td><td>Balanced</td><td>-4.4000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-7.9000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Balanced_Short_Bias</td><td>3.8957</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>0.0000</td><td>-114806</td><td>124181</td><td>False</td><td>True</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>True</td><td>0</td><td>1.3825</td></tr><tr><td>2025-09-30 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-49.9000</td><td>55.9000</td><td>-1.3429</td><td>1.5584</td><td>-1.6000</td><td>Hedgers</td><td>-6.0000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-1.6000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Hedger_Adding_Short</td><td>2.9013</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>13.2911</td><td>-119905</td><td>134279</td><td>False</td><td>True</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>True</td><td>0</td><td>1.3916</td></tr><tr><td>2025-10-07 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-52.2000</td><td>58.0000</td><td>-1.5772</td><td>1.7068</td><td>-8.5000</td><td>Hedgers</td><td>-5.8000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-8.5000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Hedger_Adding_Short</td><td>3.2840</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>6.0127</td><td>-136718</td><td>151915</td><td>False</td><td>True</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>True</td><td>0</td><td>1.3946</td></tr><tr><td>2025-10-14 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-50.9000</td><td>56.6000</td><td>-1.3570</td><td>1.4897</td><td>-10.8000</td><td>Hedgers</td><td>-5.7000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Reduction</td><td>-10.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>False</td><td>False</td><td>No_Clear_Reversal</td><td>Hedger_Adding_Short</td><td>2.8467</td><td>0</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>10.1266</td><td>-137593</td><td>152580</td><td>False</td><td>True</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>True</td><td>0</td><td>1.4039</td></tr><tr><td>2025-10-21 00:00:00</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>-53.3000</td><td>58.1000</td><td>-1.5963</td><td>1.5826</td><td>0.8000</td><td>Balanced</td><td>-4.8000</td><td>False</td><td>False</td><td>False</td><td>None</td><td>Long_Build</td><td>0.8000</td><td>False</td><td>False</td><td>False</td><td>False</td><td>Hedgers_Deep_Long</td><td>True</td><td>False</td><td>Bullish_Reversal_Risk</td><td>Balanced_Long_Bias</td><td>3.1789</td><td>1</td><td>High_Tension_Low_Flags</td><td></td><td></td><td></td><td></td><td>Other</td><td>Unknown</td><td>Other / Unknown</td><td>2.5316</td><td>-145108</td><td>158354</td><td>False</td><td>True</td><td>legacy</td><td>CANADIAN DOLLAR - CHICAGO MERCANTILE EXCHANGE</td><td>090741</td><td>0.0000</td><td>90.0000</td><td>False</td><td>True</td><td>1</td><td>1.4033</td></tr></tbody></table>
+            </div>
+            
+        <div class="df-footer">
+            <span id="df_2970236177744_row_count">Showing 15 of 15 rows</span>
+        </div>
+        
+        </div>
+        
+        <script>
+        (function() {
+            const containerId = 'df_container_2970312406608';
+            const tableId = 'df_2970236177744_table';
+
+            // Search functionality
+            const searchInput = document.getElementById('df_2970236177744_search');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const filter = this.value.toLowerCase();
+                    const table = document.getElementById(tableId);
+                    const rows = table.getElementsByTagName('tr');
+
+                    let visibleCount = 0;
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(filter)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+
+                    document.getElementById('df_2970236177744_row_count').textContent = 
+                        `Showing ${visibleCount} of ${rows.length - 1} rows`;
+                });
+            }
+
+            // Download CSV
+            const downloadBtn = document.getElementById('df_2970236177744_download');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    let csv = [];
+                    const rows = table.getElementsByTagName('tr');
+
+                    for (let row of rows) {
+                        if (row.style.display !== 'none') {
+                            const cols = row.querySelectorAll('td, th');
+                            const csvRow = Array.from(cols).map(col => 
+                                '"' + col.textContent.replace(/"/g, '""') + '"'
+                            ).join(',');
+                            csv.push(csvRow);
+                        }
+                    }
+
+                    const csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', 'CAD_CoT_Signals.csv');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            }
+
+            // Sortable columns
+            const headers = document.querySelectorAll('#' + tableId + ' th');
+            headers.forEach((header, index) => {
+                header.addEventListener('click', function() {
+                    const table = document.getElementById(tableId);
+                    const tbody = table.tBodies[0];
+                    const rows = Array.from(tbody.rows);
+
+                    const isNumeric = rows.every(row => {
+                        const cell = row.cells[index];
+                        return cell && !isNaN(parseFloat(cell.textContent));
+                    });
+
+                    const direction = header.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+
+                    rows.sort((a, b) => {
+                        const aVal = a.cells[index].textContent;
+                        const bVal = b.cells[index].textContent;
+
+                        if (isNumeric) {
+                            return direction === 'asc' 
+                                ? parseFloat(aVal) - parseFloat(bVal)
+                                : parseFloat(bVal) - parseFloat(aVal);
+                        } else {
+                            return direction === 'asc'
+                                ? aVal.localeCompare(bVal)
+                                : bVal.localeCompare(aVal);
+                        }
+                    });
+
+                    rows.forEach(row => tbody.appendChild(row));
+
+                    headers.forEach(h => h.dataset.sortDir = '');
+                    header.dataset.sortDir = direction;
+                });
+            });
+        })();
+        </script>
+        
+        </div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: CAD CoT Signals</a></section>
+</main>
+</body>
+</html>
