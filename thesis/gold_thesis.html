@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gold Strategy – Strategic & Tactical Asset</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #fbbf24; /* Strategy accent: gold */
+      --accent-soft: rgba(251, 191, 36, 0.16);
+      --text-main: #f1f5f9;
+      --text-soft: #94a3b8;
+      --border-subtle: #1f2937;
+      --danger: #ef4444;
+      --positive: #22c55e;
+      --warn: #f97316;
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .tabs {
+      margin-top: 16px;
+    }
+
+    .tab-list {
+      display: inline-flex;
+      gap: 8px;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .tab-button {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .tab-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(251, 191, 36, 0.8);
+    }
+
+    .tab-panel {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .layout {
+      display: block;
+      width: 100%;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        /* grid removed for full-width */: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .pill-hot {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--danger);
+    }
+
+    .pill-oppty {
+      border-color: rgba(251, 191, 36, 0.8);
+      color: var(--accent);
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    .section {
+      margin-top: 14px;
+    }
+
+    .section h3 {
+      font-size: 0.9rem;
+      margin: 0 0 6px;
+    }
+
+    .section p {
+      font-size: 0.8rem;
+      margin: 0 0 8px;
+      color: var(--text-soft);
+    }
+
+    .table-wrapper {
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    thead {
+      background: #020617;
+    }
+
+    th,
+    td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .col-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .risk-low {
+      color: var(--positive);
+    }
+
+    .risk-medium {
+      color: var(--warn);
+    }
+
+    .risk-high {
+      color: var(--danger);
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--text-soft);
+    }
+
+    .tag-positive {
+      color: var(--positive);
+      border-color: rgba(34, 197, 94, 0.5);
+    }
+
+    .tag-warn {
+      color: var(--warn);
+      border-color: rgba(249, 115, 22, 0.5);
+    }
+
+    .tag-risk {
+      color: var(--danger);
+      border-color: rgba(248, 113, 113, 0.5);
+    }
+
+    ul.bullet-tight {
+      padding-left: 18px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    a {
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent);
+    }
+
+    .grid-two {
+      display: grid;
+      /* grid removed for full-width */: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-two {
+        /* grid removed for full-width */: minmax(0, 1fr);
+      }
+    }
+
+    .grid-four {
+      display: grid;
+      /* grid removed for full-width */: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-four {
+        /* grid removed for full-width */: minmax(0, 1fr);
+      }
+    }
+
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .performance-note {
+      font-size: 0.75rem;
+      margin-top: 6px;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <div>Gold Strategy – Strategic &amp; Tactical Asset</div>
+      <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">
+        ← Back to dashboard
+      </a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <header class="header">
+      <div class="eyebrow">Strategy Overview</div>
+      <h1>Gold: Strategic &amp; Tactical Asset</h1>
+      <p class="subtitle">
+        A thesis-driven framework for using gold as both a long-horizon store of value and a
+        weekly-rebalanced tactical position, organised by signal category.
+      </p>
+      <div class="meta-row">
+        <div class="chip"><span class="chip-dot"></span>Universe: Physical gold, futures &amp; ETFs</div>
+        <div class="chip">Instruments: Spot, GLD/IAU, futures, allocated holdings</div>
+        <div class="chip">Horizon: Strategic (10+ years) with tactical 1–24 month tilts</div>
+        <div class="chip">Role: Macro hedge, crisis insurance, diversifier</div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-button active" data-tab="overview">Overview</button>
+        <button class="tab-button" data-tab="signalmap">Signal Map</button>
+        <button class="tab-button" data-tab="rebalancing">Rebalancing Playbook</button>
+        <button class="tab-button" data-tab="risks">Thesis Risks &amp; Model Interpretation</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-panel active">
+        <main class="layout">
+          <!-- LEFT: CORE THESIS ONLY -->
+          <section class="card" aria-labelledby="core-thesis-heading">
+            <div class="card-title-row">
+              <h2 id="core-thesis-heading">Core Investment Thesis</h2>
+              <span class="pill pill-oppty">Structural hedge</span>
+            </div>
+            <p>
+              Gold is a scarce, non-sovereign asset that performs best when credibility of fiat regimes,
+              real interest rates or the stability of the financial system is in question.
+            </p>
+            <div class="section">
+              <h3>High-level strategy &amp; rationale</h3>
+              <ul class="bullet-tight">
+                <li><strong>Macro hedge:</strong> gold benefits from falling real yields and policy easing.</li>
+                <li><strong>Systemic insurance:</strong> outperforms in recessions, banking stress and geopolitical shocks.</li>
+                <li><strong>Structural demand:</strong> central-bank accumulation supports long-term stability.</li>
+                <li><strong>Portfolio role:</strong> improves diversification; core + tactical overlay framework.</li>
+              </ul>
+            </div>
+            <div class="section">
+              <h3>Deployment &amp; drawdown strategy</h3>
+              <ul class="bullet-tight">
+                <li><strong>Strategic core:</strong> maintain base allocation at all times.</li>
+                <li><strong>Tactical overlay:</strong> tilt weekly based on signal categories.</li>
+                <li><strong>Drawdown response:</strong> treat macro-consistent weakness cautiously and stress-driven dips as opportunities.</li>
+              </ul>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- SIGNAL MAP TAB -->
+      <div id="tab-signalmap" class="tab-panel">
+        <main class="layout">
+          <section class="card" aria-labelledby="signalmap-heading">
+            <div class="card-title-row">
+              <h2 id="signalmap-heading">Signal Map</h2>
+              <span class="pill">Weekly decision map</span>
+            </div>
+            <p>The signal map summarises gold’s key macro, flow, positioning and risk drivers.</p>
+
+            <div class="section">
+              <h3>Signal categories</h3>
+              <ul class="bullet-tight">
+                <li><strong>Real yields &amp; policy rates:</strong> Falling real yields → Buy/Add; rising real yields → Reduce.</li>
+                <li><strong>USD trend:</strong> Weakening USD → Buy/Add; strengthening USD → Reduce.</li>
+                <li><strong>Inflation dynamics:</strong> Sticky inflation with easing policy → Add; credible disinflation → Reduce.</li>
+                <li><strong>Fiscal &amp; debt regime:</strong> Rising deficits/fiscal dominance → Strategic Add.</li>
+                <li><strong>Central-bank demand:</strong> Strong accumulation → structural support.</li>
+                <li><strong>ETF flows:</strong> Turning inflows → Add; euphoric inflows → Trim.</li>
+                <li><strong>Physical demand:</strong> Resilient India/China demand → supportive; demand destruction → risk.</li>
+                <li><strong>Supply:</strong> Flat mine supply → structural support; spike in recycling → Trim.</li>
+                <li><strong>Positioning &amp; sentiment:</strong> Light positioning → Add; crowded longs → Trim/Protect.</li>
+                <li><strong>Technical trend:</strong> Breakouts above 50d/200d → Add; breakdowns → Reduce.</li>
+                <li><strong>Volatility &amp; skew:</strong> Low vol into rising risks → Add; high vol/extreme call skew → Trim.</li>
+                <li><strong>Geopolitical/systemic risk:</strong> Rising risk → Add; rapid de-escalation → Trim back tactical overweights.</li>
+              </ul>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- REBALANCING TAB -->
+      <div id="tab-rebalancing" class="tab-panel">
+        <main class="layout">
+          <section class="card" aria-labelledby="rebalancing-heading">
+            <div class="card-title-row">
+              <h2 id="rebalancing-heading">Rebalancing Playbook</h2>
+              <span class="pill pill-oppty">From signals to actions</span>
+            </div>
+            <p>
+              The aim is not to time every tick, but to lean into favourable setups and harvest
+              gains when conditions become stretched. Regimes reflect clusters of signals rather
+              than single-indicator triggers.
+            </p>
+
+            <div class="section">
+              <h3>Core regimes (illustrative)</h3>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Regime</th>
+                      <th>Signal configuration</th>
+                      <th class="col-right">Default posture</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Deep value / under-owned</td>
+                      <td>
+                        Falling real yields, weaker USD, light positioning, stabilising flows;
+                        macro risks building but not yet fully priced.
+                      </td>
+                      <td class="col-right tag-positive">Buy/Add over several weeks</td>
+                    </tr>
+                    <tr>
+                      <td>Momentum breakout</td>
+                      <td>
+                        Price above 50d/200d, higher highs and lows, supportive macro, flows
+                        positive but not extreme.
+                      </td>
+                      <td class="col-right">Hold / add on pullbacks</td>
+                    </tr>
+                    <tr>
+                      <td>Crowded / euphoria</td>
+                      <td>
+                        Extreme speculative length, euphoric sentiment, sharp ETF inflows,
+                        rich call skew.
+                      </td>
+                      <td class="col-right tag-warn">Profit take / trim</td>
+                    </tr>
+                    <tr>
+                      <td>Macro headwind</td>
+                      <td>
+                        Rising positive real yields, strong USD, credible disinflation, slowing
+                        central-bank demand.
+                      </td>
+                      <td class="col-right">Reduce to strategic core</td>
+                    </tr>
+                    <tr>
+                      <td>Shock &amp; safe-haven bid</td>
+                      <td>
+                        Sudden systemic or geopolitical stress with cross-asset volatility
+                        spikes and gold gapping higher.
+                      </td>
+                      <td class="col-right">Move to/maintain full core weight</td>
+                    </tr>
+                    <tr>
+                      <td>Range-bound consolidation</td>
+                      <td>
+                        Mixed signals; wide trading range; muted flows; moderate positioning.
+                      </td>
+                      <td class="col-right">Hold; small band-based tweaks only</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Weekly rebalancing guidelines</h3>
+              <ul class="bullet-tight">
+                <li>
+                  Focus on regime shifts (e.g. "deep value" to "momentum breakout") rather than reacting to every data print.
+                </li>
+                <li>
+                  Make incremental adjustments rather than all-in/all-out moves.
+                </li>
+                <li>
+                  Use pre-defined tolerance bands around the strategic core to avoid overtrading noise in range-bound phases.
+                </li>
+                <li>
+                  In acute stress, prioritise achieving minimum core protection even if entry is not perfect.
+                </li>
+              </ul>
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <!-- RISKS TAB -->
+      <div id="tab-risks" class="tab-panel">
+        <main class="layout">
+          <section class="card" aria-labelledby="risks-heading">
+            <div class="card-title-row">
+              <h2 id="risks-heading">Thesis Risks &amp; Model Interpretation</h2>
+              <span class="pill pill-hot">When gold underperforms</span>
+            </div>
+            <p>
+              Several structural scenarios would challenge or delay the gold thesis. The model
+              should flag when the environment is migrating toward these states.
+            </p>
+
+            <div class="section">
+              <h3>Key risks &amp; failure modes</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Risk</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Persistent positive real yields</td>
+                      <td>
+                        A repeat of mid-1980s/1990s-style regimes with structurally high real
+                        rates, credible disinflation and attractive competing safe assets.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Credible fiscal consolidation</td>
+                      <td>
+                        Sustained improvement in debt dynamics and lower sovereign risk premia
+                        reduce structural demand for monetary hedges.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Shift in central-bank behaviour</td>
+                      <td>
+                        A coordinated slowdown in official-sector buying, or outright net
+                        selling, that removes a key marginal buyer for an extended period.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Competing stores of value</td>
+                      <td>
+                        Widespread adoption of alternative hedges (other real assets,
+                        tokenised stores of value) that displace gold in reserves and private
+                        wealth portfolios.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Deflationary bust</td>
+                      <td>
+                        A deep, persistent deflationary episode in which cash and high-quality
+                        sovereign bonds dominate as safe havens, with limited inflation or
+                        currency-debasement risk.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>How a model should use this page</h3>
+              <ul class="bullet-tight">
+                <li>
+                  Treat signal categories as separate lenses; summarise alignment or conflict
+                  across them rather than over-weighting any single metric.
+                </li>
+                <li>
+                  Map incoming macro, policy and flow data into regime labels and implied
+                  posture (Buy/Add, Hold, Trim, Reduce) rather than numeric allocations.
+                </li>
+                <li>
+                  Explicitly flag when conditions approach thesis failure modes (e.g.
+                  persistently high real yields plus strong policy credibility) so the
+                  portfolio can reconsider the size of the strategic core.
+                </li>
+                <li>
+                  Maintain a separation between strategic rationale (why gold exists in the
+                  portfolio) and tactical overlays (how aggressively to lean at a point in
+                  time).
+                </li>
+              </ul>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="footer">
+      Disclaimer: This information is for informational purposes only and does not constitute
+      financial advice or a recommendation to buy or sell any security. All investment
+      strategies and investments involve risk of loss. Please conduct your own research and
+      consult with a financial professional before making any investment decisions.
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const buttons = document.querySelectorAll('.tab-button');
+      const panels = document.querySelectorAll('.tab-panel');
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-tab');
+          buttons.forEach(function (b) { b.classList.remove('active'); });
+          panels.forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          const panel = document.getElementById('tab-' + target);
+          if (panel) {
+            panel.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
