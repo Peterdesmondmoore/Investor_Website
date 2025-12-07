@@ -2,1239 +2,1251 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Investor Anatomy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy | Home</title>
   <style>
-    html, body {
+    :root {
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --card: #020617;
+      --border-subtle: #1f2937;
+      --accent: #3b82f6;
+      --accent-soft: #1d4ed8;
+      --accent-gold: #fbbf24;
+      --accent-purple: #8b5cf6;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
       margin: 0;
       padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: #020617;
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
     }
-    #bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .page {
+      min-height: 100vh;
+      background: #020617;
+      position: relative;
+      overflow: visible;
     }
-    #graph {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+
+    .shell {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+      padding-top: calc(77vh + 40px);
+      position: relative;
       z-index: 1;
     }
-    .node circle {
-      stroke: #475569;
-      stroke-width: 1.5px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    }
-    .node:hover circle {
-      stroke-width: 2.5px;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
-    }
-    .node text {
-      font-size: 11px;
-      font-weight: 500;
-      pointer-events: none;
-      fill: #f1f5f9;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-    }
-    .link {
-      stroke: #64748b;
-      stroke-opacity: 0.35;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .tooltip {
-      position: absolute;
-      pointer-events: none;
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
-      color: #f1f5f9;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 12px;
-      line-height: 1.6;
-      max-width: 300px;
-      opacity: 0;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 1px rgba(148, 163, 184, 0.5);
-      backdrop-filter: blur(12px);
-      transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 30;
-    }
-    .tooltip strong {
-      color: #38bdf8;
-      font-weight: 600;
-    }
-    #controls {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 1px rgba(148, 163, 184, 0.3);
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      color: #f1f5f9;
-      z-index: 40;
-      backdrop-filter: blur(16px);
-      min-width: 140px;
-    }
-    #logo {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: 600;
-      color: #f1f5f9;
-      z-index: 40;
-      letter-spacing: 0.5px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    }
-    #controls label {
+
+    /* NAVIGATION HEADER */
+    .nav-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: transparent;
+      border-bottom: 1px solid transparent;
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
+      justify-content: center;
+      z-index: 100;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .nav-header.scrolled {
+      background: #1a2332;
+      border-bottom: 1px solid #2a3644;
+    }
+
+    .nav-header-inner {
+      max-width: 1120px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .nav-brand {
+      font-size: 20px;
+      font-weight: 600;
+      color: #e5e7eb;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: rgba(42, 54, 68, 0.5);
+      color: #e5e7eb;
       cursor: pointer;
-      transition: color 0.2s ease;
+      font-size: 12px;
+      transition: background 0.2s ease;
     }
-    #controls label:hover {
-      color: #38bdf8;
+
+    .nav-menu-btn:hover {
+      background: rgba(42, 54, 68, 0.8);
     }
-    #controls label:last-child {
+
+    .nav-menu-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .nav-menu-icon {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .nav-menu-icon span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      transition: transform 0.22s ease, opacity 0.18s ease, width 0.18s ease;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+      width: 16px;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(2) {
+      opacity: 0;
+      width: 0;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+      width: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 0, #facc15, #f97316 35%, #0f172a 72%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: #020617;
+    }
+
+    .brand-text span:first-child {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .brand-text span:last-child {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .nav-link {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148,163,184,0.35);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .nav-link:hover {
+      border-color: rgba(248,250,252,0.9);
+      color: #e5e7eb;
+      text-decoration: none;
+    }
+
+    /* SECTION 1 — INTRO */
+    .intro-card {
+      border-radius: 22px;
+      padding: 28px 26px 26px;
+      border: 1px solid #0f172a;
+      background: linear-gradient(to bottom right, rgba(15,23,42,0.95), rgba(2,6,23,0.92));
+      box-shadow: 0 22px 48px rgba(0,0,0,0.6);
+      margin-bottom: 38px;
+    }
+
+    /* VIDEO BACKGROUND */
+    .video-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 77vh;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .video-background video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .intro-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.45);
+      color: var(--text-muted);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .intro-tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .intro-title {
+      font-size: clamp(26px, 3vw, 30px);
+      letter-spacing: -0.03em;
+      margin: 0 0 8px;
+    }
+
+    .intro-highlight {
+      background: linear-gradient(to right, #38bdf8, #8b5cf6, #facc15);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .intro-body {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 760px;
+    }
+
+    .section-header-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      margin-top: 8px;
+    }
+
+    .section-kicker {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 2px 0 0;
+    }
+
+    /* SECTION 2 — FEATURED INSIGHTS */
+    .carousel-card {
+      border-radius: 22px;
+      padding: 16px 18px 18px;
+      border: 1px solid #111827;
+      border-left: 2px solid #8b5cf6;
+      background: #020617;
+      margin-bottom: 32px;
+    }
+
+    .carousel-shell {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .carousel-image {
+      width: 240px;
+      height: 240px;
+      min-width: 240px;
+      flex-shrink: 0;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 0, #38bdf8, #0f172a 70%);
+      border: 1px solid rgba(148,163,184,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      text-align: center;
+      color: #e5e7eb;
+      padding: 8px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .carousel-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      max-height: 240px;
+      min-width: 0;
+    }
+
+    .carousel-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .carousel-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .carousel-summary {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
       margin-bottom: 0;
     }
-    #controls input[type="checkbox"] {
-      margin-right: 8px;
+
+    .carousel-footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #111827;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .carousel-button {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      border: none;
+      background: linear-gradient(to right, #1d4ed8, #8b5cf6);
+      color: #f9fafb;
+      font-size: 12px;
       cursor: pointer;
-      width: 16px;
-      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    #controls .title {
-      font-weight: 600;
+
+    .carousel-button span.icon {
+      font-size: 12px;
+    }
+
+    .carousel-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: -20px;
+      justify-content: flex-end;
+    }
+
+    .carousel-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .carousel-dot.active {
+      background: #facc15;
+      border-color: #f59e0b;
+    }
+
+    .carousel-arrow {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: rgba(15,23,42,0.96);
+      color: #e5e7eb;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .carousel-arrow:hover {
+      border-color: #e5e7eb;
+    }
+
+    @media (max-width: 720px) {
+      .carousel-shell {
+        flex-direction: column;
+      }
+      .carousel-image {
+        width: 120px;
+        height: 120px;
+      }
+    }
+
+    /* SECTION CONTRAST WRAPPERS */
+    .section-featured {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid #020617;
+    }
+
+    .section-model {
+      margin-top: 10px;
+      padding-top: 14px;
+      border-top: 1px solid #020617;
+    }
+
+    /* SECTION 3 — MODEL BASICS */
+    .tabs-card {
+      border-radius: 22px;
+      padding: 16px 16px 14px;
+      border: 1px solid #111827;
+      border-right: 2px solid #3b82f6;
+      background: #020617;
+    }
+
+    .tabs-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148,163,184,0.4);
+      padding: 5px 11px;
+      font-size: 11px;
+      background: rgba(15,23,42,0.92);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(to right, #1d4ed8, #8b5cf6);
+      color: #f9fafb;
+      border-color: transparent;
+    }
+
+    .tab-panel {
+      display: none;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tab-panel.active { display: block; }
+
+    .tab-lead {
       font-size: 13px;
-      margin-bottom: 10px;
-      color: #38bdf8;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .tab-subtitle {
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin: 8px 0 4px;
     }
-    .node.highlight circle {
-      stroke: #f59e0b;
-      stroke-width: 3px;
-      filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.8));
+
+    .tab-list {
+      margin: 0 0 6px 0;
+      padding-left: 18px;
     }
-    .link.highlight {
-      stroke: #fbbf24;
-      stroke-width: 3.5px;
-      stroke-opacity: 0.9;
+
+    .tab-list li {
+      margin-bottom: 4px;
     }
-    .node.dimmed circle {
-      opacity: 0.15;
+
+    .tab-footer {
+      margin-top: 6px;
+      font-size: 11px;
     }
-    .link.dimmed {
-      stroke-opacity: 0.08;
+
+    .tab-columns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .tab-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-column .tab-subtitle {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+
+    .tab-column .tab-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    footer {
+      margin-top: 28px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* SLIDE-OUT NAVIGATION */
+    .ia-nav-toggle-wrapper {
+      display: none;
+    }
+
+    .ia-nav-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: rgba(15,23,42,0.92);
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .ia-nav-toggle-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .ia-nav-toggle-icon {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .ia-nav-toggle-icon span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      transition: transform 0.22s ease, opacity 0.18s ease, width 0.18s ease;
+    }
+
+    .ia-nav-toggle.is-open .ia-nav-toggle-icon span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+      width: 16px;
+    }
+
+    .ia-nav-toggle.is-open .ia-nav-toggle-icon span:nth-child(2) {
+      opacity: 0;
+      width: 0;
+    }
+
+    .ia-nav-toggle.is-open .ia-nav-toggle-icon span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+      width: 16px;
+    }
+
+    .ia-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.65);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-out;
+      backdrop-filter: blur(3px);
+      z-index: 40;
+    }
+
+    .ia-nav-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ia-nav-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 300px;
+      max-width: 82vw;
+      background: #020617;
+      border-left: 1px solid #111827;
+      box-shadow: -24px 0 60px rgba(0,0,0,0.85);
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 20px 20px;
+    }
+
+    .ia-nav-panel.open {
+      transform: translateX(0);
+    }
+
+    .ia-nav-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .ia-nav-panel-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+    }
+
+    .ia-nav-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .ia-nav-close span {
+      position: absolute;
+      width: 14px;
+      height: 2px;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .ia-nav-close span:first-child {
+      transform: rotate(45deg);
+    }
+
+    .ia-nav-close span:last-child {
+      transform: rotate(-45deg);
+    }
+
+    .ia-nav-panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .ia-nav-link {
+      font-size: 15px;
+      font-weight: 500;
+      color: #e5e7eb;
+      padding: 6px 0;
+    }
+
+    .ia-nav-link:hover {
+      color: #facc15;
+      text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        padding-top: 56px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Futuristic animated background -->
-  <canvas id="bg"></canvas>
-
-  <!-- Main signal graph -->
-  <svg id="graph"></svg>
-  <div id="tooltip" class="tooltip"></div>
-  <div id="logo">
-    <div style="font-size: 18px; font-weight: 700;">Portfolio Advisor</div>
-    <div style="font-size: 12px; opacity: 0.9; text-align: center;">Investor Anatomy</div>
-  </div>
-  <div id="controls">
-    <div id="controls-header" style="display:flex; align-items:center; justify-content:space-between;">
-      <div class="title" style="margin:0;">Filter</div>
-      <button id="controls-toggle" style="background: transparent; color: #f1f5f9; border: 1px solid rgba(148, 163, 184, 0.4); border-radius: 6px; padding: 2px 8px; font-size: 12px; cursor:pointer;">Show</button>
-    </div>
-    <div id="controls-content" style="margin-top:10px; display:none;">
-      <label><input type="checkbox" data-filter="signals" checked> Signals</label>
-      <label><input type="checkbox" data-filter="groups" checked> Macro Themes</label>
-      <label><input type="checkbox" data-filter="composites" checked> Macro Composites</label>
-      <label><input type="checkbox" data-filter="advisor" checked> Portfolio Advisor</label>
-      <label><input type="checkbox" data-filter="portfolio"> Portfolio Characteristics</label>
-      <label><input type="checkbox" data-filter="thesis"> Thesis</label>
-      <label><input type="checkbox" data-filter="predictors"> Predictors</label>
-      <button id="exportBtn" style="margin-top: 12px; width: 100%; padding: 8px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 12px;">Export Layout</button>
+  <!-- Navigation Header -->
+  <div class="nav-header" id="nav-header">
+    <div class="nav-header-inner">
+      <div class="nav-brand">Investor Anatomy</div>
+      <button class="nav-menu-btn" id="nav-menu-btn" aria-label="Toggle navigation">
+        <span class="nav-menu-label">Menu</span>
+        <span class="nav-menu-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
     </div>
   </div>
 
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- Navigation Overlay -->
+  <div class="ia-nav-overlay" id="ia-nav-overlay"></div>
+
+  <!-- Navigation Panel -->
+  <nav class="ia-nav-panel" id="ia-nav-panel">
+    <div class="ia-nav-panel-header">
+      <span class="ia-nav-panel-title">Navigation</span>
+      <button class="ia-nav-close" id="ia-nav-close" aria-label="Close navigation">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div class="ia-nav-panel-body">
+      <a href="signal_map.html" class="ia-nav-link">Signal Map</a>
+      <a href="signal_report/Composite_Global_Macro_Overview.html" class="ia-nav-link">Global Macro</a>
+      <a href="signal_report/composite_us_macro_overview.html" class="ia-nav-link">United States Macro</a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <!-- VIDEO BACKGROUND -->
+    <section class="video-background">
+      <video autoplay loop muted playsinline>
+        <source src="images/InvestorAnatomy.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </section>
+
+    <div class="shell">
+      <!-- SECTION 2: FEATURED INSIGHTS -->
+      <section class="section-featured">
+        <div class="section-header-row">
+          <div>
+            <div class="section-kicker">Featured insights</div>
+            <h2 class="section-title">Latest views from the Investor Anatomy model</h2>
+          </div>
+        </div>
+        <div class="carousel-card" id="ia-carousel">
+          <div class="carousel-shell">
+            <div class="carousel-image" id="carousel-image">
+              <!-- Placeholder label; image could be set via CSS or <img> later -->
+              <span id="carousel-image-label">Macro overview</span>
+            </div>
+            <div class="carousel-content">
+              <div>
+                <div class="carousel-tag" id="carousel-tag">Macro composite · United States</div>
+                <div class="carousel-title" id="carousel-title">Global State of the Market</div>
+                <div class="carousel-summary" id="carousel-summary">
+                  A concise read on the current macro regime, combining growth, inflation,
+                  liquidity and financial conditions into a single state that can be mapped
+                  directly to portfolio risk and opportunity.
+                </div>
+              </div>
+              <div class="carousel-footer">
+                <button class="carousel-button" id="carousel-button">
+                  <span>View full report</span>
+                  <span class="icon">→</span>
+                </button>
+                <div class="carousel-meta" id="carousel-meta">US Macro Composite · Updated regularly</div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <div class="carousel-arrow" id="carousel-prev">‹</div>
+            <div class="carousel-dots" id="carousel-dots"></div>
+            <div class="carousel-arrow" id="carousel-next">›</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: MODEL BASICS -->
+      <section class="section-model">
+        <div class="section-header-row">
+          <div>
+            <div class="section-kicker">Model basics</div>
+            <h2 class="section-title">How Investor Anatomy thinks like an investor</h2>
+          </div>
+        </div>
+        <div class="tabs-card">
+          <div class="tabs-nav" id="model-tabs-nav">
+            <button class="tab-btn active" data-tab="tab-signals">Signals</button>
+            <button class="tab-btn" data-tab="tab-themes">Macro Themes</button>
+            <button class="tab-btn" data-tab="tab-composites">Macro Composites</button>
+            <button class="tab-btn" data-tab="tab-predictors">Predictors</button>
+            <button class="tab-btn" data-tab="tab-advisor">Portfolio Advisor</button>
+            <button class="tab-btn" data-tab="tab-thesis">Investment Theses</button>
+            <button class="tab-btn" data-tab="tab-portfolio">Portfolio Characteristics</button>
+          </div>
+
+          <!-- TAB: SIGNALS -->
+          <div class="tab-panel active" id="tab-signals">
+            <p class="tab-lead">
+              <strong>Signals</strong> transform noisy macro and market data into a clean, actionable insight on a single aspect of the environment.
+            </p>
+            <div class="tab-columns">
+              <div class="tab-column">
+                <div class="tab-subtitle">What investors do today</div>
+                <ul class="tab-list">
+                  <li>Monitor dozens of indicators—PMIs, liquidity, inflation, credit spreads—across models, charts, and research feeds.</li>
+                  <li>Manually judge whether each one is improving or deteriorating.</li>
+                  <li>Rely on subjective frameworks and inconsistent interpretation.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">Human investors are limited</div>
+                <ul class="tab-list">
+                  <li>Model design and interpretation varies person-by-person and day-by-day.</li>
+                  <li>Humans are overwhelmed by the sheer amount of data that needs to be processed.</li>
+                  <li>High cognitive load makes it easy to miss turning points or conflicting signals.</li>
+                  <li>The complexity of the signal set makes it difficult to systematically improve.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">How Investor Anatomy overcomes this</div>
+                <ul class="tab-list">
+                  <li>Signals are quantitative/qualitative models that deliver a single, simple insight about a well-defined concept.</li>
+                  <li>The methodology, interpretation and scoring are transparently defined on each signal page.</li>
+                  <li>Investor Anatomy interprets each signal consistently over time and feeds it into higher layers (themes and composites).</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-footer">
+              Example signal:
+              <a href="https://investoranatomy.com/signal_report/M2_Money_Supply.html">M2 Money Supply</a>
+            </div>
+          </div>
+
+          <!-- TAB: MACRO THEMES -->
+          <div class="tab-panel" id="tab-themes">
+            <p class="tab-lead">
+              <strong>Macro Themes</strong> are groups of related signals that describe one
+              major economic engine, such as liquidity, inflation, labour markets or global
+              demand.
+            </p>
+            <div class="tab-columns">
+              <div class="tab-column">
+                <div class="tab-subtitle">What investors do today</div>
+                <ul class="tab-list">
+                  <li>Create informal themes (e.g., "liquidity is tightening") based on reports, conversations and selective charts.</li>
+                  <li>Apply different definitions of the same theme across teams and time periods.</li>
+                  <li>Rely on narratives rather than transparent, data-driven structure.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">Human investors are limited</div>
+                <ul class="tab-list">
+                  <li>Themes are often subjective and analyst-dependent, with limited auditability.</li>
+                  <li>It is hard to quantify theme strength and direction through time.</li>
+                  <li>Conflicting underlying signals can be hidden by a strong story.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">How Investor Anatomy overcomes this</div>
+                <ul class="tab-list">
+                  <li>Each Macro Theme defines its input signals and aggregation rules explicitly.</li>
+                  <li>Theme pages show levels, trend, and interpretation in a consistent format.</li>
+                  <li>Themes provide a stable, comparable representation of each economic engine.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-footer">
+              Example macro theme:
+              <a href="https://investoranatomy.com/signal_report/macro_theme_us_liquidity_and_monetary_conditions/">US Liquidity &amp; Monetary Conditions</a>
+            </div>
+          </div>
+
+          <!-- TAB: MACRO COMPOSITES -->
+          <div class="tab-panel" id="tab-composites">
+            <p class="tab-lead">
+              <strong>Macro Composites</strong> integrate multiple themes into a single view
+              of the macro regime, such as whether growth is accelerating, inflation is
+              easing, or financial conditions are tightening.
+            </p>
+            <div class="tab-columns">
+              <div class="tab-column">
+                <div class="tab-subtitle">What investors do today</div>
+                <ul class="tab-list">
+                  <li>Form "house views" by combining many data points, meetings and research pieces.</li>
+                  <li>Update regimes infrequently and in a discretionary, narrative-driven way.</li>
+                  <li>Struggle to document exactly how a particular macro call was reached.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">Human investors are limited</div>
+                <ul class="tab-list">
+                  <li>Regime calls are prone to confirmation bias and selective evidence.</li>
+                  <li>Different investors may interpret the same inputs very differently.</li>
+                  <li>A lack of structure makes it difficult to learn from past regime assessments.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">How Investor Anatomy overcomes this</div>
+                <ul class="tab-list">
+                  <li>Macro Composites use defined rules to combine themes into a regime classification.</li>
+                  <li>The resulting state (e.g., growth-neutral, inflation-easing) is clearly documented.</li>
+                  <li>Changes through time can be tracked and compared in a consistent way.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-footer">
+              Example composite:
+              <a href="https://investoranatomy.com/signal_report/composite_us_macro_overview/">US Macro Overview</a>
+            </div>
+          </div>
+
+          <!-- TAB: PREDICTORS -->
+          <div class="tab-panel" id="tab-predictors">
+            <p class="tab-lead">
+              <strong>Predictors</strong> are forward-looking modules that turn the macro
+              regime and supporting evidence into explicit scenario probabilities for key
+              outcomes, such as the next central bank decision.
+            </p>
+            <div class="tab-columns">
+              <div class="tab-column">
+                <div class="tab-subtitle">What investors do today</div>
+                <ul class="tab-list">
+                  <li>Infer policy outcomes from headlines, speeches, and commentary.</li>
+                  <li>Hold implicit probability views in their head without documenting them.</li>
+                  <li>React quickly to news flow, sometimes over-weighting short-term noise.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">Human investors are limited</div>
+                <ul class="tab-list">
+                  <li>Policy views can change abruptly with the latest headline.</li>
+                  <li>Assumptions are often not written down or linked back to the underlying macro regime.</li>
+                  <li>It is difficult to test whether policy expectations were systematically biased.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">How Investor Anatomy overcomes this</div>
+                <ul class="tab-list">
+                  <li>Predictor nodes use the composite regime, cross-asset evidence and policy communication to frame scenarios.</li>
+                  <li>Each scenario (e.g., CUT / HOLD / HIKE) receives an explicit probability and narrative justification.</li>
+                  <li>Changes in probabilities can be tracked over time and compared to realised outcomes.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-footer">
+              Example predictor:
+              <a href="https://investoranatomy.com/signal_report/predictor_fed_rate_decision/">Fed Rate Decision Predictor</a>
+            </div>
+          </div>
+
+          <!-- TAB: PORTFOLIO ADVISOR -->
+          <div class="tab-panel" id="tab-advisor">
+            <p class="tab-lead">
+              The <strong>Portfolio Advisor</strong> translates macro regimes and predictor
+              outcomes into portfolio-relevant guidance for a specific investor profile,
+              focusing on alignment, vulnerabilities and opportunity channels.
+            </p>
+            <div class="tab-columns">
+              <div class="tab-column">
+                <div class="tab-subtitle">What investors do today</div>
+                <ul class="tab-list">
+                  <li>Map macro views to portfolio decisions informally, based on experience and intuition.</li>
+                  <li>Use generic advice ("be defensive", "lean into cyclicals") that may not match the actual portfolio.</li>
+                  <li>Focus on individual trades rather than the overall risk posture.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">Human investors are limited</div>
+                <ul class="tab-list">
+                  <li>Macro thinking and portfolio construction can drift apart over time.</li>
+                  <li>It is easy to overlook how existing positions already express a macro view.</li>
+                  <li>Risk discussions can be anecdotal rather than anchored in a clear regime.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">How Investor Anatomy overcomes this</div>
+                <ul class="tab-list">
+                  <li>The Portfolio Advisor starts from the current macro regime and portfolio characteristics.</li>
+                  <li>Guidance is framed in terms of alignment, vulnerabilities and opportunity sets rather than specific trades.</li>
+                  <li>Output is designed to be repeatable and comparable as regimes evolve.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-footer">
+              Example advisor output:
+              <a href="https://investoranatomy.com/signal_report/portfolio_advisor_portfolio_guidance/">Portfolio Advisor · Portfolio Guidance</a>
+            </div>
+          </div>
+
+          <!-- TAB: THESIS -->
+          <div class="tab-panel" id="tab-thesis">
+            <p class="tab-lead">
+              <strong>Investment Theses</strong> are structured expressions of how to convert
+              the macro and portfolio context into specific opportunity sets over a defined
+              horizon.
+            </p>
+            <div class="tab-columns">
+              <div class="tab-column">
+                <div class="tab-subtitle">What investors do today</div>
+                <ul class="tab-list">
+                  <li>Write strategy notes that blend macro views, valuation and qualitative reasoning.</li>
+                  <li>Use different formats and levels of rigour for each idea.</li>
+                  <li>May not clearly state the macro regime under which a thesis is expected to perform.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">Human investors are limited</div>
+                <ul class="tab-list">
+                  <li>Thesis quality depends heavily on who writes it and when.</li>
+                  <li>It is difficult to compare opportunities on a like-for-like basis.</li>
+                  <li>Links between theses and the macro regime may be implicit rather than explicit.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">How Investor Anatomy overcomes this</div>
+                <ul class="tab-list">
+                  <li>Theses are built on top of the composite regime and Portfolio Advisor guidance.</li>
+                  <li>Each thesis documents macro alignment, key drivers, risks and horizon in a common template.</li>
+                  <li>This structure makes it easier to review, compare and revisit ideas over time.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-footer">
+              Example thesis:
+              <a href="https://investoranatomy.com/investment-strategy/us-midcap-strategy.html">US Mid-cap Strategy</a>
+            </div>
+          </div>
+
+          <!-- TAB: PORTFOLIO CHARACTERISTICS -->
+          <div class="tab-panel" id="tab-portfolio">
+            <p class="tab-lead">
+              <strong>Portfolio Characteristics</strong> describe the investor’s identity:
+              objectives, risk tolerance, cash level, structural tilts and constraints.
+            </p>
+            <div class="tab-columns">
+              <div class="tab-column">
+                <div class="tab-subtitle">What investors do today</div>
+                <ul class="tab-list">
+                  <li>Rely on a general understanding of their portfolio rather than a formalised profile.</li>
+                  <li>Know approximate risk levels and tilts, but do not always connect them explicitly to macro decisions.</li>
+                  <li>Discuss mandate and constraints periodically rather than embedding them in daily decision-making.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">Human investors are limited</div>
+                <ul class="tab-list">
+                  <li>Without a clear profile, macro guidance can become generic or misaligned.</li>
+                  <li>It is easy to forget liquidity, horizon or concentration constraints when focusing on a single idea.</li>
+                  <li>Behavioural biases can push decisions away from the intended mandate.</li>
+                </ul>
+              </div>
+              <div class="tab-column">
+                <div class="tab-subtitle">How Investor Anatomy overcomes this</div>
+                <ul class="tab-list">
+                  <li>The portfolio characteristics page acts as the model's reference for "who the investor is".</li>
+                  <li>All macro interpretation and guidance is anchored to this profile.</li>
+                  <li>This keeps recommendations consistent with constraints, time horizon and natural tilts.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-footer">
+              Example profile:
+              <a href="https://investoranatomy.com/portfolio_characteristics/portfolio_characteristics_page/">Portfolio Characteristics</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <span>Investor Anatomy · Home</span>
+        <span>Illustrative framework only · Not investment advice.</span>
+      </footer>
+    </div>
+  </div>
+
   <script>
-    // =========================
-    // STARRY NIGHT SKY BACKGROUND
-    // =========================
-    (function initBackground() {
-      const canvas = document.getElementById('bg');
-      const ctx = canvas.getContext('2d');
+    // FEATURED INSIGHTS CAROUSEL DATA
+    const carouselItems = [
+      {
+        imageLabel: "US Macro",
+        imagePath: "images/Image_US.png",
+        tag: "Composite · United States",
+        title: "US Macro · Composite Overview",
+        summary: "The Composite US Macro Overview distills a broad set of US economic indicators into a single, intuitive macro regime signal. It combines information from growth, inflation, labour market, credit, liquidity, and cross-asset positioning to provide a concise read on where the US economy sits in the cycle. Rather than tracking each data point in isolation, this composite signal integrates them into a coherent narrative – highlighting whether conditions are becoming more expansionary or restrictive, where key risks are building, and how the overall macro backdrop is evolving for investors.",
+        url: "https://investoranatomy.com/signal_report/composite_us_macro_overview/"
+      },
 
-      let width = window.innerWidth;
-      let height = window.innerHeight;
-      let stars = [];
-      let milkyWayStars = [];
-
-      function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width * window.devicePixelRatio;
-        canvas.height = height * window.devicePixelRatio;
-        ctx.setTransform(window.devicePixelRatio, 0, 0, window.devicePixelRatio, 0, 0);
-        generateStars();
+      {
+        imageLabel: "Global Macro",
+        imagePath: "images/Image_Globe.png",
+        tag: "Composite · Global",
+        title: "Global Macro · Composite Overview",
+        summary: "The Composite Global Macro Overview aggregates a diverse array of macro-economic indicators from major economies around the world into a unified global macro-regime signal. It blends data from growth, inflation, labour markets, credit conditions, liquidity, monetary policy stance, currency trends, and cross-regional sentiment to form a comprehensive view of the global economic environment. By consolidating these disparate data streams into a single composite metric, this signal gives investors a clear, macro-level snapshot of global economic conditions — showing whether the world is moving toward expansion or tightening, where systemic risks may be mounting, and how regional dynamics interact to shape the global backdrop.",
+        url: "https://investoranatomy.com/signal_report/composite_global_macro_overview/"
+      },
+      {
+        imageLabel: "Federal Reserve",
+        imagePath: "images/Image_Fed.png",
+        tag: "Predictor · Fed Rate Decision",
+        title: "Federal Reserve · Rate Decision",
+        summary: "The Fed Policy Decision Predictor synthesizes key macro-economic inputs to estimate the most likely direction of the Federal Reserve's next policy move. It evaluates signals across inflation, labour markets, growth momentum, financial conditions, liquidity trends, and cross-asset positioning to form a structured, data-driven view of the Fed's policy bias. By consolidating these indicators into a single predictive signal, it provides a clear,real-time read on whether the prevailing macro environment favours a rate cut, a hold, or a hike. This helps investors understand the underlying forces shaping policy decisions and how shifts in the macro regime might influence the Fed's next steps.",
+        url: "https://investoranatomy.com/signal_report/predictor_fed_rate_decision/"
       }
+    ];
+    let carouselIndex = 0;
 
-      function generateStars() {
-        stars = [];
-        milkyWayStars = [];
+    const carouselImageEl = document.getElementById("carousel-image");
+    const imageLabelEl = document.getElementById("carousel-image-label");
+    const tagEl = document.getElementById("carousel-tag");
+    const titleEl = document.getElementById("carousel-title");
+    const summaryEl = document.getElementById("carousel-summary");
+    const metaEl = document.getElementById("carousel-meta");
+    const buttonEl = document.getElementById("carousel-button");
+    const dotsContainer = document.getElementById("carousel-dots");
 
-        // Regular stars scattered across the sky
-        const starCount = Math.floor((width * height) / 2000);
-        for (let i = 0; i < starCount; i++) {
-          stars.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            radius: Math.random() * 1.5 + 0.3,
-            opacity: Math.random() * 0.8 + 0.2,
-            twinkleSpeed: Math.random() * 0.002 + 0.001,
-            twinklePhase: Math.random() * Math.PI * 2
-          });
-        }
-
-        // Milky Way band - denser cluster of smaller stars
-        const milkyWayCount = Math.floor((width * height) / 800);
-        const centerY = height * 0.4;
-        const bandHeight = height * 0.3;
-
-        for (let i = 0; i < milkyWayCount; i++) {
-          const t = Math.random();
-          const yOffset = (Math.random() - 0.5) * bandHeight * Math.pow(t, 2);
-
-          milkyWayStars.push({
-            x: Math.random() * width,
-            y: centerY + yOffset,
-            radius: Math.random() * 0.8 + 0.2,
-            opacity: Math.random() * 0.4 + 0.1,
-            twinkleSpeed: Math.random() * 0.003 + 0.001,
-            twinklePhase: Math.random() * Math.PI * 2
-          });
-        }
-      }
-
-      function draw(time) {
-        ctx.clearRect(0, 0, width, height);
-
-        // Deep space gradient
-        const grad = ctx.createRadialGradient(
-          width * 0.5,
-          height * 0.4,
-          0,
-          width * 0.5,
-          height * 0.5,
-          Math.max(width, height) * 0.8
-        );
-        grad.addColorStop(0, '#0a0e1a');
-        grad.addColorStop(0.4, '#050810');
-        grad.addColorStop(1, '#020408');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-
-        // Draw Milky Way glow
-        ctx.save();
-        const milkyWayGrad = ctx.createLinearGradient(0, height * 0.2, 0, height * 0.6);
-        milkyWayGrad.addColorStop(0, 'rgba(60, 70, 120, 0)');
-        milkyWayGrad.addColorStop(0.3, 'rgba(50, 60, 100, 0.08)');
-        milkyWayGrad.addColorStop(0.5, 'rgba(60, 70, 110, 0.12)');
-        milkyWayGrad.addColorStop(0.7, 'rgba(50, 60, 100, 0.08)');
-        milkyWayGrad.addColorStop(1, 'rgba(60, 70, 120, 0)');
-        ctx.fillStyle = milkyWayGrad;
-        ctx.fillRect(0, 0, width, height);
-        ctx.restore();
-
-        const t = time || 0;
-
-        // Draw Milky Way stars
-        milkyWayStars.forEach(star => {
-          const twinkle = Math.sin(star.twinklePhase + t * star.twinkleSpeed);
-          const alpha = star.opacity * (0.7 + twinkle * 0.3);
-
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(200, 210, 255, ${alpha})`;
-          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-          ctx.fill();
+    function renderDots() {
+      dotsContainer.innerHTML = "";
+      carouselItems.forEach((_, idx) => {
+        const dot = document.createElement("div");
+        dot.className = "carousel-dot" + (idx === carouselIndex ? " active" : "");
+        dot.addEventListener("click", () => {
+          carouselIndex = idx;
+          updateCarousel();
         });
+        dotsContainer.appendChild(dot);
+      });
+    }
 
-        // Draw regular stars with twinkling
-        stars.forEach(star => {
-          const twinkle = Math.sin(star.twinklePhase + t * star.twinkleSpeed);
-          const alpha = star.opacity * (0.6 + twinkle * 0.4);
-          const glowSize = star.radius * (1.5 + twinkle * 0.5);
-
-          // Star glow
-          const starGrad = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, glowSize);
-          starGrad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
-          starGrad.addColorStop(0.3, `rgba(220, 230, 255, ${alpha * 0.6})`);
-          starGrad.addColorStop(1, 'rgba(200, 210, 255, 0)');
-
-          ctx.beginPath();
-          ctx.fillStyle = starGrad;
-          ctx.arc(star.x, star.y, glowSize, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Bright star core
-          ctx.beginPath();
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-          ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-          ctx.fill();
-        });
-
-        requestAnimationFrame(draw);
+    function updateCarousel() {
+      const item = carouselItems[carouselIndex];
+      if (item.imagePath) {
+        carouselImageEl.style.backgroundImage = `url('${item.imagePath}')`;
+      } else {
+        carouselImageEl.style.backgroundImage = '';
       }
+      imageLabelEl.textContent = item.imageLabel;
+      tagEl.textContent = item.tag;
+      titleEl.textContent = item.title;
+      summaryEl.textContent = item.summary;
+      metaEl.textContent = item.meta;
+      buttonEl.onclick = () => { window.location.href = item.url; };
+      renderDots();
+    }
 
-      window.addEventListener('resize', resize);
-      resize();
-      requestAnimationFrame(draw);
+    document.getElementById("carousel-prev").addEventListener("click", () => {
+      carouselIndex = (carouselIndex - 1 + carouselItems.length) % carouselItems.length;
+      updateCarousel();
+    });
+
+    document.getElementById("carousel-next").addEventListener("click", () => {
+      carouselIndex = (carouselIndex + 1) % carouselItems.length;
+      updateCarousel();
+    });
+
+    // Auto-rotate every 12 seconds
+    setInterval(() => {
+      carouselIndex = (carouselIndex + 1) % carouselItems.length;
+      updateCarousel();
+    }, 12000);
+
+    updateCarousel();
+
+    // MODEL BASICS TABS
+    (function() {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = document.querySelectorAll('.tab-panel');
+
+      tabs.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-tab');
+          tabs.forEach(b => b.classList.remove('active'));
+          panels.forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          const panel = document.getElementById(target);
+          if (panel) panel.classList.add('active');
+        });
+      });
     })();
 
-    // =========================
-    // DATA (with example hover fields)
-    // =========================
-    const nodes = [
-      // Two main composite nodes
-      { id: "us_macro_composite", type: "composite", label: "US Macro",
-        description: "US fundamentals  policy, growth, inflation, labour, credit.",
-        regime: "Cautious Neutral"
-      },
-      { id: "global_macro_composite", type: "composite", label: "Global Macro",
-        description: "International pressures, trade cycles, and cross-currency drivers.",
-        regime: "Neutral"
-      },
-
-      // Portfolio Advisor node 
-      { id: "portfolio_advisor", type: "advisor", label: "Portfolio Advisor",
-        description: "Macro view that integrates macro composites and Portfolio Characteristics into a single advisory signal for portfolio risk and allocation.",
-        regime: "Advisory Overlay"
-      },
-
-      // Portfolio Characteristics node (linked to Portfolio Advisor)
-      { id: "portfolio_characteristics", type: "portfolio", label: "Portfolio Characteristics",
-        description: "Maps portfolio characteristics such as risk, liquidity, and factor tilts into portfolio advisor views.",
-        regime: "Portfolio Lens"
-      },
-
-      // Predictor nodes
-      { id: "predictor_fed_rate_decision", type: "predictor", label: "Fed Rate Decision Predictor",
-        description: "Predicts the next Fed rate decision using US and global macro themes.",
-        regime: "Model Output"
-      },
-
-      // US Macro Groups
-      { id: "us_growth_cycle_group", type: "group", label: "US Growth & Business Cycle", description: "Growth direction is the primary driver of risk assets and cyclical rotations." },
-      { id: "us_inflation_group", type: "group", label: "US Inflation & Price Dynamics", description: "Inflation sets the direction of monetary policy  affects yields, FX, equities, and credit." },
-      { id: "us_labor_group", type: "group", label: "US Labour Market", description: "The labour market is one of the Fed's core constraints; it leads consumption and inflation." },
-      { id: "us_liquidity_monetary_group", type: "group", label: "US Liquidity & Monetary", description: "Liquidity drives asset multiples, credit spreads, and volatility." },
-      { id: "us_credit_group", type: "group", label: "US Credit Conditions", description: "Credit deteriorates before recessions and risk-off episodes." },
-
-      // Global Macro Groups
-      { id: "global_growth_group", type: "group", label: "Global Growth & Economic Cycles", description: "International manufacturing cycles and commodity-driven growth signals." },
-      { id: "global_trade_demand_group", type: "group", label: "Global Trade & Demand", description: "Global liquidity, USD strength, and international risk sentiment." },
-      { id: "global_inflation_fx_group", type: "group", label: "Global Inflation/FX Dynamics", description: "USD strength and commodity price impulses affecting global inflation." },
-
-      // Cross-Asset Positioning (connects to both composites)
-      { id: "positioning_sentiment_group", type: "group", label: "Cross-Asset Positioning & Sentiment", description: "Universal timing signals for squeezes, regime shifts, and tactical turning points." },
-
-      // --- Signals with methodology links --- 
-      { id: "fed_inflation_signal.html", type: "signal", label: "US Inflation Signal",
-        source: "FRED",
-        purpose: "To measure inflation pressure from multiple data sources and classify the regime as HOT, NEUTRAL, or COOL for policy risk assessment.",
-        wip: false, notes: "N/A" },
-
-      { id: "wage_growth_and_inflation_methodology.html", type: "signal", label: "Wage Growth Composite",
-        source: "BLS",
-        purpose: "To track wage inflation pressure and labor market tightness for identifying persistent inflation risk or disinflationary relief.",
-        wip: false, notes: "N/A" },
-
-      { id: "Durable_goods_capex_intent_methodology.html", type: "signal", label: "Durables / Capex Intent",
-        source: "FRED",
-        purpose: "To infer forward business investment trends and detect expansion, neutral, or contraction phases in capital expenditure cycles.",
-        wip: false, notes: "N/A" },
-
-      { id: "labor_market_tightness_methodology.html", type: "signal", label: "Labor Market Tightness",
-        source: "BLS",
-        purpose: "To assess labor market tightness by tracking quits, layoffs, and job openings for identifying wage pressure and hiring frictions.",
-        wip: false, notes: "N/A" },
-
-      { id: "weekly_hours_methodology.html", type: "signal", label: "Average Weekly Hours",
-        source: "BLS",
-        purpose: "To provide a lead indicator of labor demand, as firms adjust hours before headcount changes.",
-        wip: false, notes: "N/A" },
-
-      { id: "Federal_Reserve_Liquidity_Composite.html", type: "signal", label: "Fed Liquidity Composite",
-        source: "FRED",
-        purpose: "To track Fed liquidity conditions by blending M2, balance sheet channels, and ON RRP into expansion, neutral, or contraction regimes.",
-        wip: false, notes: "N/A" },
-
-      { id: "yield_curve_slope_methodology.html", type: "signal", label: "Yield Curve Slope",
-        source: "FRED",
-        purpose: "To track whether the economy is entering a recovery, staying neutral, or heading toward stress by reading the shape of the yield curve.",
-        wip: false, notes: "N/A" },
-
-      { id: "US_Treasury_Yield_Curve_Slope.html", type: "signal", label: "US Treasury Yield Curve Slope (GS10-FEDFUNDS)",
-        source: "FRED",
-        purpose: "To derive a level-trend regime signal from 10Y-FFR spread using transparent thresholds and steepening tests for risk asset classification.",
-        wip: false, notes: "N/A" },
-
-      { id: "credit_spreads_methodology.html", type: "signal", label: "Credit Spreads",
-        source: "FRED",
-        purpose: "To measure corporate funding stress through ICE BofA option-adjusted spreads and identify easy, normal, tightening, or stressed credit regimes.",
-        wip: false, notes: "N/A" },
-
-      { id: "financial_stress_composite_methodology.html", type: "signal", label: "Financial Stress Composite",
-        source: "FRED",
-        purpose: "To assess market stress levels by integrating credit spreads, yield-curve inversion, and systemic stress indicators.",
-        wip: false, notes: "N/A" },
-
-      { id: "usd_index_signal.html", type: "signal", label: "USD Index",
-        source: "FRED",
-        purpose: "To derive a macro-directional risk signal from the Broad U.S. Dollar Index for FX strategies and commodity risk interpretation.",
-        wip: false, notes: "N/A" },
-
-      { id: "vix_signal_methodology.html", type: "signal", label: "Market Volatility (VIX)",
-        source: "CBOE",
-        purpose: "To capture option-implied risk sentiment from S&P 500 volatility and classify regimes from calm to crisis conditions.",
-        wip: false, notes: "N/A" },
-
-      { id: "Consumer_Sentiment.html", type: "signal", label: "UMich Sentiment",
-        source: "FRED",
-        purpose: "To transform consumer sentiment into a monthly demand signal capturing relative optimism or pessimism with momentum context.",
-        wip: false, notes: "N/A" },
-
-      { id: "Cross_Sector_Positioning.html", type: "signal", label: "CoT Cross-Sector Positioning",
-        source: "CFTC",
-        purpose: "To aggregate market-level CoT positioning into macro sectors for identifying speculative crowding and unwind risk.",
-        wip: false, notes: "N/A" },
-
-      { id: "Squeeze_Exhaustion_Risk.html", type: "signal", label: "CoT Squeeze / Exhaustion",
-        source: "CFTC",
-        purpose: "To measure how broadly squeeze and exhaustion conditions appear across futures markets for tactical reversal signals.",
-        wip: false, notes: "N/A" },
-
-      { id: "Specs_vs_Hedgers_Divergence_Reversal_Risk.html", type: "signal", label: "Specs vs Hedgers",
-        source: "CFTC",
-        purpose: "To capture positioning tension between speculators and hedgers for highlighting periods of potential reversal and unstable market structure.",
-        wip: false, notes: "N/A" },
-
-      { id: "Gold_CoT_Signals.html", type: "signal", label: "Gold CoT Signal",
-        source: "CFTC",
-        purpose: "To analyze positioning, flow, and reversal risk for gold futures to support precious metals tactical decisions.",
-        wip: false, notes: "N/A" },
-
-      { id: "Silver_CoT_Signals.html", type: "signal", label: "Silver CoT Signal",
-        source: "CFTC",
-        purpose: "To analyze positioning, flow, and reversal risk for silver futures to support precious metals tactical decisions.",
-        wip: false, notes: "N/A" },
-
-      { id: "us-midcap-strategy.html", type: "thesis", label: "US Mid-Cap Strategy (VOE + IWP)",
-        source: "Strategy",
-        purpose: "Structured investment thesis describing VOE + IWP mid-cap value/growth strategy, allocation rules, macro tilts, and risk framework.",
-        wip: false, notes: "N/A" },
-
-      { id: "credit_conditions_methodology.html", type: "signal", label: "Credit Conditions",
-        source: "FRED",
-        purpose: "To proxy credit conditions by combining spread-level stress from corporate bond markets with equity volatility for assessing funding conditions.",
-        wip: false, notes: "N/A" },
-
-      { id: "employment_composition_methodology.html", type: "signal", label: "Employment Composition",
-        source: "BLS",
-        purpose: "To construct a monthly index of labor market health from participation, employment-population ratio, and unemployment for identifying market slack.",
-        wip: false, notes: "N/A" },
-
-      { id: "housing_lead_methodology.html", type: "signal", label: "Housing Lead",
-        source: "FRED",
-        purpose: "To blend forward indicators of residential activity with mortgage rate constraints for anticipating housing cycle turns.",
-        wip: false, notes: "N/A" },
-
-      { id: "industrial_production_signal.html", type: "signal", label: "Industrial Production",
-        source: "FRED",
-        purpose: "To combine industrial demand and mining supply pressure for generating cyclical and metals exposure signals.",
-        wip: false, notes: "N/A" },
-
-      { id: "m_2_money_supply.html", type: "signal", label: "M2 Money Supply",
-        source: "FRED",
-        purpose: "To derive a macro liquidity signal from M2 growth and momentum for precious metals and cyclical risk applications.",
-        wip: false, notes: "N/A" },
-
-      { id: "job_flows_labor_methodology.html", type: "signal", label: "Job Flows & Labor Dynamism",
-        source: "BLS",
-        purpose: "To track firm dynamism and hiring appetite through gross job gains and losses for identifying labor market deterioration.",
-        wip: false, notes: "N/A" },
-
-      { id: "private_credit_impulse_methodology.html", type: "signal", label: "Private Credit Impulse",
-        source: "FRED",
-        purpose: "To quantify acceleration or deceleration in private-sector credit growth for identifying credit regime changes.",
-        wip: false, notes: "N/A" },
-
-      { id: "Real_Interest_Rate_Trend_Signal.html", type: "signal", label: "Real Interest Rate",
-        source: "FRED",
-        purpose: "To derive market regime signals from the 10-year real yield for aligning monetary conditions with macro interpretation.",
-        wip: false, notes: "N/A" },
-
-      { id: "energy_adjusted_metals_tailwind_methodology.html", type: "signal", label: "Energy-Adjusted Metals Tailwind",
-        source: "FRED",
-        purpose: "To extract copper-specific demand residual after controlling for energy and USD to identify metals demand tailwinds.",
-        wip: false, notes: "N/A" },
-
-      { id: "inflation_term_structure_methodology.html", type: "signal", label: "Inflation Term Structure",
-        source: "FRED",
-        purpose: "To blend breakeven curve slope and real yields for classifying reflation, neutral, or disinflation regimes.",
-        wip: false, notes: "N/A" },
-
-      { id: "labour_market_momentum_methodology.html", type: "signal", label: "Labour Market Momentum",
-        source: "FRED",
-        purpose: "To measure labour market strength by combining jobless claims trends with payroll growth for identifying tightening or softening dynamics.",
-        wip: false, notes: "N/A" },
-
-      { id: "sectoral_employment_methodology.html", type: "signal", label: "Sectoral Employment Diffusion",
-        source: "BLS",
-        purpose: "To track breadth and momentum of payroll growth across sectors for anticipating durable expansions or slowdowns.",
-        wip: false, notes: "N/A" },
-
-      { id: "underemployment_risk_methodology.html", type: "signal", label: "Underemployment Risk",
-        source: "BLS",
-        purpose: "To construct a stress indicator from U-6 underutilization and unemployment duration for identifying labor market slack.",
-        wip: false, notes: "N/A" },
-
-      { id: "market_implied_inflation_signal.html", type: "signal", label: "Market-Implied Inflation",
-        source: "FRED",
-        purpose: "To summarize forward inflation expectations from TIPS breakevens for identifying rising, stable, or falling expectations.",
-        wip: false, notes: "N/A" },
-
-      { id: "policy_relevant_inflation_pce_methodology.html", type: "signal", label: "Policy-Relevant Inflation (PCE)",
-        source: "FRED",
-        purpose: "To combine headline and core PCE inflation for mirroring the Fed's policy focus with hot, neutral, or cool regimes.",
-        wip: false, notes: "N/A" },
-
-      { id: "US_CPI_vs_PPI_Divergence_Inflation.html", type: "signal", label: "CPI vs PPI Divergence",
-        source: "FRED",
-        purpose: "To exploit producer-consumer price divergence for detecting inflationary pressure and regime transitions.",
-        wip: false, notes: "N/A" },
-
-      { id: "Financial_Stress.html", type: "signal", label: "Financial Stress Index (STLFSI4)",
-        source: "FRED",
-        purpose: "To convert the St. Louis Fed's composite financial stress index into a weekly risk-on/risk-off classifier using robust z-score and regime rules.",
-        wip: false, notes: "N/A" },
-
-      { id: "Economic_Cycle_Proxies_Flow_Momentum.html", type: "signal", label: "Sector Flow & Momentum",
-        source: "CFTC",
-        purpose: "To aggregate 4-week speculative flows across futures sectors for identifying economic cycle dynamics and turning points.",
-        wip: false, notes: "N/A" },
-
-      { id: "Global_Positioning_Tone.html", type: "signal", label: "CoT Market Tone",
-        source: "CFTC",
-        purpose: "To measure systemic Risk-On vs Risk-Off tone using speculative crowding breadth across all futures markets.",
-        wip: false, notes: "N/A" },
-
-      { id: "Hedger_Pressure_Indicator.html", type: "signal", label: "Hedger Pressure",
-        source: "CFTC",
-        purpose: "To capture commercial hedger sentiment for identifying supply expansion stress or physical shortage signals.",
-        wip: false, notes: "N/A" },
-
-      { id: "Labor_Market_Turnover.html", type: "signal", label: "Labor Market Turnover Differential",
-        source: "FRED",
-        purpose: "To gauge labor market tightness by comparing worker quits to employer layoffs for identifying confidence and slack.",
-        wip: false, notes: "N/A" },
-
-      { id: "Manufactureres_new_goods.html", type: "signal", label: "Durable Goods ex-Transportation",
-        source: "FRED",
-        purpose: "To track momentum in core U.S. manufacturing orders for identifying capex trends without transportation volatility.",
-        wip: false, notes: "N/A" },
-
-      { id: "Portfolio_Level_Early_Warning_System.html", type: "signal", label: "CoT Early Warning Index",
-        source: "CFTC",
-        purpose: "To detect cross-market instability through extremes, crowding, and squeeze/exhaustion pressure for volatility cluster warnings.",
-        wip: false, notes: "N/A" },
-
-      { id: "Regimes_specific_Macro_Themes_Continuous.html", type: "signal", label: "Macro Themes from CoT",
-        source: "CFTC",
-        purpose: "To map cross-market positioning into macro themes identifying inflation impulse, disinflation, global slowdown, and supply stress.",
-        wip: false, notes: "N/A" }
-      ,{ id: "USD_CoT_Signals.html", type: "signal", label: "USD CoT Signals", source: "CFTC", purpose: "Broad USD futures positioning lens for global FX and macro transmission.", wip: false, notes: "N/A" }
-      ,{ id: "EURO_CoT_Signals.html", type: "signal", label: "EUR CoT Signals", source: "CFTC", purpose: "EUR futures positioning to gauge Eurozone macro and FX impulses.", wip: false, notes: "N/A" }
-      ,{ id: "GBP_CoT_Signals.html", type: "signal", label: "GBP CoT Signals", source: "CFTC", purpose: "GBP futures positioning to assess UK macro and FX dynamics.", wip: false, notes: "N/A" }
-      ,{ id: "YEN_CoT_Signals.html", type: "signal", label: "JPY CoT Signals", source: "CFTC", purpose: "JPY futures positioning reflecting BOJ regime shifts and global FX carry.", wip: false, notes: "N/A" }
-      ,{ id: "AUD_CoT_Signals.html", type: "signal", label: "AUD CoT Signals", source: "CFTC", purpose: "AUD futures positioning linked to commodities and China growth proxies.", wip: false, notes: "N/A" }
-      ,{ id: "CAD_CoT_Signals.html", type: "signal", label: "CAD CoT Signals", source: "CFTC", purpose: "CAD futures positioning connected to energy complex and North American cycle.", wip: false, notes: "N/A" }
-      ,{ id: "Copper_CoT_Signals.html", type: "signal", label: "Copper CoT Signals", source: "CFTC", purpose: "Copper futures positioning as a proxy for industrial demand.", wip: false, notes: "N/A" }
-      ,{ id: "Lithium_Hydroxide_CoT_Signals.html", type: "signal", label: "Lithium Hydroxide CoT", source: "CFTC", purpose: "Lithium futures positioning to monitor battery metals demand.", wip: false, notes: "N/A" }
-      ,{ id: "Palladium_CoT_Signals.html", type: "signal", label: "Palladium CoT Signals", source: "CFTC", purpose: "Palladium positioning for auto and catalytic converter demand cycles.", wip: false, notes: "N/A" }
-      ,{ id: "Platinum_CoT_Signals.html", type: "signal", label: "Platinum CoT Signals", source: "CFTC", purpose: "Platinum positioning for industrial and precious metals crossover.", wip: false, notes: "N/A" }
-      ,{ id: "Crude_Oil_CoT_Signals.html", type: "signal", label: "Crude Oil CoT Signals", source: "CFTC", purpose: "Crude oil positioning as a driver of global growth and inflation impulse.", wip: false, notes: "N/A" }
-      ,{ id: "SOF_3M_CoT_Signals.html", type: "signal", label: "SOFR 3M CoT Signals", source: "CFTC", purpose: "Short-term rates positioning for liquidity and policy path.", wip: false, notes: "N/A" }
-      ,{ id: "SOF_5Y_CoT_Signals.html", type: "signal", label: "SOFR 5Y CoT Signals", source: "CFTC", purpose: "Intermediate rate positioning reflecting growth and inflation expectations.", wip: false, notes: "N/A" }
-      ,{ id: "Federal_Reserve_Beige_Book_Summary.html", type: "signal", label: "Fed Beige Book Summary", source: "Federal Reserve", purpose: "Qualitative regional economic summary to complement quantitative cycle measures.", wip: false, notes: "N/A" }
-      ,{ id: "EMINI_SP500_CoT_Signals.html", type: "signal", label: "E-mini S&P 500 CoT", source: "CFTC", purpose: "US equity index positioning for tactical risk-on/off assessment.", wip: false, notes: "N/A" }
-      ,{ id: "NASDAQ_100_Consolidated_CoT_Signals.html", type: "signal", label: "Nasdaq 100 CoT", source: "CFTC", purpose: "Nasdaq 100 positioning to monitor growth/tech risk appetite.", wip: false, notes: "N/A" }
-      ,{ id: "Russell_EMini_CoT_Signals.html", type: "signal", label: "Russell E-mini CoT", source: "CFTC", purpose: "Small-cap positioning indicating domestic growth sensitivity.", wip: false, notes: "N/A" }
-    ];
-
-    // Link importance: higher = thicker
-    const BASE_URL = "https://sensational-stroopwafel-d10a4c.netlify.app/";
-const NODE_URL_MAP = {
-  "Consumer_Sentiment.html": "signal_report/Consumer_Sentiment.html",
-  "Cross_Sector_Positioning.html": "signal_report/Cross_Sector_Positioning.html",
-  "Durable_goods_capex_intent_methodology.html": "signal_report/Capex_Intent.html",
-  "Economic_Cycle_Proxies_Flow_Momentum.html": "signal_report/Economic_Cycle_Proxies_Flow_Momentum.html",
-  "Federal_Reserve_Liquidity_Composite.html": "signal_report/Federal_Reserve_Liquidity_Composite.html",
-  "Financial_Stress.html": "signal_report/Financial_Stress_Composite.html",
-  "Global_Positioning_Tone.html": "signal_report/Global_Positioning_Tone.html",
-  "Gold_CoT_Signals.html": "signal_report/Gold_CoT_Signals.html",
-  "Hedger_Pressure_Indicator.html": "signal_report/Hedger_Pressure_Indicator.html",
-  "Labor_Market_Turnover.html": "signal_report/Labor_Market_Turnover.html",
-  "Manufactureres_new_goods.html": "signal_report/Durable_Goods_Ex_Transportation.html",
-  "Portfolio_Level_Early_Warning_System.html": "signal_report/Portfolio_Level_Early_Warning_System.html",
-  "Real_Interest_Rate_Trend_Signal.html": "signal_report/Real_Interest_Rate_Trend.html",
-  "Regimes_specific_Macro_Themes_Continuous.html": "signal_report/Regimes_specific_Macro_Themes_Continuous.html",
-  "Silver_CoT_Signals.html": "signal_report/Silver_CoT_Signals.html",
-  "Specs_vs_Hedgers_Divergence_Reversal_Risk.html": "signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html",
-  "Squeeze_Exhaustion_Risk.html": "signal_report/Squeeze_Exhaustion_Risk.html",
-  "US_CPI_vs_PPI_Divergence_Inflation.html": "signal_report/CPI_PPI_Divergence.html",
-  "US_Treasury_Yield_Curve_Slope.html": "signal_report/US_Treasury_Yield_Curve.html",
-  "credit_conditions_methodology.html": "signal_report/Credit_Conditions.html",
-  "credit_spreads_methodology.html": "signal_report/Credit_Spreads.html",
-  "employment_composition_methodology.html": "signal_report/Employment_Composition_Signal.html",
-  "energy_adjusted_metals_tailwind_methodology.html": "signal_report/Energy_Adjusted_Metals_Tailwind.html",
-  "fed_inflation_signal.html": "signal_report/US_Inflation_Signal.html",
-  "financial_stress_composite_methodology.html": "signal_report/Financial_Stress_Composite.html",
-  "global_growth_group": "signal_report/Macro_Theme_Global_Growth.html",
-  "global_inflation_fx_group": "signal_report/Macro_Theme_Global_Inflation_and_FX_Dynamics.html",
-  "global_macro_composite": "signal_report/Composite_Global_Macro_Overview.html",
-  "global_trade_demand_group": "signal_report/Macro_Theme_Global_Trade_and_Demand.html",
-  "housing_lead_methodology.html": "signal_report/Housing_Lead.html",
-  "industrial_production_signal.html": "signal_report/Industrial_Production.html",
-  "inflation_term_structure_methodology.html": "signal_report/Inflation_Term_Structure.html",
-  "job_flows_labor_methodology.html": "signal_report/Job_Flows_Signal.html",
-  "labor_market_tightness_methodology.html": "signal_report/Labor_Market_Tightness_Signal.html",
-  "labour_market_momentum_methodology.html": "signal_report/Labour_Market_Momentum.html",
-  "m_2_money_supply.html": "signal_report/M2_Money_Supply.html",
-  "market_implied_inflation_signal.html": "signal_report/Market_Implied_Inflation.html",
-  "policy_relevant_inflation_pce_methodology.html": "signal_report/Policy_Relevant_Inflation_PCE.html",
-  "positioning_sentiment_group": "signal_report/Macro_Theme_Cross_Asset_Positioning_and_Sentiment.html",
-  "private_credit_impulse_methodology.html": "signal_report/Private_Credit_Impulse.html",
-  "sectoral_employment_methodology.html": "signal_report/Sectoral_Employment_Diffusion_Signal.html",
-  "underemployment_risk_methodology.html": "signal_report/Underemployment_Risk_Signal.html",
-  "us_credit_group": "signal_report/Macro_Theme_US_Credit_Conditions.html",
-  "us_growth_cycle_group": "signal_report/Macro_Theme_US_Growth_and_Business_Cycle.html",
-  "us_inflation_group": "signal_report/Macro_Theme_US_Inflation_and_Price_Dynamics.html",
-  "us_labor_group": "signal_report/Macro_Theme_US_Labour_Market.html",
-  "us_liquidity_monetary_group": "signal_report/Macro_Theme_US_Liquidity_and_Monetary_Conditions.html",
-  "us_macro_composite": "signal_report/Composite_US_Macro_Overview.html",
-  "usd_index_signal.html": "signal_report/USD_Index_Signal.html",
-  "vix_signal_methodology.html": "signal_report/VIX_Market_Volatility.html",
-  "wage_growth_and_inflation_methodology.html": "signal_report/Wage_Growth_and_Inflation_Signal.html",
-  "weekly_hours_methodology.html": "signal_report/Weekly_Hours_Signal.html",
-  "yield_curve_slope_methodology.html": "signal_report/Yield_Curve_Slope.html",
-  "portfolio_characteristics": "portfolio_characteristics/portfolio_characteristics_page.html",
-  "portfolio_advisor": "signal_report/Portfolio_Advisor_Portfolio_Guidance.html",
-  "predictor_fed_rate_decision": "signal_report/Predictor_Fed_Rate_Decision.html"
-  ,"USD_CoT_Signals.html": "signal_report/USD_CoT_Signals.html"
-  ,"EURO_CoT_Signals.html": "signal_report/EURO_CoT_Signals.html"
-  ,"GBP_CoT_Signals.html": "signal_report/GBP_CoT_Signals.html"
-  ,"YEN_CoT_Signals.html": "signal_report/YEN_CoT_Signals.html"
-  ,"AUD_CoT_Signals.html": "signal_report/AUD_CoT_Signals.html"
-  ,"CAD_CoT_Signals.html": "signal_report/CAD_CoT_Signals.html"
-  ,"Copper_CoT_Signals.html": "signal_report/Copper_CoT_Signals.html"
-  ,"Lithium_Hydroxide_CoT_Signals.html": "signal_report/Lithium_Hydroxide_CoT_Signals.html"
-  ,"Palladium_CoT_Signals.html": "signal_report/Palladium_CoT_Signals.html"
-  ,"Platinum_CoT_Signals.html": "signal_report/Platinum_CoT_Signals.html"
-  ,"Crude_Oil_CoT_Signals.html": "signal_report/Crude_Oil_CoT_Signals.html"
-  ,"SOF_3M_CoT_Signals.html": "signal_report/SOF_3M_CoT_Signals.html"
-  ,"SOF_5Y_CoT_Signals.html": "signal_report/SOF_5Y_CoT_Signals.html"
-  ,"Federal_Reserve_Beige_Book_Summary.html": "signal_report/Federal_Reserve_Beige_Book_Summary.html"
-  ,"EMINI_SP500_CoT_Signals.html": "signal_report/EMINI_SP500_CoT_Signals.html"
-  ,"NASDAQ_100_Consolidated_CoT_Signals.html": "signal_report/NASDAQ_100_Consolidated_CoT_Signals.html"
-  ,"Russell_EMini_CoT_Signals.html": "signal_report/Russell_EMini_CoT_Signals.html"
-  ,"us-midcap-strategy.html": "investment-strategy/us-midcap-strategy.html"
-};
-
-const links = [
-      // US Inflation signals
-      { source: "fed_inflation_signal.html", target: "us_inflation_group", importance: 1.2 },
-      { source: "wage_growth_and_inflation_methodology.html", target: "us_inflation_group", importance: 1.2 },
-      { source: "inflation_term_structure_methodology.html", target: "us_inflation_group", importance: 1.1 },
-      { source: "market_implied_inflation_signal.html", target: "us_inflation_group", importance: 1.1 },
-      { source: "policy_relevant_inflation_pce_methodology.html", target: "us_inflation_group", importance: 1.2 },
-      { source: "US_CPI_vs_PPI_Divergence_Inflation.html", target: "us_inflation_group", importance: 1.1 },
-
-      // US Growth & Business Cycle signals
-      { source: "yield_curve_slope_methodology.html", target: "us_growth_cycle_group", importance: 1.5 },
-      { source: "US_Treasury_Yield_Curve_Slope.html", target: "us_growth_cycle_group", importance: 1.4 },
-      { source: "Durable_goods_capex_intent_methodology.html", target: "us_growth_cycle_group", importance: 1.2 },
-      { source: "Manufactureres_new_goods.html", target: "us_growth_cycle_group", importance: 1.2 },
-      { source: "industrial_production_signal.html", target: "us_growth_cycle_group", importance: 1.2 },
-      { source: "Federal_Reserve_Beige_Book_Summary.html", target: "us_growth_cycle_group", importance: 1.1 },
-
-      // US Labour Market signals
-      { source: "labor_market_tightness_methodology.html", target: "us_labor_group", importance: 1.2 },
-      { source: "job_flows_labor_methodology.html", target: "us_labor_group", importance: 1.0 },
-      { source: "weekly_hours_methodology.html", target: "us_labor_group", importance: 1.0 },
-      { source: "underemployment_risk_methodology.html", target: "us_labor_group", importance: 1.1 },
-      { source: "employment_composition_methodology.html", target: "us_labor_group", importance: 1.1 },
-      { source: "labour_market_momentum_methodology.html", target: "us_labor_group", importance: 1.1 },
-      { source: "sectoral_employment_methodology.html", target: "us_labor_group", importance: 1.0 },
-      { source: "Labor_Market_Turnover.html", target: "us_labor_group", importance: 1.1 },
-
-      // US Liquidity & Monetary signals
-      { source: "Federal_Reserve_Liquidity_Composite.html", target: "us_liquidity_monetary_group", importance: 1.5 },
-      { source: "m_2_money_supply.html", target: "us_liquidity_monetary_group", importance: 1.3 },
-      { source: "Real_Interest_Rate_Trend_Signal.html", target: "us_liquidity_monetary_group", importance: 1.4 },
-      { source: "SOF_3M_CoT_Signals.html", target: "us_liquidity_monetary_group", importance: 1.3 },
-      { source: "SOF_5Y_CoT_Signals.html", target: "us_liquidity_monetary_group", importance: 1.3 },
-
-      // US Credit Conditions signals
-      { source: "credit_spreads_methodology.html", target: "us_credit_group", importance: 1.4 },
-      { source: "financial_stress_composite_methodology.html", target: "us_credit_group", importance: 1.6 },
-      { source: "Financial_Stress.html", target: "us_credit_group", importance: 1.5 },
-      { source: "credit_conditions_methodology.html", target: "us_credit_group", importance: 1.4 },
-      { source: "private_credit_impulse_methodology.html", target: "us_credit_group", importance: 1.3 },
-
-      // Global Growth signals
-      { source: "Gold_CoT_Signals.html", target: "global_growth_group", importance: 1.3 },
-      { source: "Silver_CoT_Signals.html", target: "global_growth_group", importance: 1.3 },
-      { source: "energy_adjusted_metals_tailwind_methodology.html", target: "global_growth_group", importance: 1.2 },
-      { source: "Economic_Cycle_Proxies_Flow_Momentum.html", target: "global_growth_group", importance: 1.3 },
-      { source: "Copper_CoT_Signals.html", target: "global_growth_group", importance: 1.3 },
-      { source: "Lithium_Hydroxide_CoT_Signals.html", target: "global_growth_group", importance: 1.2 },
-      { source: "Palladium_CoT_Signals.html", target: "global_growth_group", importance: 1.2 },
-      { source: "Platinum_CoT_Signals.html", target: "global_growth_group", importance: 1.2 },
-      { source: "Crude_Oil_CoT_Signals.html", target: "global_growth_group", importance: 1.3 },
-
-      // Global Trade & Demand signals
-      { source: "usd_index_signal.html", target: "global_trade_demand_group", importance: 1.4 },
-      { source: "Global_Positioning_Tone.html", target: "global_trade_demand_group", importance: 1.4 },
-      { source: "Regimes_specific_Macro_Themes_Continuous.html", target: "global_trade_demand_group", importance: 1.4 },
-
-      // Global Inflation/FX signals
-      { source: "usd_index_signal.html", target: "global_inflation_fx_group", importance: 1.3 },
-      { source: "USD_CoT_Signals.html", target: "global_inflation_fx_group", importance: 1.3 },
-      { source: "EURO_CoT_Signals.html", target: "global_inflation_fx_group", importance: 1.3 },
-      { source: "GBP_CoT_Signals.html", target: "global_inflation_fx_group", importance: 1.3 },
-      { source: "YEN_CoT_Signals.html", target: "global_inflation_fx_group", importance: 1.3 },
-      { source: "AUD_CoT_Signals.html", target: "global_inflation_fx_group", importance: 1.2 },
-      { source: "CAD_CoT_Signals.html", target: "global_inflation_fx_group", importance: 1.2 },
-
-      // Cross-Asset Positioning & Sentiment signals
-      { source: "vix_signal_methodology.html", target: "positioning_sentiment_group", importance: 1.3 },
-      { source: "Specs_vs_Hedgers_Divergence_Reversal_Risk.html", target: "positioning_sentiment_group", importance: 1.4 },
-      { source: "Cross_Sector_Positioning.html", target: "positioning_sentiment_group", importance: 1.4 },
-      { source: "Squeeze_Exhaustion_Risk.html", target: "positioning_sentiment_group", importance: 1.4 },
-      { source: "Regimes_specific_Macro_Themes_Continuous.html", target: "positioning_sentiment_group", importance: 1.4 },
-      { source: "Hedger_Pressure_Indicator.html", target: "positioning_sentiment_group", importance: 1.3 },
-      { source: "Portfolio_Level_Early_Warning_System.html", target: "positioning_sentiment_group", importance: 1.5 },
-      { source: "EMINI_SP500_CoT_Signals.html", target: "positioning_sentiment_group", importance: 1.3 },
-      { source: "NASDAQ_100_Consolidated_CoT_Signals.html", target: "positioning_sentiment_group", importance: 1.3 },
-      { source: "Russell_EMini_CoT_Signals.html", target: "positioning_sentiment_group", importance: 1.3 },
-
-      // US Macro groups to US composite
-      { source: "us_growth_cycle_group", target: "us_macro_composite", importance: 2.0 },
-      { source: "us_inflation_group", target: "us_macro_composite", importance: 2.0 },
-      { source: "us_labor_group", target: "us_macro_composite", importance: 2.0 },
-      { source: "us_liquidity_monetary_group", target: "us_macro_composite", importance: 2.0 },
-      { source: "us_credit_group", target: "us_macro_composite", importance: 2.0 },
-
-      // Global Macro groups to Global composite
-      { source: "global_growth_group", target: "global_macro_composite", importance: 2.0 },
-      { source: "global_trade_demand_group", target: "global_macro_composite", importance: 2.0 },
-      { source: "global_inflation_fx_group", target: "global_macro_composite", importance: 1.8 },
-
-      // Positioning connects to both composites
-      { source: "positioning_sentiment_group", target: "us_macro_composite", importance: 1.6 },
-      { source: "positioning_sentiment_group", target: "global_macro_composite", importance: 1.6 },
-
-      // Predictor: Fed Rate Decision Predictor links to all Macro Themes except Global Trade & Demand
-      { source: "predictor_fed_rate_decision", target: "us_growth_cycle_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_inflation_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_labor_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_liquidity_monetary_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "us_credit_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "global_growth_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "global_inflation_fx_group", importance: 1.8 },
-      { source: "predictor_fed_rate_decision", target: "positioning_sentiment_group", importance: 1.8 },
-
-      // Predictor feeds into US Macro Composite
-      { source: "predictor_fed_rate_decision", target: "us_macro_composite", importance: 2.2 },
-
-      // Link the two composites together
-      { source: "global_macro_composite", target: "us_macro_composite", importance: 2.5 },
-
-      // Composites to Macro Advisor (north-star)
-      { source: "us_macro_composite", target: "portfolio_advisor", importance: 3.0 },
-      { source: "global_macro_composite", target: "portfolio_advisor", importance: 3.0 },
-
-      // Macro Advisor to Portfolio Characteristics
-      { source: "portfolio_advisor", target: "portfolio_characteristics", importance: 2.2 },
-      // Thesis links
-      { source: "us-midcap-strategy.html", target: "portfolio_characteristics", importance: 1.3 }
-    ];
-
-    // Group membership for expand/contract
-    const groupMembers = {
-      us_growth_cycle_group: ["yield_curve_slope_methodology.html", "US_Treasury_Yield_Curve_Slope.html", "Durable_goods_capex_intent_methodology.html", "Manufactureres_new_goods.html", "industrial_production_signal.html"],
-      us_inflation_group: ["fed_inflation_signal.html", "wage_growth_and_inflation_methodology.html", "inflation_term_structure_methodology.html", "market_implied_inflation_signal.html", "policy_relevant_inflation_pce_methodology.html", "US_CPI_vs_PPI_Divergence_Inflation.html"],
-      us_labor_group: ["labor_market_tightness_methodology.html", "job_flows_labor_methodology.html", "weekly_hours_methodology.html", "underemployment_risk_methodology.html", "employment_composition_methodology.html", "labour_market_momentum_methodology.html", "sectoral_employment_methodology.html", "Labor_Market_Turnover.html"],
-      us_liquidity_monetary_group: ["Federal_Reserve_Liquidity_Composite.html", "m_2_money_supply.html", "Real_Interest_Rate_Trend_Signal.html", "SOF_3M_CoT_Signals.html", "SOF_5Y_CoT_Signals.html"],
-      us_credit_group: ["credit_spreads_methodology.html", "financial_stress_composite_methodology.html", "Financial_Stress.html", "credit_conditions_methodology.html", "private_credit_impulse_methodology.html"],
-      global_growth_group: ["Gold_CoT_Signals.html", "Silver_CoT_Signals.html", "energy_adjusted_metals_tailwind_methodology.html", "Economic_Cycle_Proxies_Flow_Momentum.html", "Copper_CoT_Signals.html", "Lithium_Hydroxide_CoT_Signals.html", "Palladium_CoT_Signals.html", "Platinum_CoT_Signals.html", "Crude_Oil_CoT_Signals.html"],
-      global_trade_demand_group: ["usd_index_signal.html", "Global_Positioning_Tone.html", "Regimes_specific_Macro_Themes_Continuous.html"],
-      global_inflation_fx_group: ["usd_index_signal.html", "USD_CoT_Signals.html", "EURO_CoT_Signals.html", "GBP_CoT_Signals.html", "YEN_CoT_Signals.html", "AUD_CoT_Signals.html", "CAD_CoT_Signals.html"],
-      positioning_sentiment_group: ["vix_signal_methodology.html", "Specs_vs_Hedgers_Divergence_Reversal_Risk.html", "Cross_Sector_Positioning.html", "Squeeze_Exhaustion_Risk.html", "Regimes_specific_Macro_Themes_Continuous.html", "Hedger_Pressure_Indicator.html", "Portfolio_Level_Early_Warning_System.html", "EMINI_SP500_CoT_Signals.html", "NASDAQ_100_Consolidated_CoT_Signals.html", "Russell_EMini_CoT_Signals.html"]
-    };
-
-    const collapsedGroups = new Set();
-    const idToNode = {};
-    nodes.forEach(n => { idToNode[n.id] = n; });
-
-    // Hardcode node positions from latest layout JSON (v1.4)
-    const hardcodedPositions = {
-      "us_macro_composite": {"x": 819, "y": 417},
-      "global_macro_composite": {"x": 526, "y": 445},
-      "portfolio_advisor": {"x": 673, "y": 530},
-      "portfolio_characteristics": {"x": 542, "y": 672},
-      "predictor_fed_rate_decision": {"x": 892, "y": 536},
-      "us_growth_cycle_group": {"x": 833, "y": 143},
-      "us_inflation_group": {"x": 1101, "y": 214},
-      "us_labor_group": {"x": 831, "y": 680},
-      "us_liquidity_monetary_group": {"x": 1053, "y": 398},
-      "us_credit_group": {"x": 1108, "y": 587},
-      "global_growth_group": {"x": 295, "y": 671},
-      "global_trade_demand_group": {"x": 300, "y": 350},
-      "global_inflation_fx_group": {"x": 198, "y": 435},
-      "positioning_sentiment_group": {"x": 470, "y": 187},
-      "fed_inflation_signal.html": {"x": 1104, "y": 115},
-      "wage_growth_and_inflation_methodology.html": {"x": 1152, "y": 131},
-      "Durable_goods_capex_intent_methodology.html": {"x": 866, "y": 115},
-      "labor_market_tightness_methodology.html": {"x": 939, "y": 744},
-      "weekly_hours_methodology.html": {"x": 928, "y": 791},
-      "Federal_Reserve_Liquidity_Composite.html": {"x": 1129, "y": 366},
-      "yield_curve_slope_methodology.html": {"x": 702, "y": 128},
-      "US_Treasury_Yield_Curve_Slope.html": {"x": 718, "y": 93},
-      "credit_spreads_methodology.html": {"x": 1247, "y": 551},
-      "financial_stress_composite_methodology.html": {"x": 1240, "y": 602},
-      "usd_index_signal.html": {"x": 217, "y": 372},
-      "vix_signal_methodology.html": {"x": 345, "y": 220},
-      "Consumer_Sentiment.html": {"x": 628, "y": -5436},
-      "Cross_Sector_Positioning.html": {"x": 422, "y": 67},
-      "Squeeze_Exhaustion_Risk.html": {"x": 559, "y": 210},
-      "Specs_vs_Hedgers_Divergence_Reversal_Risk.html": {"x": 375, "y": 101},
-      "Gold_CoT_Signals.html": {"x": 301, "y": 731},
-      "Silver_CoT_Signals.html": {"x": 136, "y": 696},
-      "credit_conditions_methodology.html": {"x": 1221, "y": 646},
-      "employment_composition_methodology.html": {"x": 910, "y": 648},
-      "housing_lead_methodology.html": {"x": -327, "y": 6338},
-      "industrial_production_signal.html": {"x": 770, "y": 65},
-      "m_2_money_supply.html": {"x": 1148, "y": 424},
-      "job_flows_labor_methodology.html": {"x": 747, "y": 804},
-      "private_credit_impulse_methodology.html": {"x": 1187, "y": 681},
-      "Real_Interest_Rate_Trend_Signal.html": {"x": 1103, "y": 455},
-      "energy_adjusted_metals_tailwind_methodology.html": {"x": 146, "y": 761},
-      "inflation_term_structure_methodology.html": {"x": 1214, "y": 195},
-      "labour_market_momentum_methodology.html": {"x": 836, "y": 828},
-      "sectoral_employment_methodology.html": {"x": 694, "y": 730},
-      "underemployment_risk_methodology.html": {"x": 932, "y": 699},
-      "market_implied_inflation_signal.html": {"x": 1231, "y": 237},
-      "policy_relevant_inflation_pce_methodology.html": {"x": 1191, "y": 157},
-      "US_CPI_vs_PPI_Divergence_Inflation.html": {"x": 1232, "y": 286},
-      "Financial_Stress.html": {"x": 1126, "y": 718},
-      "Economic_Cycle_Proxies_Flow_Momentum.html": {"x": 141, "y": 656},
-      "Global_Positioning_Tone.html": {"x": 166, "y": 258},
-      "Hedger_Pressure_Indicator.html": {"x": 338, "y": 173},
-      "Labor_Market_Turnover.html": {"x": 720, "y": 767},
-      "Manufactureres_new_goods.html": {"x": 702, "y": 167},
-      "Portfolio_Level_Early_Warning_System.html": {"x": 343, "y": 139},
-      "Regimes_specific_Macro_Themes_Continuous.html": {"x": 430, "y": 273},
-      "USD_CoT_Signals.html": {"x": 55, "y": 431},
-      "EURO_CoT_Signals.html": {"x": 54, "y": 464},
-      "GBP_CoT_Signals.html": {"x": 61, "y": 396},
-      "YEN_CoT_Signals.html": {"x": 72, "y": 492},
-      "AUD_CoT_Signals.html": {"x": 97, "y": 369},
-      "CAD_CoT_Signals.html": {"x": 144, "y": 345},
-      "Copper_CoT_Signals.html": {"x": 153, "y": 622},
-      "Lithium_Hydroxide_CoT_Signals.html": {"x": 236, "y": 788},
-      "Palladium_CoT_Signals.html": {"x": 141, "y": 730},
-      "Platinum_CoT_Signals.html": {"x": 347, "y": 707},
-      "Crude_Oil_CoT_Signals.html": {"x": 190, "y": 593},
-      "SOF_3M_CoT_Signals.html": {"x": 1117, "y": 338},
-      "SOF_5Y_CoT_Signals.html": {"x": 1050, "y": 481},
-      "Federal_Reserve_Beige_Book_Summary.html": {"x": 901, "y": 169},
-      "EMINI_SP500_CoT_Signals.html": {"x": 537, "y": 126},
-      "NASDAQ_100_Consolidated_CoT_Signals.html": {"x": 506, "y": 94},
-      "Russell_EMini_CoT_Signals.html": {"x": 557, "y": 158},
-      "us-midcap-strategy.html": {"x": 600, "y": 710}
-};
-
-    nodes.forEach(n => {
-      if (hardcodedPositions[n.id]) {
-        const { x, y } = hardcodedPositions[n.id];
-        n.x = x;
-        n.y = y;
-        n.fx = x;  // pin to hardcoded position
-        n.fy = y;  // pin to hardcoded position
-      }
-    });
-
-
-    // =========================
-    // FORCE GRAPH SETUP
-    // =========================
-    const svg = d3.select("#graph");
-    const tooltip = d3.select("#tooltip");
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    svg.attr("width", width).attr("height", height);
-
-    // Modern professional color palette
-    function getNodeColor(d) {
-      if (d.type === "signal") {
-        // Work in progress signals are grey
-        if (d.wip) return "#6b7280";
-
-        // Z-score based coloring for completed signals
-        if (d.zScore) {
-          const v = parseFloat(d.zScore);
-          if (!isNaN(v)) {
-            if (v >= 0.75) return "#ef4444";      // HOT - Modern red
-            if (v <= -0.75) return "#3b82f6";     // COOL - Modern blue
-            return "#60a5fa";                     // Neutral signal - Lighter blue
-          }
-        }
-        return "#f1f5f9";                         // Default white for signals
-      }
-      if (d.type === "group") return "#8B5CF6";       // Macro Themes - purple
-      if (d.type === "composite") return "#3B82F6";   // Macro Composites - brand blue
-      if (d.type === "advisor") return "#FBBF24";     // Portfolio Advisor - gold
-      if (d.type === "portfolio") return "#C4407C";   // Portfolio Characteristics - magenta
-      if (d.type === "thesis") return "#14b8a6";     // Thesis pages - teal
-      if (d.type === "predictor") return "#22c55e";   // Predictors - green accent
-      if (d.type === "output") return "#8b5cf6";      // Modern purple for outputs
-      return "#94a3b8";                              // Modern slate
-    }
-
-    const radius = (d) => {
-      if (d.type === "advisor") return 22;
-      if (d.type === "composite") return 16;
-      if (d.type === "group") return 14;
-      if (d.type === "portfolio") return 14;
-      if (d.type === "thesis") return 12;
-      if (d.type === "predictor") return 14;
-      if (d.type === "output") return 14;
-      return 10;
-    };
-
-    const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(links).id(d => d.id).distance(130).strength(0.6))
-      .force("charge", d3.forceManyBody().strength(-250))
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collide", d3.forceCollide().radius(d => radius(d) + 6));
-
-    // Add glow filter for stars
-    const defs = svg.append("defs");
-    const filter = defs.append("filter")
-      .attr("id", "glow")
-      .attr("x", "-50%")
-      .attr("y", "-50%")
-      .attr("width", "200%")
-      .attr("height", "200%");
-
-    filter.append("feGaussianBlur")
-      .attr("stdDeviation", "2")
-      .attr("result", "coloredBlur");
-
-    const feMerge = filter.append("feMerge");
-    feMerge.append("feMergeNode").attr("in", "coloredBlur");
-    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
-
-    // Create a container group for zoom/pan
-    const container = svg.append("g");
-
-    const link = container.append("g")
-      .attr("stroke-width", 1.2)
-      .selectAll("line")
-      .data(links)
-      .enter()
-      .append("line")
-      .attr("class", "link")
-      .attr("stroke-width", d => d.importance || 1.2);
-
-    const node = container.append("g")
-      .selectAll("g")
-      .data(nodes)
-      .enter()
-      .append("g")
-      .attr("class", "node")
-      .call(d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
-      );
-
-    node.append("circle")
-      .attr("r", d => radius(d))
-      .attr("fill", d => getNodeColor(d))
-      .attr("filter", "url(#glow)");
-
-    node.append("text")
-      .attr("x", d => radius(d) + 3)
-      .attr("y", 3)
-      .text(d => d.label);
-
-    // =========================
-    // HOVER TOOLTIP
-    // =========================
-    node.on("mouseover", (event, d) => {
-      const isSignal = d.type === "signal";
-      const typeLabel =
-        d.type === "group" ? "Macro Theme" :
-        d.type === "advisor" ? "Portfolio Advisor" :
-        d.type === "portfolio" ? "Portfolio Characteristics" :
-        d.type;
-
-      let html = `<strong>${d.label}</strong><br/><em>Type: ${typeLabel}</em>`;
-
-      if (isSignal) {
-        if (d.wip) html += `<br/><span style="color: #fbbf24;"><strong>⚠ Work in Progress</strong></span>`;
-        if (d.source) html += `<br/><strong>Source:</strong> ${d.source}`;
-        if (d.purpose) html += `<br/><strong>Purpose:</strong> ${d.purpose}`;
-        if (d.notes && d.notes !== "N/A") html += `<br/><strong>Notes:</strong> ${d.notes}`;
-      } else {
-        if (d.regime) html += `<br/><strong>Regime:</strong> ${d.regime}`;
-        if (d.description) html += `<br/><strong>Summary:</strong> ${d.description}`;
+    // NAVIGATION TOGGLE
+    (function() {
+      const toggle = document.getElementById('nav-menu-btn');
+      const overlay = document.getElementById('ia-nav-overlay');
+      const panel = document.getElementById('ia-nav-panel');
+      const close = document.getElementById('ia-nav-close');
+
+      function openNav() {
+        toggle.classList.add('is-open');
+        overlay.classList.add('open');
+        panel.classList.add('open');
       }
 
-      tooltip
-        .style("opacity", 1)
-        .html(html);
-    })
-    .on("mousemove", (event) => {
-      const padding = 12;
-      tooltip
-        .style("left", (event.pageX + padding) + "px")
-        .style("top", (event.pageY + padding) + "px");
-    })
-    .on("mouseout", () => {
-      tooltip.style("opacity", 0);
-    })
-    .on("click", (event, d) => {
-        const rel = NODE_URL_MAP[d.id];
-        if (rel) {
-          // Navigate using a site-relative path so it works locally and on deploy
-          window.open(rel, "_blank");
+      function closeNav() {
+        toggle.classList.remove('is-open');
+        overlay.classList.remove('open');
+        panel.classList.remove('open');
+      }
+
+      toggle.addEventListener('click', () => {
+        if (panel.classList.contains('open')) {
+          closeNav();
+        } else {
+          openNav();
         }
       });
 
-    // =========================
-    // TICK UPDATE
-    // =========================
-    simulation.on("tick", () => {
-      link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
+      close.addEventListener('click', closeNav);
+      overlay.addEventListener('click', closeNav);
+    })();
 
-      node.attr("transform", d => `translate(${d.x},${d.y})`);
-    });
-
-    function dragstarted(event, d) {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-
-    function dragged(event, d) {
-      const transform = d3.zoomTransform(svg.node());
-      d.fx = (event.x - transform.x) / transform.k;
-      d.fy = (event.y - transform.y) / transform.k;
-    }
-
-    function dragended(event, d) {
-      if (!event.active) simulation.alphaTarget(0);
-      // Keep nodes fixed after dragging instead of releasing them
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-
-    // Zoom & pan
-    const zoom = d3.zoom()
-      .scaleExtent([0.2, 3])
-      .on("zoom", (event) => {
-        container.attr("transform", event.transform);
-      });
-
-    svg.call(zoom);
-
-    // =========================
-    // FILTERING & VISIBILITY
-    // =========================
-    const filterState = {
-      signals: true,
-      groups: true,
-      composites: true,
-      advisor: true,
-      portfolio: false,
-      thesis: false,
-      outputs: true,
-      cot: true,
-      predictors: false
-    };
-
-    function isCoTNode(d) {
-      return d.id.startsWith("cot_");
-    }
-
-    function updateVisibility() {
-      // Mark hidden flag on nodes
-      node.each(function(d) {
-        let hidden = false;
-
-        if (d.type === "signal" && !filterState.signals) hidden = true;
-        if (d.type === "group" && !filterState.groups) hidden = true;
-        if (d.type === "composite" && !filterState.composites) hidden = true;
-        if (d.type === "advisor" && !filterState.advisor) hidden = true;
-        if (d.type === "portfolio" && !filterState.portfolio) hidden = true;
-        if (d.type === "thesis" && !filterState.thesis) hidden = true;
-        if (d.type === "output" && !filterState.outputs) hidden = true;
-        if (d.type === "predictor" && !filterState.predictors) hidden = true;
-
-        if (!filterState.cot && isCoTNode(d)) hidden = true;
-
-        // Collapsed groups hide their members
-        for (const g of collapsedGroups) {
-          const members = groupMembers[g] || [];
-          if (members.includes(d.id)) {
-            hidden = true;
-          }
+    // HEADER SCROLL EFFECT
+    (function() {
+      const header = document.getElementById('nav-header');
+      
+      function handleScroll() {
+        if (window.scrollY > 20) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
         }
-
-        d.hidden = hidden;
-        d3.select(this).style("display", hidden ? "none" : null);
-      });
-
-      // Hide links if either endpoint is hidden
-      link.each(function(d) {
-        const hidden = d.source.hidden || d.target.hidden;
-        d3.select(this).style("display", hidden ? "none" : null);
-      });
-    }
-
-    // Controls events
-    document.querySelectorAll('#controls input[type="checkbox"]').forEach(cb => {
-      cb.addEventListener('change', (e) => {
-        const key = e.target.getAttribute('data-filter');
-        const checked = e.target.checked;
-        if (key in filterState) {
-          filterState[key] = checked;
-          updateVisibility();
-        }
-      });
-    });
-
-    // Collapsible filter controls
-    document.getElementById('controls-header').addEventListener('click', () => {
-      const content = document.getElementById('controls-content');
-      const toggle = document.getElementById('controls-toggle');
-      const isShown = content.style.display !== 'none';
-      content.style.display = isShown ? 'none' : 'block';
-      toggle.textContent = isShown ? 'Show' : 'Hide';
-    });
-
-    // Initial visibility
-    updateVisibility();
-
-    // =========================
-    // EXPORT & LOAD LAYOUT
-    // =========================
-
-    // Export current layout to JSON file
-    function exportLayout() {
-      const positions = {};
-      node.each(d => {
-        positions[d.id] = {
-          x: Math.round(d.x),
-          y: Math.round(d.y)
-        };
-      });
-
-      const dataStr = JSON.stringify(positions, null, 2);
-      const blob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'signal-map-layout.json';
-      link.click();
-
-      console.log('Layout exported!');
-    }
-
-    // Load layout from JSON file in project directory
-    function loadLayout() {
-      fetch('signal-map-layout.json')
-        .then(response => {
-          if (!response.ok) {
-            console.log('No saved layout found, using force simulation');
-            return null;
-          }
-          return response.json();
-        })
-        .then(positions => {
-          if (positions) {
-            nodes.forEach(n => {
-              if (positions[n.id]) {
-                n.x = positions[n.id].x;
-                n.y = positions[n.id].y;
-                n.fx = positions[n.id].x;
-                n.fy = positions[n.id].y;
-              }
-            });
-            simulation.alpha(0).restart();
-            console.log('Layout loaded from signal-map-layout.json');
-          }
-        })
-        .catch(err => {
-          console.log('Using dynamic layout:', err);
-        });
-    }
-
-    // Load saved layout if available
-    loadLayout();
-
-    // Attach export button click handler
-    document.getElementById('exportBtn').addEventListener('click', exportLayout);
-
+      }
+      
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
+    })();
   </script>
-<hr>
-<section id="signal-map-notes">
-  <h2>Signal Map Coverage Notes</h2>
-  <h3>Orphan nodes (no signal_report HTML found in Macro Themes notebook)</h3>
-  <ul>
-    <li><strong>Copper CoT Signal</strong> (node id <code>Copper_single_market_cot_methodology.html</code>) — no corresponding <code>signal_report/*.html</code> document was detected in <code>6. Macro Themes.ipynb</code>.</li>
-  </ul>
-  <h3>Unmapped signal-report documents (not linked to any node)</h3>
-  <ul>
-    <li><code>Financial_Stress_Index.html</code> — generated by <code>6. Macro Themes.ipynb</code> but not referenced by any node in this map.</li>
-  </ul>
-</section>
 </body>
 </html>
