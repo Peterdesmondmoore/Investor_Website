@@ -210,26 +210,17 @@
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-  <!-- Auth Gate Overlay -->
-  <div id="auth-gate">
-    <div class="auth-card">
-      <h2>Welcome to Signal Map</h2>
-      <p>To explore the interactive signal network and macro themes, please sign in with your account.</p>
-      <button class="auth-btn" onclick="netlifyIdentity.open('login')">Sign In</button>
-    </div>
-  </div>
-
   <!-- Futuristic animated background -->
   <canvas id="bg"></canvas>
 
   <!-- Main signal graph -->
-  <svg id="graph"></svg>
+  <svg id="graph" style="display: block;"></svg>
   <div id="tooltip" class="tooltip"></div>
-  <div id="logo">
+  <div id="logo" style="display: block;">
     <div style="font-size: 18px; font-weight: 700;">Portfolio Advisor</div>
     <div style="font-size: 12px; opacity: 0.9; text-align: center;">Investor Anatomy</div>
   </div>
-  <div id="controls">
+  <div id="controls" style="display: block;">
     <div id="controls-header" style="display:flex; align-items:center; justify-content:space-between;">
       <div class="title" style="margin:0;">Filter</div>
       <button id="controls-toggle" style="background: transparent; color: #f1f5f9; border: 1px solid rgba(148, 163, 184, 0.4); border-radius: 6px; padding: 2px 8px; font-size: 12px; cursor:pointer;">Show</button>
@@ -1367,47 +1358,65 @@ const links = [
 </section>
 
 <script>
-  // AUTH GATE - Check authentication before showing content
+  // AUTH GATE - Check authentication and redirect to sign in
   (function() {
-    const authGate = document.getElementById('auth-gate');
+    console.log('[AUTH] Script starting...');
     const content = document.getElementById('graph');
     const controls = document.getElementById('controls');
     
     function checkAuth() {
+      console.log('[AUTH] checkAuth() called');
       if (typeof netlifyIdentity !== 'undefined') {
         const user = netlifyIdentity.currentUser();
+        console.log('[AUTH] Current user:', user);
         if (user) {
-          // User is logged in - hide gate, show content
-          authGate.classList.remove('active');
+          // User is logged in - show content
+          console.log('[AUTH] User logged in - showing content');
           if (content) content.style.display = 'block';
           if (controls) controls.style.display = 'block';
         } else {
-          // User is not logged in - show gate, hide content
-          authGate.classList.add('active');
+          // User is not logged in - hide content and open sign-in modal
+          console.log('[AUTH] No user - hiding content and opening sign-in modal');
           if (content) content.style.display = 'none';
           if (controls) controls.style.display = 'none';
+          netlifyIdentity.open('login');
         }
       }
     }
 
     // Initialize Netlify Identity
     if (typeof netlifyIdentity !== 'undefined') {
+      console.log('[AUTH] Initializing Netlify Identity...');
       netlifyIdentity.init();
       
-      netlifyIdentity.on('init', checkAuth);
-      netlifyIdentity.on('login', user => {
-        netlifyIdentity.close();
+      netlifyIdentity.on('init', user => {
+        console.log('[AUTH] Identity initialized. User:', user);
         checkAuth();
       });
-      netlifyIdentity.on('logout', () => {
-        authGate.classList.add('active');
-        if (content) content.style.display = 'none';
-        if (controls) controls.style.display = 'none';
+      
+      netlifyIdentity.on('login', user => {
+        console.log('[AUTH] Login event fired. User:', user);
+        netlifyIdentity.close();
+        if (content) content.style.display = 'block';
+        if (controls) controls.style.display = 'block';
       });
+      
+      netlifyIdentity.on('logout', () => {
+        console.log('[AUTH] Logout event fired - redirecting to home');
+        window.location.href = 'index.html';
+      });
+      
+      netlifyIdentity.on('close', () => {
+        console.log('[AUTH] Modal closed');
+        const user = netlifyIdentity.currentUser();
+        if (!user) {
+          console.log('[AUTH] Modal closed without login - redirecting to home');
+          window.location.href = 'index.html';
+        }
+      });
+    } else {
+      console.error('[AUTH] netlifyIdentity not available!');
     }
-    
-    // Initial check
-    checkAuth();
   })();
 </script>
 </body>
