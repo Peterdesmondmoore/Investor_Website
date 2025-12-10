@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Brazilian Equities Strategy – Coiled Spring (Midcap Styled)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #3b82f6; /* Strategy accent: brand blue */
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --text-main: #f1f5f9;
+      --text-soft: #94a3b8;
+      --border-subtle: #1f2937;
+      --danger: #ef4444;
+      --positive: #22c55e;
+      --warn: #fbbf24;
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .tabs {
+      margin-top: 16px;
+    }
+
+    .tab-list {
+      display: inline-flex;
+      gap: 8px;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .tab-button {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .tab-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .tab-panel {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .pill-hot {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--danger);
+    }
+
+    .pill-oppty {
+      border-color: rgba(74, 222, 128, 0.7);
+      color: var(--positive);
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    .section {
+      margin-top: 14px;
+    }
+
+    .section h3 {
+      font-size: 0.9rem;
+      margin: 0 0 6px;
+    }
+
+    .section p {
+      font-size: 0.8rem;
+      margin: 0 0 8px;
+      color: var(--text-soft);
+    }
+
+    .table-wrapper {
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    thead {
+      background: #020617;
+    }
+
+    th, td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .col-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .risk-low { color: var(--positive); }
+    .risk-medium { color: var(--warn); }
+    .risk-high { color: var(--danger); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--text-soft);
+    }
+
+    .tag-positive { color: var(--positive); border-color: rgba(34, 197, 94, 0.5); }
+    .tag-warn { color: var(--warn); border-color: rgba(250, 204, 21, 0.5); }
+    .tag-risk { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+
+    ul.bullet-tight {
+      padding-left: 18px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    a {
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #fbbf24;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-two {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .grid-four {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-four {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .grid-four {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .performance-note {
+      font-size: 0.75rem;
+      margin-top: 6px;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <div>Brazilian Equities Strategy – "Coiled Spring"</div>
+      <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">
+        ← Back to dashboard
+      </a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <header class="header">
+      <div class="eyebrow">Strategy Overview</div>
+      <h1>Brazilian Equities: A Coiled Spring</h1>
+      <p class="subtitle">
+        A detailed strategy designed to capitalise on deep market pessimism and an asymmetric
+        upside opportunity unlocked by a credible fiscal and monetary transition.
+      </p>
+      <div class="meta-row">
+        <div class="chip"><span class="chip-dot"></span>Universe: Brazilian equities &amp; ADRs</div>
+        <div class="chip">Instruments: EWZ, ITUB, NU, XP, EBR, SBS, VALE, PBR</div>
+        <div class="chip">Horizon: 5-year outlook (to 2030)</div>
+        <div class="chip">Structure: Barbell – Core + Sector Overweights</div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-button active" data-tab="overview">Overview &amp; Allocation</button>
+        <button class="tab-button" data-tab="macro">Scenarios, Performance &amp; Risk</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-panel active">
+        <main class="layout">
+          <!-- LEFT: CORE THESIS -->
+          <section class="card" aria-labelledby="core-thesis-heading">
+            <div class="card-title-row">
+              <h2 id="core-thesis-heading">Core Investment Thesis</h2>
+              <span class="pill pill-oppty">Asymmetric upside</span>
+            </div>
+            <p>
+              The Brazilian equity market currently trades at valuations that reflect deep
+              macroeconomic pessimism and restrictive monetary policy. This has created a
+              <strong>"coiled spring"</strong> dynamic in which a credible fiscal and political
+              reset could unlock a powerful multi-year re-rating.
+            </p>
+
+            <div class="section">
+              <h3>High-level strategy &amp; rationale</h3>
+              <p>
+                The core investment thesis is predicated on a sequence of events: a political
+                resolution that restores fiscal discipline, enabling monetary normalisation and,
+                ultimately, the rotation of domestic capital from high-yield fixed income into
+                equities.
+              </p>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Political &amp; fiscal catalyst:</strong> A credible fiscal consolidation
+                  program following the October 2026 general election anchors long-term inflation
+                  expectations and stabilises the debt path.
+                </li>
+                <li>
+                  <strong>Monetary normalisation:</strong> Fiscal credibility allows the Banco
+                  Central do Brasil (BCB) to transition from a highly restrictive stance to a
+                  sustained easing cycle.
+                </li>
+                <li>
+                  <strong>Domestic capital rotation:</strong> Lower rates trigger a powerful shift
+                  from high-yielding fixed income into deeply undervalued Brazilian equities,
+                  driving broad-based multiple expansion.
+                </li>
+              </ul>
+              <p>
+                The current valuation discount offers a substantial margin of safety if this
+                sequence unfolds, with the upside concentrated in domestically sensitive sectors.
+              </p>
+            </div>
+
+            <div class="section">
+              <h3>Deployment &amp; drawdown strategy</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Phase 1 – Present to mid-2026:</strong> Deploy ~50% of target weight at
+                  attractive valuations, emphasising diversified market ETF exposure and defensive,
+                  high-quality companies.
+                </li>
+                <li>
+                  <strong>Phase 2 – H2 2026 and post-election:</strong> Move to full allocation
+                  (100% of target weight) following a market-positive outcome that provides a clear
+                  path to fiscal consolidation; rotate incrementally into domestic cyclicals (e.g.
+                  financials).
+                </li>
+                <li>
+                  <strong>Drawdown triggers:</strong> Reduce exposure if there is a definitive
+                  breakdown in fiscal reform, a sharp collapse in key commodities (oil, iron ore) or
+                  a severe global risk-off event that changes the structural thesis.
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- RIGHT: BARBELL STRUCTURE -->
+          <aside class="card" aria-labelledby="structure-heading">
+            <div class="card-title-row">
+              <h2 id="structure-heading">"Barbell" Portfolio Structure</h2>
+              <span class="pill">Diversification + cyclicals</span>
+            </div>
+            <p>
+              The strategy blends a diversified core ETF sleeve with targeted overweights in
+              high-conviction sectors and issuers, balancing broad market participation with
+              focused upside to a domestic re-rating.
+            </p>
+
+            <div class="section">
+              <h3>Strategic sleeves &amp; indicative bands</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Pillar</th>
+                      <th>Description</th>
+                      <th class="col-right">Target share</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Core exposure</td>
+                      <td>
+                        Broad Brazil equity beta via a large-cap ETF; captures the overall
+                        market re-rating and behavioural shift from pessimism to pragmatism.
+                      </td>
+                      <td class="col-right">40%</td>
+                    </tr>
+                    <tr>
+                      <td>Sector overweights</td>
+                      <td>
+                        Concentrated ADR positions expressing high-conviction sector views
+                        (financials, utilities, energy, commodities) best placed to benefit from
+                        the macro and policy transition.
+                      </td>
+                      <td class="col-right">60%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="performance-note">
+                These bands apply within the dedicated Brazilian equities sleeve; overall
+                portfolio sizing is set at the total multi-asset level.
+              </p>
+            </div>
+          </aside>
+        </main>
+
+        <!-- SUGGESTED ASSET ALLOCATION -->
+        <section class="card" style="margin-top:20px;" aria-labelledby="allocation-heading">
+          <div class="card-title-row">
+            <h2 id="allocation-heading">Suggested Asset Allocation</h2>
+            <span class="pill pill-oppty">Barbell implementation</span>
+          </div>
+          <p>
+            The allocation reflects a 40% core ETF exposure and 60% in sector overweights, mirroring
+            the original strategy design and preserving all issuer-level bands.
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Investment</th>
+                  <th>Ticker</th>
+                  <th>Category</th>
+                  <th class="col-right">Target allocation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>iShares MSCI Brazil ETF</td>
+                  <td>EWZ</td>
+                  <td><span class="tag tag-positive">Core exposure</span></td>
+                  <td class="col-right">40%</td>
+                </tr>
+                <tr>
+                  <td>Itaú Unibanco</td>
+                  <td>ITUB</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">10%</td>
+                </tr>
+                <tr>
+                  <td>Nu Holdings</td>
+                  <td>NU</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">10%</td>
+                </tr>
+                <tr>
+                  <td>XP Inc.</td>
+                  <td>XP</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">5%</td>
+                </tr>
+                <tr>
+                  <td>Eletrobras</td>
+                  <td>EBR</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">8%</td>
+                </tr>
+                <tr>
+                  <td>SABESP</td>
+                  <td>SBS</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">7%</td>
+                </tr>
+                <tr>
+                  <td>Vale</td>
+                  <td>VALE</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">12%</td>
+                </tr>
+                <tr>
+                  <td>Petrobras</td>
+                  <td>PBR</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">8%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="performance-note">
+            The total Brazilian sleeve allocation sums to 100%. Integration into the broader
+            portfolio is handled separately within your asset-allocation process.
+          </p>
+        </section>
+
+        <!-- PRIME INVESTMENT CANDIDATES -->
+        <section class="card" style="margin-top:20px;" aria-labelledby="candidates-heading">
+          <div class="card-title-row">
+            <h2 id="candidates-heading">Prime Investment Candidates</h2>
+            <span class="pill">Curated barbell line-up</span>
+          </div>
+          <p>
+            The original investment theses for each holding are preserved below and reframed into a
+            consistent candidate grid for clarity and model interrogation.
+          </p>
+          <div class="grid-four" style="margin-top:12px;">
+            <!-- EWZ -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>iShares MSCI Brazil ETF (EWZ)</h2>
+                <span class="pill pill-oppty">Core exposure</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Core diversified exposure to the Brazilian large-cap market; captures overall
+                market beta and the general re-rating as pessimism fades and policy credibility
+                improves.
+              </p>
+            </article>
+
+            <!-- ITUB -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Itaú Unibanco (ITUB)</h2>
+                <span class="pill">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Leading private bank poised to benefit from loan growth, lower funding costs and
+                normalising credit spreads in a recovery, with strong operational leverage to a
+                domestic upcycle.
+              </p>
+            </article>
+
+            <!-- NU -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Nu Holdings (NU)</h2>
+                <span class="pill">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                High-growth fintech leader capturing the structural shift to digital banking and
+                financial inclusion, with potential to compound value as rates fall and credit
+                demand expands.
+              </p>
+            </article>
+
+            <!-- XP -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>XP Inc. (XP)</h2>
+                <span class="pill">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Leading investment platform and direct beneficiary of capital markets recovery,
+                IPO activity and a rotation of household savings from deposits into listed assets.
+              </p>
+            </article>
+
+            <!-- EBR -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Eletrobras (EBR)</h2>
+                <span class="pill">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Largest utility in Latin America, offering defensive cash flows with exposure to
+                infrastructure investment and potential efficiency gains under a more market-friendly
+                governance framework.
+              </p>
+            </article>
+
+            <!-- SBS -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>SABESP (SBS)</h2>
+                <span class="pill">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Defensive sanitation utility with inflation-linked revenues and a potential
+                privatisation catalyst, aligning long-term infrastructure needs with improved
+                capital allocation.
+              </p>
+            </article>
+
+            <!-- VALE -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Vale (VALE)</h2>
+                <span class="pill">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Global commodities exposure (iron ore, nickel) providing a partial hedge against
+                domestic-only risks, with a historically attractive dividend profile tied to
+                global industrial cycles.
+              </p>
+            </article>
+
+            <!-- PBR -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Petrobras (PBR)</h2>
+                <span class="pill">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Leveraged to global oil prices with high dividend potential, balanced against
+                ongoing political and governance risk inherent in a partially state-controlled
+                champion.
+              </p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- SCENARIOS / PERFORMANCE / RISK TAB -->
+      <div id="tab-macro" class="tab-panel">
+        <section class="layout" style="margin-top:20px;">
+          <!-- SCENARIO FRAMEWORK & PERFORMANCE -->
+          <section class="card" aria-labelledby="scenarios-heading">
+            <div class="card-title-row">
+              <h2 id="scenarios-heading">Scenario Framework &amp; Ibovespa Performance</h2>
+              <span class="pill pill-hot">Election &amp; reform path</span>
+            </div>
+            <p>
+              The original page defined three scenarios—Bear, Base and Bull—with explicit
+              probabilities, Ibovespa targets and annual return paths to 2030. Those details are
+              preserved here in a static format for clarity and model ingestion.
+            </p>
+
+            <!-- Bear scenario -->
+            <div class="section">
+              <h3>Bear scenario – 20% probability</h3>
+              <p>
+                <strong>Assumptions:</strong> Political actors fail to address the fiscal
+                imbalance. A populist outcome or post-election gridlock prevents meaningful fiscal
+                adjustment. The debt-to-GDP ratio deteriorates, triggering sovereign downgrade risk
+                and a crisis of confidence. To defend the currency, the BCB is forced to maintain
+                punishingly high interest rates, resulting in stagflation.
+              </p>
+              <p>
+                <strong>Driver:</strong> Failure to implement fiscal consolidation invalidates the
+                premise for monetary easing and equity market re-rating.
+              </p>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th class="col-right">Target / annual return</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ibovespa level (2030)</td>
+                      <td class="col-right risk-high">110,000 – 120,000</td>
+                    </tr>
+                    <tr>
+                      <td>2026 return</td>
+                      <td class="col-right risk-high">-2%</td>
+                    </tr>
+                    <tr>
+                      <td>2027 return</td>
+                      <td class="col-right risk-high">-1%</td>
+                    </tr>
+                    <tr>
+                      <td>2028 return</td>
+                      <td class="col-right risk-medium">0%</td>
+                    </tr>
+                    <tr>
+                      <td>2029 return</td>
+                      <td class="col-right risk-medium">0%</td>
+                    </tr>
+                    <tr>
+                      <td>2030 return</td>
+                      <td class="col-right risk-high">-1%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Base scenario -->
+            <div class="section">
+              <h3>Base scenario – 60% probability</h3>
+              <p>
+                <strong>Assumptions:</strong> A market-friendly or pragmatically constrained
+                outcome emerges from the 2026 election. The new administration implements a
+                credible fiscal adjustment program sufficient to stabilise the debt-to-GDP ratio.
+                Renewed credibility allows the BCB to deliver a steady, sustained easing cycle.
+                GDP growth stabilises around 2.0–2.5% per year and inflation converges toward
+                target.
+              </p>
+              <p>
+                <strong>Driver:</strong> Pragmatic fiscal adjustment post-election, enabling a
+                durable monetary easing path and re-rating of equities as domestic capital rotates
+                out of fixed income.
+              </p>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th class="col-right">Target / annual return</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ibovespa level (2030)</td>
+                      <td class="col-right risk-low">220,000 – 240,000</td>
+                    </tr>
+                    <tr>
+                      <td>2026 return</td>
+                      <td class="col-right risk-low">+2%</td>
+                    </tr>
+                    <tr>
+                      <td>2027 return</td>
+                      <td class="col-right risk-low">+25%</td>
+                    </tr>
+                    <tr>
+                      <td>2028 return</td>
+                      <td class="col-right risk-low">+20%</td>
+                    </tr>
+                    <tr>
+                      <td>2029 return</td>
+                      <td class="col-right risk-low">+15%</td>
+                    </tr>
+                    <tr>
+                      <td>2030 return</td>
+                      <td class="col-right risk-low">+10%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Bull scenario -->
+            <div class="section">
+              <h3>Bull scenario – 20% probability</h3>
+              <p>
+                <strong>Assumptions:</strong> A strong pro-reform mandate emerges from the 2026
+                election. Robust fiscal consolidation and deeper structural reforms are implemented
+                swiftly. Fiscal credibility improves dramatically, allowing the BCB to deliver
+                faster and deeper easing. Brazil regains investment-grade status, unlocking a
+                powerful surge in foreign investment.
+              </p>
+              <p>
+                <strong>Driver:</strong> Strong pro-reform mandate, rapid consolidation and
+                ratings upgrades catalyse a powerful re-rating across Brazilian assets.
+              </p>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th class="col-right">Target / annual return</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ibovespa level (2030)</td>
+                      <td class="col-right risk-low">280,000 – 300,000</td>
+                    </tr>
+                    <tr>
+                      <td>2026 return</td>
+                      <td class="col-right risk-low">+5%</td>
+                    </tr>
+                    <tr>
+                      <td>2027 return</td>
+                      <td class="col-right risk-low">+35%</td>
+                    </tr>
+                    <tr>
+                      <td>2028 return</td>
+                      <td class="col-right risk-low">+25%</td>
+                    </tr>
+                    <tr>
+                      <td>2029 return</td>
+                      <td class="col-right risk-low">+20%</td>
+                    </tr>
+                    <tr>
+                      <td>2030 return</td>
+                      <td class="col-right risk-low">+15%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <p class="performance-note">
+              Scenario probabilities, Ibovespa targets and annual returns are preserved from the
+              original strategy; they are illustrative and not guarantees. They are intended for
+              stress-testing and scenario analysis rather than point forecasts.
+            </p>
+          </section>
+
+          <!-- RISKS & MODEL USE -->
+          <aside class="card" aria-labelledby="risk-heading">
+            <div class="card-title-row">
+              <h2 id="risk-heading">Strategic Risk Assessment &amp; Model Use</h2>
+              <span class="pill pill-hot">Macro, political &amp; FX</span>
+            </div>
+            <p>
+              The six key risks defined in the original material are preserved here, alongside
+              guidance on how a model should interpret and monitor the Brazilian sleeve.
+            </p>
+
+            <div class="section">
+              <h3>Key risks</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Risk</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Fiscal dominance (High)</td>
+                      <td>
+                        The most material risk. Failure by the post-2026 government to implement a
+                        credible consolidation plan would undermine the case for easing and
+                        invalidate the core re-rating premise.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Political instability (High)</td>
+                      <td>
+                        The 2026 election is a binary risk event. Brazil’s polarised environment
+                        raises the risk of instability, disrupted governance and stalled reform
+                        momentum.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Monetary policy error (Medium)</td>
+                      <td>
+                        The BCB may ease prematurely (reigniting inflation) or maintain an
+                        excessively restrictive stance (choking recovery), either of which could
+                        delay or derail the equity re-rating.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Global commodity shock (Medium)</td>
+                      <td>
+                        Heavy market concentration in Vale and Petrobras leaves the index exposed
+                        to a sharp, sustained downturn in global commodity prices.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Currency volatility (High)</td>
+                      <td>
+                        BRL volatility can significantly erode or negate returns for USD-based
+                        investors, even if local equities perform strongly.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>External headwinds (Medium)</td>
+                      <td>
+                        A "higher-for-longer" rate environment in developed markets or a sharp
+                        global slowdown could trigger capital flight from EM, regardless of
+                        domestic fundamentals.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Intended use by a model</h3>
+              <ul class="bullet-tight">
+                <li>
+                  Treat the scenario tables as a framework for stress-testing Brazilian exposure
+                  under different fiscal and electoral outcomes, not as precise forecasts.
+                </li>
+                <li>
+                  Map macro, political and commodity newsflow into scenario probabilities and
+                  highlight when the balance of risks shifts away from the base case.
+                </li>
+                <li>
+                  Monitor BRL volatility, global rates and EM flows to assess FX and
+                  external-financing risk for USD-based investors.
+                </li>
+                <li>
+                  Analyse concentration risk in commodities and state-linked entities (VALE, PBR)
+                  relative to the broader portfolio.
+                </li>
+                <li>
+                  Use the barbell structure (core + sector overweights) to test how much of the
+                  upside/downside is driven by broad beta vs. issuer-specific factors.
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </div>
+
+    <div class="footer">
+      Disclaimer: This information is for informational purposes only and does not constitute
+      financial advice or a recommendation to buy or sell any security. All investment strategies
+      and investments involve risk of loss. Please conduct your own research and consult with a
+      financial professional before making any investment decisions. Projections are illustrative
+      and not guaranteed.
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const buttons = document.querySelectorAll('.tab-button');
+      const panels = document.querySelectorAll('.tab-panel');
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-tab');
+          buttons.forEach(function (b) { b.classList.remove('active'); });
+          panels.forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          const panel = document.getElementById('tab-' + target);
+          if (panel) {
+            panel.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
