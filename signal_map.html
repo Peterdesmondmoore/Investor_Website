@@ -206,10 +206,233 @@
     .auth-btn:active {
       transform: translateY(0);
     }
+
+    /* NAVIGATION HEADER */
+    .nav-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #1a2332;
+      border-bottom: 1px solid #2a3644;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .nav-header-inner {
+      max-width: 1120px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .nav-brand {
+      font-size: 20px;
+      font-weight: 600;
+      color: #e5e7eb;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: rgba(42, 54, 68, 0.5);
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .nav-menu-btn:hover {
+      background: rgba(42, 54, 68, 0.8);
+    }
+
+    .nav-menu-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .nav-menu-icon {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .nav-menu-icon span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      transition: transform 0.22s ease, opacity 0.18s ease, width 0.18s ease;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+      width: 16px;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(2) {
+      opacity: 0;
+      width: 0;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+      width: 16px;
+    }
+
+    .ia-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.65);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-out;
+      backdrop-filter: blur(3px);
+      z-index: 40;
+    }
+
+    .ia-nav-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ia-nav-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 300px;
+      max-width: 82vw;
+      background: #020617;
+      border-left: 1px solid #111827;
+      box-shadow: -24px 0 60px rgba(0,0,0,0.85);
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 20px 20px;
+    }
+
+    .ia-nav-panel.open {
+      transform: translateX(0);
+    }
+
+    .ia-nav-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .ia-nav-panel-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+    }
+
+    .ia-nav-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .ia-nav-close span {
+      position: absolute;
+      width: 14px;
+      height: 2px;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .ia-nav-close span:first-child {
+      transform: rotate(45deg);
+    }
+
+    .ia-nav-close span:last-child {
+      transform: rotate(-45deg);
+    }
+
+    .ia-nav-panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .ia-nav-link {
+      font-size: 15px;
+      font-weight: 500;
+      color: #e5e7eb;
+      padding: 6px 0;
+    }
+
+    .ia-nav-link:hover {
+      color: #facc15;
+      text-decoration: none;
+    }
   </style>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
+  <!-- Navigation Header -->
+  <div class="nav-header" id="nav-header">
+    <div class="nav-header-inner">
+      <div class="nav-brand">Signal Map</div>
+      <button class="nav-menu-btn" id="nav-menu-btn" aria-label="Toggle navigation">
+        <span class="nav-menu-label">Menu</span>
+        <span class="nav-menu-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation Overlay -->
+  <div class="ia-nav-overlay" id="ia-nav-overlay"></div>
+
+  <!-- Navigation Panel -->
+  <nav class="ia-nav-panel" id="ia-nav-panel">
+    <div class="ia-nav-panel-header">
+      <span class="ia-nav-panel-title"></span>
+      <button class="ia-nav-close" id="ia-nav-close" aria-label="Close navigation">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    <div class="ia-nav-panel-body">
+      <a href="index.html" class="ia-nav-link">Home</a>
+      <a href="signal_report/Composite_Global_Macro_Overview.html" class="ia-nav-link">Global Macro</a>
+      <a href="signal_report/composite_us_macro_overview.html" class="ia-nav-link">United States Macro</a>
+      <button class="ia-nav-link" onclick="netlifyIdentity.open('login')" id="login-btn" style="border:none; background:none; text-align:left; cursor:pointer; padding:6px 0;">Login</button>
+      <button class="ia-nav-link" onclick="netlifyIdentity.logout()" id="logout-btn" style="display:none; border:none; background:none; text-align:left; cursor:pointer; padding:6px 0;">Logout</button>
+    </div>
+  </nav>
+
   <!-- Futuristic animated background -->
   <canvas id="bg"></canvas>
 
@@ -217,7 +440,7 @@
   <svg id="graph" style="display: block;"></svg>
   <div id="tooltip" class="tooltip"></div>
   <div id="logo" style="display: block;">
-    <div style="font-size: 18px; font-weight: 700;">Portfolio Advisor</div>
+    <div style="font-size: 18px; font-weight: 700;">Signal Map</div>
     <div style="font-size: 12px; opacity: 0.9; text-align: center;">Investor Anatomy</div>
   </div>
   <div id="controls" style="display: block;">
@@ -933,9 +1156,9 @@ const links = [
       "us_macro_composite": {"x": 819, "y": 417},
       "global_macro_composite": {"x": 526, "y": 445},
       "macro_change_composite": {"x": 673, "y": 380},
-      "portfolio_advisor": {"x": 673, "y": 530},
-      "portfolio_characteristics": {"x": 542, "y": 672},
-      "predictor_fed_rate_decision": {"x": 892, "y": 536},
+      "portfolio_advisor": {"x": 667, "y": 569},
+      "portfolio_characteristics": {"x": 614, "y": 620},
+      "predictor_fed_rate_decision": {"x": 886, "y": 520},
       "us_growth_cycle_group": {"x": 833, "y": 143},
       "us_inflation_group": {"x": 1101, "y": 214},
       "us_labor_group": {"x": 831, "y": 680},
@@ -959,13 +1182,17 @@ const links = [
       "vix_signal.html": {"x": 345, "y": 220},
       "Consumer_Sentiment.html": {"x": 683, "y": 686},
       "Cross_Sector_Positioning.html": {"x": 422, "y": 67},
-      "Squeeze_Exhaustion_Risk.html": {"x": 559, "y": 210},
+      "Squeeze_Exhaustion_Risk.html": {"x": 566, "y": 216},
       "Specs_vs_Hedgers_Divergence_Reversal_Risk.html": {"x": 375, "y": 101},
-      "Gold_CoT_Signals.html": {"x": 301, "y": 731},
+      "Gold_CoT_Signals.html": {"x": 299, "y": 622},
+      "Gold_Pricing_Signal.html": {"x": 447, "y": 606},
       "Silver_CoT_Signals.html": {"x": 136, "y": 696},
+      "us-midcap-strategy.html": {"x": 578, "y": 653},
+      "gold_thesis.html": {"x": 409, "y": 524},
+      "Outlook_Gold_Thesis_Applied.html": {"x": 466, "y": 560},
       "Credit_Conditions.html": {"x": 1221, "y": 646},
       "employment_composition.html": {"x": 910, "y": 648},
-      "housing_lead.html": {"x": 905, "y": 65},    
+      "housing_lead.html": {"x": 905, "y": 65},
       "industrial_production_signal.html": {"x": 770, "y": 65},
       "m_2_money_supply.html": {"x": 1148, "y": 424},
       "job_flows_labor.html": {"x": 747, "y": 804},
@@ -996,20 +1223,16 @@ const links = [
       "Copper_CoT_Signals.html": {"x": 153, "y": 622},
       "Lithium_Hydroxide_CoT_Signals.html": {"x": 236, "y": 788},
       "Palladium_CoT_Signals.html": {"x": 141, "y": 730},
-      "Platinum_CoT_Signals.html": {"x": 347, "y": 707},
+      "Platinum_CoT_Signals.html": {"x": 300, "y": 734},
       "Crude_Oil_CoT_Signals.html": {"x": 190, "y": 593},
       "SOF_3M_CoT_Signals.html": {"x": 1117, "y": 338},
       "SOF_5Y_CoT_Signals.html": {"x": 1050, "y": 481},
+      "FedFund_CoT_Signals.html": {"x": 481, "y": 45},
       "Federal_Reserve_Beige_Book_Summary.html": {"x": 901, "y": 169},
+      "Federal_Reserve_Tone_Decoder.html": {"x": 853, "y": 559},
       "EMINI_SP500_CoT_Signals.html": {"x": 537, "y": 126},
       "NASDAQ_100_Consolidated_CoT_Signals.html": {"x": 506, "y": 94},
-      "Russell_EMini_CoT_Signals.html": {"x": 557, "y": 158},
-      "us-midcap-strategy.html": {"x": 600, "y": 710},
-      "gold_thesis.html": {"x": 400, "y": 780},
-      "Outlook_Gold_Thesis_Applied.html": {"x": 250, "y": 560},
-      "Gold_Pricing_Signal.html": {"x": 220, "y": 640},
-      "FedFund_CoT_Signals.html": {"x": 500, "y": 200},
-      "Federal_Reserve_Tone_Decoder.html": {"x": 850, "y": 500}
+      "Russell_EMini_CoT_Signals.html": {"x": 557, "y": 158}
 };
 
     nodes.forEach(n => {
@@ -1415,6 +1638,63 @@ const links = [
 
     // Start the widget
     netlifyIdentity.init();
+  }
+</script>
+
+<script>
+  // NAVIGATION TOGGLE
+  (function() {
+    const toggle = document.getElementById('nav-menu-btn');
+    const overlay = document.getElementById('ia-nav-overlay');
+    const panel = document.getElementById('ia-nav-panel');
+    const close = document.getElementById('ia-nav-close');
+
+    function openNav() {
+      toggle.classList.add('is-open');
+      overlay.classList.add('open');
+      panel.classList.add('open');
+    }
+
+    function closeNav() {
+      toggle.classList.remove('is-open');
+      overlay.classList.remove('open');
+      panel.classList.remove('open');
+    }
+
+    toggle.addEventListener('click', () => {
+      if (panel.classList.contains('open')) {
+        closeNav();
+      } else {
+        openNav();
+      }
+    });
+
+    close.addEventListener('click', closeNav);
+    overlay.addEventListener('click', closeNav);
+  })();
+
+  // Update login/logout button visibility
+  if (window.netlifyIdentity) {
+    netlifyIdentity.on('init', user => {
+      const loginBtn = document.getElementById('login-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      if (loginBtn) loginBtn.style.display = user ? 'none' : 'block';
+      if (logoutBtn) logoutBtn.style.display = user ? 'block' : 'none';
+    });
+
+    netlifyIdentity.on('login', user => {
+      const loginBtn = document.getElementById('login-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (logoutBtn) logoutBtn.style.display = 'block';
+    });
+
+    netlifyIdentity.on('logout', () => {
+      const loginBtn = document.getElementById('login-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      if (loginBtn) loginBtn.style.display = 'block';
+      if (logoutBtn) logoutBtn.style.display = 'none';
+    });
   }
 </script>
 </body>
