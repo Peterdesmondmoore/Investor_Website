@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Federal Reserve Tone Decoder – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Federal Reserve Tone Decoder</div>
+    <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Federal Reserve Tone Decoder</h1>
+      <p class="subtitle">Federal Reserve Tone Decoder: interpreting key Fed communications </p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-12-12</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Communications Interpretation Module</h2><div class="box summary-box market-report">Fed Tone Decoder – Communications Interpretation Module.
+
+<div class="fed-tone-block">
+  <h3>Source: Meeting Minutes | Date: November 19, 2025</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Job gains slowed, unemployment edged up, downside risks to employment rose. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Inflation remained elevated with elevated upside risks. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Lowered FFR 1/4 pt, most favored further easing, conclude balance sheet reduction Dec 1. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> Primary focus on increased downside risks to employment. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> ✓ Two members dissented on rate decision (one for 1/2 pt cut, one for no change). <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#007700;">DOVISH</span> — Policy eased due to rising employment risks despite elevated inflation, with noted committee divergence.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Source: Beige Book | Date: November 17, 2025 (Information Collected)</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Employment declined slightly; weaker demand, AI replacing entry-level roles. <em><a href="https://investoranatomy.com/signal_report/Federal_Reserve_Beige_Book_Summary.html" target="_blank">[Source: Federal_Reserve_Beige_Book_Summary.html]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Prices rose moderately; widespread tariff-induced input cost pressures expected to persist. <em><a href="https://investoranatomy.com/signal_report/Federal_Reserve_Beige_Book_Summary.html" target="_blank">[Source: Federal_Reserve_Beige_Book_Summary.html]</a></em></li>
+    <li><strong>Policy Bias:</strong> Data-dependent; Beige Book reports on economic conditions, not policy stance.</li>
+    <li><strong>Risk Asymmetry:</strong> Primary emphasis on "increased risk of slower activity" and economic disruption from shutdown. <em><a href="https://investoranatomy.com/signal_report/Federal_Reserve_Beige_Book_Summary.html" target="_blank">[Source: Federal_Reserve_Beige_Book_Summary.html]</a></em></li>
+    <li><strong>Internal Divergence:</strong> No policy divergence noted in this summary of economic conditions.</li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#808080;">NEUTRAL</span> — Softening labor market and downside growth risks balanced against persistent moderate price increases.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Source: FOMC Statement | Date: October 29, 2025</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Job gains slowed, unemployment edged up; downside risks to employment rose. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Inflation moved up and remains somewhat elevated. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Lowered FFR by 1/4 percentage point; concluded balance sheet reduction Dec 1. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> Primary focus on rising downside risks to employment. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> ✓ Two members dissented on rate decision (one for 1/2 pt cut, one for no change). <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#007700;">DOVISH</span> — Policy eased, and quantitative tightening ceased, in response to increased employment risks despite elevated inflation.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: Chair Powell | Date: October 29, 2025 | Source: Press Conference</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Labor market cooling, downside risks to employment risen, supply of workers dropped. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Inflation remains elevated, tariffs causing persistent price increases. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Cut rates by 1/4 pt, ceased QT, indicated policy is less tight. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> Primary action addresses employment downside risks; acknowledges inflation upside risks. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> ✓ "Strongly differing views" on future policy, two dissents on current cut. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#007700;">DOVISH</span> — Rate cut and QT pause driven by labor market concerns, despite inflation persistence and mixed committee views.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Event: Rate Decision | Date: October 29, 2025</h3>
+  <p><strong>Policy Action:</strong> 25bps CUT</p>
+  <p><strong>Context:</strong> Balance of risks shifted, with downside risks to employment increasing. Quantitative tightening ended.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Source: Meeting Minutes | Date: October 8, 2025</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Labor market softened, unemployment edged up, job gains slowed, downside risks rose. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251008a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Inflation remained elevated; PCE 2.7%, Core PCE 2.9%; upside risks elevated. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251008a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Almost all members agreed to lower FFR by 1/4 percentage point; many favored further easing. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251008a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> Primary rationale for easing was rising downside risks to employment. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251008a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> ✓ One member (Stephen I. Miran) preferred a 1/2 percentage point reduction. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251008a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#007700;">DOVISH</span> — Committee eased due to softening labor market and increased employment risks, with expectations for further easing.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Source: Beige Book | Date: October 6, 2025 (Information Collected)</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Employment stable, demand muted, more layoffs/attrition, improved availability. <em><a href="https://investoranatomy.com/signal_report/Federal_Reserve_Beige_Book_Summary.html" target="_blank">[Source: Federal_Reserve_Beige_Book_Summary.html]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Prices rose further; input costs intensified due to tariffs/services. <em><a href="https://investoranatomy.com/signal_report/Federal_Reserve_Beige_Book_Summary.html" target="_blank">[Source: Federal_Reserve_Beige_Book_Summary.html]</a></em></li>
+    <li><strong>Policy Bias:</strong> Data-dependent; Beige Book reports on economic conditions, not policy stance.</li>
+    <li><strong>Risk Asymmetry:</strong> Primary emphasis on "downside risk to growth from a prolonged government shutdown" and uncertainty. <em><a href="https://investoranatomy.com/signal_report/Federal_Reserve_Beige_Book_Summary.html" target="_blank">[Source: Federal_Reserve_Beige_Book_Summary.html]</a></em></li>
+    <li><strong>Internal Divergence:</strong> No policy divergence noted in this summary of economic conditions.</li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#808080;">NEUTRAL</span> — Muted labor demand and economic uncertainty balanced by continued price increases and cost pressures.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Source: FOMC Statement | Date: September 17, 2025</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Job gains slowed, unemployment rate edged up; downside risks to employment risen. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Inflation moved up and remains somewhat elevated. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Lowered FFR by 1/4 percentage point; continued reducing securities holdings. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> Primary emphasis on rising downside risks to employment. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> Not explicitly stated within the statement.</li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#007700;">DOVISH</span> — Rate cut motivated by increased employment risks, with inflation remaining elevated.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: Chair Powell | Date: September 17, 2025 | Source: Press Conference</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Unemployment rate edged up, job gains slowed; labor market cooling, downside risks risen. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Inflation risen recently, remains elevated; tariffs driving goods prices up. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Cut rates by 1/4 pt; described as a "risk-management cut" towards neutral policy. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> Primary focus on shifted balance of risks to employment downside. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> ✓ Acknowledged "wide dispersion of views" among participants on future rate path. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#007700;">DOVISH</span> — Proactive rate cut to mitigate employment risks, recognizing tensions between dual mandates and varied committee outlooks.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Source: SEP | Date: September 17, 2025</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Unemployment rate median expected to tick up to 4.5% for 2025. Downside risks to employment noted. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ PCE inflation median 3.0%, Core PCE 3.1% for 2025. Upside risks to inflation. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Median federal funds rate path lowered for 2025 and 2026, indicating easing. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> Downside risks to unemployment (employment focus) more prominent in policy shift. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> ✓ Significant dispersion in participants' federal funds rate projections. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#007700;">DOVISH</span> — Forecasted policy easing and rising unemployment concerns underpin a dovish stance, despite elevated inflation outlook.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Event: Rate Decision | Date: September 17, 2025</h3>
+  <p><strong>Policy Action:</strong> 25bps CUT</p>
+  <p><strong>Context:</strong> Economic activity moderation and rising downside risks to employment led to an easing of monetary policy.</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Source: Statement on Longer-Run Goals | Date: August 22, 2025</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Strong commitment to maximum employment; employment can run above maximum without price risks. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Inflation Concern:</strong> ✗ Reaffirms 2 percent inflation objective; prepared to act forcefully to anchor expectations. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Policy Bias:</strong> Balanced approach to dual mandate; data-dependent adjustments to policy stance. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Risk Asymmetry:</strong> No explicit primary risk; emphasizes overall balance of risks to both mandates. <em><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">[Source: press_monetary_policy]</a></em></li>
+    <li><strong>Internal Divergence:</strong> Represents the Committee's consensus on long-run strategy.</li>
+  </ul>
+  <p><strong>TONE:</strong> <span style="color:#808080;">NEUTRAL</span> — A foundational statement affirming dual mandate, balanced approach, and 2% inflation target without immediate policy bias.</p>
+</div>
+
+<hr>
+
+**Self-healing**
+
+*   **RSS Documents Needed**
+    *   Federal Reserve issues FOMC statement | <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm</a> | This statement would provide the latest policy decision and economic assessment from the December meeting.
+    *   Federal Reserve Board and Federal Open Market Committee release economic projections from the December 9-10 FOMC meeting | <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm</a> | This SEP would offer updated projections and insights into the committee's forward path for policy.
+    *   Minutes of the Federal Open Market Committee, July 29–30, 2025 | <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250820a.htm" target="_blank">https://www.federalreserve.gov/newsevents/pressreleases/monetary20250820a.htm</a> | These minutes are essential for understanding the Committee's discussions preceding the September 2025 rate cut.
+    *   Federal Reserve issues FOMC statement | <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm</a> | This FOMC statement would detail the policy decision and rationale from the July 2025 meeting.
+
+*   **Weaknesses in Provided Inputs**
+    *   The Beige Book PDFs do not include explicit reference IDs for citation, necessitating a manual mapping to `Federal_Reserve_Beige_Book_Summary.html`. A consistent ID on the cover page would streamline citation.
+
+*   **Prompt Gaps or Issues**
+    *   The prompt does not explicitly define what score to assign for "Policy Bias" if a policy action is a "pause" or "hold" following easing/tightening. This could be clarified for future runs.</div></section>
+</main>
+</body>
+</html>
