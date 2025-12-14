@@ -254,8 +254,19 @@
     });
 
     netlifyIdentity.on("login", user => {
-      netlifyIdentity.close();
-      goBack();
+      // Close modal and redirect after a short delay to ensure login completes
+      setTimeout(() => {
+        netlifyIdentity.close();
+        goBack();
+      }, 100);
+    });
+
+    netlifyIdentity.on("close", () => {
+      // Also check on close in case user closes modal
+      const user = netlifyIdentity.currentUser();
+      if (user) {
+        goBack();
+      }
     });
 
     netlifyIdentity.init();
