@@ -705,6 +705,72 @@
       text-decoration: none;
     }
 
+    .nav-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+      padding: 12px 0 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-section-title:hover {
+      color: #e5e7eb;
+    }
+
+    .nav-section-arrow {
+      transition: transform 0.2s ease;
+    }
+
+    .nav-section-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    .nav-section-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .nav-section-content.open {
+      max-height: 500px;
+    }
+
+    .nav-section-content .ia-nav-link {
+      padding-left: 12px;
+    }
+
+    .login-highlight {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #000;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 999px;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .login-highlight:hover {
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      color: #000;
+      transform: translateY(-1px);
+    }
+
+    .nav-note {
+      font-size: 12px;
+      color: #9ca3af;
+      padding: 8px 12px;
+      margin: 8px 0;
+      border-left: 2px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 4px;
+      line-height: 1.4;
+    }
+
     @media (max-width: 768px) {
       /* Video adjustments */
       .video-background {
@@ -809,10 +875,31 @@
       </button>
     </div>
     <div class="ia-nav-panel-body">
-      <a href="signal_map.html" class="ia-nav-link">Signal Map</a>
-      <a href="signal_report/Composite_Global_Macro_Overview.html" class="ia-nav-link">Global Macro</a>
-      <a href="signal_report/composite_us_macro_overview.html" class="ia-nav-link">United States Macro</a>
-      <button class="ia-nav-link" onclick="netlifyIdentity.open('login')" id="login-btn" style="border:none; background:none; text-align:left; cursor:pointer; padding:6px 0;">Login</button>
+      <!-- AI Investor Section -->
+      <div class="nav-section-title" onclick="toggleNavSection('ai-investor')">
+        <span>AI Investor</span>
+        <span class="nav-section-arrow" id="ai-investor-arrow">▼</span>
+      </div>
+      <div class="nav-section-content" id="ai-investor-content">
+        <a href="ia_explained/fed_reserve_watcher.html" class="ia-nav-link">Federal Reserve Watcher</a>
+      </div>
+
+      <!-- Quant Models Section -->
+      <div class="nav-section-title" onclick="toggleNavSection('quant-models')">
+        <span>Quant Models</span>
+        <span class="nav-section-arrow" id="quant-models-arrow">▼</span>
+      </div>
+      <div class="nav-section-content" id="quant-models-content">
+        <a href="signal_report/Composite_Global_Macro_Overview.html" class="ia-nav-link">Global Macro</a>
+        <a href="signal_report/composite_us_macro_overview.html" class="ia-nav-link">United States Macro</a>
+        <a href="signal_map.html" class="ia-nav-link" id="signal-map-link" style="display:none;">Signal Map</a>
+        <div class="nav-note" id="signal-map-note">
+          📊 Login to access the interactive Signal Map and explore 80+ quantitative models
+        </div>
+      </div>
+
+      <!-- Auth Buttons -->
+      <button class="ia-nav-link login-highlight" onclick="netlifyIdentity.open('login')" id="login-btn" style="border:none; cursor:pointer;">🔐 Login</button>
       <button class="ia-nav-link" onclick="netlifyIdentity.logout()" id="logout-btn" style="display:none; border:none; background:none; text-align:left; cursor:pointer; padding:6px 0;">Logout</button>
     </div>
   </nav>
@@ -1318,18 +1405,36 @@
       handleScroll();
     })();
 
+    // NAVIGATION SECTION TOGGLE
+    function toggleNavSection(sectionId) {
+      const content = document.getElementById(sectionId + '-content');
+      const arrow = document.getElementById(sectionId + '-arrow');
+      
+      if (content && arrow) {
+        content.classList.toggle('open');
+        arrow.classList.toggle('open');
+      }
+    }
+
     // NETLIFY IDENTITY STATE MANAGEMENT
     (function() {
       if (typeof netlifyIdentity !== 'undefined') {
         netlifyIdentity.on('init', user => {
           const loginBtn = document.getElementById('login-btn');
           const logoutBtn = document.getElementById('logout-btn');
+          const signalMapLink = document.getElementById('signal-map-link');
+          const signalMapNote = document.getElementById('signal-map-note');
+          
           if (user) {
             if (loginBtn) loginBtn.style.display = 'none';
             if (logoutBtn) logoutBtn.style.display = 'block';
+            if (signalMapLink) signalMapLink.style.display = 'block';
+            if (signalMapNote) signalMapNote.style.display = 'none';
           } else {
             if (loginBtn) loginBtn.style.display = 'block';
             if (logoutBtn) logoutBtn.style.display = 'none';
+            if (signalMapLink) signalMapLink.style.display = 'none';
+            if (signalMapNote) signalMapNote.style.display = 'block';
           }
         });
 
@@ -1338,15 +1443,25 @@
           
           const loginBtn = document.getElementById('login-btn');
           const logoutBtn = document.getElementById('logout-btn');
+          const signalMapLink = document.getElementById('signal-map-link');
+          const signalMapNote = document.getElementById('signal-map-note');
+          
           if (loginBtn) loginBtn.style.display = 'none';
           if (logoutBtn) logoutBtn.style.display = 'block';
+          if (signalMapLink) signalMapLink.style.display = 'block';
+          if (signalMapNote) signalMapNote.style.display = 'none';
         });
 
         netlifyIdentity.on('logout', () => {
           const loginBtn = document.getElementById('login-btn');
           const logoutBtn = document.getElementById('logout-btn');
+          const signalMapLink = document.getElementById('signal-map-link');
+          const signalMapNote = document.getElementById('signal-map-note');
+          
           if (loginBtn) loginBtn.style.display = 'block';
           if (logoutBtn) logoutBtn.style.display = 'none';
+          if (signalMapLink) signalMapLink.style.display = 'none';
+          if (signalMapNote) signalMapNote.style.display = 'block';
         });
       }
     })();

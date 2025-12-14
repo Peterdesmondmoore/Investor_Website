@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Federal Reserve Watcher • Investor Anatomy</title>
+  <meta name="description" content="How the Federal Reserve Watcher is built — aligned to the Investor Anatomy concept of an AI-based investor." />
+
+  <style>
+    :root{
+      --bg:#06070a;
+      --panel:#0b0e14;
+      --panel2:#0a0c11;
+      --text:#e8ecf6;
+      --muted:#a7b0c5;
+      --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+              radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+              radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6;
+      --accent2:#3b82f6;
+      --gold:#fbbf24;
+      --radius:20px;
+      --max:1100px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    /* Background */
+    .bg{
+      position:fixed; inset:0;
+      background:var(--glow);
+      pointer-events:none;
+      filter:saturate(1.05);
+    }
+    .grain{
+      position:fixed; inset:-20%;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      opacity:.10;
+      mix-blend-mode:overlay;
+      pointer-events:none;
+      transform:rotate(8deg);
+    }
+
+    /* Layout */
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{
+      position:sticky; top:0; z-index:20;
+      backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55);
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+    .nav{
+      max-width:var(--max); margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{
+      width:34px; height:34px;
+      display:grid; place-items:center;
+    }
+    .logo svg{width:18px; height:18px; opacity:.95}
+    .brand strong{font-weight:700; letter-spacing:.2px}
+    .brand span{color:var(--muted); font-weight:500}
+    .brand .gradient-text{
+      background: linear-gradient(135deg, #fbbf24 0%, #e5e7eb 35%, #3b82f6 70%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 600;
+    }
+
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px; padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns: 1fr; gap:18px; align-items:start}
+    @media (max-width: 900px){ .hero{grid-template-columns:1fr; } }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .hero .left{padding:26px}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.22); color:var(--muted); font-weight:650; font-size:13px}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px; color:var(--text)}
+    h1 .gradient-text{
+      background: linear-gradient(135deg, #fbbf24 0%, #e5e7eb 35%, #3b82f6 70%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: inline;
+    }
+    p{margin:0; color:var(--muted); font-size:16px; line-height:1.55}
+
+    /* Infographic */
+    .metrics{margin-top:18px; display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
+    @media (max-width: 900px){ .metrics{grid-template-columns: repeat(2, 1fr);} }
+    .metric{
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+    }
+    .metric-k{color:var(--muted); font-size:12px; font-weight:750; letter-spacing:.2px}
+    .metric-v{margin-top:6px; font-size:18px; font-weight:900; letter-spacing:-.2px}
+    .metric-s{margin-top:2px; color:var(--muted); font-size:12px}
+    .metrics-note{margin-top:10px; color:var(--muted); font-size:12.5px; line-height:1.45}
+
+    /* (Hero is now single-column; kept .mini styles for other uses if needed) */
+    .mini{
+      padding:16px; border-radius:18px;
+      background:linear-gradient(180deg, rgba(11,14,20,.85), rgba(10,12,17,.75));
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .mini h3{margin:0 0 6px; font-size:14px; letter-spacing:.2px}
+    .mini ul{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:14px; line-height:1.55}
+
+    /* Video block */
+    section{margin-top:18px}
+    .section-title{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:20px 0 10px}
+    .section-title h2{margin:0; font-size:18px; letter-spacing:.2px}
+    .section-title .hint{color:var(--muted); font-size:13px}
+
+    .video-card{padding:18px}
+
+    /* PowerPoint-like layout: video left, tabs right */
+    .video-layout{display:grid; grid-template-columns: minmax(280px, 380px) 1fr; gap:16px; align-items:start}
+    @media (max-width: 900px){ .video-layout{grid-template-columns:1fr} }
+
+    .ppt-note{margin-top:12px; color:var(--muted); font-size:13px; line-height:1.45}
+
+    /* Tabs */
+    .tabs{
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76));
+      overflow:hidden;
+    }
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tabs-sub{margin-top:6px; color:var(--muted); font-size:13px}
+
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      padding:9px 10px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:12px;
+      cursor:pointer;
+      transition:transform .06s ease, background .15s ease, color .15s ease;
+    }
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab:active{transform:translateY(1px)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+
+    .panels{padding:12px}
+    .panel{
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+      padding:14px;
+    }
+    .panel + .panel{margin-top:10px}
+    .panel-title{font-weight:800; letter-spacing:.2px; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12); color:var(--text); text-decoration:none; font-size:12px; font-weight:600; transition:all .2s ease}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4); transform:translateY(-1px)}
+
+    /*
+      PowerPoint size requested: 10cm x 15cm (portrait).
+      In CSS, cm units are "physical" but can vary by device. We set exact cm sizing *and* a responsive cap.
+      Aspect ratio is locked to 2 / 3.
+    */
+
+    /*
+      PowerPoint size requested: 10cm x 15cm (portrait).
+      In CSS, cm units are "physical" but can vary by device. We set exact cm sizing *and* a responsive cap.
+      Aspect ratio is locked to 2 / 3.
+    */
+    .video-frame{
+      width: min(10cm, 100%);
+      height: auto;
+      aspect-ratio: 2 / 3; /* 10:15 */
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      margin: 0 auto;
+      position:relative;
+    }
+
+    .video-frame video{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:contain; /* keep the full slide visible */
+      background:rgba(0,0,0,.35);
+    }
+
+    /* Placeholder overlay when video missing */
+    .placeholder{
+      position:absolute; inset:0;
+      display:grid; place-items:center;
+      padding:18px;
+      text-align:center;
+      color:var(--muted);
+      pointer-events:none;
+    }
+    .placeholder strong{color:var(--text)}
+    .placeholder code{
+      display:inline-block;
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px dashed rgba(255,255,255,.18);
+      background:rgba(0,0,0,.25);
+      color:rgba(255,255,255,.78);
+      font-size:12px;
+    }
+
+    .grid{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+
+    .block{padding:18px}
+    .block h3{margin:0 0 8px; font-size:16px}
+    .block p{font-size:14px}
+
+    .steps{margin:10px 0 0; padding:0; list-style:none; display:grid; gap:10px}
+    .steps li{
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.20);
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.45;
+    }
+    .steps li b{color:var(--text)}
+
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+  <div class="grain"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="../images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Federal Reserve Watcher</div>
+        </div>
+      </a>
+
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com" aria-label="Back to Investor Anatomy home">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero" id="overview">
+      <div class="card left" style="padding:26px">
+        <h1>The <span class="gradient-text">Federal Reserve Watcher</span> brings quantitative discipline and AI-driven interpretation together to clarify Fed policy intent.</h1>
+        <p>
+          It integrates quantitative macro signals with qualitative Fed guidance to support consistent policy assessment.
+          This enables an independent view that can be compared with market consensus and pricing to identify potential asymmetries.
+        </p>
+        <!-- Infographic (illustrative metrics) -->
+        <div class="metrics" aria-label="Key metrics">
+          <div class="metric">
+            <div class="metric-k">Signals</div>
+            <div class="metric-v">60+</div>
+            <div class="metric-s">Quantitative macro models</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Documents</div>
+            <div class="metric-v">20+</div>
+            <div class="metric-s">Primary Fed sources</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Update cycle</div>
+            <div class="metric-v">Weekly</div>
+            <div class="metric-s">Weekly updates </div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Time to brief</div>
+            <div class="metric-v">&lt; 5 min</div>
+            <div class="metric-s">Through automated pipelines</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Data Sources</div>
+            <div class="metric-v">5</div>
+            <div class="metric-s">A mix of quantitative and qualitative inputs</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Audit trail</div>
+            <div class="metric-v">100%</div>
+            <div class="metric-s">Data sourcing → prompts  → interpreation → prediction</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <section id="video" class="card video-card">
+      
+
+      <div class="video-layout">
+        <div>
+          <div class="video-frame" aria-label="Federal Reserve Watcher video frame">
+            <video controls preload="metadata" playsinline autoplay loop muted
+                   src="../images/federal_reserve_watcher.mp4"
+                   poster="../images/federal_reserve_watcher_poster.png">
+              Sorry — your browser doesn't support embedded videos.
+            </video>
+            <div class="placeholder">
+              <div>
+                <strong>Video placeholder</strong><br/>
+                Drop your MP4 into:
+                <code>../images/federal_reserve_watcher.mp4</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="tabs" aria-label="Federal Reserve Watcher components">
+          <div class="tabs-head">
+            <div class="kicker"><span class="dot"></span> Watcher Anatomy</div>
+          </div>
+
+          <div class="tablist" role="tablist" aria-label="Components tabs">
+            <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-tone" id="tab-tone">Tone Decoder</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="panel-synth" id="tab-synth">Macro Signal Synthesiser</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="panel-predictor" id="tab-predictor">Rate Decision Predictor</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="panel-watcher" id="tab-watcher">Fed Watcher</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="panel-future" id="tab-future">Future improvements</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="panel-historic" id="tab-historic">Historic reports</button>
+          </div>
+
+          <div class="panels">
+            <div class="panel is-active" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone">
+              <div class="panel-title">Federal Reserve Tone Decoder</div>
+              <div class="panel-body">
+                Systematically analyses Federal Reserve communications to quantify shifts in policy tone across inflation, labour, growth, risks, and committee dynamics.
+              </div>
+              <ul class="panel-bullets">
+                <li>Converts qualitative policy language into structured, time-series scores</li>
+                <li>Normalises tone to detect change, not just absolute stance</li>
+                <li>Preserves source excerpts to maintain interpretability and auditability</li>
+              </ul>
+            </div>
+
+            <div class="panel" role="tabpanel" id="panel-synth" aria-labelledby="tab-synth" hidden>
+              <div class="panel-title">Fed Macro Signal Synthesiser</div>
+              <div class="panel-body">
+                Aggregates 60+ macro, market, and policy signals into a small set of interpretable macro (detailed below) states
+                that describe the prevailing Fed policy environment. Signal weighting adapts across cycle regimes 
+                to produce a consolidated policy backdrop for decision use.
+              </div>
+              <ul class="panel-bullets">
+                <li><strong>US Growth &amp; Business Cycle.</strong> Assesses the US business cycle and growth momentum.</li>
+                <li><strong>US Inflation &amp; Price Dynamics.</strong> Tracks underlying inflation pressures and price drivers.</li>
+                <li><strong>US Liquidity &amp; Monetary Conditions.</strong> Evaluates system liquidity and monetary tightness.</li>
+                <li><strong>US Credit Conditions.</strong> Monitors credit availability, spreads, and stress.</li>
+                <li><strong>US Labour Market.</strong> Analyses employment, wages, and labour tightness.</li>
+                <li><strong>Global Growth &amp; Economic Cycles.</strong> Identifies global growth momentum and cycle divergence.</li>
+                <li><strong>Global Inflation &amp; FX Dynamics.</strong> Examines inflation trends and currency dynamics.</li>
+                <li><strong>Cross-Asset Positioning &amp; Sentiment.</strong> Measures investor positioning and market sentiment.</li>
+                <li><strong>Global Trade &amp; Demand.</strong> Tracks trade flows and global demand signals.</li>
+              </ul>
+            </div>
+
+            <div class="panel" role="tabpanel" id="panel-predictor" aria-labelledby="tab-predictor" hidden>
+              <div class="panel-title">Fed Rate Decision Predictor</div>
+              <div class="panel-body">
+                Applies a tone-adjusted reaction framework to macro conditions and policy signals to estimate the most likely outcome of upcoming FOMC decisions.
+              </div>
+              <ul class="panel-bullets">
+                <li>Produces base, upside, and downside policy scenarios</li>
+                <li>Makes assumptions and decision thresholds explicit</li>
+                <li>Designed to form an independent assessment, not a consensus forecast</li>
+              </ul>
+            </div>
+
+            <div class="panel" role="tabpanel" id="panel-watcher" aria-labelledby="tab-watcher" hidden>
+              <div class="panel-title">Federal Reserve Watcher</div>
+              <div class="panel-body">
+                Integrates decoded policy tone, macro signal synthesis, and rate decision forecasts into a single, decision-ready view of each Fed meeting.
+              </div>
+              <ul class="panel-bullets">
+                <li>Presents a clear policy bias with underlying drivers</li>
+                <li>Links scenarios to observable triggers and upcoming events</li>
+                <li>Enables direct comparison with market pricing and consensus</li>
+              </ul>
+            </div>
+
+            <div class="panel" role="tabpanel" id="panel-future" aria-labelledby="tab-future" hidden>
+              <div class="panel-title">Future Improvements</div>
+              <div class="panel-body">
+                Planned enhancements focus on refining policy calibration, improving confidence signalling, and strengthening comparison with market expectations.
+              </div>
+              <ul class="panel-bullets">
+                <li><strong>Reaction-Function Calibration.</strong> Refine dynamic weights across longer-cycle regimes (pre-cut, mid-cycle, late-cycle) using documented Federal Reserve behaviour.</li>
+                <li><strong>Confidence Scoring.</strong> Introduce an internal confidence score reflecting data completeness, signal alignment, and clarity of Fed communication.</li>
+                <li><strong>Market Consensus Overlay.</strong> Incorporate sell-side, futures-implied, and survey-based expectations as a comparison layer, without influencing model probabilities.</li>
+              </ul>
+            </div>
+
+            <div class="panel" role="tabpanel" id="panel-historic" aria-labelledby="tab-historic" hidden>
+              <div class="panel-title">Historic Reports</div>
+              <div class="panel-body">
+                <strong>December 10th, 2025 Meeting</strong>
+              </div>
+              <div class="report-buttons">
+                <a href="https://investoranatomy.com/signal_report/federal_reserve_tone_decoder/" target="_blank" rel="noopener" class="report-btn">Fed Tone Decoder</a>
+                <a href="https://investoranatomy.com/signal_report/predictor_fed_rate_decision/" target="_blank" rel="noopener" class="report-btn">Rate Decision Predictor</a>
+                <a href="https://investoranatomy.com/signal_report/federal_reserve_beige_book_summary/" target="_blank" rel="noopener" class="report-btn">Beige Book Summary</a>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      
+    </section>
+
+    
+
+    <footer>
+      <div class="pill">Investor Anatomy • Federal Reserve Watcher</div>
+      <div style="height:10px"></div>
+      
+    </footer>
+  </main>
+
+  <script>
+    // Hide the placeholder overlay once the video can load metadata.
+    // (Keeps the page helpful if the file path is wrong or the video is missing.)
+    (function(){
+      const video = document.querySelector('video');
+      const ph = document.querySelector('.placeholder');
+      if(!video || !ph) return;
+
+      const hide = () => { ph.style.display = 'none'; };
+      const show = () => { ph.style.display = 'grid'; };
+
+      video.addEventListener('loadedmetadata', hide);
+      video.addEventListener('canplay', hide);
+      video.addEventListener('error', show);
+
+      // If the browser blocks autoplay checks, this is fine—placeholder remains until a load event.
+      // Try to detect quickly:
+      setTimeout(() => {
+        if (video.readyState >= 1) hide();
+      }, 300);
+    })();
+    </script>
+
+  <script>
+    // Simple tabs
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      // Keyboard support (left/right)
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      activate(tabs[0]);
+    })();
+  </script>
+</body>
+</html>
