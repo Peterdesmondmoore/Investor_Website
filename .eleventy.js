@@ -4,6 +4,8 @@ module.exports = function(eleventyConfig) {
   // Set markdown-it as the library for rendering markdown files
   eleventyConfig.setLibrary("md", markdownIt());
 
+  eleventyConfig.addPassthroughCopy("_redirects");
+
   // Create a custom collection for reports
   eleventyConfig.addCollection("reports", function(collectionApi) {
     return collectionApi.getFilteredByGlob("market-reports/*.html");
