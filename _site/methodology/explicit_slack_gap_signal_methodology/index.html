@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explicit Slack Gap Signal — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Explicit Slack Gap Signal</h1>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification for a canonical labour-market slack gap signal using <strong>UNRATE</strong> and <strong>NROU</strong> (monthly, FRED).</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This document formalises a rule-based signal that measures labour-market slack relative to an estimate of the economy’s noncyclical unemployment rate. The signal is defined as the difference between the US civilian unemployment rate (<code>UNRATE</code>) and a NAIRU proxy (<code>NROU</code>). The gap is computed at monthly frequency and paired with a 3-month change measure to classify regimes relevant for reaction-function modelling—<em>Tight</em>, <em>Neutral</em>, <em>Slackening</em>—plus a momentum label and a deterministic base confidence score.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>UNRATE</strong>: Civilian Unemployment Rate (BLS-origin; accessed via FRED).</li>
+        <li><strong>NROU</strong>: Natural Rate of Unemployment (Long-Term) / Noncyclical Rate of Unemployment (CBO estimate; accessed via FRED).</li>
+      </ul>
+      <p class="leading-7 mt-3">Both series are converted to numeric, aligned to a monthly index, and merged on a common month-end timestamp. Analysis is performed in percentage points (pp). The canonical slack concept is the unemployment gap; supporting labour indicators (e.g., U-6, participation) are reserved for downstream confidence overrides and are not part of the core gap definition.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Methodology</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Monthly alignment:</strong> coerce both series to monthly frequency (month-end), keeping the latest available observation for each month.</li>
+        <li><strong>Merge & gap:</strong> create a panel with columns <code>UNRATE</code> and <code>NROU</code>; compute the slack gap
+          <div class="box mt-2 text-sm"><div class="eq">SlackGap<sub>t</sub> = UNRATE<sub>t</sub> − NROU<sub>t</sub></div></div>
+        </li>
+        <li><strong>Momentum proxy:</strong> compute a short-horizon gap change (3 months)
+          <div class="box mt-2 text-sm"><div class="eq">SlackGap_Change_3m<sub>t</sub> = SlackGap<sub>t</sub> − SlackGap<sub>t−3</sub></div></div>
+        </li>
+        <li><strong>Classification:</strong> apply deterministic rules using level and momentum:
+          <div class="box mt-2 text-sm">
+            <ul class="list-disc pl-6">
+              <li><strong>Direction:</strong>
+                <ul class="list-disc pl-6 mt-1">
+                  <li><strong>Tight:</strong> <span class="eq">SlackGap<sub>t</sub> ≤ −0.50</span> pp</li>
+                  <li><strong>Slackening:</strong> <span class="eq">SlackGap<sub>t</sub> ≥ +0.50</span> pp</li>
+                  <li><strong>Neutral:</strong> otherwise</li>
+                </ul>
+              </li>
+              <li class="mt-2"><strong>Momentum:</strong>
+                <ul class="list-disc pl-6 mt-1">
+                  <li><strong>Widening:</strong> <span class="eq">SlackGap_Change_3m<sub>t</sub> ≥ +0.20</span> pp</li>
+                  <li><strong>Narrowing:</strong> <span class="eq">SlackGap_Change_3m<sub>t</sub> ≤ −0.20</span> pp</li>
+                  <li><strong>Stable:</strong> otherwise</li>
+                </ul>
+              </li>
+              <li class="mt-2"><strong>Confidence (base):</strong>
+                <ul class="list-disc pl-6 mt-1">
+                  <li><strong>Medium:</strong> if <span class="eq">|SlackGap<sub>t</sub>| &lt; 0.25</span> pp (near-neutral zone).</li>
+                  <li><strong>High:</strong> otherwise.</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+      <p class="leading-7 mt-3">The level thresholds define a clear “tight vs slack” separation, while the 3-month gap change captures the pace of tightening/loosening. The base confidence is intentionally conservative near the neutral zone; portfolio and predictor layers may override confidence based on corroborating labour-market signals.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code>import pandas as pd
+
+# Assumes a configured FRED client instance named `fred`
+
+def fetch_fred_series_df(series_id: str) -> pd.DataFrame:
+    """Return DataFrame with columns [Series_ID, title, Date, Value] fetched from FRED."""
+    s = fred.get_series(series_id)  # pandas Series indexed by Timestamp
+    if s is None or s.empty:
+        return pd.DataFrame(columns=["Series_ID","title","Date","Value"])
+
+    df = s.reset_index()
+    df.columns = ["Date", "Value"]
+    df["Series_ID"] = series_id
+
+    try:
+        meta = fred.get_series_info(series_id)
+        df["title"] = getattr(meta, "title", None)
+    except Exception:
+        df["title"] = None
+
+    df["Date"] = pd.to_datetime(df["Date"])
+    df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
+    return df[["Series_ID","title","Date","Value"]]
+
+
+def to_monthly_wide(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
+    """Align to month-end timestamps and keep the last observation per month."""
+    out = df[["Date", "Value"]].dropna().copy()
+    out["Date"] = pd.to_datetime(out["Date"]).dt.to_period("M").dt.to_timestamp("M")
+    out = out.groupby("Date", as_index=False)["Value"].last()
+    return out.rename(columns={"Value": col_name})
+
+
+# 1) Fetch canonical inputs
+unrate_df = fetch_fred_series_df("UNRATE")
+nrou_df   = fetch_fred_series_df("NROU")
+
+# 2) Monthly alignment
+unrate_m = to_monthly_wide(unrate_df, "UNRATE")
+nrou_m   = to_monthly_wide(nrou_df,   "NROU")
+
+# 3) Merge + compute gap + momentum
+slack = pd.merge(unrate_m, nrou_m, on="Date", how="inner").sort_values("Date")
+slack["SlackGap_pp"] = slack["UNRATE"] - slack["NROU"]
+slack["SlackGap_change_3m_pp"] = slack["SlackGap_pp"] - slack["SlackGap_pp"].shift(3)
+
+# 4) Classify
+def classify_direction(slack_gap_pp: float) -> str:
+    if slack_gap_pp <= -0.50:
+        return "TIGHT"
+    if slack_gap_pp >= 0.50:
+        return "SLACKENING"
+    return "NEUTRAL"
+
+
+def classify_momentum(delta_3m_pp: float) -> str:
+    if pd.isna(delta_3m_pp):
+        return "STABLE"
+    if delta_3m_pp >= 0.20:
+        return "WIDENING"
+    if delta_3m_pp <= -0.20:
+        return "NARROWING"
+    return "STABLE"
+
+
+def classify_confidence(slack_gap_pp: float) -> str:
+    if pd.isna(slack_gap_pp):
+        return "LOW"
+    if abs(slack_gap_pp) &lt; 0.25:
+        return "MEDIUM"
+    return "HIGH"
+
+
+slack["SlackGap_Direction"] = slack["SlackGap_pp"].apply(classify_direction)
+slack["SlackGap_Momentum"] = slack["SlackGap_change_3m_pp"].apply(classify_momentum)
+slack["SlackGap_Confidence"] = slack["SlackGap_pp"].apply(classify_confidence)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Sensitivity and Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>NAIRU proxy uncertainty:</strong> <code>NROU</code> is an estimate and may be revised; treat gap values near zero with lower confidence.</li>
+        <li><strong>Threshold tuning:</strong> ±0.50 pp (direction) and ±0.20 pp (momentum) can be tuned by asset-class sensitivity or by historical policy reaction calibration.</li>
+        <li><strong>Timing alignment:</strong> month-end alignment is used for consistency; alternative choices (month-start or daily interpolation) should be documented if adopted.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Reproducibility</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Capture series IDs (<code>UNRATE</code>, <code>NROU</code>), retrieval timestamps, and library versions.</li>
+        <li>Persist the merged monthly panel and the classified outputs (<code>SlackGap_Direction</code>, <code>SlackGap_Momentum</code>, <code>SlackGap_Confidence</code>).</li>
+        <li>Document any changes to thresholds, momentum horizon, or missing-data handling.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">6. Applications</h2>
+      <p class="leading-7">Useful as a canonical slack input to a Fed reaction-function model (e.g., Taylor-style rules), as a conditioning variable in risk-asymmetry weighting (growth downside vs inflation upside), and as an input to forward projections by extrapolating short-horizon slack dynamics. Intended use: a single interpretable slack anchor, with richer labour dashboards used only for corroboration and confidence adjustment.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly academic specification for the Explicit Slack Gap Signal.</footer>
+  </main>
+</body>
+</html>

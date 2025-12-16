@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fed Watcher •  Macro Signal Synthesiser – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Fed Watcher •  Macro Signal Synthesiser</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Fed Watcher •  Macro Signal Synthesiser</h1>
+      <p class="subtitle">Synthesising key US macro themes</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-12-15</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Macro Signal Synthesiser Summary</h2><div class="box summary-box market-report"><h2>Macro Signal Synthesiser</h2>
+
+<p><em>Conditions-based macro assessment for Federal Reserve policy justification.</em></p>
+
+<h3>1. Macro Conditions Summary</h3>
+<p>
+The current US macroeconomic environment presents a nuanced and somewhat conflicting picture. Inflation dynamics are predominantly in a neutral regime with a discernible disinflationary bias and anchored market expectations, although policy-relevant PCE remains above the central bank's 2% target. There are mild indications of cost-push pressures from producer prices, but wage growth has normalized to a neutral state, easing immediate concerns <a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">[Source: fed_inflation_signal]</a> <a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence.html" target="_blank">[Source: CPI_PPI_Divergence]</a> <a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE.html" target="_blank">[Source: policy_relevant_inflation_pce.html]</a> <a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">[Source: market_implied_inflation_signal]</a> <a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure.html" target="_blank">[Source: inflation_term_structure]</a> <a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal.html" target="_blank">[Source: wage_growth_and_inflation.html]</a>.
+</p>
+<p>
+The US labour market is observed to be moderating towards slack, despite many headline indicators remaining in a neutral regime. Notable underlying weaknesses include historically high underemployment stress, a bearish labour market turnover differential signaling declining worker confidence, and plateauing payroll growth. The explicit Slack Gap is assessed as NEUTRAL with STABLE momentum and MEDIUM confidence <a href="https://investoranatomy.com/signal_report/Employment_Composition.html" target="_blank">[Source: Consumer_Sentiment.html]</a> <a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal.html" target="_blank">[Source: underemployment_risk]</a> <a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal.html" target="_blank">[Source: labor_market_tightness]</a> <a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover.html" target="_blank">[Source: Labor_Market_Turnover.html]</a> <a href="https://investoranatomy.com/signal_report/Weekly_Hours.html" target="_blank">[Source: weekly_hours.html]</a> <a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum.html" target="_blank">[Source: labour_market_momentum.html]</a> <a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal.html" target="_blank">[Source: sectoral_employment]</a> <a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal.html" target="_blank">[Source: Explicit_Slack_Gap_Signal.html]</a>.
+</p>
+<p>
+Information specifically on US growth and business cycle (capex, production, durables, housing, yield-curve signals) was not provided in the designated report, limiting a direct assessment of domestic demand momentum. However, credit conditions are broadly neutral to supportive, characterized by historically tight credit spreads, neutral financial stress, and a stable private credit impulse, suggesting a benign funding environment <a href="https://investoranatomy.com/signal_report/Credit_Spreads.html" target="_blank">[Source: Credit_Spreads.html]</a> <a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite.html" target="_blank">[Source: financial_stress]</a> <a href="https://investoranatomy.com/signal_report/Credit_Conditions.html" target="_blank">[Source: Credit_Conditions.html]</a> <a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse.html" target="_blank">[Source: Private_Credit_Impulse.html]</a>.
+</p>
+<p>
+Monetary and liquidity conditions indicate an expansion in the Federal Reserve Liquidity Composite, primarily driven by the unwind of the ON RRP facility. Real interest rates are in a neutral regime, with the policy stance assessed as NEAR NEUTRAL relative to an estimated neutral rate (r*) that is exhibiting a RISING trend. SOFR positioning has unwound from prior extremes, implying stable near-term policy expectations <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">[Source: Federal_Reserve_Liquidity_Composite.html]</a> <a href="https://investoranatomy.com/signal_report/M2_Money_Supply.html" target="_blank">[Source: m_2_money_supply.html]</a> <a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">[Source: Real_Interest_Rate_Trend_Signal.html]</a> <a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals.html" target="_blank">[Source: SOF_3M_CoT_Signals.html]</a> <a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals.html" target="_blank">[Source: SOF_5Y_CoT_Signals.html]</a>.
+</p>
+<p>
+Risk asymmetry is characterized by a calm VIX, signaling reduced broad market anxiety, yet specific cross-asset positioning reveals moderate squeeze risk and "Supply_Stress" as an active macro theme due to hedger activity in key commodities <a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility.html" target="_blank">[Source: vix_signal]</a> <a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">[Source: Specs_vs_Hedgers_Divergence_Reversal_Risk.html]</a> <a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">[Source: Squeeze_Exhaustion_Risk]</a> <a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">[Source: Regimes_specific_Macro_Themes_Continuous.html]</a>. Global growth signals are mixed, with resilient industrial demand (copper tailwind) contrasting with decelerating broader macro flow momentum in interest-rate sensitive sectors <a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind.html" target="_blank">[Source: Energy_Adjusted_Metals_Tailwind.html]</a> <a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum.html" target="_blank">[Source: Economic_Cycle_Proxies_Flow_Momentum.html]</a>. The USD is weakening, offering a disinflationary impulse, but shows underlying bullish reversal risk <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">[Source: usd_index_signal.html]</a> <a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">[Source: USD_CoT_Signals]</a>.
+</p>
+
+<h3>2. Why a Simple Taylor-Style Rule Is Insufficient</h3>
+<p>
+A simple Taylor-style rule is insufficient in the current regime due to its inherent mechanical rigidity, which fails to capture the complex, evolving dynamics of the US economy. Firstly, policy reaction coefficients are demonstrably time-varying, reflecting shifts in the underlying economic structure, financial market sensitivity, and central bank credibility. Applying fixed coefficients would lead to suboptimal policy. Secondly, the relative weights assigned to inflation versus labour market objectives shift by regime, particularly under a flexible average inflation targeting framework, which emphasizes balancing dual mandates over time rather than strict adherence to point-in-time deviations. Thirdly, risk asymmetry, especially regarding tail risks to growth or inflation, dominates point estimates and requires a discretionary approach. Mechanical rules struggle to incorporate the potential for non-linear outcomes. Finally, uncertainty and regime persistence matter more than simple averages. Policymakers must assess the confidence in current signals and the likelihood of regime shifts, favoring inertia unless decisive evidence warrants a change, a subtlety lost in deterministic rules.
+</p>
+
+<h3>3. Reaction-Function Relevant Signals</h3>
+<ul>
+  <li><strong>Inflation dynamics:</strong> Levels (PCE at 2.79%, Core PCE 2.83%) remain above target but are in a neutral regime, showing disinflationary momentum from market expectations and the inflation term structure. Persistence is moderate, with some stickiness, but not accelerating. Upside inflation risks stem from potential PPI cost-push transmission and the general stickiness of PCE above target. Downside risks are highlighted by market-implied disinflationary momentum and the Fed's broad "COOL" inflation signal <a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE.html" target="_blank">[Source: policy_relevant_inflation_pce.html]</a> <a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence.html" target="_blank">[Source: CPI_PPI_Divergence]</a> <a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">[Source: market_implied_inflation_signal]</a> <a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure.html" target="_blank">[Source: inflation_term_structure]</a> <a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">[Source: fed_inflation_signal]</a>.</li>
+  <li><strong>Labour market:</strong> The composite labour regime is "Moderating Towards Slack, with Divergent Signals." Explicit Slack Gap: Direction is <strong>NEUTRAL</strong>, Momentum is <strong>STABLE</strong>, and Confidence is <strong>MEDIUM</strong> <a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal.html" target="_blank">[Source: Explicit_Slack_Gap_Signal.html]</a>. This indicates that while the labour market is cooling and moving away from excessive tightness, it is not yet exhibiting outright slack that would compel a significant policy shift, though underlying stresses persist <a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal.html" target="_blank">[Source: underemployment_risk]</a> <a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover.html" target="_blank">[Source: Labor_Market_Turnover.html]</a>.</li>
+  <li><strong>Growth & demand:</strong> Specific US growth signals (capex, production, housing, yield curve) were not provided in the designated report. Contextually, global growth signals are mixed, showing resilient industrial demand (Metals Tailwind) but decelerating broader macro flow momentum, particularly in interest-rate sensitive sectors ("Rates" sector crowded short and deteriorating momentum) <a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind.html" target="_blank">[Source: Energy_Adjusted_Metals_Tailwind.html]</a> <a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum.html" target="_blank">[Source: Economic_Cycle_Proxies_Flow_Momentum.html]</a>. This implies rising stall-speed risk. Credit conditions remain supportive, with historically tight spreads and a stable private credit impulse, providing a beneficial backdrop for demand <a href="https://investoranatomy.com/signal_report/Credit_Conditions.html" target="_blank">[Source: Credit_Conditions.html]</a> <a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse.html" target="_blank">[Source: Private_Credit_Impulse.html]</a>.</li>
+  <li><strong>Financial conditions:</strong> The liquidity impulse is currently in an <strong>Expansion</strong> regime, primarily driven by the reduction in ON RRP usage, partially offset by ongoing quantitative tightening <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">[Source: Federal_Reserve_Liquidity_Composite.html]</a>. The real-rate regime is <strong>Neutral</strong> <a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">[Source: Real_Interest_Rate_Trend_Signal.html]</a>. The policy stance relative to the Neutral Rate (r*) is <strong>NEAR NEUTRAL</strong>, but the directional drift of r* is <strong>RISING</strong>, suggesting that current policy may become less restrictive over time if nominal rates remain unchanged and r* continues its upward trend <a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">[Source: Real_Interest_Rate_Trend_Signal.html]</a>.</li>
+  <li><strong>Risk asymmetry:</strong> Upside inflation risks are present from the active "Supply_Stress" macro theme in commodities and potential PPI transmission. Downside growth risks are suggested by decelerating global macro flow momentum and persistent underemployment stress. Signal alignment is mixed, with a calm VIX but specific crowded and divergent positioning across asset classes, notably Bearish Reversal Risk in Nasdaq. The bias toward continuation prevails due to the lack of decisively broken regimes, despite underlying moderating trends <a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">[Source: Regimes_specific_Macro_Themes_Continuous.html]</a> <a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals.html" target="_blank">[Source: NASDAQ_100_Consolidated_CoT_Signals.html]</a> <a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility.html" target="_blank">[Source: vix_signal]</a>.</li>
+</ul>
+
+<h3>4. Macro Directional Bias (Conditions Only)</h3>
+<p>
+<strong>HOLD</strong>
+</p>
+<p>
+This reflects economic justification only, not timing, probability, or intent.
+</p>
+
+<h3>5. Confidence Score</h3>
+<p>
+<strong>MEDIUM</strong>
+</p>
+
+<hr>
+
+<p><em>
+This assessment reflects economic justification, not policy timing or decision-making.
+</em></p>
+
+<h3>Self-Healing</h3>
+<ul>
+  <li><strong>RSS Documents Needed:</strong>
+    <ul>
+      <li><em>Federal Reserve Liquidity Composite Report</em> — <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">[Source: Federal_Reserve_Liquidity_Composite.html]</a>: Was provided as a full HTML but referenced as an RSS entry in its own body.</li>
+      <li><em>M2 Money Supply Report</em> — <a href="https://investoranatomy.com/signal_report/M2_Money_Supply.html" target="_blank">[Source: m_2_money_supply.html]</a>: Similarly, provided as full HTML but also sometimes referenced via RSS in other documents.</li>
+    </ul>
+  </li>
+  <li><strong>High-Value Inputs to Add:</strong>
+    <ul>
+      <li>Full and accurate data for US Growth & Business Cycle (capex, production, durables, housing, yield curves): Essential to assess domestic demand momentum, which was missing from the designated report.</li>
+      <li>Real-time market data for breakevens and copper prices: To enhance timeliness and accuracy for inflation and industrial demand signals.</li>
+    </ul>
+  </li>
+  <li><strong>Weaknesses in Provided Inputs:</strong>
+    <ul>
+      <li>The provided HTML for "US Growth & Business Cycle" theme (`us_growth_cycle_group`) contained content for "US Liquidity & Monetary Conditions", directly contradicting the prompt's theme definition. Fix: Ensure the content of provided HTML reports aligns with their designated macro theme.</li>
+      <li>Inconsistent and sometimes future-dated timestamps across documents (e.g., PCE data is forecast, CoT data is consistently 2025). Fix: Synchronize all data to the latest available historical date.</li>
+      <li>The `USD_Signal` label "Bullish" directly contradicts its own methodology conditions for a "Weakening" USD based on the 12-month MA comparison. Fix: Standardize the `USD_Signal` column to directly reflect USD strength/weakness or clarify its naming convention consistently. <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">[Source: usd_index_signal.html]</a></li>
+    </ul>
+  </li>
+  <li><strong>Prompt Gaps or Issues:</strong>
+    <ul>
+      <li>The instruction to output "ONLY the inner HTML structure below" conflicted with the provision of full HTML documents as input, requiring manual extraction of relevant data. Fix: Provide data as structured JSON or CSV to streamline processing.</li>
+    </ul>
+  </li>
+</ul></div></section>
+</main>
+</body>
+</html>

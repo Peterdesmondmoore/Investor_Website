@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neutral Rate (r*) Proxy — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Explicit Neutral Rate (r*) Proxy</h1>
+      <p class="mt-2 text-slate-600 text-sm">Contextual estimate of the policy-neutral real rate using market-implied real yields, a term-premium-adjusted variant, and inflation expectations. Designed to assess policy stance <em>relative to neutral</em>, not to estimate r* precisely.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: Policy can remain restrictive even without hikes; cuts may be justified but delayed when neutral drifts.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We construct a daily, market-anchored proxy for the neutral real policy rate. The signal combines long-run real yields and a term-premium-adjusted variant into a composite r* context. The current real policy rate is then evaluated against this proxy to classify the stance as restrictive, near neutral, or accommodative. Directional drift and confidence are derived to support reaction-function analysis.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (FRED Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>FEDFUNDS</b> — Federal Funds Effective Rate</li>
+        <li><b>DFII10</b> — Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity, Inflation-Indexed</li>
+        <li><b>T10YIE</b> — 10-Year Breakeven Inflation Rate</li>
+        <li><b>THREEFYTP10</b> — Term Premium on a 10 Year Zero Coupon Bond</li>
+      </ul>
+      <p class="leading-7 mt-3">All series are sourced from FRED. Market series are daily; the policy rate is forward-filled between updates to reflect known policy settings.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Data Handling & Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Alignment:</b> Align all series to a daily index; retain business days for modelling.</li>
+          <li><b>Missing values:</b> Forward-fill market series across weekends/holidays; forward-fill <code>FEDFUNDS</code> between releases.</li>
+          <li><b>Optional term premium:</b> Select the first available term-premium series from a candidate list; proceed without term premium if none exist.</li>
+          <li><b>Validation:</b> Require at least one r* component to be non-null in the final panel.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Neutral Rate Components</h2>
+      <div class="box text-sm">
+        <div class="italic">r*<sub>market</sub> = DFII10</div>
+        <div class="italic mt-1">r*<sub>term-adj</sub> = DFII10 − THREEFYTP10</div>
+        <p class="mt-2">The first component captures the market-implied long-run real rate; the second adjusts for term premia as a policy-relevant variant.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Composite Neutral Proxy</h2>
+      <p class="leading-7">We use a simple equal-weighted mean of available components. This is a context proxy and is not intended as a structural estimate of r*.</p>
+      <div class="box text-sm">
+        <div class="italic">r*<sub>proxy</sub> = mean( r*<sub>market</sub>, r*<sub>term-adj</sub> )</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Policy Stance Relative to Neutral</h2>
+      <p class="leading-7">We approximate a real policy rate using expected inflation and compare it to the neutral proxy.</p>
+      <div class="box text-sm">
+        <div class="italic">policy_real = FEDFUNDS − T10YIE</div>
+        <div class="italic mt-1">stance_gap = policy_real − r*<sub>proxy</sub></div>
+      </div>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><b>Restrictive:</b> stance_gap ≥ +0.50</li>
+        <li><b>Near neutral:</b> −0.50 &lt; stance_gap &lt; +0.50</li>
+        <li><b>Accommodative:</b> stance_gap ≤ −0.50</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Directional Drift of Neutral</h2>
+      <p class="leading-7">We measure the change in the neutral proxy over a three-month (business-day) window to infer drift.</p>
+      <div class="box text-sm">
+        <div class="italic">drift<sub>3m</sub> = Δ<sub>63bd</sub>( r*<sub>proxy</sub> )</div>
+      </div>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><b>Rising:</b> drift &gt; +0.10</li>
+        <li><b>Stable:</b> |drift| ≤ 0.10</li>
+        <li><b>Falling:</b> drift &lt; −0.10</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Confidence</h2>
+      <p class="leading-7">Confidence is driven by cross-proxy dispersion and component availability.</p>
+      <div class="box text-sm">
+        <div class="italic">dispersion = std( r* components )</div>
+      </div>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><b>High:</b> dispersion ≤ 0.20 and ≥2 components available</li>
+        <li><b>Medium:</b> 0.20 &lt; dispersion ≤ 0.35, or only 1 component available</li>
+        <li><b>Low:</b> dispersion &gt; 0.35 or sparse/unstable inputs</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Output Panel</h2>
+      <div class="box text-xs">
+<pre><code>[
+  "rstar_proxy",
+  "policy_real_proxy",
+  "stance_gap",
+  "policy_stance_vs_neutral",
+  "neutral_drift",
+  "confidence",
+  "rstar_market_real",
+  "rstar_term_prem_adj_real"
+]</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Expect df_rstar_inputs indexed by date (business-day), ffilled.
+# rstar_market_real = DFII10
+# rstar_term_prem_adj_real = DFII10 - THREEFYTP10 (if available)
+# rstar_proxy = mean(components)
+# policy_real_proxy = FEDFUNDS - T10YIE
+# stance_gap = policy_real_proxy - rstar_proxy
+# drift_3m = rstar_proxy.diff(63)
+# confidence via dispersion std(components) + component count
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">10. Interpretation & Use</h2>
+      <p class="leading-7">Use this signal to frame policy <em>restrictiveness</em> even when the Fed is on hold. A rising neutral proxy can rationalize delayed cuts despite easing inflation, while a still-positive stance gap supports “holding is restrictive” narratives. Combine with slack-gap and inflation-momentum signals for a complete reaction-function view.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Neutral Rate (r*) Proxy signal specification.</footer>
+  </main>
+</body>
+</html>

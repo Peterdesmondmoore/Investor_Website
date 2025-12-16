@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explicit Slack Gap Signal – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Explicit Slack Gap Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Explicit Slack Gap Signal</h1>
+      <p class="subtitle">Explicit labour market slack: UNRATE minus NROU.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>State of the Market Summary:</strong></p>
+    <ul>
+        <li>The US labor market shows a Neutral slack gap of -0.115608 pp as of July 2025.</li>
+        <li>This reflects an unemployment rate (4.2%) slightly below the natural rate (4.315608%).</li>
+        <li>Momentum is Stable, with the gap changing by 0.106065 pp over three months.</li>
+        <li>The signal confidence is Medium, indicating proximity to a neutral inflection point.</li>
+        <li>This suggests an easing from earlier Tight labor market conditions seen in 2022-2023.</li>
+    </ul>
+
+    <p><strong>Technical Summary:</strong></p>
+    <ul>
+        <li>The Explicit Slack Gap signal classifies the labor market as Neutral.</li>
+        <li>Its current value of -0.115608 pp is within the defined neutral zone.</li>
+        <li>Stable momentum means no rapid widening or narrowing is detected.</li>
+        <li>The Medium confidence is due to the absolute gap being less than 0.25 pp.</li>
+        <li>This positioning carries less extreme risk than earlier periods of significant tightness.</li>
+    </ul>
+
+    <p><strong>References:</strong></p>
+    <ul>
+        <li>Explicit Slack Gap Signal Data Table (latest data: 2025-07-31).</li>
+        <li>Explicit Slack Gap Signal — Methodology (used to interpret signal states).</li>
+        <li>Public dataset needed: Specific FRED URLs for UNRATE and NROU to enable direct citations.</li>
+        <li>Public dataset needed: Complementary labor market indicators (e.g., U-6, participation rate) for confidence overrides.</li>
+    </ul>
+
+</div>
+<h3>Self-Healing</h3>
+<ul>
+  <li><strong>High-Value Inputs to Add:</strong>
+    <ul>
+      <li>Specific FRED URLs for UNRATE and NROU: To enable direct citation and improve data transparency.</li>
+      <li>Corroborating labor market indicators (e.g., U-6, participation rate): For enhanced confidence overrides as mentioned in the methodology.</li>
+    </ul>
+  </li>
+  <li><strong>Weaknesses in Provided Inputs:</strong>
+    <ul>
+      <li>Primary data table lacks a formal source URL or reference ID: Assign a unique ID and URL for direct citation in future analyses.</li>
+      <li>Methodology document lacks a formal reference ID and URL: Include the methodology document itself in the `NODE_URL_MAP` for explicit citation.</li>
+    </ul>
+  </li>
+  <li><strong>Prompt Gaps or Issues:</strong>
+    <ul>
+      <li>Clarify if un-mappable inputs (like the raw data table or methodology document) should be listed without the specific `<em><a>` citation format in the "References" section: This would resolve ambiguity regarding non-mappable primary inputs.</li>
+    </ul>
+  </li>
+</ul>
+<p><em>Max 6 bullets across all sections. Be precise, directive, and avoid filler.</em></p></div></section>
+
+<section class="section"><h2 class="section-title">Explicit Slack Gap Signal Chart</h2><div class="box chart-box"><img src="/images/Explicit_Slack_Gap_Signal.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Explicit labour market slack: UNRATE minus NROU.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Explicit Slack Gap Signal Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table class="dataframe table table-striped">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>UNRATE</th>
+      <th>NROU</th>
+      <th>SlackGap_pp</th>
+      <th>SlackGap_change_3m_pp</th>
+      <th>SlackGap_Direction</th>
+      <th>SlackGap_Momentum</th>
+      <th>SlackGap_Confidence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>295</th>
+      <td>2022-10-31</td>
+      <td>3.6</td>
+      <td>4.353271</td>
+      <td>-0.753271</td>
+      <td>-0.386951</td>
+      <td>TIGHT</td>
+      <td>NARROWING</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>296</th>
+      <td>2023-01-31</td>
+      <td>3.5</td>
+      <td>4.348775</td>
+      <td>-0.848775</td>
+      <td>-0.186869</td>
+      <td>TIGHT</td>
+      <td>STABLE</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>297</th>
+      <td>2023-04-30</td>
+      <td>3.4</td>
+      <td>4.344003</td>
+      <td>-0.944003</td>
+      <td>-0.086399</td>
+      <td>TIGHT</td>
+      <td>STABLE</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>298</th>
+      <td>2023-07-31</td>
+      <td>3.5</td>
+      <td>4.338890</td>
+      <td>-0.838890</td>
+      <td>-0.085620</td>
+      <td>TIGHT</td>
+      <td>STABLE</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>299</th>
+      <td>2023-10-31</td>
+      <td>3.9</td>
+      <td>4.333394</td>
+      <td>-0.433394</td>
+      <td>0.415381</td>
+      <td>NEUTRAL</td>
+      <td>WIDENING</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>300</th>
+      <td>2024-01-31</td>
+      <td>3.7</td>
+      <td>4.327480</td>
+      <td>-0.627480</td>
+      <td>0.316523</td>
+      <td>TIGHT</td>
+      <td>WIDENING</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>301</th>
+      <td>2024-04-30</td>
+      <td>3.9</td>
+      <td>4.321120</td>
+      <td>-0.421120</td>
+      <td>0.417770</td>
+      <td>NEUTRAL</td>
+      <td>WIDENING</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>302</th>
+      <td>2024-07-31</td>
+      <td>4.2</td>
+      <td>4.322554</td>
+      <td>-0.122554</td>
+      <td>0.310839</td>
+      <td>NEUTRAL</td>
+      <td>WIDENING</td>
+      <td>MEDIUM</td>
+    </tr>
+    <tr>
+      <th>303</th>
+      <td>2024-10-31</td>
+      <td>4.1</td>
+      <td>4.321673</td>
+      <td>-0.221673</td>
+      <td>0.405807</td>
+      <td>NEUTRAL</td>
+      <td>WIDENING</td>
+      <td>MEDIUM</td>
+    </tr>
+    <tr>
+      <th>304</th>
+      <td>2025-01-31</td>
+      <td>4.0</td>
+      <td>4.320248</td>
+      <td>-0.320248</td>
+      <td>0.100872</td>
+      <td>NEUTRAL</td>
+      <td>STABLE</td>
+      <td>HIGH</td>
+    </tr>
+    <tr>
+      <th>305</th>
+      <td>2025-04-30</td>
+      <td>4.2</td>
+      <td>4.318228</td>
+      <td>-0.118228</td>
+      <td>0.004327</td>
+      <td>NEUTRAL</td>
+      <td>STABLE</td>
+      <td>MEDIUM</td>
+    </tr>
+    <tr>
+      <th>306</th>
+      <td>2025-07-31</td>
+      <td>4.2</td>
+      <td>4.315608</td>
+      <td>-0.115608</td>
+      <td>0.106065</td>
+      <td>NEUTRAL</td>
+      <td>STABLE</td>
+      <td>MEDIUM</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/explicit_slack_gap_signal_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Explicit Slack Gap Signal</a></section>
+</main>
+</body>
+</html>
