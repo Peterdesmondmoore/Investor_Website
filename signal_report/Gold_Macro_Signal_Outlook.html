@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gold · Macro Signal Outlook – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Gold · Macro Signal Outlook</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Gold · Macro Signal Outlook</h1>
+      <p class="subtitle">A concise outlook based on deterministic regime classification.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-12-18</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="ia-report-block" id="gold-macro-outlook">
+  <h2>Gold Macro Outlook</h2>
+
+  <h3>Regime Assessment</h3>
+  <p>
+    Current conditions align with the <strong>Liquidity Expansion</strong> regime.
+    Dominant drivers include Liquidity Expansion (<a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">1</a>), Elevated Financial Stress (<a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">14</a>).
+  </p>
+
+  <h3>1-Month Outlook</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bullish</li>
+    <li><strong>Probability:</strong> 65% probability of upside</li>
+    <li><strong>Volatility Profile:</strong> Medium</li>
+  </ul>
+
+  <h3>3-Month Outlook</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bullish</li>
+    <li><strong>Probability:</strong> 75% probability of upside</li>
+    <li><strong>Structural Drivers:</strong> Falling real rates combined with expanding liquidity conditions. Monetary policy easing, balance sheet expansion, or excess system liquidity dominate other signals. (<a href="https://investoranatomy.com/Gold_Regime_Framework_v1.0.json" target="_blank">28</a>)</li>
+  </ul>
+
+  <h3>Conflicts &amp; Watchpoints</h3>
+  <ul>
+    <li>USD Index Signal (reported Bullish but technicals Weakening) (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">4</a>)(<a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">5</a>)</li>
+    <li>Cross Sector Positioning for Metals indicates speculative crowding conflicting with Gold specific positioning (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">17</a>)(<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">10</a>)</li>
+  </ul>
+</div>
+
+<h3>References</h3>
+<ol>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">[Source: Federal_Reserve_Liquidity_Composite]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Real_Interest_Rate_Trend_Signal.html" target="_blank">[Source: Methodology/Real_Interest_Rate_Trend_Signal.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/m_2_money_supply.html" target="_blank">[Source: m_2_money_supply]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">[Source: USD_Index_Signal.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">[Source: usd_methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">[Source: USD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Inflation-Term-Structure-Methodology" target="_blank">[Source: Inflation-Term-Structure-Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com//Methodology/market_implied_inflation_signal.html" target="_blank">[Source: Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/pce-inflation-methodology" target="_blank">[Source: METHODOLOGY_PCE]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">[Source: Gold_CoT_Signals]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">[Source: Specs_vs_Hedgers_Divergence_Reversal_Risk]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">[Source: Squeeze_Exhaustion_Risk.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Gold_Pricing.html" target="_blank">[Source: Gold_Pricing]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">[Source: Methodology/Financial_Stress.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/financial-stress-composite-methodology" target="_blank">[Source: Financial Stress Composite Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/vix_signal_methodology.html" target="_blank">[Source: Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">[Source: Cross_Sector_Positioning.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator.html" target="_blank">[Source: Hedger_Pressure_Indicator.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.federalreserve.gov/monetarypolicy/files/fomcminutes20251029.pdf" target="_blank">[Source: fomcminutes20251029]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.federalreserve.gov/monetarypolicy/files/fomcpresconf20251210.pdf" target="_blank">[Source: powell_pc_20251210]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals.html" target="_blank">[Source: AUD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals.html" target="_blank">[Source: EURO_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals.html" target="_blank">[Source: YEN_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/GBP_CoT_Signals.html" target="_blank">[Source: GBP_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals.html" target="_blank">[Source: Crude_Oil_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal.html" target="_blank">[Source: sectoral_employment]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Gold_Outlook.html" target="_blank">[Source: Gold_Outlook.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Gold_Regime_Framework_v1.0.json" target="_blank">[Source: Gold_Regime_Framework_v1.0_JSON]</a>
+    </em>
+  </li>
+</ol>
+
+<h3>Self-Healing</h3>
+<ul>
+  <li><strong>RSS Documents Needed:</strong>
+    <ul>
+      <li><em>Numerous External RSS Feed Documents</em> — <a href="https://investoranatomy.com/signal_report/Gold_Outlook.html" target="_blank">Source</a>: Multiple gold.org and FOMC documents referenced within the `Gold_Outlook.html` input were not provided as explicit signal documents for direct analysis, despite being material to the outlook.</li>
+    </ul>
+  </li>
+  <li><strong>Weaknesses in Provided Inputs:</strong>
+    <ul>
+      <li>**Inconsistent Data & Signals (M2 & USD Index):** M2 Money Supply data is missing for November/December 2025, preventing a complete assessment (<a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">1</a>). The `USD_Index_Signal.html` reports a "Bullish" signal for 2025-12-01, but its underlying technicals would classify it as "Weakening" per its methodology (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">4</a>)(<a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">5</a>).</li>
+      <li>**Insufficient/Incomplete CoT Historical Data:** Numerous CoT reports (e.g., Gold, USD, AUD, EURO) contain only 15 rows of data, which is insufficient for the 52-week lookback stated in their methodologies for robust z-score calculation and regime identification (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals.html" target="_blank">21</a>)(<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals.html" target="_blank">22</a>). Additionally, `Report_Date` values are often future-dated, and the `Price` column is incomplete in several CoT datasets.</li>
+      <li>**CoT Flag Inconsistencies:** Discrepancies exist between stated CoT flags (e.g., "Metals are experiencing broad speculative crowding" from `Cross_Sector_Positioning.html` (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">17</a>) vs. "No crowding... risks are flagged" in `Gold_CoT_Signals.html` (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">10</a>)). Similar issues were noted for reversal scores in JPY and GBP CoT signals.</li>
+      <li>**Missing Core Datasets:** The raw `df_cot_signals` dataset, fundamental for certain signal constructions (e.g., Hedger Pressure, Divergence Risk), was not provided (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator.html" target="_blank">18</a>)(<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">11</a>). The `Explicit Neutral Rate (r*) Proxy Methodology` document is also referenced but its URL is not correctly mapped for direct citation.</li>
+    </ul>
+  </li>
+  <li><strong>Data Behaviour Anomalies:</strong>
+    <ul>
+      <li>**Flatlined Diffusion Index:** The `Diffusion_Index` in the `Sectoral_Employment_Diffusion_Signal.html` is consistently 50.0 across the entire historical window, limiting dynamic analysis of labor market breadth (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal.html" target="_blank">26</a>).</li>
+    </ul>
+  </li>
+</ul>
+<p><em>Maximum 6 bullets total. Only confirmed, material issues.</em></p></div></section>
+</main>
+</body>
+</html>
