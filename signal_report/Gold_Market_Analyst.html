@@ -1,0 +1,1642 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title></title>
+  <link rel="icon" type="image/png" href="../images/Favicon.png" />
+  <meta name="description" content="" />
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Gold Market Analyst</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> Gold Market Analyst</div>
+        <h1></h1>
+        <div class="hero-inject market-report"><div class="ia-report-block" id="gold-exec-summary">
+  <h2>Gold Market Executive Summary</h2>
+
+  <div class="ia-panel">
+    <p>The gold market currently exhibits a strong bullish macro regime, primarily driven by ongoing liquidity expansion and an elevated stress state, although internal conflicts exist within real interest rate, financial stress, and market volatility signals. Structurally, supply remains rigid due to muted recycling activity from gold collateralization and refiners' reluctance to expand bar production capacity. This inelastic physical supply is meeting persistent, often price-insensitive demand, notably from non-economic central bank purchases, particularly from emerging markets, and robust, sustained global ETF inflows, led significantly by Asian investors, pushing holdings to historical peaks. Weekly sentiment is predominantly positive, underscored by numerous mine project advancements signaling future supply increases and strong investment demand in key regions like India. However, negative themes include disruptions from illegal mining and the evolving impact of resource nationalism on supply. Price action confirms an established uptrend for GLDM, with the asset trading near its 52-week highs, though the composite view is neutral despite a daily model signal indicating an 'Add' bias based on trend and momentum.</p>
+  </div>
+
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Key Watchpoints</h3>
+    <ul class="ia-list">
+      <li>Monitoring consistency of real interest rate trends and resolution of financial stress signal conflicts.</li>
+      <li>Observing persistence and scale of central bank gold accumulation and global ETF inflows, particularly from Asia.</li>
+      <li>Tracking the operational impact of resource nationalism and illegal mining on regulated gold supply.</li>
+    </ul>
+  </div>
+
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Evidence Basis</h3>
+    <ul class="ia-list">
+      <li><strong>Regime:</strong> Gold_Regime_State.html</li>
+      <li><strong>Supply &amp; Demand:</strong> Gold_Supply_Demand_Analyst.html</li>
+      <li><strong>Weekly News:</strong> Gold_Supply_Demand_News_and_Document_Selection.html</li>
+      <li><strong>Pricing:</strong> Gold_Pricing_Signal.html</li>
+      <li><strong>Macro:</strong> Gold_Macro_Signal_Outlook.html</li>
+    </ul>
+  </div>
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-macro" id="tab-macro">Macro Signal Synthesiser • Gold</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-price" id="tab-price">Price Signal Decoder • Gold</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-news" id="tab-news">Sentiment and News • Gold</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-supply_demand" id="tab-supply_demand">Supply and Demand Analyst • Gold</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-regime" id="tab-regime">Regime Analyst • Gold</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-macro" aria-labelledby="tab-macro"><div class="panel-title">Macro Signal Synthesiser • Gold</div><div class="panel-body"><div class="ia-report-block" id="gold-macro-outlook">
+  <h2>Gold Macro Outlook</h2>
+
+  <h3>Regime Assessment</h3>
+  <p>
+    Current conditions align with the <strong>Liquidity Expansion</strong> regime.
+    Dominant drivers include Liquidity Expansion and Elevated Stress.
+  </p>
+
+  <h3>1-Month Outlook</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Up</li>
+    <li><strong>Probability:</strong> 65%</li>
+    <li><strong>Volatility Profile:</strong> Medium</li>
+  </ul>
+
+  <h3>3-Month Outlook</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Up</li>
+    <li><strong>Probability:</strong> 75%</li>
+    <li><strong>Structural Drivers:</strong> Expanding liquidity conditions with expectations for continued monetary easing (<a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">2</a>), coupled with persistent non-economic central bank demand and robust investment flows into gold ETFs (<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">72</a>)(<a href="https://investoranatomy.com/reports/gold_etf_commentary_nov2025.pdf" target="_blank">71</a>).</li>
+  </ul>
+
+  <h3>Conflicts &amp; Watchpoints</h3>
+  <ul>
+    <li>The <strong>Real Interest Rate Trend</strong> presents a key conflict, as falling real rates typically underpin a Liquidity Expansion regime. Inconsistencies here could invalidate a core macro tailwind (<a href="https://investoranatomy.com/Methodology/Real_Interest_Rate_Trend_Signal.html" target="_blank">1</a>).</li>
+    <li>Despite "Elevated Stress" being a dominant force, the reliability of this driver is tempered by conflicts within the <strong>Financial Stress Composite Signal</strong> and the <strong>Market Volatility VIX Signal</strong> (<a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">14</a>)(<a href="https://investoranatomy.com/Methodology/vix_signal_methodology.html" target="_blank">16</a>).</li>
+  </ul>
+</div>
+
+<h3>References</h3>
+<ol>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Real_Interest_Rate_Trend_Signal.html" target="_blank">[Source: Methodology/Real_Interest_Rate_Trend_Signal.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">[Source: Federal_Reserve_Liquidity_Composite]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/m_2_money_supply.html" target="_blank">[Source: m_2_money_supply]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">[Source: usd_methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">[Source: USD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Inflation-Term-Structure-Methodology" target="_blank">[Source: Inflation-Term-Structure-Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com//Methodology/market_implied_inflation_signal.html" target="_blank">[Source: Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/pce-inflation-methodology" target="_blank">[Source: METHODOLOGY_PCE]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">[Source: Gold_CoT_Signals]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">[Source: Cross_Sector_Positioning.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator.html" target="_blank">[Source: Hedger_Pressure_Indicator.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">[Source: Specs_vs_Hedgers_Divergence_Reversal_Risk]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">[Source: Squeeze_Exhaustion_Risk.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">[Source: Methodology/Financial_Stress.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/financial-stress-composite-methodology" target="_blank">[Source: Financial Stress Composite Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/vix_signal_methodology.html" target="_blank">[Source: Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals.html" target="_blank">[Source: AUD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals.html" target="_blank">[Source: EURO_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals.html" target="_blank">[Source: YEN_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/GBP_CoT_Signals.html" target="_blank">[Source: GBP_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals.html" target="_blank">[Source: CAD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals.html" target="_blank">[Source: Crude_Oil_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support" target="_blank">[Source: WGC2]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/artemis-approves-1b-phase-2-expansion-of-blackwater-mine/" target="_blank">[Source: MINING9]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/mcewen-has-mexico-environmental-ok-for-el-gallo-mine/" target="_blank">[Source: MINING16]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/tahltan-back-skeenas-eskay-creek-project-in-landmark-vote/" target="_blank">[Source: MINING18]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/fortuna-mining-bets-on-west-africa-to-fuel-gold-growth/" target="_blank">[Source: MINING21]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876794851/evx51obyj-DxZ5rB?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN1]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876806182/rjUsGYiWJGwX6ovg?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN8]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876716718/1RHlI3o8xXLoHLgZ?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN9]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876728518/aIv2mEl3OngF2llX?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN6]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.cftc.gov/node/257446" target="_blank">[Source: CFTC1]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/unearthed-golds-breakout-year-outlook-2026" target="_blank">[Source: WGC1]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/china-gold-market-update-november-demand-feels-vat-reform" target="_blank">[Source: WGC4]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/central-bank-considerations-when-pricing-asgm-purchases" target="_blank">[Source: WGC6]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">[Source: WGC7]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">[Source: WGC8]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">[Source: WGC9]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/indonesia-consumer-insights-report-gold-nation" target="_blank">[Source: WGC10]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/11/you-asked-we-answered-what-are-implications-vat-reform-china" target="_blank">[Source: WGC11]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/11" target="_blank">[Source: WGC12]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q3-2025" target="_blank">[Source: WGC13]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025" target="_blank">[Source: WGC14]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">[Source: WGC15]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/10/portfolio-resiliency-golds-role-amid-economic-crosscurrents" target="_blank">[Source: WGC16]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/2025-chinese-jewellery-retailer-insights-gold-and-self-wear-remain-key" target="_blank">[Source: WGC17]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-market-commentary-september-2025" target="_blank">[Source: WGC18]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/10" target="_blank">[Source: WGC19]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/10/central-bank-gold-statistics-central-bank-gold-buying-rebounds-august" target="_blank">[Source: WGC20]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/2025-japanese-gold-investor-insights-golden-opportunity" target="_blank">[Source: WGC21]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/09/india-gold-market-update-encouraging-start-seasonal-demand" target="_blank">[Source: WGC22]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/09/china-gold-market-update-wholesale-demand-fell-august" target="_blank">[Source: WGC23]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/09" target="_blank">[Source: WGC24]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-market-commentary-august-2025" target="_blank">[Source: WGC25]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/09/central-bank-gold-statistics-central-bank-gold-buying-july-slows-remains" target="_blank">[Source: WGC26]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/india-gold-market-update-festive-prep-begins" target="_blank">[Source: WGC27]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/international-monetary-system-and-canary-goldmine" target="_blank">[Source: WGC28]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/china-gold-market-update: official-holdings-rose-july" target="_blank">[Source: WGC29]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/08" target="_blank">[Source: WGC30]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-market-commentary-july-2025" target="_blank">[Source: WGC31]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q2-2025" target="_blank">[Source: WGC32]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/central-bank-gold-statistics-june-2025" target="_blank">[Source: WGC33]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q2-2025" target="_blank">[Source: WGC34]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/2025-chinese-gold-jewellery-consumer-insights-opportunities-slowdown" target="_blank">[Source: WGC35]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/portfolio-continuum-rethinking-gold-alternatives-investing" target="_blank">[Source: WGC36]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/07/india-gold-market-update-investment-upheld-amid-seasonal-lull" target="_blank">[Source: WGC37]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.cftc.gov/node/257276" target="_blank">[Source: CFTC3]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.cftc.gov/node/257066" target="_blank">[Source: CFTC4]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/integra-ceo-aims-for-mid-tier-gold-output-in-idaho/" target="_blank">[Source: MINING5]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/equinox-sells-brazilian-operations-to-cmoc-for-over-1b/" target="_blank">[Source: MINING22]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/reports/gold_etf_commentary_nov2025.pdf" target="_blank">[Source: gold_etf_commentary_nov2025]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">[Source: gold_outlook_2026]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">[Source: us_gold_demand_trends_q32025]</a>
+    </em>
+  </li>
+</ol>
+
+<h3>Self-Healing</h3>
+<ul>
+  <li><strong>RSS Documents Needed:</strong>
+    <ul>
+      <li><em>Crude Oil CoT Signals</em> — <a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals.html" target="_blank">Source</a>: Provides specific commodity insights to further dissect broad market divergence trends (<a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals.html" target="_blank">22</a>).</li>
+    </ul>
+  </li>
+  <li><strong>Weaknesses in Provided Inputs:</strong>
+    <ul>
+      <li>The `USD_Signal` column in `USD_Index_Signal` indicates "Bullish" but `Value_Monthly` is below `USD_12Month_MA`, which per methodology implies "Weakening" (<a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">4</a>). This internal inconsistency affects USD regime interpretation.</li>
+      <li>M2 Money Stock data is missing for 2025-11-30 and 2025-12-31 in the `Federal_Reserve_Liquidity_Composite_Signal` (<a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">2</a>). This prevents a complete assessment of the M2 component.</li>
+      <li>The `Gold_Individual_Market_Analysis` dataframe only contains 15 rows of data, insufficient for the 52-week lookback required by its methodology for robust z-score calculation and regime identification (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">9</a>).</li>
+      <li>The `Price` column in various CoT dataframes (`USD_CoT_Signals`, `AUD_CoT_Signals`, `EURO_CoT_Signals`) is either static or incomplete, hindering comprehensive time-series analysis required by methodology (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals.html" target="_blank">17</a>)(<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals.html" target="_blank">18</a>).</li>
+    </ul>
+  </li>
+  <li><strong>Data Behaviour Anomalies:</strong>
+    <ul>
+      <li>Future-dated `Report_Date` values are present in some CoT dataframes (e.g., AUD, EURO, Squeeze & Exhaustion Risk) and potentially for the `Cross_Sector_Positioning` signal, which impacts data currency assumptions (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">13</a>)(<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">10</a>).</li>
+    </ul>
+  </li>
+</ul>
+<p><em>Maximum 6 bullets total. Only confirmed, material issues.</em></p></div></div>
+<div class="panel" role="tabpanel" id="panel-price" aria-labelledby="tab-price" hidden><div class="panel-title">Price Signal Decoder • Gold</div><div class="panel-body"><div class="pricing-analysis">
+  <h2>Pricing Context: GLDM</h2>
+  <p class="as-of">As of: 2025-12-18 00:00:00</p>
+
+  <section class="summary">
+    <h3>Headline Snapshot</h3>
+    <ul>
+      <li><strong>Last Close:</strong> 85.78</li>
+      <li><strong>Day Change:</strong> -0.2%</li>
+      <li><strong>Composite View:</strong> Hold / No strong view</li>
+    </ul>
+    <p class="interpretation">
+      Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
+    </p>
+  </section>
+
+  <section class="pillar trend">
+    <h3>Technical Trend</h3>
+    <p><strong>State:</strong> Uptrend (price above both 50d and 200d)</p>
+    <ul>
+      <li>Price above 50-day average: <strong>True</strong></li>
+      <li>Price above 200-day average: <strong>True</strong></li>
+      <li>Last close: <strong>85.78</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar volatility">
+    <h3>Volatility Regime</h3>
+    <p><strong>State:</strong> Volatility in normal range</p>
+    <ul>
+      <li>20-day realised volatility (annualised): <strong>0.09</strong></li>
+      <li>Volatility percentile in sample: <strong>0.9%</strong></li>
+      <li>Downside risk proxy triggered: <strong>False</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar volume">
+    <h3>Volume & Liquidity</h3>
+    <p><strong>State:</strong> Volume near normal levels</p>
+    <ul>
+      <li>Latest volume: <strong>6954100</strong></li>
+      <li>Volume percentile in sample: <strong>87.9%</strong></li>
+      <li>Volume z-score (sample): <strong>0.94</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar price-position">
+    <h3>Price Position vs 52-Week Range</h3>
+    <p><strong>State:</strong> Trading near 52-week highs</p>
+    <ul>
+      <li>Position within 52-week range (0=low, 1=high): <strong>0.97</strong></li>
+      <li>Drawdown from 52-week high: <strong>-1.0%</strong></li>
+    </ul>
+  </section>
+
+  <section class="signal">
+    <h3>Model Signal (Daily)</h3>
+    <p>
+      The daily signal is constructed from trend and momentum:
+      uptrend + positive momentum tends to generate <strong>Add</strong> bias;
+      downtrend + negative momentum tends to generate <strong>Reduce</strong> bias.
+    </p>
+    <p><strong>Latest daily signal value:</strong> 1</p>
+  </section>
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Gold_Pricing_Dashboard.png" alt="Gold price trend" /><div class="media-cap">Gold price momentum (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Sentiment and News • Gold</div><div class="panel-body"><div class="ia-report-block" id="supply-demand-sentiment-news-selection">
+  <h2>Supply &amp; Demand — Sentiment, Weekly News &amp; Evidence Selection (Gold)</h2>
+
+  <!-- (A) Weekly Sentiment -->
+  <div class="ia-panel">
+    <h3>Weekly Supply &amp; Demand Sentiment (Contextual)</h3>
+    <p>Gold supply and demand narratives over the last week were predominantly positive, driven by expectations of increased mine production and project advancements. Significant interest was also seen in investment demand, buoyed by central bank rate cut expectations and sustained physical buying in key regions. Negative sentiment emerged from disruptions due to illegal mining and policy shifts related to resource nationalism.</p>
+    <ul class="ia-list">
+      <li><strong>Positive:</strong> 19</li>
+      <li><strong>Neutral:</strong> 6</li>
+      <li><strong>Negative:</strong> 3</li>
+    </ul>
+    <p class="ia-footnote">
+      Sentiment reflects supply–demand narratives only and is non-decisional.
+    </p>
+  </div>
+
+  <!-- (B) Weekly Key News -->
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Key Gold Supply &amp; Demand News (Last 7 Days)</h3>
+    <ul class="ia-list">
+      <li>
+        <strong>India's Gold Market Sees Sustained Investment Demand</strong>
+        <span class="ia-meta">(World Gold Council • 17 Dec 2025)</span>
+        — Investment interest in India is expected to remain robust, providing continued support for physical gold demand despite an inauspicious period for jewellery sales (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support" target="_blank">1</a>).
+        <a href="https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Artemis Gold Approves $1B Phase 2 Expansion for Blackwater Mine</strong>
+        <span class="ia-meta">(Mining.com • 17 Dec 2025)</span>
+        — The approval of a significant expansion project for the Blackwater gold mine signals a future increase in global gold supply (<a href="https://www.mining.com/artemis-approves-1b-phase-2-expansion-of-blackwater-mine/" target="_blank">2</a>).
+        <a href="https://www.mining.com/artemis-approves-1b-phase-2-expansion-of-blackwater-mine/" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>McEwen Gold Obtains Environmental Approval for Mexico's El Gallo Mine</strong>
+        <span class="ia-meta">(Mining.com • 16 Dec 2025)</span>
+        — Environmental clearance for the El Gallo mine moves it closer to construction and first gold pour by 2027, contributing to future supply (<a href="https://www.mining.com/mcewen-has-mexico-environmental-ok-for-el-gallo-mine/" target="_blank">3</a>).
+        <a href="https://www.mining.com/mcewen-has-mexico-environmental-ok-for-el-gallo-mine/" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Tahltan Nation Backs Skeena's Eskay Creek Gold Project in British Columbia</strong>
+        <span class="ia-meta">(Mining.com • 16 Dec 2025)</span>
+        — Indigenous community support for the Eskay Creek project indicates progress in permitting for a significant gold resource, bolstering potential future supply (<a href="https://www.mining.com/tahltan-back-skeenas-eskay-creek-project-in-landmark-vote/" target="_blank">4</a>).
+        <a href="https://www.mining.com/tahltan-back-skeenas-eskay-creek-project-in-landmark-vote/" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Fortuna Mining Targets West Africa for Gold Production Growth</strong>
+        <span class="ia-meta">(Mining.com • 15 Dec 2025)</span>
+        — Fortuna Mining's strategy to acquire mid-tier assets and accelerate projects in West Africa aims to restore its annual gold output to 500,000 ounces, directly impacting global supply (<a href="https://www.mining.com/fortuna-mining-bets-on-west-africa-to-fuel-gold-growth/" target="_blank">5</a>).
+        <a href="https://www.mining.com/fortuna-mining-bets-on-west-africa-to-fuel-gold-growth/" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Barrick Gold Resumes Control of Major African Gold Mine After $430M Settlement</strong>
+        <span class="ia-meta">(EIN News • 19 Dec 2025)</span>
+        — Barrick Gold's regained operational control over one of Africa's largest gold mines stabilizes and secures a significant source of global gold supply (<a href="https://mining.einnews.com/article/876794851/evx51obyj-DxZ5rB?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">6</a>).
+        <a href="https://mining.einnews.com/article/876794851/evx51obyj-DxZ5rB?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Illegal Gold Mining Fuelling Violence in Nigeria, Impairing Regulated Supply</strong>
+        <span class="ia-meta">(EIN News • 19 Dec 2025)</span>
+        — Scrambles for illegal gold reserves are disrupting formal mining operations and impacting the stability and volume of regulated gold supply in Nigeria (<a href="https://mining.einnews.com/article/876806182/rjUsGYiWJGwX6ovg?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">7</a>).
+        <a href="https://mining.einnews.com/article/876806182/rjUsGYiWJGwX6ovg?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>African Resource Nationalism Rewriting Rules for Canadian Gold Miners</strong>
+        <span class="ia-meta">(EIN News • 19 Dec 2025)</span>
+        — Policies promoting resource nationalism in Africa are reshaping foreign investment and operational frameworks for Canadian gold miners, potentially affecting future supply dynamics (<a href="https://mining.einnews.com/article/876716718/1RHlI3o8xXLoHLgZ?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">8</a>).
+        <a href="https://mining.einnews.com/article/876716718/1RHlI3o8xXLoHLgZ?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>i-80 Gold Refurbishment Promises Material Margin Increase at Lone Tree Plant</strong>
+        <span class="ia-meta">(EIN News • 19 Dec 2025)</span>
+        — Operational improvements at the Lone Tree Plant are expected to enhance production efficiency and profitability for a significant gold mineral resource holder, potentially increasing future supply (<a href="https://mining.einnews.com/article/876728518/aIv2mEl3OngF2llX?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">9</a>).
+        <a href="https://mining.einnews.com/article/876728518/aIv2mEl3OngF2llX?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>CFTC Releases December 2025 Bank Participation Reports for Futures and Options</strong>
+        <span class="ia-meta">(CFTC News • 18 Dec 2025)</span>
+        — The publication of these reports provides updated data on institutional positioning in gold futures and options, offering insights into investment demand (<a href="https://www.cftc.gov/node/257446" target="_blank">10</a>).
+        <a href="https://www.cftc.gov/node/257446" target="_blank">Source</a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- (C) Evidence Selection -->
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Documents to Download — Supply &amp; Demand Evidence</h3>
+
+    <table class="ia-table ia-table-compact">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Title</th>
+          <th>Primary Dimension</th>
+          <th>Subcategory</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/12/unearthed-golds-breakout-year-outlook-2026" target="_blank">Unearthed: Gold's Breakout Year &amp; Outlook for 2026</a></td>
+          <td>Demand</td>
+          <td>Investment Demand</td>
+          <td>Provides directional evidence of strong investment demand driving gold's performance and offers an outlook on structural forces (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/unearthed-golds-breakout-year-outlook-2026" target="_blank">11</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support" target="_blank">India gold market update: Investment-led support</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (India)</td>
+          <td>Offers specific insights into regional physical gold demand drivers, distinguishing between jewellery and investment trends (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support" target="_blank">1</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/12/china-gold-market-update-november-demand-feels-vat-reform" target="_blank">China gold market update: November demand feels the VAT reform</a></td>
+          <td>Demand</td>
+          <td>Policy/Regulation, Physical Demand (China)</td>
+          <td>Details a policy change (VAT reform) with explicit, directional impact on China's gold jewellery and investment demand (<a href="https://www.gold.org/goldhub/goldhub/gold-focus/2025/12/china-gold-market-update-november-demand-feels-vat-reform" target="_blank">12</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/central-bank-considerations-when-pricing-asgm-purchases" target="_blank">Central bank considerations when pricing ASGM purchases</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Official Sector</td>
+          <td>Discusses central bank involvement in Artisanal and Small-Scale Gold Mining (ASGM) purchases, impacting supply channels and official sector behavior (<a href="https://www.gold.org/goldhub/research/central-bank-considerations-when-pricing-asgm-purchases" target="_blank">13</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">Asia takes the helm</a></td>
+          <td>Demand</td>
+          <td>ETF Flows</td>
+          <td>Provides quantitative and regional evidence of significant global gold ETF inflows, reflecting structural investment demand (<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">14</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">Gold Outlook 2026: Push ahead or pull back</a></td>
+          <td>Demand</td>
+          <td>Investment Demand</td>
+          <td>Offers an outlook for 2026, summarizing drivers of gold's strong performance in 2025, relevant for understanding investment demand factors (<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">15</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">Central Bank Gold Statistics: Central banks ramp up gold buying in October</a></td>
+          <td>Demand</td>
+          <td>Central Bank Purchases</td>
+          <td>Delivers quantitative evidence of robust central bank gold buying, a key non-price-sensitive demand component (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">16</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/indonesia-consumer-insights-report-gold-nation" target="_blank">Indonesia Consumer Insights Report: Gold for the Nation</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (Jewellery, Bar &amp; Coin)</td>
+          <td>Provides insights into structural physical demand in Indonesia, driven by cultural tradition and its role as a store of value (<a href="https://www.gold.org/goldhub/research/indonesia-consumer-insights-report-gold-nation" target="_blank">17</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/11/you-asked-we-answered-what-are-implications-vat-reform-china" target="_blank">You asked, we answered: What are the implications of the VAT reform in China?</a></td>
+          <td>Demand</td>
+          <td>Policy/Regulation, Physical Demand (China)</td>
+          <td>Offers a detailed explanation of the Chinese VAT reform's implications on different sectors of gold demand, identifying a persistent structural force (<a href="https://www.gold.org/goldhub/gold-focus/2025/11/you-asked-we-answered-what-are-implications-vat-reform-china" target="_blank">18</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/11" target="_blank">Flows rise from Wall Street to the Bund</a></td>
+          <td>Demand</td>
+          <td>ETF Flows</td>
+          <td>Reports continued global gold ETF inflows and growing total AUM, providing quantitative evidence of structural investment demand (<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/11" target="_blank">19</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q3-2025" target="_blank">US Gold Demand Trends Q3 2025</a></td>
+          <td>Demand</td>
+          <td>ETF Flows, Investment Demand</td>
+          <td>Provides quantitative data on US gold demand, specifically highlighting significant ETF inflows and growing trading volumes (<a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q3-2025" target="_blank">20</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025" target="_blank">Central bank gold statistics: September 2025</a></td>
+          <td>Demand</td>
+          <td>Central Bank Purchases</td>
+          <td>Delivers quantitative evidence of central bank net gold purchases in September, indicating official sector behavior (<a href="https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025" target="_blank">21</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">Gold Demand Trends: Q3 2025</a></td>
+          <td>Demand</td>
+          <td>Investment Demand, Physical Demand</td>
+          <td>Presents a quarterly overview of global gold demand, highlighting accelerating investment demand due to safe-haven buying and FOMO (<a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">22</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/10/portfolio-resiliency-golds-role-amid-economic-crosscurrents" target="_blank">Portfolio resiliency: Gold’s role amid economic crosscurrents</a></td>
+          <td>Demand</td>
+          <td>Investment Demand</td>
+          <td>Discusses the structural reasons for gold's role as an alternative asset, providing a rationale for persistent investment demand (<a href="https://www.gold.org/goldhub/gold-focus/2025/10/portfolio-resiliency-golds-role-amid-economic-crosscurrents" target="_blank">23</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/2025-chinese-jewellery-retailer-insights-gold-and-self-wear-remain-key" target="_blank">2025 Chinese jewellery retailer insights: Gold and self-wear remain key</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (China, Jewellery)</td>
+          <td>Offers detailed insights into Chinese gold jewellery consumer behavior and retailer sales trends, crucial for physical demand analysis (<a href="https://www.gold.org/goldhub/research/2025-chinese-jewellery-retailer-insights-gold-and-self-wear-remain-key" target="_blank">24</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-market-commentary-september-2025" target="_blank">Gold Market Commentary: Stick, twist or double down?</a></td>
+          <td>Demand</td>
+          <td>ETF Flows, Investment Demand</td>
+          <td>Discusses record ETF inflows and drivers behind gold's strong performance, reflecting significant shifts in investment demand (<a href="https://www.gold.org/goldhub/research/gold-market-commentary-september-2025" target="_blank">25</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/10" target="_blank">West won’t rest – Q3 breaks records</a></td>
+          <td>Demand</td>
+          <td>ETF Flows</td>
+          <td>Reports record quarterly ETF inflows, especially from North America and Europe, providing strong quantitative evidence of structural investment demand (<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/10" target="_blank">26</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/10/central-bank-gold-statistics-central-bank-gold-buying-rebounds-august" target="_blank">Central bank gold statistics: Central bank gold buying rebounds in August</a></td>
+          <td>Demand</td>
+          <td>Central Bank Purchases</td>
+          <td>Provides quantitative evidence of central banks adding to gold reserves in August, indicating sustained official sector demand (<a href="https://www.gold.org/goldhub/gold-focus/2025/10/central-bank-gold-statistics-central-bank-gold-buying-rebounds-august" target="_blank">27</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/2025-japanese-gold-investor-insights-golden-opportunity" target="_blank">2025 Japanese gold investor insights: The golden opportunity</a></td>
+          <td>Demand</td>
+          <td>Investment Demand (Japan)</td>
+          <td>Explores Japanese investors' attitudes and potential for gold investment, identifying structural drivers for regional demand (<a href="https://www.gold.org/goldhub/research/2025-japanese-gold-investor-insights-golden-opportunity" target="_blank">28</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/09/india-gold-market-update-encouraging-start-seasonal-demand" target="_blank">India gold market update: Encouraging start to seasonal demand</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (India), Investment Demand</td>
+          <td>Highlights a revival in seasonal and investment-led physical gold buying in India, a key demand center (<a href="https://www.gold.org/goldhub/gold-focus/2025/09/india-gold-market-update-encouraging-start-seasonal-demand" target="_blank">29</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/09/china-gold-market-update-wholesale-demand-fell-august" target="_blank">China gold market update: Wholesale demand fell in August</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (China)</td>
+          <td>Reports a fall in China's wholesale gold demand and ETF flows, offering quantitative insight into a major regional market (<a href="https://www.gold.org/goldhub/gold-focus/2025/09/china-gold-market-update-wholesale-demand-fell-august" target="_blank">30</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/09" target="_blank">Risks channel August inflows West</a></td>
+          <td>Demand</td>
+          <td>ETF Flows</td>
+          <td>Shows continued global gold ETF inflows, with a focus on Western funds, indicating sustained investment demand (<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/09" target="_blank">31</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-market-commentary-august-2025" target="_blank">Gold Market Commentary: Stubborn stagflation</a></td>
+          <td>Demand</td>
+          <td>ETF Flows, Investment Demand</td>
+          <td>Discusses robust gold ETF inflows and macro factors driving gold's performance, reflecting shifts in investment demand (<a href="https://www.gold.org/goldhub/research/gold-market-commentary-august-2025" target="_blank">32</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/09/central-bank-gold-statistics-central-bank-gold-buying-july-slows-remains" target="_blank">Central Bank Gold Statistics: Central bank gold buying in July slows but remains firm</a></td>
+          <td>Demand</td>
+          <td>Central Bank Purchases</td>
+          <td>Reports continued central bank net gold buying, despite a slower pace, highlighting persistent official sector demand (<a href="https://www.gold.org/goldhub/gold-focus/2025/09/central-bank-gold-statistics-central-bank-gold-buying-july-slows-remains" target="_blank">33</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/08/india-gold-market-update-festive-prep-begins" target="_blank">India gold market update: Festive prep begins</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (India)</td>
+          <td>Indicates gaining momentum in gold jewellery demand in India due to seasonal factors and steady investment interest (<a href="https://www.gold.org/goldhub/gold-focus/2025/08/india-gold-market-update-festive-prep-begins" target="_blank">34</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/08/international-monetary-system-and-canary-goldmine" target="_blank">The International Monetary System and the Canary in the Goldmine</a></td>
+          <td>Demand</td>
+          <td>Official Sector, Structural Asymmetry</td>
+          <td>Explores the structural role of gold in the international monetary system, relevant for understanding long-term official sector behavior (<a href="https://www.gold.org/goldhub/gold-focus/2025/08/international-monetary-system-and-canary-goldmine" target="_blank">35</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/08/china-gold-market-update-official-holdings-rose-july" target="_blank">China gold market update: Official holdings rose in July</a></td>
+          <td>Demand</td>
+          <td>Central Bank Purchases, Physical Demand (China)</td>
+          <td>Reports continued growth in China's official gold reserves and offers quantitative data on wholesale demand and ETF flows (<a href="https://www.gold.org/goldhub/gold-focus/2025/08/china-gold-market-update-official-holdings-rose-july" target="_blank">36</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/08" target="_blank">US and Europe anchor July inflows</a></td>
+          <td>Demand</td>
+          <td>ETF Flows</td>
+          <td>Documents continued gold ETF inflows, primarily from North America and Europe, providing quantitative evidence of investment demand (<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/08" target="_blank">37</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-market-commentary-july-2025" target="_blank">Gold Market Commentary: Positioning revisited</a></td>
+          <td>Demand</td>
+          <td>Investment Demand</td>
+          <td>Discusses drivers of gold's performance, including inflation expectations and strong fundamentals, influencing investment demand (<a href="https://www.gold.org/goldhub/research/gold-market-commentary-july-2025" target="_blank">38</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q2-2025" target="_blank">US Gold Demand Trends Q2 2025</a></td>
+          <td>Demand</td>
+          <td>ETF Flows, Investment Demand</td>
+          <td>Provides quantitative data on US gold demand trends, highlighting strong gold-backed ETF demand and bullion exports (<a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q2-2025" target="_blank">39</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/08/central-bank-gold-statistics-june-2025" target="_blank">Central bank gold statistics: June 2025</a></td>
+          <td>Demand</td>
+          <td>Central Bank Purchases</td>
+          <td>Reports central bank net gold purchases in June and H1, offering quantitative evidence of official sector demand (<a href="https://www.gold.org/goldhub/gold-focus/2025/08/central-bank-gold-statistics-june-2025" target="_blank">40</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q2-2025" target="_blank">Gold Demand Trends: Q2 2025</a></td>
+          <td>Demand</td>
+          <td>Investment Demand, Physical Demand</td>
+          <td>Provides a quarterly overview of global gold demand, emphasizing strong ETF inflows and bar/coin buying offsetting weaker jewellery consumption (<a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q2-2025" target="_blank">41</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/2025-chinese-gold-jewellery-consumer-insights-opportunities-slowdown" target="_blank">2025 Chinese gold jewellery consumer insights: Opportunities in the slowdown</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (China, Jewellery)</td>
+          <td>Analyzes trends and opportunities in China's gold jewellery market, identifying consumer spending patterns and their implications for demand (<a href="https://www.gold.org/goldhub/research/2025-chinese-gold-jewellery-consumer-insights-opportunities-slowdown" target="_blank">42</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/portfolio-continuum-rethinking-gold-alternatives-investing" target="_blank">The Portfolio Continuum: Rethinking Gold in Alternatives Investing</a></td>
+          <td>Demand</td>
+          <td>Investment Demand, Structural Asymmetry</td>
+          <td>Examines gold's structural role as a complementary asset in institutional portfolios, providing a rationale for persistent investment demand (<a href="https://www.gold.org/goldhub/research/portfolio-continuum-rethinking-gold-alternatives-investing" target="_blank">43</a>).</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/07/india-gold-market-update-investment-upheld-amid-seasonal-lull" target="_blank">India gold market update: Investment upheld amid seasonal lull</a></td>
+          <td>Demand</td>
+          <td>Physical Demand (India), Investment Demand</td>
+          <td>Describes investment demand supporting the Indian gold market despite seasonal weakness in jewellery sales (<a href="https://www.gold.org/goldhub/gold-focus/2025/07/india-gold-market-update-investment-upheld-amid-seasonal-lull" target="_blank">44</a>).</td>
+        </tr>
+        <tr>
+          <td>CFTC News</td>
+          <td><a href="https://www.cftc.gov/node/257446" target="_blank">December 2025</a></td>
+          <td>Demand</td>
+          <td>Investment Demand driven by policy or regulation (CFTC positioning data)</td>
+          <td>Provides access to official regulatory data on market positioning (Bank Participation Reports), crucial for understanding structural investment demand and hedging behavior (<a href="https://www.cftc.gov/node/257446" target="_blank">10</a>).</td>
+        </tr>
+        <tr>
+          <td>CFTC News</td>
+          <td><a href="https://www.cftc.gov/node/257276" target="_blank">November 2025</a></td>
+          <td>Demand</td>
+          <td>Investment Demand driven by policy or regulation (CFTC positioning data)</td>
+          <td>Provides access to official regulatory data on market positioning (Bank Participation Reports), crucial for understanding structural investment demand and hedging behavior (<a href="https://www.cftc.gov/node/257276" target="_blank">45</a>).</td>
+        </tr>
+        <tr>
+          <td>CFTC News</td>
+          <td><a href="https://www.cftc.gov/node/257066" target="_blank">October 2025</a></td>
+          <td>Demand</td>
+          <td>Investment Demand driven by policy or regulation (CFTC positioning data)</td>
+          <td>Provides access to official regulatory data on market positioning (Bank Participation Reports), crucial for understanding structural investment demand and hedging behavior (<a href="https://www.cftc.gov/node/257066" target="_blank">46</a>).</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/integra-ceo-aims-for-mid-tier-gold-output-in-idaho/" target="_blank">Integra CEO aims for mid-tier gold output in Idaho</a></td>
+          <td>Supply</td>
+          <td>Mine Production</td>
+          <td>Details a company's target for increased gold output from a specific mine, indicating future supply expansion (<a href="https://www.mining.com/integra-ceo-aims-for-mid-tier-gold-output-in-idaho/" target="_blank">47</a>).</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/artemis-approves-1b-phase-2-expansion-of-blackwater-mine/" target="_blank">Artemis Gold approves $1B Phase 2 expansion of Blackwater mine</a></td>
+          <td>Supply</td>
+          <td>Mine Production</td>
+          <td>Describes a significant capital investment for the expansion of a gold mine, projecting increased production capacity (<a href="https://www.mining.com/artemis-approves-1b-phase-2-expansion-of-blackwater-mine/" target="_blank">2</a>).</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/mcewen-has-mexico-environmental-ok-for-el-gallo-mine/" target="_blank">McEwen has Mexico environmental OK for El Gallo mine</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Logistics &amp; Constraints</td>
+          <td>Reports a critical environmental approval for a gold mine, removing a regulatory constraint and advancing future production (<a href="https://www.mining.com/mcewen-has-mexico-environmental-ok-for-el-gallo-mine/" target="_blank">3</a>).</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/tahltan-back-skeenas-eskay-creek-project-in-landmark-vote/" target="_blank">Tahltan Nation backs Skeena’s Eskay Creek gold project in British Columbia</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Logistics &amp; Constraints</td>
+          <td>Highlights key stakeholder backing for a gold project, indicating progress in development and potential future supply (<a href="https://www.mining.com/tahltan-back-skeenas-eskay-creek-project-in-landmark-vote/" target="_blank">4</a>).</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/fortuna-mining-bets-on-west-africa-to-fuel-gold-growth/" target="_blank">Fortuna Mining bets on West Africa to fuel gold growth</a></td>
+          <td>Supply</td>
+          <td>Mine Production</td>
+          <td>Outlines a strategic focus on expanding gold production through acquisitions and project acceleration in West Africa (<a href="https://www.mining.com/fortuna-mining-bets-on-west-africa-to-fuel-gold-growth/" target="_blank">5</a>).</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/equinox-sells-brazilian-operations-to-cmoc-for-over-1b/" target="_blank">Equinox sells Brazilian operations to CMOC for over $1B</a></td>
+          <td>Supply</td>
+          <td>Mine Production</td>
+          <td>Details a major corporate divestment aiming to reposition the company as a pure North American gold producer, indicating shifts in regional supply strategy (<a href="https://www.mining.com/equinox-sells-brazilian-operations-to-cmoc-for-over-1b/" target="_blank">48</a>).</td>
+        </tr>
+        <tr>
+          <td>EIN News</td>
+          <td><a href="https://mining.einnews.com/article/876794851/evx51obyj-DxZ5rB?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">Canadian mining giant, Barrick Gold resumes control at one of Africa’s largest gold mines after $430m settlement</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Disruptions</td>
+          <td>Reports the resolution of a dispute, ensuring stability and potential continuity of supply from a major African gold mine (<a href="https://mining.einnews.com/article/876794851/evx51obyj-DxZ5rB?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">6</a>).</td>
+        </tr>
+        <tr>
+          <td>EIN News</td>
+          <td><a href="https://mining.einnews.com/article/876806182/rjUsGYiWJGwX6ovg?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">Illegal gold mining stokes bandit violence in Nigeria</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Disruptions</td>
+          <td>Identifies a significant disruption to gold supply in Nigeria due to illegal mining and associated violence (<a href="https://mining.einnews.com/article/876806182/rjUsGYiWJGwX6ovg?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">7</a>).</td>
+        </tr>
+        <tr>
+          <td>EIN News</td>
+          <td><a href="https://mining.einnews.com/article/876716718/1RHlI3o8xXLoHLgZ?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">Adapt or Die: How African Resource Nationalism is Rewriting the Rules for Canadian Miners</a></td>
+          <td>Supply</td>
+          <td>Policy/Regulation, Mine Production</td>
+          <td>Analyzes the impact of African resource nationalism on mining operations, representing a structural shift in supply-side policy (<a href="https://mining.einnews.com/article/876716718/1RHlI3o8xXLoHLgZ?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">8</a>).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ul class="ia-list" style="margin-top: 10px;">
+      <li><strong>Excluded Documents Count:</strong> 105</li>
+      <li><strong>Selection Confidence:</strong> High</li>
+    </ul>
+  </div>
+</div>
+
+<h3>References</h3>
+<ol>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support" target="_blank">[Source: WGC2]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/artemis-approves-1b-phase-2-expansion-of-blackwater-mine/" target="_blank">[Source: MINING9]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/mcewen-has-mexico-environmental-ok-for-el-gallo-mine/" target="_blank">[Source: MINING16]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/tahltan-back-skeenas-eskay-creek-project-in-landmark-vote/" target="_blank">[Source: MINING18]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/fortuna-mining-bets-on-west-africa-to-fuel-gold-growth/" target="_blank">[Source: MINING21]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876794851/evx51obyj-DxZ5rB?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN1]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876806182/rjUsGYiWJGwX6ovg?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN8]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876716718/1RHlI3o8xXLoHLgZ?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN9]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://mining.einnews.com/article/876728518/aIv2mEl3OngF2llX?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">[Source: EIN6]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.cftc.gov/node/257446" target="_blank">[Source: CFTC1]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/unearthed-golds-breakout-year-outlook-2026" target="_blank">[Source: WGC1]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/china-gold-market-update-november-demand-feels-vat-reform" target="_blank">[Source: WGC4]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/central-bank-considerations-when-pricing-asgm-purchases" target="_blank">[Source: WGC6]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">[Source: WGC7]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">[Source: WGC8]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">[Source: WGC9]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/indonesia-consumer-insights-report-gold-nation" target="_blank">[Source: WGC10]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/11/you-asked-we-answered-what-are-implications-vat-reform-china" target="_blank">[Source: WGC11]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/11" target="_blank">[Source: WGC12]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q3-2025" target="_blank">[Source: WGC13]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025" target="_blank">[Source: WGC14]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">[Source: WGC15]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/10/portfolio-resiliency-golds-role-amid-economic-crosscurrents" target="_blank">[Source: WGC16]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/2025-chinese-jewellery-retailer-insights-gold-and-self-wear-remain-key" target="_blank">[Source: WGC17]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-market-commentary-september-2025" target="_blank">[Source: WGC18]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/10" target="_blank">[Source: WGC19]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/10/central-bank-gold-statistics-central-bank-gold-buying-rebounds-august" target="_blank">[Source: WGC20]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/2025-japanese-gold-investor-insights-golden-opportunity" target="_blank">[Source: WGC21]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/09/india-gold-market-update-encouraging-start-seasonal-demand" target="_blank">[Source: WGC22]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/09/china-gold-market-update-wholesale-demand-fell-august" target="_blank">[Source: WGC23]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/09" target="_blank">[Source: WGC24]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-market-commentary-august-2025" target="_blank">[Source: WGC25]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/09/central-bank-gold-statistics-central-bank-gold-buying-july-slows-remains" target="_blank">[Source: WGC26]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/india-gold-market-update-festive-prep-begins" target="_blank">[Source: WGC27]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/international-monetary-system-and-canary-goldmine" target="_blank">[Source: WGC28]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/china-gold-market-update-official-holdings-rose-july" target="_blank">[Source: WGC29]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/08" target="_blank">[Source: WGC30]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-market-commentary-july-2025" target="_blank">[Source: WGC31]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q2-2025" target="_blank">[Source: WGC32]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/08/central-bank-gold-statistics-june-2025" target="_blank">[Source: WGC33]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q2-2025" target="_blank">[Source: WGC34]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/2025-chinese-gold-jewellery-consumer-insights-opportunities-slowdown" target="_blank">[Source: WGC35]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/portfolio-continuum-rethinking-gold-alternatives-investing" target="_blank">[Source: WGC36]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/gold-focus/2025/07/india-gold-market-update-investment-upheld-amid-seasonal-lull" target="_blank">[Source: WGC37]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.cftc.gov/node/257276" target="_blank">[Source: CFTC3]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.cftc.gov/node/257066" target="_blank">[Source: CFTC4]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/integra-ceo-aims-for-mid-tier-gold-output-in-idaho/" target="_blank">[Source: MINING5]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.mining.com/equinox-sells-brazilian-operations-to-cmoc-for-over-1b/" target="_blank">[Source: MINING22]</a>
+    </em>
+  </li>
+</ol></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Supply and Demand Analyst • Gold</div><div class="panel-body"><div class="ia-report-block" id="supply-demand-structural-analysis">
+  <h2>Supply &amp; Demand Structural Assessment — Gold</h2>
+
+  <div class="ia-panel">
+    <h3>Supply-Side Structure</h3>
+    <ul class="ia-list">
+      <li>Recycling/scrap supply is structurally muted due to a growing trend of using gold as collateral for loans, particularly in India, rather than traditional recycling channels (Doc B, page 8) (<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>).</li>
+      <li>Refinery capacity for gold bar production faces structural constraints, with refiners hesitant to expand due to low returns and high costs, limiting the fulfillment of strong demand for smaller physical formats (Doc C, page 3) (<a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">3</a>).</li>
+    </ul>
+  </div>
+
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Demand-Side Structure</h3>
+    <ul class="ia-list">
+      <li>Investment demand via gold ETFs has become a robust structural driver, marked by six consecutive months of global inflows, led notably by Asian investors, pushing total AUM and holdings to historical peaks (Doc A, page 1) (<a href="https://investoranatomy.com/reports/gold_etf_commentary_nov2025.pdf" target="_blank">1</a>).</li>
+      <li>Central bank demand remains a persistent and strategically driven, non-economic factor, with emerging markets continuing accumulation and possessing significant potential for further purchases, especially amid geopolitical tensions (Doc B, page 4, 8) (<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>).</li>
+      <li>Physical consumer demand for jewellery and bar & coin shows mixed regional trends, with US consumption declining in tonnage but retail interest in fractional gold bars remaining very strong, indicating demand for physical security (Doc C, page 1, 3) (<a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">3</a>).</li>
+    </ul>
+  </div>
+
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Structural Asymmetries</h3>
+    <ul class="ia-list">
+      <li>A persistent supply rigidity is evident in the reluctance of refiners to expand gold bar production capacity and the structural shift of recycled gold towards collateralization, limiting secondary supply (Doc B, page 8)(<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>)(<a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">3</a>).</li>
+      <li>Non-economic demand from central banks, driven by policy and geopolitical considerations, creates a rigid floor for overall demand, particularly from emerging markets that have substantial room for further gold reserves (Doc B, page 8) (<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>).</li>
+      <li>The market balance indicates a structural tightening due to inelastic physical supply meeting persistent and often price-insensitive demand from official sectors and growing investment flows (Doc B, page 8)(<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>)(<a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">3</a>).</li>
+    </ul>
+  </div>
+
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Stability vs Change</h3>
+    <table class="ia-table ia-table-compact">
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Assessment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Supply</td>
+          <td>The significant shift in recycling behavior towards collateralization is a material structural change, contributing to muted scrap supply. Underlying refinery capacity constraints remain largely stable (Doc B, page 8)(<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>)(<a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">3</a>).</td>
+        </tr>
+        <tr>
+          <td>Demand</td>
+          <td>The emergence of Asia as a dominant driver of persistent ETF investment inflows is a material structural change. Central bank demand for strategic asset accumulation remains a structurally stable feature (Doc A, page 1)(<a href="https://investoranatomy.com/reports/gold_etf_commentary_nov2025.pdf" target="_blank">1</a>)(Doc B, page 4) (<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>).</td>
+        </tr>
+        <tr>
+          <td>Balance</td>
+          <td>The tightening of supply-demand balances driven by sticky demand and constrained physical supply is a growing structural trend, while short-term physical consumer demand can exhibit cyclical volatility (Doc B, page 8)(<a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">2</a>)(<a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">3</a>).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Document Coverage &amp; Confidence</h3>
+    <ul class="ia-list">
+      <li><strong>Documents Analysed:</strong> 3</li>
+      <li><strong>Evidence Confidence:</strong> High - The provided documents are comprehensive World Gold Council reports, offering recent data, detailed analysis, and institutional perspectives.</li>
+      <li><strong>Key Gaps:</strong> Global mine production statistics and explicit global aggregate data for physical bar & coin demand (outside of ETFs) are not detailed across the provided documents.</li>
+    </ul>
+  </div>
+</div>
+
+<h3>References</h3>
+<ol>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/reports/gold_etf_commentary_nov2025.pdf" target="_blank">[Source: gold_etf_commentary_nov2025]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/reports/gold_outlook_2026.pdf" target="_blank">[Source: gold_outlook_2026]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/reports/us_gold_demand_trends_q32025.pdf" target="_blank">[Source: us_gold_demand_trends_q32025]</a>
+    </em>
+  </li>
+</ol></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Regime Analyst • Gold</div><div class="panel-body"><div class="ia-report-block" id="gold-regime-state-deterministic">
+  <h2>Gold Regime State — Deterministic Summary</h2>
+
+  <table class="ia-table ia-table-compact">
+    <tbody>
+      <tr>
+        <th>Macro Regime</th>
+        <td>Bullish</td>
+      </tr>
+      <tr>
+        <th>Regime Strength</th>
+        <td>Strong</td>
+      </tr>
+      <tr>
+        <th>Liquidity Regime</th>
+        <td>Expansion</td>
+      </tr>
+      <tr>
+        <th>Real Rate Regime</th>
+        <td>Neutral</td>
+      </tr>
+      <tr>
+        <th>USD Regime</th>
+        <td>Neutral</td>
+      </tr>
+      <tr>
+        <th>Inflation Regime</th>
+        <td>Neutral</td>
+      </tr>
+      <tr>
+        <th>Stress State</th>
+        <td>Elevated</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="ia-grid ia-grid-2" style="margin-top: 12px;">
+    <div class="ia-panel">
+      <h3>Horizon Bias</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr>
+            <th>1M</th>
+            <td>Bullish</td>
+          </tr>
+          <tr>
+            <th>3M</th>
+            <td>Bullish</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ia-panel">
+      <h3>Stress &amp; Conflict Flags</h3>
+      <ul class="ia-list">
+        <li><strong>Dominant Forces:</strong> Liquidity Expansion, Elevated Stress</li>
+        <li><strong>Conflicts:</strong> Real Interest Rate Trend, Inflation Term Structure, Market Implied Inflation, Policy Relevant Inflation PCE, Gold Individual Market Analysis, Hedger Pressure Indicator, Specs vs Hedgers Divergence Reversal Risk, Squeeze Exhaustion Risk Indicators, Financial Stress Composite Signal, Market Volatility VIX Signal, Explicit Neutral Rate (r*) Proxy Signal</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h3>References</h3>
+<ol>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Real_Interest_Rate_Trend_Signal.html" target="_blank">[Source: Methodology/Real_Interest_Rate_Trend_Signal.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">[Source: Federal_Reserve_Liquidity_Composite]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/m_2_money_supply.html" target="_blank">[Source: m_2_money_supply]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">[Source: usd_methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">[Source: USD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Inflation-Term-Structure-Methodology" target="_blank">[Source: Inflation-Term-Structure-Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com//Methodology/market_implied_inflation_signal.html" target="_blank">[Source: Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/pce-inflation-methodology" target="_blank">[Source: METHODOLOGY_PCE]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">[Source: Gold_CoT_Signals]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">[Source: Cross_Sector_Positioning.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator.html" target="_blank">[Source: Hedger_Pressure_Indicator.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">[Source: Specs_vs_Hedgers_Divergence_Reversal_Risk]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">[Source: Squeeze_Exhaustion_Risk.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">[Source: Methodology/Financial_Stress.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/financial-stress-composite-methodology" target="_blank">[Source: Financial Stress Composite Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/vix_signal_methodology.html" target="_blank">[Source: Methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals.html" target="_blank">[Source: AUD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals.html" target="_blank">[Source: EURO_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals.html" target="_blank">[Source: YEN_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/GBP_CoT_Signals.html" target="_blank">[Source: GBP_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals.html" target="_blank">[Source: CAD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals.html" target="_blank">[Source: Crude_Oil_CoT_Signals.html]</a>
+    </em>
+  </li>
+</ol>
+
+<h3>Self-Healing</h3>
+<ul>
+  <li><strong>Weaknesses in Provided Inputs:</strong>
+    <ul>
+      <li>The `USD_Signal` column in `USD_Index_Signal` indicates "Bullish" but `Value_Monthly` is below `USD_12Month_MA`, which per methodology implies "Weakening" (<a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">4</a>). This internal inconsistency affects USD regime interpretation.</li>
+      <li>M2 Money Stock data is missing for 2025-11-30 and 2025-12-31 in the `Federal_Reserve_Liquidity_Composite_Signal` (<a href="https://investoranatomy.com/Methodology/Federal_Reserve_Liquidity_Composite.html" target="_blank">2</a>). This prevents a complete assessment of the M2 component.</li>
+      <li>The `Gold_Individual_Market_Analysis` dataframe only contains 15 rows of data, insufficient for the 52-week lookback required by its methodology for robust z-score calculation and regime identification (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">9</a>).</li>
+      <li>The `Price` column in various CoT dataframes (`USD_CoT_Signals`, `AUD_CoT_Signals`, `EURO_CoT_Signals`) is either static or incomplete, hindering comprehensive time-series analysis required by methodology (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals.html" target="_blank">17</a>)(<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals.html" target="_blank">18</a>).</li>
+    </ul>
+  </li>
+  <li><strong>Data Behaviour Anomalies:</strong>
+    <ul>
+      <li>Future-dated `Report_Date` values are present in some CoT dataframes (e.g., AUD, EURO, Squeeze & Exhaustion Risk) and potentially for the `Cross_Sector_Positioning` signal, which impacts data currency assumptions (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">13</a>)(<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">10</a>).</li>
+    </ul>
+  </li>
+  <li><strong>RSS Documents Needed:</strong>
+    <ul>
+      <li><em>Crude Oil CoT Signals</em> — <a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals.html" target="_blank">[Source: Crude_Oil_CoT_Signals.html]</a>: Provides specific commodity insights to further dissect broad market divergence trends.</li>
+    </ul>
+  </li>
+</ul>
+<p><em>Maximum 6 bullets total. Only confirmed, material issues.</em></p></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • Gold Market Analyst • © 2025 All rights reserved.</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>
