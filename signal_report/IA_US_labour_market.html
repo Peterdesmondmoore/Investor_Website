@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synthesises employment composition, labour-market tightness, wage and hours signals, and worker flows/sentiment to assess the prevailing US labour-market regime.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="Synthesises employment composition, labour-market tightness, wage and hours signals, and worker flows/sentiment to assess the prevailing US labour-market regime." />
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>US Labour Market</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> US Labour Market</div>
+        <div class="page-title">Synthesises employment composition, labour-market tightness, wage and hours signals, and worker flows/sentiment to assess the prevailing US labour-market regime.</div>
+        <div class="hero-inject market-report"><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Regime Assessment:</strong></p>
+  <ul>
+    <li>Regime: Defensive / Risk-Negative</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile.</li>
+  </ul>
+
+  <p><strong>Why This Regime:</strong></p>
+  <ul>
+    <li>The dominant drivers are pronounced weakness in consumer sentiment and deteriorating labor market dynamics. The University of Michigan Consumer Sentiment signal is Bearish with extreme conviction (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">4</a>). Labor Market Turnover is also Bearish, signaling sustained weakness in worker confidence (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">6</a>).</li>
+    <li>Dynamic weighting prioritised these signals due to their high interpretation confidence and extreme or moderately extreme conviction, despite their medium aggregation weight. These early-to-mid and mid-to-late cycle indicators collectively highlight increasing economic headwinds.</li>
+    <li>The Labour Market Momentum signal (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">10</a>) was downweighted. Its neutral call is less influential due to mixed signals arising from missing data.</li>
+  </ul>
+
+  <p><strong>Alignment & Tensions:</strong></p>
+  <ul>
+    <li>Signals reinforce each other in the direction of increasing slack. The Underemployment Risk signal, while Neutral, leans towards rising labor market stress (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">2</a>). Similarly, Employment Composition, also Neutral, indicates a lean towards increasing slack (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">3</a>). Job Flows, while Neutral, notes underlying softening in dynamism (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">9</a>).</li>
+    <li>Tensions exist with other neutral signals such as the Explicit Slack Gap (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>), Sectoral Employment Diffusion (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">5</a>), and Weekly Hours (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">11</a>).</li>
+    <li>These tensions do not overturn the regime call. The strong conviction of the negative signals, combined with the discernible lean towards softening within many "neutral" readings, indicates a fragile balance tilting towards deterioration.</li>
+  </ul>
+
+  <p><strong>Scenario Balance:</strong></p>
+  <ul>
+    <li>The dominant scenario is increasing labor market slack, accompanied by weakening consumer demand and confidence.</li>
+    <li>Primary upside risk is a significant and sustained rebound in consumer sentiment, triggering increased aggregate demand and spending.</li>
+    <li>Primary downside risk is further deterioration in consumer spending intentions and a more pronounced rise in underemployment.</li>
+  </ul>
+
+  <p><strong>What Would Change the Regime:</strong></p>
+  <ul>
+    <li>A material reversal from the extreme bearishness in consumer sentiment (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">4</a>).</li>
+    <li>A shift in labor market turnover dynamics from Bearish to Neutral or Bullish (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">6</a>).</li>
+    <li>Underemployment risk receding significantly, moving away from the threshold of rising stress (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">2</a>).</li>
+  </ul>
+
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-explicit_slack_gap_signal" id="tab-explicit_slack_gap_signal">Explicit Slack Gap Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-university_of_michigan_consumer_sentiment_signal" id="tab-university_of_michigan_consumer_sentiment_signal">University of Michigan Consumer Sentiment Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-sectoral_employment_diffusion_signal" id="tab-sectoral_employment_diffusion_signal">Sectoral Employment Diffusion Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-labor_market_turnover_signal" id="tab-labor_market_turnover_signal">Labor Market Turnover Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-job_flows_signal" id="tab-job_flows_signal">Job Flows Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-labour_market_momentum_signal" id="tab-labour_market_momentum_signal">Labour Market Momentum Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-weekly_hours_signal" id="tab-weekly_hours_signal">Weekly Hours Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-labor_market_tightness_signal" id="tab-labor_market_tightness_signal">Labor Market Tightness Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-underemployment_risk_signal" id="tab-underemployment_risk_signal">Underemployment Risk Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-employment_composition_signal" id="tab-employment_composition_signal">Employment Composition Signal</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-explicit_slack_gap_signal" aria-labelledby="tab-explicit_slack_gap_signal"><div class="panel-title">Explicit Slack Gap Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Explicit Slack Gap signal for July 2025 indicates a Neutral labor market condition. The unemployment rate is slightly below the estimated natural rate, with a gap of -0.12 percentage points (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>).</li>
+        <li>This signal shows a Neutral state, reflecting a balanced position rather than significant tightness or slack.</li>
+        <li>Current readings are moderate, falling within the neutral zone with medium confidence due to the gap being close to zero (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The main driver is the difference between the Civilian Unemployment Rate (4.2%) and the Natural Rate of Unemployment (4.32%), resulting in the -0.12 pp slack gap (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>).</li>
+        <li>Momentum is currently Stable, with the 3-month change in the slack gap at +0.11 pp, below the +0.20 pp threshold for Widening momentum (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>).</li>
+        <li>The slightly negative gap indicates persistent tightness, but the stable momentum suggests no immediate acceleration towards either significant tightening or slackening.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal directly informs the degree of labour market slack and resource utilization within the economy (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>).</li>
+        <li>It is typically considered a mid-to-late cycle indicator, reflecting the labor market's position relative to its noncyclical rate.</li>
+        <li>It interacts strongly with inflation signals, where persistent tightness can indicate upward pressure on wages and prices, and influences monetary policy expectations (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Civilian Unemployment Rate (UNRATE), latest: 2025-07-31 (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>)</li>
+        <li>Natural Rate of Unemployment (NROU), latest: 2025-07-31 (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>)</li>
+        <li>The `SlackGap_pp` and `SlackGap_change_3m_pp` are the most influential datapoints, directly defining the signal's direction and momentum (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">1</a>).</li>
+        <li>Additional datasets for improved depth include the U-6 Underutilization Rate (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">2</a>) and the Labor Force Participation Rate (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">3</a>).</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Explicit_Slack_Gap_Signal.png" alt="Explicit Slack Gap Signal" /><div class="media-cap">Explicit Slack Gap Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-university_of_michigan_consumer_sentiment_signal" aria-labelledby="tab-university_of_michigan_consumer_sentiment_signal" hidden><div class="panel-title">University of Michigan Consumer Sentiment Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The University of Michigan Consumer Sentiment signal indicates a Bearish outlook, with the latest reading at 51.0 as of November 2025 (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+        <li>This signifies a contracting consumer outlook, driven by a robust z-score of -1.08 (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+        <li>Current sentiment is extreme, showing significant pessimism relative to its historical trend (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The Bearish classification is primarily driven by the sentiment index's level falling well below its historical median (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+        <li>Year-over-year momentum is -28.97%, and the three-month momentum is -12.37% (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+        <li>Both momentum indicators are significantly negative, underscoring a persistent deterioration in consumer confidence (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs the demand dimension of the macro environment (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+        <li>It is considered an early-to-mid-cycle indicator, reflecting consumer willingness to spend.</li>
+        <li>A sustained Bearish signal typically suggests headwinds for consumer spending, impacting retail sales and potentially correlating with other consumption and credit-related signals (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>University of Michigan: Consumer Sentiment® (FRED: UMCSENT), latest observation 2025-11-30 (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+        <li>The `UMCSENT` level, `Level_z`, `YoY_pct`, and `3M_pct` most influenced the current Bearish state (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">1</a>).</li>
+        <li>Additional data: Retail Sales (FRED), Consumer Credit Outstanding (FRED).</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_UMCSENT_Signal_chart_mpl.png" alt="University of Michigan Consumer Sentiment Signal" /><div class="media-cap">University of Michigan Consumer Sentiment Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-sectoral_employment_diffusion_signal" aria-labelledby="tab-sectoral_employment_diffusion_signal" hidden><div class="panel-title">Sectoral Employment Diffusion Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Sectoral Employment Diffusion signal is currently in a NEUTRAL regime, with the diffusion index at 50.0 and a z-score of 0.0 (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">1</a>).</li>
+        <li>This indicates stability in the breadth of employment growth across major sectors.</li>
+        <li>Current readings are neutral against historical patterns, suggesting neither broad expansion nor significant contraction.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The diffusion index of 50.0 means half of the monitored sectors show positive year-over-year employment growth.</li>
+        <li>Specifically, Construction (0.70%) and Leisure & Hospitality (0.96%) exhibit expansion, while Manufacturing (-0.57%) and Professional & Business Services (-0.19%) contract as of 2025-11-01.</li>
+        <li>The diffusion index's 3-month momentum is 0.0, reflecting stable breadth without recent acceleration or deceleration.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the breadth of payroll growth and the underlying health of the labor market.</li>
+        <li>It typically acts as a mid-cycle indicator, reflecting the widespread nature of economic activity.</li>
+        <li>The signal complements aggregate employment figures, indicating whether growth is broad-based or concentrated, which impacts the durability of overall economic expansion.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>BLS CES Employment data (CES3000000001, CES2000000001, CES6000000001, CES7000000001), latest observation 2025-11-01.</li>
+        <li>The Diffusion_Index, Diffusion_z, and individual sector YoY growth rates most influenced the current NEUTRAL regime classification.</li>
+        <li>Additional public datasets like the JOLTS job openings rate or BLS Business Dynamics Statistics would enhance depth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Sectoral_Employment_Diffusion_Signal_chart_mpl.png" alt="Sectoral Employment Diffusion Signal" /><div class="media-cap">Sectoral Employment Diffusion Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-labor_market_turnover_signal" aria-labelledby="tab-labor_market_turnover_signal" hidden><div class="panel-title">Labor Market Turnover Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Labor Market Turnover signal (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>) is currently Bearish as of 2025-10-01. The turnover differential stands at 0.6 percentage points.</li>
+        <li>This indicates a contraction or loosening of labor market conditions.</li>
+        <li>The robust z-score of -1.18 is moderately extreme, signaling sustained weakness in worker confidence and job mobility versus historical averages.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The key driver is the differential between the quits rate (1.8%) and the layoff rate (1.2%) (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Recent momentum shows a declining turnover differential, falling from 0.9% in September to 0.6% in October.</li>
+        <li>The consistently negative z-score over recent months points to a sustained downtrend in labor market dynamism.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs about labor market tightness, worker confidence, and overall labor demand dynamics (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>It is typically a mid-to-late cycle indicator, reflecting changes in employer-employee bargaining power.</li>
+        <li>A Bearish signal often precedes cooling wage inflation (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal/" target="_blank">2</a>) and signals increasing labor market slack, interacting with signals such as the Explicit Slack Gap (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">3</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>JTSQUR (Quits Rate, BLS/FRED) and JTSLDR (Layoffs & Discharges Rate, BLS/FRED) (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>), latest observation 2025-10-01.</li>
+        <li>The Turnover_Diff_pp (0.6%) and Turnover_Diff_z (-1.18) most influenced the current Bearish classification.</li>
+        <li>Additional insights could be gained from the Labor Market Tightness Signal (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">4</a>) and the Underemployment Risk Signal (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">5</a>).</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Labor_Turnover_Signal_chart_mpl.png" alt="Labor Market Turnover Signal" /><div class="media-cap">Labor Market Turnover Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-job_flows_signal" aria-labelledby="tab-job_flows_signal" hidden><div class="panel-title">Job Flows Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Job Flows Signal remains in a NEUTRAL regime as of 2025-03-31, despite underlying softening in labor market dynamism (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">1</a>).</li>
+        <li>Net job creation is positive but declining year-over-year.</li>
+        <li>The current z-score of -0.21 indicates moderate, stable conditions, staying within the neutral thresholds.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Net Job Creation was 210.0, driven by 7448.0 Gross Job Gains and 7238.0 Gross Job Losses for Q1 2025.</li>
+        <li>However, Net Job Creation on a year-over-year basis contracted by 0.628319, signaling deceleration in dynamism.</li>
+        <li>The 4-quarter moving average of Labor Dynamism stands at 124.25, near a historical low, showing sustained weakness in churn (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs labor market dynamism and the underlying health of the business cycle.</li>
+        <li>It is an early-to-mid-cycle indicator, reflecting firm-level hiring and churn trends (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">1</a>).</li>
+        <li>Weakening job flows often precede broader slowdowns, interacting with payroll growth and unemployment duration.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>BLS Business Dynamics Statistics (BDS), latest observation 2025-03-31.</li>
+        <li>The `Net_Job_Creation_YoY` and `Labor_Dynamism_4Q_MA` most influenced the current signal assessment (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">1</a>).</li>
+        <li>Sectoral Employment Diffusion Signal (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">2</a>) and Underemployment Risk Signal (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>) would enhance reliability.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Job_Flows_Signal_chart_mpl.png" alt="Job Flows Signal" /><div class="media-cap">Job Flows Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-labour_market_momentum_signal" aria-labelledby="tab-labour_market_momentum_signal" hidden><div class="panel-title">Labour Market Momentum Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Labour Market Momentum signal indicates a Neutral regime, with a composite score of 0.035 at the end of December 2025 (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>This reflects a period of stability in employment strength, falling within the moderate range of historical readings.</li>
+        <li>The signal suggests neither significant tightening nor softening in overall labour market dynamics at this time.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Initial jobless claims (ICSA) increased by 7.18% year-over-year, while continuing claims (CCSA) rose by 1.39% year-over-year as of December 2025 (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>The individual z-scores for inverted ICSA (-0.217) and inverted CCSA (0.288) largely offset each other, contributing to the neutral composite.</li>
+        <li>The nonfarm payrolls 3-month difference component was unavailable for the latest observation, leading to a partial calculation of the composite score (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the health and slack of the labour market, which is crucial for gauging consumer demand and inflationary pressures.</li>
+        <li>It is considered a mid-cycle indicator, providing insights into the ongoing momentum of the business cycle.</li>
+        <li>A Neutral stance typically suggests the labour market is growing at a sustainable pace, interacting with aggregate demand and wage growth signals.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Initial Claims, Seasonally Adjusted (ICSA): 224,000 as of 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Continuing Claims, Seasonally Adjusted (CCSA): 1,897,000 as of 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Total Nonfarm Payrolls, Seasonally Adjusted (PAYEMS): Data for 2025-12-31 was missing, which affected the latest signal computation (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Additional datasets like Job Openings and Labor Turnover Survey (JOLTS) data (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">2</a>) and BLS Business Dynamics (BDS) (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">3</a>) could enhance signal depth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Labor_Market_Momentum_signal_chart_mpl.png" alt="Labour Market Momentum Signal" /><div class="media-cap">Labour Market Momentum Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-weekly_hours_signal" aria-labelledby="tab-weekly_hours_signal" hidden><div class="panel-title">Weekly Hours Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Weekly Hours signal is currently in a NEUTRAL regime, with the `Hours_Level_Composite_z` at 0.00 as of 2025-11-01 (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">1</a>).</li>
+        <li>This indicates a period of stability in labor demand and near-term production momentum, neither expanding nor contracting significantly.</li>
+        <li>Current readings are moderate, falling within the historical neutral range of the signal (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The signal's neutral state is driven by a `Hours_Level_Composite_z` of 0.00, which is between the +0.75 (HOT) and -0.75 (COOL) thresholds (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">1</a>).</li>
+        <li>Recent momentum shows a slight increase in total private hours (+0.1 over 3 months) but flat manufacturing hours (0.0 over 3 months) for the latest observation date of 2025-11-01.</li>
+        <li>The `Hours_Change_3m_Composite` registered a modest 0.05, indicating slight but insufficient positive momentum to shift the overall regime from neutral.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the dimension of labor demand and near-term production momentum (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">1</a>).</li>
+        <li>It is an early-cycle indicator, as firms typically adjust weekly hours before making headcount changes (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">1</a>).</li>
+        <li>The signal typically interacts with other macro signals like payroll growth and order-book indicators to provide a comprehensive view of the business cycle (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Total Private Average Weekly Hours (BLS CES0500000002) - Latest: 34.3 (2025-11-01).</li>
+        <li>Manufacturing Average Weekly Hours (BLS CES3000000002) - Latest: 40.0 (2025-11-01).</li>
+        <li>The `Hours_Level_Composite_z` and `Weekly_Hours_Regime` directly influenced the signal's current state.</li>
+        <li>Additional datasets that would improve signal depth include Nonfarm Payrolls (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">2</a>) and Durable Goods Orders ex-Transportation (<a href="https://investoranatomy.com/signal_report/Durable_Goods_Ex_Transportation/" target="_blank">3</a>).</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Weekly_Hours_Signal_chart_mpl.png" alt="Weekly Hours Signal" /><div class="media-cap">Weekly Hours Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-labor_market_tightness_signal" aria-labelledby="tab-labor_market_tightness_signal" hidden><div class="panel-title">Labor Market Tightness Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Labor Market Tightness signal remains in a NEUTRAL regime as of October 2025 (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+        <li>The composite z-score of -0.44 falls within the [-0.75, +0.75] range, indicating stability (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+        <li>Current readings are moderate, suggesting no immediate extremes in tightness or slack versus historical observations (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The core quits-minus-layoffs differential was 0.6, corresponding to a z-score of -0.74 (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+        <li>The job openings rate's z-score was 0.0, contributing to the composite's neutral stance (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+        <li>Recent 3-month momentum shows a decline in the tightness differential and a rise in the openings rate, indicating mild internal offsets (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal directly informs on labor market slack and potential wage pressure (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+        <li>It is typically a mid-to-late cycle indicator, reflecting changes in employment dynamics.</li>
+        <li>This signal interacts with inflation, liquidity, and growth signals by indicating labor demand and associated costs (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>BLS JOLTS (Quits Rate, Layoffs & Discharges Rate, Job Openings Rate), latest observation: 2025-10-01 (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+        <li>The quits-minus-layoffs differential and the job openings rate were the primary drivers (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">1</a>).</li>
+        <li>Employment Cost Index (ECI) (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal/" target="_blank">2</a>), Unemployment Rate (U3 and U6) (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>).</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Labor_Market_Tightness_Signal_chart_mpl.png" alt="Labor Market Tightness Signal" /><div class="media-cap">Labor Market Tightness Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-underemployment_risk_signal" aria-labelledby="tab-underemployment_risk_signal" hidden><div class="panel-title">Underemployment Risk Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Underemployment Risk signal is currently in a NEUTRAL regime, with its composite z-score at 0.701 (2025-11-01) (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+        <li>This reading is near the upper boundary of the neutral range, approaching the "Hot" threshold, indicating moderate but rising labor market stress (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+        <li>Current levels are leaning towards elevated historical readings for stress, though not extreme.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The U-6 underutilization rate is 8.7%, while median weeks unemployed stands at 9.5 weeks (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+        <li>U-6 momentum increased by 0.6 over three months, contributing to the composite's upward push.</li>
+        <li>Conversely, median weeks unemployed saw a 0.3 decline over the same period, partially offsetting the rise in U-6 (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal directly informs on labor market slack and job-finding frictions (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+        <li>It functions as an early-to-mid cycle indicator for potential economic cooling and demand weakness.</li>
+        <li>A sustained rise in underemployment typically precedes softening wage pressures and broader economic slowdowns, interacting with consumption and inflation signals (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>U-6 Underutilization Rate (BLS LNS13327709), latest 2025-11-01 (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+        <li>Median Weeks Unemployed (BLS LNS13008276), latest 2025-11-01 (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+        <li>The U-6 underutilization rate and its 3-month momentum most influenced the current signal state.</li>
+        <li>Job Openings and Labor Turnover Survey (JOLTS) and Employment Cost Index (ECI) would enhance signal depth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Underemployment_Risk_Signal_chart_mpl.png" alt="Underemployment Risk Signal" /><div class="media-cap">Underemployment Risk Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-employment_composition_signal" aria-labelledby="tab-employment_composition_signal" hidden><div class="panel-title">Employment Composition Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Employment Composition signal is currently in a NEUTRAL regime as of November 2025 (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+        <li>The composite z-score of -0.68 indicates conditions are close to the COOL (slack rising) threshold of -0.75 (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+        <li>Current readings are moderate, but recent trends suggest a lean towards increasing labor market slack versus prior periods.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The latest observation shows a participation rate of 62.5%, an employment-population ratio of 59.6%, and an unemployment rate of 4.6% (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+        <li>The 3-month momentum for the unemployment rate increased by 0.3, indicating rising joblessness (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+        <li>The composite z-score has been consistently negative since July 2025, briefly signalling COOL conditions before stabilizing as NEUTRAL (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the dimension of labor market slack, indicating underlying tightness or easing conditions (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+        <li>It is typically a mid-cycle indicator, reflecting the structural health and capacity of the labor force.</li>
+        <li>Rising slack often points to reduced wage pressure and potentially slower economic growth, interacting with inflation and demand signals (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Employment Composition Signal, BLS (Latest: 2025-11-01) (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>)</li>
+        <li>The unemployment rate (4.6%) and its recent increase in 3-month momentum (0.3) most influenced the signal's current state (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+        <li>Additional public datasets like Job Openings and Labor Turnover Survey (JOLTS) and the Employment Cost Index (ECI) could enhance signal depth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Employment_Composition_Signal_chart_mpl.png" alt="Employment Composition Signal" /><div class="media-cap">Employment Composition Signal</div></figure></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • US Labour Market • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

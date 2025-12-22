@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Integrates credit spreads, systemic-stress indicators, and private-credit growth signals to assess the prevailing US credit-conditions regime.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="Integrates credit spreads, systemic-stress indicators, and private-credit growth signals to assess the prevailing US credit-conditions regime." />
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>US Credit Conditions</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> US Credit Conditions</div>
+        <div class="page-title">Integrates credit spreads, systemic-stress indicators, and private-credit growth signals to assess the prevailing US credit-conditions regime.</div>
+        <div class="hero-inject market-report"><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Regime Assessment:</strong></p>
+  <ul>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is currently in a fragile balance.</li>
+  </ul>
+
+  <p><strong>Why This Regime:</strong></p>
+  <ul>
+    <li>The dominant drivers point to overall stable but finely balanced US credit conditions. The Financial Stress Composite is Neutral (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>), indicating normal functioning across credit and funding markets. Similarly, the Credit Conditions signal is Neutral (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">8</a>), reflecting overall stability. The Private-Credit Impulse signal is Stable (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">5</a>), suggesting steady credit growth consistent with trend expansion. Credit Spreads are also in a NORMAL regime (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+    <li>Dynamic weighting prioritised composite signals like the Financial Stress Composite (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>) and Credit Conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">8</a>) due to their higher aggregation weight and comprehensive nature. The Private-Credit Impulse (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">5</a>) also carried significant weight as a leading indicator. All these signals exhibit high interpretation confidence and were implicitly high conviction, supporting the "Neutral" or "Stable" assessment.</li>
+    <li>The Financial Stress Index signal (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">6</a>) was downweighted as a standalone indicator, as its "Bearish" reading was explicitly offset by other components within the higher-level Financial Stress Composite (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>Alignment & Tensions:</strong></p>
+  <ul>
+    <li>Signals generally reinforce a picture of stable, non-stressed credit conditions. The Credit Spreads (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>), Financial Stress Composite (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>), Credit Conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">8</a>), and Private-Credit Impulse (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">5</a>) are all in "NORMAL", "Neutral", or "Stable" regimes. This broad consistency across key credit health indicators supports the current balanced state.</li>
+    <li>A notable tension exists with the Financial Stress Index signal, which is "Bearish" and elevated (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">6</a>). This suggests a tightening of financial conditions and increased risk-off sentiment.</li>
+    <li>This tension does not overturn the regime call because the broader Financial Stress Composite explicitly integrates and contextualizes this component. It indicates the STLFSI4's tightening signal is currently being largely offset by lower stress from high-yield spreads and the yield curve slope, maintaining an overall "Neutral" composite reading (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>Scenario Balance:</strong></p>
+  <ul>
+    <li>The dominant scenario is for a continuation of stable credit conditions, providing a foundation for ongoing economic activity.</li>
+    <li>Primary upside risk is a broad alleviation of financial tightness, evidenced by the Financial Stress Index returning to a "Neutral" or "Bullish" state (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">6</a>).</li>
+    <li>Primary downside risk is a broadening of financial stress. This would manifest through widening credit spreads (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>) or the Financial Stress Composite shifting to a "High Stress" regime (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>What Would Change the Regime:</strong></p>
+  <ul>
+    <li>A widespread and sustained tightening of credit spreads (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+    <li>A significant and prolonged rise in the Financial Stress Index, causing the broader Financial Stress Composite to shift to a "High Stress" regime (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>).</li>
+    <li>A material deceleration in the Private Credit Impulse, moving back to a "Decelerating" or "Contracting" state (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">5</a>).</li>
+  </ul>
+
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-credit_spreads_signal" id="tab-credit_spreads_signal">Credit Spreads Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-financial_stress_composite_signal" id="tab-financial_stress_composite_signal">Financial Stress Composite Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-credit_conditions_signal" id="tab-credit_conditions_signal">Credit Conditions Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-private_credit_impulse_signal" id="tab-private_credit_impulse_signal">Private Credit Impulse Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-financial_stress_index_signal" id="tab-financial_stress_index_signal">Financial Stress Index Signal</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-credit_spreads_signal" aria-labelledby="tab-credit_spreads_signal"><div class="panel-title">Credit Spreads Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Credit Spreads Signal is currently in a "NORMAL" regime as of 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+        <li>This indicates stable corporate funding conditions, neither significantly tight nor overly loose.</li>
+        <li>Current readings are moderate, having recently transitioned from an "EASY" phase earlier in the year (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The High Yield Option-Adjusted Spread (HY OAS) stands at 2.95%, below the 3.5% threshold for the "NORMAL" regime (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+        <li>The Investment Grade (IG) OAS is also low at 0.81%, reflecting broad credit stability.</li>
+        <li>The composite z-score of -0.13 indicates slightly accommodative conditions, moving away from more "EASY" readings seen in July-October 2025.</li>
+        <li>Recent momentum (3-month annualized z-scores for HY and IG) shows a slight firming of spreads from previous lows, suggesting stabilisation.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs the dimension of US credit conditions and corporate funding stress (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+        <li>It is typically a mid-cycle indicator, signaling shifts in corporate risk appetite and access to capital.</li>
+        <li>Widening spreads can precede equity market drawdowns and impact capital expenditure decisions (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>).</li>
+        <li>The signal feeds directly into the Financial Stress Composite (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>), interacting with other liquidity and volatility metrics.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>ICE BofA US High Yield Index Option-Adjusted Spread (HY_OAS), last observation 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+        <li>ICE BofA US Corporate Master Option-Adjusted Spread (IG_OAS), last observation 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+        <li>The `HY_OAS` level and the `CSC_z` composite score were most influential in determining the current "NORMAL" regime.</li>
+        <li>Additional datasets: Market Volatility (VIX) Signal (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">4</a>), Private Credit Impulse Signal (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">5</a>).</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Credit_Spreads_CSC_signal_chart_mpl.png" alt="Credit Spreads Signal" /><div class="media-cap">Credit Spreads Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-financial_stress_composite_signal" aria-labelledby="tab-financial_stress_composite_signal" hidden><div class="panel-title">Financial Stress Composite Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Financial Stress Composite is currently in a Neutral state, registering -0.217 as of December 31, 2025 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>This indicates normal functioning across credit and funding markets (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Current readings are moderate, well within the historical range for a neutral regime (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The St. Louis Fed Financial Stress Index (STLFSI4) showed moderate stress (Z-score: 0.489) (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>This was largely offset by lower stress from high-yield spreads (Z-score: -0.443) and the yield curve slope (inverted Z-score: -0.697) (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>The composite score eased slightly from November, maintaining stability within the Neutral regime.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs on the health of credit and funding markets, indicating systemic tension or liquidity conditions (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>It typically functions as a mid-to-late cycle indicator, often signaling cyclical turns or periods of crisis.</li>
+        <li>A tightening signal often precedes economic slowdowns and correlates inversely with risk assets (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>St. Louis Fed Financial Stress Index (STLFSI4), last observed 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">2</a>).</li>
+        <li>ICE BofA U.S. High-Yield Option-Adjusted Spread (HY_OAS), last observed 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">3</a>).</li>
+        <li>10-Year minus 2-Year Treasury Yield Spread (T10Y2Y), last observed 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">4</a>).</li>
+        <li>The inverted yield curve z-score (-0.697) and high-yield spreads z-score (-0.443) were most influential in maintaining the Neutral signal (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Additional datasets: CBOE Volatility Index (VIX) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">5</a>), Commercial Paper spreads.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Financial_Stress_Composite_signal_chart_mpl.png" alt="Financial Stress Composite Signal" /><div class="media-cap">Financial Stress Composite Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-credit_conditions_signal" aria-labelledby="tab-credit_conditions_signal" hidden><div class="panel-title">Credit Conditions Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Credit Conditions signal is currently in a Neutral regime as of 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+        <li>This indicates overall stability in credit conditions, transitioning from an earlier easing phase (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+        <li>Current readings are moderate, well within the neutral band and not showing extreme tightening or easing stress (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The signal's neutral state is driven by its three robust-standardised components (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+        <li>High Yield OAS (-0.378) and BBB OAS (-0.450) show slight easing, while VIX (0.078) is near its historical neutral level (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+        <li>The composite smoothed z-score has progressed from an 'Easing' regime in early 2025 (-0.905 in January) to 'Neutral' since March, indicating a stabilisation (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the dimension of US credit availability and broad financial stress (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+        <li>It provides a mid-cycle perspective on corporate funding costs and overall risk appetite (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+        <li>The signal typically interacts with liquidity signals (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>) and broader economic growth indicators (<a href="https://investoranatomy.com/signal_report/Macro_Theme_US_Growth_and_Business_Cycle/" target="_blank">3</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>ICE BofA US High Yield Option-Adjusted Spread (HY_OAS), 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>)</li>
+        <li>ICE BofA US BBB Option-Adjusted Spread (BBB_OAS), 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>)</li>
+        <li>CBOE Volatility Index (VIXCLS), 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>)</li>
+        <li>The robust z-scores for HY_OAS and BBB_OAS most influenced the signal's current state (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">1</a>).</li>
+        <li>Private Credit Impulse Signal (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">4</a>), Senior Loan Officer Opinion Survey.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Credit_Conditions_signal_chart_mpl.png" alt="Credit Conditions Signal" /><div class="media-cap">Credit Conditions Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-private_credit_impulse_signal" aria-labelledby="tab-private_credit_impulse_signal" hidden><div class="panel-title">Private Credit Impulse Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Private-Credit Impulse signal is currently in a "Stable" regime, with a composite value of 0.31 as of December 31, 2025 (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">1</a>).</li>
+        <li>This indicates steady credit growth, consistent with trend economic expansion.</li>
+        <li>Current readings are moderate, having recently transitioned from a "Decelerating" phase observed earlier in 2025 (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The shift to a stable regime is supported by a positive, though moderate, z-score in total bank credit growth (0.31) (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">1</a>).</li>
+        <li>Earlier in the year, business loans and consumer loans contributed to deceleration, but their momentum has since stabilised (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">1</a>).</li>
+        <li>The composite reflects an overall stabilisation in private credit expansion after a period of slowing.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the dimension of credit availability and aggregate demand in the macro environment (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">1</a>).</li>
+        <li>It typically acts as a leading indicator of economic slowdown or acceleration, often early-to-mid-cycle in nature (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">1</a>).</li>
+        <li>Stabilising credit impulse generally correlates with improving growth outlooks and may precede a broader re-acceleration in activity.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Total Bank Credit (FRED: TOTBKCR), latest observation: 2025-12-31.</li>
+        <li>The positive six-month annualised growth in TOTBKCR most influenced the latest stable reading (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">1</a>).</li>
+        <li>Additional public datasets like corporate bond issuance and commercial paper outstanding would enhance signal depth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Private_Credit_Impulse_signal_chart_mpl.png" alt="Private Credit Impulse Signal" /><div class="media-cap">Private Credit Impulse Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-financial_stress_index_signal" aria-labelledby="tab-financial_stress_index_signal" hidden><div class="panel-title">Financial Stress Index Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Financial Stress Index signal is currently Bearish, based on the latest observation from 2025-12-12 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+        <li>This indicates a tightening of financial conditions.</li>
+        <li>Current readings are elevated compared to historical averages, signaling increased risk-off conditions (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The signal is driven by the robust z-score of the STLFSI4 index (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+        <li>The `Stress_z` of 0.906086 at 2025-12-12 exceeds the +0.5 threshold, classifying the signal as Bearish (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+        <li>While the absolute STLFSI4 value is negative (-0.3606), the positive and elevated z-score highlights relative tightness versus its long-run distribution (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the dimension of financial stability and systemic risk in the macro environment (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+        <li>It typically functions as a mid-cycle to late-cycle indicator, reflecting financial headwinds as economic cycles evolve (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+        <li>Elevated financial stress often correlates with decelerating growth signals and prompts a more cautious stance across aggregate macro indicators (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>St. Louis Fed Financial Stress Index (STLFSI4) from FRED, latest observation 2025-12-12 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>). The `Stress_z` of 0.906086 was the primary driver (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>).</li>
+        <li>ICE BofA High Yield Option-Adjusted Spread (OAS) (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">2</a>) and CBOE Volatility Index (VIX) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">3</a>) would enhance signal depth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Financial_Stress_Signal_chart_mpl.png" alt="Financial Stress Index Signal" /><div class="media-cap">Financial Stress Index Signal</div></figure></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • US Credit Conditions • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>
