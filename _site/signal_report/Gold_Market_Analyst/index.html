@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Gold Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of gold’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="The Gold Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of gold’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction." />
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Gold Market Analyst</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> Gold Market Analyst</div>
+        <div class="page-title">The Gold Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of gold’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</div>
+        <div class="hero-inject market-report"><div class="ia-report-block" id="gold-macro-outlook">
+  <h2>Gold Macro Outlook</h2>
+
+  <h3>Regime Assessment</h3>
+  <p>
+    Current conditions align with the <strong>Flow-Driven Momentum</strong> regime (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">44</a>).
+    Dominant drivers include USD Weakening (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>), Market Implied Inflation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">4</a>), Gold Spec Long Building (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">5</a>), and Hedger Physical Tightness (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">6</a>). The overall macro regime is assessed as Bullish with moderate strength (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">44</a>).
+  </p>
+
+  <h3>1-Month Outlook (Tactical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bullish</li>
+    <li><strong>Probability:</strong> 55% Up, 45% Down</li>
+    <li><strong>Primary Influences:</strong> Recent news indicates gold futures initially declined due to a rebound in the U.S. dollar and year-end thin liquidity (<a href="https://www.cmegroup.com/videos/2025/12/29/silver-and-gold-futures-reversed-from-record-highs-12-29-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">34</a>)(<a href="https://www.cmegroup.com/videos/2025/12/31/gold-and-silver-futures-declined-in-year-end-trading-12-31-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">36</a>). However, prices quickly rebounded on increasing safe-haven demand stemming from a deteriorating geopolitical landscape (<a href="https://www.cmegroup.com/videos/2025/12/30/gold-futures-rebounded-as-investors-sought-safe-havens-12-30-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">35</a>). Tactical tailwinds are provided by ongoing USD weakening trends (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>) and sustained speculative long building in gold futures (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">5</a>).</li>
+    <li><strong>Volatility Profile:</strong> Medium-High</li>
+  </ul>
+
+  <h3>3-Month Outlook (Cyclical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Neutral</li>
+    <li><strong>Probability:</strong> 50% Up, 50% Down</li>
+    <li><strong>Structural Drivers:</strong> The cyclical outlook is largely shaped by underlying USD weakening trends (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>) and persistent market-implied inflation expectations (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">4</a>), which contribute to gold's appeal as a hedge (<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">16</a>). Anticipated Federal Reserve rate cuts are expected to reduce the opportunity cost of holding non-yielding gold (<a href="https://www.jpmorgan.com/insights/global-research/outlook/market-outlook" target="_blank">9</a>)(<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">15</a>)(<a href="https://www.uobgroup.com/research/quarterly-global-outlook.page" target="_blank">25</a>). Hedger physical tightness (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">6</a>) points to continued underlying demand.</li>
+  </ul>
+
+  <h3>12-Month Outlook (Strategic)</h3>
+  <ul>
+    <li><strong>Regime Persistence:</strong> The expectation is for a bullish trend to persist with high confidence.</li>
+    <li><strong>Historical Outcome Bias:</strong> Bullish</li>
+    <li><strong>Research Context:</strong> Gold is widely projected to maintain a strong upward trajectory, with some forecasts suggesting new record highs up to $5,000/oz by Q4 2026 (<a href="https://www.jpmorgan.com/insights/global-research/outlook/market-outlook" target="_blank">9</a>)(<a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025?gad_source=1&gad_campaignid=12711106950&gbraid=0AAAAADt5-AKOQnVlArpHfBD2FQbtLvGrW&gclid=CjwKCAiAmePKBhAfEiwAU3Ko3P3ZPEQvvPCXAL_tL6tdBM49voxOkQlbTR7jMRPVfetJb_nBSBjrMxoCs4sQAvD_BwE" target="_blank">20</a>)(<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-season-kevin" target="_blank">23</a>)(<a href="https://www.uobgroup.com/research/quarterly-global-outlook.page" target="_blank">25</a>)(<a href="https://economics.bmo.com/media/filer_public/fc/3d/fc3d0b80-ae57-475d-9f07-c1e3a029fb5/commoditiesoutlook.pdf" target="_blank">28</a>)(<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">29</a>). This bullish outlook is underpinned by sustained demand from global central banks diversifying reserves and reducing US Dollar reliance (<a href="https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025" target="_blank">10</a>)(<a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">12</a>)(<a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">14</a>)(<a href="https://www.sunflowerbank.com/getmedia/0ec6aeeb-ce39-47ae-8225-b374ea3536d5/Weekly-Market-Commentary_12-29-25.pdf" target="_blank">21</a>)(<a href="https://www.uobgroup.com/research/quarterly-global-outlook.page" target="_blank">25</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">30</a>), expectations of Federal Reserve rate cuts (<a href="https://www.jpmorgan.com/insights/global-research/outlook/market-outlook" target="_blank">9</a>)(<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">15</a>)(<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">16</a>)(<a href="https://www.uobgroup.com/research/quarterly-global-outlook.page" target="_blank">25</a>)(<a href="https://economics.bmo.com/media/filer_public/fc/3d/fc3d0b80-ae57-475d-9f07-c1e3a029fb5/commoditiesoutlook.pdf" target="_blank">28</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">30</a>), and a generally weaker US Dollar outlook (<a href="https://www.jpmorgan.com/insights/global-research/outlook/market-outlook" target="_blank">9</a>)(<a href="https://ap.allianzgi.com/en-ap/insights/market-insights/outlook-and-commentary/outlook-2026" target="_blank">19</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">30</a>). Persistent geopolitical and geoeconomic uncertainties globally also enhance gold's appeal as a safe-haven asset (<a href="https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights/global-economics-intelligence" target="_blank">13</a>)(<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">16</a>)(<a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">15</a>)(<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-season-kevin" target="_blank">23</a>)(<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">24</a>)(<a href="https://simplehai.axisdirect.in/app/index.php/insights/reports/commodity" target="_blank">27</a>)(<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">29</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">30</a>).</li>
+  </ul>
+
+  <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
+  <ul>
+    <li>Divergent signals exist regarding **real interest rates and liquidity** (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>). While the current macro regime shows a bullish bias, these factors remain neutral or conflicting, suggesting potential headwinds if real rates rise or liquidity contracts more significantly, which could challenge sustained upward momentum.</li>
+    <li>There is an identified **reversal risk from speculative versus hedger divergence** (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">8</a>) and conflicting signals from the `Macro Theme: Global Inflation & FX Dynamics` (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">7</a>), which could challenge the prevailing flow-driven momentum and introduce volatility.</li>
+    <li>A key invalidation trigger for the bullish outlook would be **stronger-than-expected US economic growth** (Reflation Return scenario) that reduces safe-haven demand (<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">16</a>), **sticky inflation leading to limited Federal Reserve easing** (<a href="https://www.jpmorgan.com/insights/global-research/outlook/market-outlook" target="_blank">9</a>)(<a href="https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights/global-economics-intelligence" target="_blank">13</a>)(<a href="https://www.globalx.ca/insights/articles/2026-perspectives-from-global-x" target="_blank">31</a>), or **an unexpected strengthening of the US Dollar** (<a href="https://ap.allianzgi.com/en-ap/insights/market-insights/outlook-and-commentary/outlook-2026" target="_blank">19</a>)(<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">24</a>). Watch for delays in anticipated Fed rate cuts or a significant deceleration in central bank gold accumulation (<a href="https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025" target="_blank">10</a>)(<a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">12</a>)(<a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">14</a>).</li>
+  </ul>
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab" role="tab" aria-selected="false" aria-controls="panel-price" id="tab-price">Price Signal Decoder</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-CoT" id="tab-CoT">Gold Positioning Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-news" id="tab-news">Gold Media Watcher</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-supply_demand" id="tab-supply_demand">Gold Research Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-regime" id="tab-regime">Gold Signal Interpreter</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel" role="tabpanel" id="panel-price" aria-labelledby="tab-price" hidden><div class="panel-title">Price Signal Decoder</div><div class="panel-body"><div class="pricing-analysis">
+  <h2>Pricing Context: GLDM</h2>
+  <p class="as-of">As of: 2025-12-31 00:00:00</p>
+
+  <section class="summary">
+    <h3>Headline Snapshot</h3>
+    <ul>
+      <li><strong>Last Close:</strong> 85.37</li>
+      <li><strong>Day Change:</strong> -0.6%</li>
+      <li><strong>Composite View:</strong> Reduce (modest conviction)</li>
+    </ul>
+    <p class="interpretation">
+      Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
+    </p>
+  </section>
+
+  <section class="pillar trend">
+    <h3>Technical Trend</h3>
+    <p><strong>State:</strong> Uptrend (price above both 50d and 200d)</p>
+    <ul>
+      <li>Price above 50-day average: <strong>True</strong></li>
+      <li>Price above 200-day average: <strong>True</strong></li>
+      <li>Last close: <strong>85.37</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar volatility">
+    <h3>Volatility Regime</h3>
+    <p><strong>State:</strong> High realized volatility (top 30% of sample)</p>
+    <ul>
+      <li>20-day realised volatility (annualised): <strong>0.19</strong></li>
+      <li>Volatility percentile in sample: <strong>77.1%</strong></li>
+      <li>Downside risk proxy triggered: <strong>False</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar volume">
+    <h3>Volume & Liquidity</h3>
+    <p><strong>State:</strong> Volume near normal levels</p>
+    <ul>
+      <li>Latest volume: <strong>5160641</strong></li>
+      <li>Volume percentile in sample: <strong>74.5%</strong></li>
+      <li>Volume z-score (sample): <strong>0.28</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar price-position">
+    <h3>Price Position vs 52-Week Range</h3>
+    <p><strong>State:</strong> Trading near 52-week highs</p>
+    <ul>
+      <li>Position within 52-week range (0=low, 1=high): <strong>0.88</strong></li>
+      <li>Drawdown from 52-week high: <strong>-4.8%</strong></li>
+    </ul>
+  </section>
+
+  <section class="signal">
+    <h3>Model Signal (Daily)</h3>
+    <p>
+      The daily signal is constructed from trend and momentum:
+      uptrend + positive momentum tends to generate <strong>Add</strong> bias;
+      downtrend + negative momentum tends to generate <strong>Reduce</strong> bias.
+    </p>
+    <p><strong>Latest daily signal value:</strong> 0</p>
+  </section>
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Gold_Pricing_Dashboard.png" alt="Gold price trend" /><div class="media-cap">Gold price momentum and trend diagnostics</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Gold Positioning Analyst</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>Gold positioning data as of 2025-12-23 indicates a stable market structure with active long building by speculators and continued hedger covering (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>). The market currently shows no clear reversal risk or extreme positioning.</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative net positioning stands at 48.90% OI with a positive 4-week flow of 1.60, indicating a "Long_Build" phase (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Hedgers maintain a net short position at -57.60% OI, but the "Hedger_Covering" regime suggests a reduction in their short exposure (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Neither speculative (0.32 z-score) nor hedger (-0.74 z-score) positioning is at a 1-year extreme.</li>
+        <li>Conditional Invalidation: A sharp reversal from "Long_Build" flow to "Long_Reduction" (negative 4-week flow) or a significant increase in hedger short positioning would weaken this interpretation.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued Gold price stability or gradual appreciation, supported by ongoing speculative long accumulation and hedger covering.</li>
+        <li>Upside secondary: Sustained strong speculative inflows could drive prices higher, especially if macro drivers align.</li>
+        <li>Downside residual: Unexpected hawkish monetary policy or significant risk-off sentiment could trigger speculative unwinds.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks), given the weekly CoT data frequency and focus on positioning shifts and reversal risks (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, as the signal shows clear momentum but lacks extreme conditions or reversal alerts.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Sentiment, Liquidity, and Safe-haven demand.</li>
+        <li>Cycle position: Mid-cycle, reflecting sustained but not overheated momentum.</li>
+        <li>Typical interaction with other macro signals: Often correlates with real rates (negative), USD strength (negative), and financial stress (positive).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Commitment of Traders (COT) data for Gold, latest observation 2025-12-23 (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Influential datapoints include Spec_Net_%OI (48.90), Hedger_Net_%OI (-57.60), Flow_4w (1.60), and Market_Structure_Regime (Hedger_Covering).</li>
+        <li>Additional datasets: Real interest rate trends (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>) and Financial Stress Index (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">3</a>) would enhance context for Gold's broader appeal.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_GOLD_Diagnostics.png" alt="Gold CoT diagnostics" /><div class="media-cap">Gold CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Gold Media Watcher</div><div class="panel-body"><div class="asset-media-watcher" data-asset="Gold" data-lookback-days="7" data-as-of-date="2026-01-04">
+
+  <section class="headline">
+    <h2 data-field="title">Gold — Weekly Media &amp; Narrative Context</h2>
+    <p class="subtitle" data-field="subtitle">Weekly sentiment, key themes, and material headlines from the last 7 days.</p>
+  </section>
+
+  <section class="weekly-sentiment">
+    <h3>Weekly Narrative Sentiment (Contextual)</h3>
+    <p data-field="sentiment_paragraph">
+      The gold market experienced a mixed narrative over the past week, balancing short-term price pullbacks with robust long-term bullish sentiment. Initial declines were observed as futures reversed from record highs, influenced by a strengthening U.S. dollar and year-end thin liquidity. Geopolitical tensions, however, provided safe-haven demand, contributing to a rebound in prices, though some regional market declines were also attributed to easing tensions. On the supply side, specific mining operations faced challenges, including production guidance cuts due to equipment failure and security risks from attacks on informal miners. Despite these short-term headwinds, the broader sentiment remains positive, underscored by significant valuation increases for top mining companies, surging gold-backed loan demand, and emerging industrial applications for the metal.
+    </p>
+
+    <ul class="sentiment-counts">
+      <li><strong>Positive:</strong> <span data-field="count_positive">5</span></li>
+      <li><strong>Neutral:</strong> <span data-field="count_neutral">1</span></li>
+      <li><strong>Negative:</strong> <span data-field="count_negative">4</span></li>
+    </ul>
+
+    <p class="note">Sentiment reflects narrative context only and is non-decisional.</p>
+  </section>
+
+  <section class="key-news">
+    <h3>Key Gold News (Last 7 Days)</h3>
+
+    <ul class="news-list">
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2025/12/29/silver-and-gold-futures-reversed-from-record-highs-12-29-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver and Gold futures reversed from record highs.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2025-12-29</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Gold futures declined 4% from recent record highs, primarily driven by a rebound in the U.S. dollar, indicating macro currency strength as a key inverse driver for the metal.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2025/12/30/gold-futures-rebounded-as-investors-sought-safe-havens-12-30-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold futures rebounded as investors sought safe havens.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2025-12-30</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Gold rebounded following a drop, driven by increasing safe-haven demand amid a deteriorating geopolitical landscape, reinforcing its role as a hedge against global uncertainty.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="neutral">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2025/12/31/gold-and-silver-futures-declined-in-year-end-trading-12-31-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold and Silver futures declined in year-end trading.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2025-12-31</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Gold softened amidst thin year-end liquidity, yet remains positioned for its largest annual gains in decades, with Federal Reserve interest rate cuts expected to provide future support.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879761470/owQiagseGxW8fYS8?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Attack on gold prospectors in Peru: three dead, seven missing</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-01</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Security incidents affecting gold prospectors in Peru highlight ongoing operational risks and potential disruptions to informal gold supply in key producing regions.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879821025/-NDKqwtWboI3wv6k?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Northern Star Resources trims FY26 gold guidance after soft December quarter</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-02</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          A major gold miner reducing its production forecast due to operational issues indicates potential short-term constraints on global gold supply.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879807509/q27Ph0hCqsyjE-8u?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Expect The Precious Metals Rally To Continue In 2026</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-01</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          The expectation for a continued precious metals rally into 2026, supported by broader macro factors, provides a positive long-term outlook for gold demand.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/rerated-top-50-mining-companies-soar-past-to-2-trillion-valuation/" target="_blank" rel="noopener">
+            <span data-field="news_headline">RERATED: Top 50 mining companies soar past $2 trillion valuation</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2025-12-31</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          The substantial increase in valuation for major mining companies, driven by surging gold prices, reflects robust investor confidence and strong underlying commodity market fundamentals.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879814741/yvDfMQvROUzLVl4M?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold prices in Qatari marketdecline by 2.94% this week</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-02</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Regional gold price declines are attributed to a stronger U.S. dollar and easing geopolitical tensions, indicating that macro factors continue to influence local demand and pricing.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879826456/d0CK7he8rZcMBeWp?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold lends most glitter to loans with 125% surge</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-02</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          A significant increase in gold-backed loans highlights the metal's enhanced collateral value and growing financial demand, indicating its role in broader economic activity.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879770536/CnDyaiIPS6t3H8Sd?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold helps convert ethanol into greener industrial chemicals</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-01</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Research into gold's catalytic properties for converting ethanol into industrial chemicals suggests potential for new industrial demand streams for the metal.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Gold Research Analyst</div><div class="panel-body"><div class="gold-forward-view" data-as-of-date="2026-01-04" data-horizon-min-months="6" data-horizon-max-months="12">
+
+  <section class="stance">
+    <h2>6–12 Month Stance</h2>
+    <p><strong>Stance:</strong> <span data-field="stance">bullish</span></p>
+    <p><strong>Confidence:</strong> <span data-field="confidence">high</span></p>
+  </section>
+
+  <section class="core-narrative">
+    <h2>Core Narrative</h2>
+    <p data-field="core_narrative">
+      Gold is widely projected to maintain a strong upward trend and potentially reach new record highs through 2026, with some forecasts suggesting prices could soar to $5,000/oz by Q4 2026 (1)(12)(15)(17)(20)(21). This bullish outlook is underpinned by sustained demand from global central banks accumulating gold to diversify reserves and reduce reliance on the US Dollar (2)(4)(6)(13)(17)(21)(22). Furthermore, expectations of Federal Reserve rate cuts and a generally weaker US Dollar are significant tailwinds (1)(7)(8)(11)(15)(17)(20)(21)(22). Persistent geopolitical and geoeconomic uncertainties globally also enhance gold's appeal as a safe-haven asset (5)(8)(7)(15)(16)(19)(21)(22). Strong investment demand, particularly through ETF inflows and bar and coin purchases, continues to be a driving force (6)(7)(10)(12)(19)(22). Gold is increasingly recognized for its role in portfolio diversification and downside protection, especially in an environment where correlations between traditional assets like stocks and bonds have risen (8)(9).
+    </p>
+  </section>
+
+  <section class="key-drivers">
+    <h2>Key Drivers</h2>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Central Bank Gold Accumulation</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">supports gold</span>
+      </p>
+      <p data-field="mechanism">
+        Central banks have been significant net buyers of gold, with purchases increasing notably in September and October 2025 and averaging nearly 260 tonnes per quarter since Q1 2022 (2)(4)(6)(13)(22). This trend is strategic, reflecting a desire to diversify foreign exchange reserves and reduce reliance on the US Dollar amidst macroeconomic uncertainty (4)(13)(22). A 2025 survey indicates that 95% of respondents expect central bank gold reserves to increase (4).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Anticipated Federal Reserve Rate Cuts</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">supports gold</span>
+      </p>
+      <p data-field="mechanism">
+        Expectations of further interest rate cuts by the Federal Reserve are a dominant driver, as lower rates reduce the opportunity cost of holding non-yielding gold (1)(7)(8)(17)(20)(22). Analysts anticipate gold prices to rise through H1 2026 due to these expected policy rate cuts (12). There is an 88% chance of a 25bps Fed rate cut by early December 2025, with further easing expected to remain a key factor through 2026 (16)(17).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Weaker US Dollar Outlook</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">supports gold</span>
+      </p>
+      <p data-field="mechanism">
+        J.P. Morgan Global Research maintains a bearish view on the dollar for 2026, and a weakening US dollar generally makes gold more affordable for international buyers, boosting demand (1)(11). The US Dollar Index (DXY) appears to be turning lower, which is seen as a supportive driver for gold (16). This expectation of renewed dollar weakness encourages investors to reconsider US asset exposures, favoring gold (11)(22).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Geopolitical and Geoeconomic Uncertainty</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">supports gold</span>
+      </p>
+      <p data-field="mechanism">
+        Heightened geopolitical and economic uncertainty, coupled with ongoing market volatility, reinforces gold's role as a safe-haven asset (5)(8)(7)(16)(22). Persistent global geopolitical unease and concerns over the fiscal sustainability of G20 economies contribute to this demand (15)(16)(19)(21)(22).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Robust Investment Demand</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">supports gold</span>
+      </p>
+      <p data-field="mechanism">
+        Investors remain firmly in the driving seat, with huge ETF buying and robust bar and coin demand observed in Q3 2025 (6). Global physically-backed gold ETFs recorded their sixth consecutive monthly inflow in November 2025, reaching new month-end peaks in assets under management and holdings (7). US-listed ETFs accounted for a significant portion of global inflows, surging 160% year-on-year in Q3 2025 (12).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Portfolio Diversification and Downside Protection</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">supports gold</span>
+      </p>
+      <p data-field="mechanism">
+        Gold's capacity to provide diversification and downside protection remains highly relevant amid increasing market shocks and surprises (8). It maintains a low correlation to equities and fixed income assets, making it an efficient source of portfolio diversification, especially when correlations between bonds and equities have risen (9).
+      </p>
+    </div>
+
+  </section>
+
+  <section class="key-risks">
+    <h2>Key Risks</h2>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Stronger-than-Expected US Economic Growth (Reflation Return Scenario)</h3>
+      <p data-field="why_it_matters">
+        A scenario characterized by stronger-than-expected economic growth, potentially driven by successful pro-growth policies (e.g., from a new US administration), could lead to a gold price correction of 5% to 20% (8). Such a development might reduce safe-haven demand and temper expectations for aggressive Fed rate cuts.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Sticky Inflation and Limited Fed Easing</h3>
+      <p data-field="why_it_matters">
+        Should inflation remain sticky, particularly in developed economies where it continues to accelerate, central banks might be less inclined to cut rates as expected (1)(5). Persistent sticky inflation, especially if combined with volatility, remains a primary investor risk (23), potentially limiting the extent or pace of Fed easing and thereby reducing one of gold's key tailwinds.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Technical Resistance and Rising US Real Yields</h3>
+      <p data-field="why_it_matters">
+        From a technical perspective, gold is struggling to complete a "triangle" continuation pattern and requires a sustained move above resistance at US$4,245/oz (16). Failure to break this resistance could signal a pause in the uptrend. Additionally, persistently rising 10-year US Real Yields could act as a headwind for gold if they break significant resistance levels, increasing the opportunity cost of holding the non-yielding asset (16).
+      </p>
+    </div>
+
+  </section>
+
+  <section class="signposts">
+    <h2>Signposts to Watch</h2>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Federal Reserve Monetary Policy Decisions and Guidance</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Faster and more aggressive rate cuts than currently anticipated, or dovish forward guidance, would confirm a supportive monetary policy environment for gold (1)(7)(16).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A delay in expected rate cuts, fewer cuts than anticipated, or hawkish surprises from the Fed would invalidate a key bullish driver for gold (16).</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">US Dollar Strength/Weakness Trends</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued depreciation of the US Dollar, particularly if the DXY turns lower as observed, would confirm a supportive environment for gold (1)(11)(16).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">An unexpected strengthening of the US Dollar would invalidate one of gold's significant tailwinds (11)(16).</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Central Bank Gold Buying Data</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Sustained or an increased pace of net gold accumulation by central banks, continuing the strong buying trend observed in late 2025, would confirm a foundational demand source (2)(4)(6).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A significant deceleration or a pattern of net selling by central banks would invalidate a core structural support for gold (2)(4)(6).</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Global Geopolitical Developments</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Escalation of existing global tensions, emergence of new geopolitical flashpoints, or increased geoeconomic uncertainty would confirm continued safe-haven demand for gold (5)(8)(15)(16)(19).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Significant de-escalation of major conflicts or resolution of key geopolitical uncertainties, such as a peace deal in Ukraine, could reduce safe-haven demand (5).</span>
+      </p>
+    </div>
+
+  </section>
+
+  <section class="scenarios">
+    <h2>Scenarios</h2>
+
+    <div class="scenario" data-scenario="base">
+      <h3 data-field="scenario_name">Base Case (Shallow Slip)</h3>
+      <p data-field="scenario_description">
+        This scenario anticipates a softening US economy, a general decline in risk appetite among investors, and further rate cuts by the Federal Reserve. Under these conditions, gold prices are expected to rise by 5% to 15% in 2026 from current levels (8).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">bullish</span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">Federal Reserve Rate Cuts; Declining Risk Appetite</span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="upside">
+      <h3 data-field="scenario_name">Upside (Doom Loop)</h3>
+      <p data-field="scenario_description">
+        In a more severe macroeconomic environment characterized by a deeper and more synchronized global slowdown, driven by rising geopolitical and geoeconomic risks, gold could see a significant surge of 15% to 30% in 2026 (8). This reflects gold's enhanced appeal as a safe haven during periods of heightened global instability.
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">bullish</span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">Geopolitical and Geoeconomic Uncertainty; Global Economic Slowdown</span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="downside">
+      <h3 data-field="scenario_name">Downside (Reflation Return)</h3>
+      <p data-field="scenario_description">
+        Conversely, a scenario where policies lead to stronger-than-expected global growth, particularly if a new US administration's policies succeed in boosting economic expansion, could result in a gold price correction of between 5% and 20% (8). This would likely diminish gold's safe-haven appeal and potentially lead to less accommodative monetary policy.
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">bearish</span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">Stronger-than-Expected Global Growth; Successful Pro-Growth Policies</span>
+      </p>
+    </div>
+
+  </section>
+
+  <section class="disagreements">
+    <h2>Disagreements & Uncertainties</h2>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Gold Price Trajectory: Continued Rally vs. Rangebound</h3>
+      <p data-field="what_conflicts">
+        There is a slight divergence in views regarding gold's price trajectory for 2026. While many sources anticipate gold will continue its strong rally and reach new heights, some suggest it could remain rangebound under certain conditions.
+      </p>
+      <ul>
+        <li data-field="side_a">Gold is expected to remain strong and reach yet new heights, with forecasts ranging from $4,500/oz to $5,000/oz by Q4 2026 (1)(12)(15)(17)(20)(21).</li>
+        <li data-field="side_b">Should current macro conditions persist, gold could remain rangebound, though the overall outlook still suggests a possibility of surprises (16).</li>
+      </ul>
+    </div>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Impact of US Federal Reserve Leadership Changes</h3>
+      <p data-field="what_conflicts">
+        The potential impact of the upcoming US Fed chair nomination introduces uncertainty regarding future monetary policy. While a new dovish chair could lead to more rate cuts, there are broader concerns about the Fed's independence and operational stability.
+      </p>
+      <ul>
+        <li data-field="side_a">A potential nomination of a more dovish Fed chair could lead to more rate cuts than investors currently expect, which would be supportive for gold (15).</li>
+        <li data-field="side_b">Regardless of the Fed chair outcome, there is likely to be concern over decreased independence and a shakeup of how the Fed operates (15).</li>
+      </ul>
+    </div>
+
+  </section>
+
+  <section class="coverage-stats">
+    <h2>Sources Used</h2>
+    <ul>
+      <li><strong>Documents provided:</strong> <span data-field="documents_provided">26</span></li>
+      <li><strong>Documents used:</strong> <span data-field="documents_used">26</span></li>
+      <li><strong>Sources used:</strong>
+        <ol>
+          <li id="ref-1"><a href="https://www.jpmorgan.com/insights/global-research/outlook/market-outlook" target="_blank">2026 market outlook: A multidimensional polarization</a></li>
+          <li id="ref-2"><a href="https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025" target="_blank">Central bank gold statistics September 2025</a></li>
+          <li id="ref-3"><a href="https://www.gold.org/goldhub/research/central-bank-asgm" target="_blank">Central bank considerations when pricing ASGM purchases</a></li>
+          <li id="ref-4"><a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">Central Bank Gold Statistics | Central banks ramp up gold buying in October</a></li>
+          <li id="ref-5"><a href="https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights/global-economics-intelligence" target="_blank">Global Economics Intelligence Global Summary Report, October 2025</a></li>
+          <li id="ref-6"><a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">Gold Demand Trends | Q3 2025</a></li>
+          <li id="ref-7"><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">Gold ETF Commentary | November 2025</a></li>
+          <li id="ref-8"><a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">Gold Outlook 2026: Push ahead or pull back</a></li>
+          <li id="ref-9"><a href="https://www.gold.org/goldhub/gold-focus/2025/12/you-asked-we-answered-golds-appeal-fading-rising-vol" target="_blank">Is gold’s appeal fading on rising vol?</a></li>
+          <li id="ref-10"><a href="https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support" target="_blank">India Gold Market Update: Investment-led Support (November 2025)</a></li>
+          <li id="ref-11"><a href="https://ap.allianzgi.com/en-ap/insights/market-insights/outlook-and-commentary/outlook-2026" target="_blank">Outlook 2026: Navigate new pathways</a></li>
+          <li id="ref-12"><a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025?gad_source=1&gad_campaignid=12711106950&gbraid=0AAAAADt5-AKOQnVlArpHfBD2FQbtLvGrW&gclid=CjwKCAiAmePKBhAfEiwAU3Ko3P3ZPEQvvPCXAL_tL6tdBM49voxOkQlbTR7jMRPVfetJb_nBSBjrMxoCs4sQAvD_BwE" target="_blank">US Gold Demand Trends | Q3 2025</a></li>
+          <li id="ref-13"><a href="https://www.sunflowerbank.com/getmedia/0ec6aeeb-ce39-47ae-8225-b374ea3536d5/Weekly-Market-Commentary_12-29-25.pdf" target="_blank">Market Update – December 29, 2025</a></li>
+          <li id="ref-14"><a href="https://www.kbvalbury.com/cfind/source/files/news251223a.pdf" target="_blank">Morning Chatter: Market Commentary and News Highlight</a></li>
+          <li id="ref-15"><a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-season-kevin" target="_blank">Weekly Markets Monitor: A season for Kevin?</a></li>
+          <li id="ref-16"><a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">The 2026 Gold Outlook</a></li>
+          <li id="ref-17"><a href="https://www.uobgroup.com/research/quarterly-global-outlook.page" target="_blank">Quarterly Global Outlook 1Q 2026</a></li>
+          <li id="ref-18"><a href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf" target="_blank">1H2026 Commodities Outlook</a></li>
+          <li id="ref-19"><a href="https://simplehai.axisdirect.in/app/index.php/insights/reports/commodity" target="_blank">Weekly Commodity Insights</a></li>
+          <li id="ref-20"><a href="https://economics.bmo.com/media/filer_public/fc/3d/fc3d0b80-ae57-475d-9f07-c1e83a029fb5/commoditiesoutlook.pdf" target="_blank">Commodities Outlook: Our Key Commodities Forecasts for December 2025</a></li>
+          <li id="ref-21"><a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">Commodities Outlook 2026</a></li>
+          <li id="ref-22"><a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">Precious metals to extend gains in 2026</a></li>
+          <li id="ref-23"><a href="https://www.globalx.ca/insights/articles/2026-perspectives-from-global-x" target="_blank">2026 PERSPECTIVES</a></li>
+          <li id="ref-24"><a href="https://www.bis.org/publ/otc_hy2512.htm" target="_blank">OTC derivatives statistics at end-June 2025</a></li>
+          <li id="ref-25"><a href="https://sterlingcapital.com/cdn/Weekly-Market-Update-12-29-25.pdf" target="_blank">Weekly Market Update December 29, 2025</a></li>
+        </ol>
+      </li>
+      <li><strong>Date range:</strong>
+        <span data-field="earliest_publication_date">2025-10-01</span>
+        to
+        <span data-field="latest_publication_date">2025-12-31</span>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Gold Signal Interpreter</div><div class="panel-body"><div class="ia-report-block" id="gold-regime-state-deterministic">
+  <h2>Gold Regime State — Deterministic Summary</h2>
+
+  <table class="ia-table ia-table-compact">
+    <tbody>
+      <tr>
+        <th>Macro Regime</th>
+        <td>Bullish</td>
+      </tr>
+      <tr>
+        <th>Regime Strength</th>
+        <td>Moderate</td>
+      </tr>
+      <tr>
+        <th>Liquidity Regime</th>
+        <td>Neutral</td>
+      </tr>
+      <tr>
+        <th>Real Rate Regime</th>
+        <td>Neutral</td>
+      </tr>
+      <tr>
+        <th>USD Regime</th>
+        <td>Weakening</td>
+      </tr>
+      <tr>
+        <th>Inflation Regime</th>
+        <td>Neutral</td>
+      </tr>
+      <tr>
+        <th>Stress State</th>
+        <td>Normal</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="ia-grid ia-grid-2" style="margin-top: 12px;">
+    <div class="ia-panel">
+      <h3>Horizon Bias</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr>
+            <th>1M</th>
+            <td>Bullish</td>
+          </tr>
+          <tr>
+            <th>3M</th>
+            <td>Neutral</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ia-panel">
+      <h3>Stress &amp; Conflict Flags</h3>
+      <ul class="ia-list">
+        <li><strong>Dominant Forces:</strong> USD Weakening (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>), Market Implied Inflation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">9</a>), Gold Spec Long Building (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">11</a>), Hedger Physical Tightness (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">13</a>)</li>
+        <li><strong>Conflicts:</strong> Real Interest Rate Trend Signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>), Federal Reserve Liquidity Composite Signal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>), Macro Theme: Global Inflation & FX Dynamics (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">7</a>), Specs vs Hedgers Divergence Reversal Risk (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">14</a>)</li>
+      </ul>
+    </div>
+  </div>
+</div></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • Gold Market Analyst • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

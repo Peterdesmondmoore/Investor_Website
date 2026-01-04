@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Gold · Media Watcher</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Gold · Media Watcher</h1>
+      <p class="subtitle">Gold Media &amp; Narrative Context Summary</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-04</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="asset-media-watcher" data-asset="Gold" data-lookback-days="7" data-as-of-date="2026-01-04">
+
+  <section class="headline">
+    <h2 data-field="title">Gold — Weekly Media &amp; Narrative Context</h2>
+    <p class="subtitle" data-field="subtitle">Weekly sentiment, key themes, and material headlines from the last 7 days.</p>
+  </section>
+
+  <section class="weekly-sentiment">
+    <h3>Weekly Narrative Sentiment (Contextual)</h3>
+    <p data-field="sentiment_paragraph">
+      The gold market experienced a mixed narrative over the past week, balancing short-term price pullbacks with robust long-term bullish sentiment. Initial declines were observed as futures reversed from record highs, influenced by a strengthening U.S. dollar and year-end thin liquidity. Geopolitical tensions, however, provided safe-haven demand, contributing to a rebound in prices, though some regional market declines were also attributed to easing tensions. On the supply side, specific mining operations faced challenges, including production guidance cuts due to equipment failure and security risks from attacks on informal miners. Despite these short-term headwinds, the broader sentiment remains positive, underscored by significant valuation increases for top mining companies, surging gold-backed loan demand, and emerging industrial applications for the metal.
+    </p>
+
+    <ul class="sentiment-counts">
+      <li><strong>Positive:</strong> <span data-field="count_positive">5</span></li>
+      <li><strong>Neutral:</strong> <span data-field="count_neutral">1</span></li>
+      <li><strong>Negative:</strong> <span data-field="count_negative">4</span></li>
+    </ul>
+
+    <p class="note">Sentiment reflects narrative context only and is non-decisional.</p>
+  </section>
+
+  <section class="key-news">
+    <h3>Key Gold News (Last 7 Days)</h3>
+
+    <ul class="news-list">
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2025/12/29/silver-and-gold-futures-reversed-from-record-highs-12-29-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver and Gold futures reversed from record highs.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2025-12-29</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Gold futures declined 4% from recent record highs, primarily driven by a rebound in the U.S. dollar, indicating macro currency strength as a key inverse driver for the metal.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2025/12/30/gold-futures-rebounded-as-investors-sought-safe-havens-12-30-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold futures rebounded as investors sought safe havens.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2025-12-30</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Gold rebounded following a drop, driven by increasing safe-haven demand amid a deteriorating geopolitical landscape, reinforcing its role as a hedge against global uncertainty.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="neutral">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2025/12/31/gold-and-silver-futures-declined-in-year-end-trading-12-31-25.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold and Silver futures declined in year-end trading.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2025-12-31</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Gold softened amidst thin year-end liquidity, yet remains positioned for its largest annual gains in decades, with Federal Reserve interest rate cuts expected to provide future support.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879761470/owQiagseGxW8fYS8?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Attack on gold prospectors in Peru: three dead, seven missing</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-01</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Security incidents affecting gold prospectors in Peru highlight ongoing operational risks and potential disruptions to informal gold supply in key producing regions.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879821025/-NDKqwtWboI3wv6k?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Northern Star Resources trims FY26 gold guidance after soft December quarter</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-02</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          A major gold miner reducing its production forecast due to operational issues indicates potential short-term constraints on global gold supply.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879807509/q27Ph0hCqsyjE-8u?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Expect The Precious Metals Rally To Continue In 2026</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-01</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          The expectation for a continued precious metals rally into 2026, supported by broader macro factors, provides a positive long-term outlook for gold demand.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/rerated-top-50-mining-companies-soar-past-to-2-trillion-valuation/" target="_blank" rel="noopener">
+            <span data-field="news_headline">RERATED: Top 50 mining companies soar past $2 trillion valuation</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2025-12-31</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          The substantial increase in valuation for major mining companies, driven by surging gold prices, reflects robust investor confidence and strong underlying commodity market fundamentals.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879814741/yvDfMQvROUzLVl4M?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold prices in Qatari marketdecline by 2.94% this week</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-02</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Regional gold price declines are attributed to a stronger U.S. dollar and easing geopolitical tensions, indicating that macro factors continue to influence local demand and pricing.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879826456/d0CK7he8rZcMBeWp?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold lends most glitter to loans with 125% surge</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-02</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          A significant increase in gold-backed loans highlights the metal's enhanced collateral value and growing financial demand, indicating its role in broader economic activity.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/879770536/CnDyaiIPS6t3H8Sd?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold helps convert ethanol into greener industrial chemicals</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-01</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Research into gold's catalytic properties for converting ethanol into industrial chemicals suggests potential for new industrial demand streams for the metal.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+</div></div></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Assesses global trade intensity and capital flows by combining USD regime signals, macro positioning (e.g., supply stress), and speculative risk tone to characterise how currency dynamics and demand conditions influence cross-border trade and investment activity.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="Assesses global trade intensity and capital flows by combining USD regime signals, macro positioning (e.g., supply stress), and speculative risk tone to characterise how currency dynamics and demand conditions influence cross-border trade and investment activity." />
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Global Trade and Demand</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> Global Trade and Demand</div>
+        <div class="page-title">Assesses global trade intensity and capital flows by combining USD regime signals, macro positioning (e.g., supply stress), and speculative risk tone to characterise how currency dynamics and demand conditions influence cross-border trade and investment activity.</div>
+        <div class="hero-inject market-report"><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Regime Assessment:</strong></p>
+  <ul>
+    <li>State the regime clearly using one label.</li>
+    <li>State the Regime Confidence Index.</li>
+    <li>State whether the regime is stable or fragile.</li>
+  </ul>
+
+  <p><strong>Why This Regime:</strong></p>
+  <ul>
+    <li>Identify the dominant drivers (cite key signals).</li>
+    <li>Explain how dynamic weighting shaped the conclusion.</li>
+    <li>List which signals were downweighted and why (cite where applicable).</li>
+  </ul>
+
+  <p><strong>Alignment & Tensions:</strong></p>
+  <ul>
+    <li>Where signals reinforce each other (cite).</li>
+    <li>Where tensions exist (cite).</li>
+    <li>Why tensions do not overturn the regime call.</li>
+  </ul>
+
+  <p><strong>Scenario Balance:</strong></p>
+  <ul>
+    <li>Dominant scenario and its condition.</li>
+    <li>Primary upside risk and trigger.</li>
+    <li>Primary downside risk and trigger.</li>
+  </ul>
+
+  <p><strong>What Would Change the Regime:</strong></p>
+  <ul>
+    <li>2–3 concrete invalidation conditions drawn from signals (cite).</li>
+  </ul>
+
+</div><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Regime Assessment:</strong></p>
+  <ul>
+    <li>Late-Cycle / Crowded</li>
+    <li>High Confidence</li>
+    <li>Fragile</li>
+  </ul>
+
+  <p><strong>Why This Regime:</strong></p>
+  <ul>
+    <li>The "Global Risk-On / Risk-Off Positioning Tone" signal is a dominant driver, indicating a "Strong Risk-Off" regime and explicitly referencing a "late-cycle phase characterized by increased risk aversion" (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>). This signal carries a High Aggregation Weight Hint and High Conviction.</li>
+    <li>The "USD Index Signal" is also a primary driver, currently "Bearish" (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>) and consistent with a "mid-to-late business cycle" (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>). It has a High Aggregation Weight Hint.</li>
+    <li>The "Regime-Specific Macro Themes" signal identifies active "Supply_Stress" (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">3</a>), indicating physical market tightness, which can occur in a mid-cycle but also contributes to fragility in a late-cycle phase. This signal holds a Medium Aggregation Weight Hint.</li>
+    <li>No signals were downweighted, as all maintained High Interpretation Confidence and had no Internal Conflict.</li>
+  </ul>
+
+  <p><strong>Alignment & Tensions:</strong></p>
+  <ul>
+    <li>Signals reinforce each other with the "CoT Market Tone" (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>) and "USD Index Signal" (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>) both pointing to a late-cycle environment with increasing risk aversion and easing global financial conditions. The "Strong Risk-Off" positioning (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>) correlates with rising market volatility (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">4</a>) and tightening credit conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">5</a>), reinforcing the cautious outlook.</li>
+    <li>A tension exists with the "Supply_Stress" signal, described as a "mid-cycle" characteristic (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">3</a>) typically indicating robust demand.</li>
+    <li>This tension does not overturn the regime call. The Supply_Stress signal is tactical and carries a medium weight, whereas the cyclical positioning and currency signals are higher weighted. Supply stress can persist into a late-cycle phase, exacerbating inflation and contributing to overall fragility.</li>
+  </ul>
+
+  <p><strong>Scenario Balance:</strong></p>
+  <ul>
+    <li>The dominant scenario is a continuation of late-cycle conditions. This is characterized by increasing risk aversion and crowded speculative short positioning (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+    <li>Primary upside risk is a transition to neutral or risk-on sentiment. This would be triggered by a broad reduction in crowded short positioning (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+    <li>Primary downside risk is a deeper deterioration into a defensive regime. This could be triggered by an accelerated USD weakening (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>) or an activation of a "Global_Slowdown" macro theme (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>What Would Change the Regime:</strong></p>
+  <ul>
+    <li>The "Global Risk-On / Risk-Off Positioning Tone" z-score rising above -0.5, shifting sentiment towards Neutral (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+    <li>The USD index's 6-month change exceeding +5% or its value rising above its 12-month moving average (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>), indicating a sustained dollar strengthening.</li>
+    <li>The share of hedgers deeply long in Energy and Ags markets falling below 20%, easing the "Supply_Stress" regime (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">3</a>).</li>
+  </ul>
+
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-global_positioning_tone" id="tab-global_positioning_tone">Global Positioning Tone</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-regime_specific_macro_themes" id="tab-regime_specific_macro_themes">Regime Specific Macro Themes</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-usd_index_signal" id="tab-usd_index_signal">USD Index Signal</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-global_positioning_tone" aria-labelledby="tab-global_positioning_tone"><div class="panel-title">Global Positioning Tone</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The CoT Market Tone signal currently indicates a Strong Risk-Off regime as of 2025-12-23 (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+        <li>This reflects a contraction in broad speculative risk appetite across futures markets. Conviction Band: High, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The latest robust z-score of the net tone is -1.86 (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>), well below the -1.0 threshold for Strong Risk-Off (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+        <li>This is driven by crowded short positions (90 markets) significantly outnumbering crowded long positions (72 markets) (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+        <li>The signal has shown a sharp shift from Neutral in early December to Strong Risk-Off by mid-December (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: The signal would reverse if the net tone z-score rises above -0.5, indicating a shift towards Neutral sentiment (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued Strong Risk-Off sentiment, supported by the ongoing prevalence of speculative short crowding.</li>
+        <li>Upside secondary: A transition to Neutral or Risk-On, triggered by a broad reduction in crowded short positioning.</li>
+        <li>Downside residual: A deeper move into Strong Risk-Off, potentially signalling a more severe decline in speculative appetite.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the duration of broad speculative positioning trends.</li>
+        <li>Aggregation Weight Hint: High, justified by strong conviction and high confidence in its systemic sentiment gauging ability.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Sentiment and broader risk appetite.</li>
+        <li>Cycle position: Suggests a late-cycle phase characterized by increased risk aversion.</li>
+        <li>Typical interaction: Often correlates with rising market volatility (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">2</a>) and tightening credit conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">3</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>df_cot_tone_daily, latest observation 2025-12-23.</li>
+        <li>The `CoT_Market_Tone_z` and `CoT_Market_Tone_Regime` datapoints are most influential (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+        <li>Additional public datasets: VIX futures positioning, implied volatility term structure.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Market_Tone_Risk_OnOff.png" alt="Global Positioning Tone" /><div class="media-cap">Global Positioning Tone</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-regime_specific_macro_themes" aria-labelledby="tab-regime_specific_macro_themes" hidden><div class="panel-title">Regime Specific Macro Themes</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The latest assessment on 2025-12-23 indicates a "Supply_Stress" regime is active. This signifies physical market tightness in commodity sectors (Energy or Ags) (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">1</a>). All other macro themes (Inflation_Impulse, Disinflation, Global_Slowdown) are currently inactive.</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The Supply_Stress theme is triggered by hedgers being deeply long in at least 20% of Energy or Ags markets (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">1</a>). On 2025-12-23, hedgers were deeply long in 34.6% of Energy markets and 42.9% of Ags markets.</li>
+        <li>This reflects producers hedging consumption risk or physical shortages. No other themes met their activation thresholds.</li>
+        <li>Conditional Invalidation: If the share of hedgers deeply long in Energy and Ags markets falls below 20%.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Supply Stress continues, supported by persistent physical tightness in Energy and Ags.</li>
+        <li>Upside secondary: Inflation Impulse could emerge if speculative long crowding in Energy and Metals significantly increases alongside hedger shorting (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">1</a>).</li>
+        <li>Downside residual: Global Slowdown could manifest if metals speculative short crowding increases, combined with a broader risk-off tone (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks), as CoT data provides frequent updates on positioning shifts.</li>
+        <li>Aggregation Weight Hint: Medium, given its direct read on market-implied supply/demand imbalances.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Pricing, Supply. This signal points to potential upward pressure on commodity prices due to supply-side constraints.</li>
+        <li>Cycle position: Mid-cycle, as supply stress often indicates robust demand meeting constrained supply.</li>
+        <li>Typical interaction with other macro signals: It tends to align with inflation indicators and can precede policy responses related to commodity price stability.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>CoT Sector Theme Data, latest observation 2025-12-23 (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">1</a>). The `hedger_deep_long_share` for Energy and Ags were most influential.</li>
+        <li>CoT Theme Continuous Data, latest observation 2025-12-23 (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">1</a>).</li>
+        <li>Additional public datasets: Broader commodity inventory levels (e.g., EIA for oil), and weather-related forecasts for agricultural markets would enhance depth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Macro_Themes_Continuous.png" alt="Regime Specific Macro Themes" /><div class="media-cap">Regime Specific Macro Themes</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-usd_index_signal" aria-labelledby="tab-usd_index_signal" hidden><div class="panel-title">USD Index Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The USD Index Signal is currently Bearish as of 2025-12-01, indicating a weakening trend for the U.S. dollar. This reflects a continued period of dollar depreciation, transitioning from previous bullish periods.</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The signal is driven by the U.S. dollar's current value (119.8529) remaining below its 12-month moving average (122.9402) (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>The 6-month percentage change is near flat at 0.02%, not contributing to either extreme Bullish or Bearish conditions, indicating a lack of strong momentum (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: The signal would reverse to Bullish if the USD index's 6-month change exceeds +5% or its value rises above the 12-month moving average (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued USD weakening, as the index persists below its 12-month average.</li>
+        <li>Upside secondary: A strengthening USD, triggered by significant positive momentum (6-month change > +5%) or a definitive break above the 12-month MA.</li>
+        <li>Downside residual: Accelerated USD weakening, if the 6-month change significantly drops below -5%.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the use of 6-month momentum and 12-month moving averages in its construction (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: High, given its clear directional indication for a major macro variable.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs FX dynamics, global liquidity, and risk sentiment (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>A Bearish USD can reflect easing global financial conditions, typically aligning with a mid-to-late business cycle.</li>
+        <li>A weakening USD often interacts with commodity prices (positive correlation), global trade flows, and imported inflation, easing pressures when it depreciates (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Broad U.S. Dollar Index (DTWEXBGS), latest observation 2025-12-01 (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>). The `Value_Monthly` (119.8529) and `USD_12Month_MA` (122.9402) were most influential.</li>
+        <li>Additional public datasets that would improve depth or reliability: USD futures positioning (COT data) (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">2</a>), and real interest rate differentials.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/USD_Index_Signal_chart_mpl.png" alt="USD Index Signal" /><div class="media-cap">USD Index Signal</div></figure></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • Global Trade and Demand • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

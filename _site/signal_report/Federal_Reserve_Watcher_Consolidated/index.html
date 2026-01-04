@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A briefing framework that distils Federal Reserve policy conditions into a clear regime view, directional outlook, and decision-ready interpretation for upcoming meetings.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="A briefing framework that distils Federal Reserve policy conditions into a clear regime view, directional outlook, and decision-ready interpretation for upcoming meetings." />
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Federal Reserve Watcher</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> Federal Reserve Watcher</div>
+        <div class="page-title">A briefing framework that distils Federal Reserve policy conditions into a clear regime view, directional outlook, and decision-ready interpretation for upcoming meetings.</div>
+        <div class="hero-inject market-report"><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Policy Regime & Directional Outlook:</strong></p>
+  <ul>
+    <li><strong>Policy Regime:</strong> The Federal Reserve is currently operating in a risk-managed hold regime, prioritizing a pause after three consecutive easing steps while evaluating evolving labor market conditions and persistent inflation risks (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">1</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">5</a>).</li>
+    <li><strong>Near-Term Bias:</strong> HOLD with high confidence (75% probability) and dovish forward guidance (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">2</a>).</li>
+    <li><strong>Medium-Term Bias:</strong> A path of further rate cuts is projected, conditional on continued disinflation and avoidance of a sharp labor market downturn (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">2</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">6</a>).</li>
+    <li><strong>Key Constraint:</strong> The dominant constraint is balancing persistent, tariff-driven inflation risks with increasing downside risks to employment and emerging financial stress (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Synthesiser/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">2</a>).</li>
+  </ul>
+
+  <p><strong>Policy Justification:</strong></p>
+  <ul>
+    <li><strong>Macro Conditions:</strong> Inflation shows a COOL regime overall but policy-relevant PCE is Neutral, with normalizing CPI-PPI suggesting re-emerging pipeline pressures. The labor market is Neutral with underlying cooling tendencies, yet systemic financial stress remains elevated despite otherwise neutral credit conditions (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Synthesiser/" target="_blank">3</a>).</li>
+    <li><strong>Fed Worldview (Projections):</strong> The Fed projects gradual disinflation and labor market loosening over the medium term, explicitly shifting its risk asymmetry to address increasing downside employment risks despite near-term inflation being elevated by tariff effects (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">2</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">6</a>).</li>
+    <li><strong>Behavioural Feasibility:</strong> Despite the SEP projecting future cuts, Chair Powell’s recent "wait and see" stance, coupled with significant internal divergence following three cuts, makes a near-term HOLD more behaviorally feasible than immediate further action (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">1</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">7</a>).</li>
+    <li><strong>Real-Economy Signal:</strong> The Beige Book confirms softening labor demand, moderate wage growth with rising costs, and persistent moderate inflation pressures from tariffs, validating the cooling macro trend while highlighting mixed regional activity and emerging financial stress points (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">4</a>).</li>
+  </ul>
+
+  <p><strong>Interpretation:</strong></p>
+  <ul>
+    <li>Upcoming meetings should be interpreted as a data-dependent pause, where a sustained HOLD confirms the risk-managed regime. Significant deterioration in labor or financial conditions would likely accelerate projected medium-term cuts, while persistent non-tariff inflation or de-anchored expectations would challenge the dovish bias (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Synthesiser/" target="_blank">3</a>).</li>
+  </ul>
+
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-watcher" id="tab-watcher">Federal Reserve Watcher</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-macro" id="tab-macro">Macro Signal Synthesiser</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-projections" id="tab-projections">Projections Synthesiser</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-beigebook" id="tab-beigebook">Beige Book Summary</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-tone" id="tab-tone">Tone Decoder</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-docs" id="tab-docs">Document Validator</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-watcher" aria-labelledby="tab-watcher"><div class="panel-title">Federal Reserve Watcher</div><div class="panel-body"><div class="fed-watcher-block">
+  <h3>Final Decision Engine | Meeting: January 25/26, 2026</h3>
+
+  <p><strong>Inputs Used:</strong> Macro Signal Synthesiser; Fed Tone Decoder; Fed Projections Synthesiser; Beige Book Summary.</p>
+
+  <ul>
+    <li><strong>Macro Signal:</strong> <span style="color:#007700;">CUT</span> (confidence: MEDIUM) — Underlying cooling in labor and inflation (with caveats), and emerging financial stress warrant easing (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Synthesiser/" target="_blank">25</a>).</li>
+    <li><strong>Behavioural Feasibility:</strong> <span style="color:#666666;">HOLD-BIASED</span> — Three consecutive cuts in 2025, Chair Powell's "wait and see" comment, and significant internal divisions strongly penalize a fourth immediate cut (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Fed Worldview:</strong> <span style="color:#007700;">CUT</span> — December SEP projects further rate cuts in 2026, prioritizing mitigation of rising downside employment risks despite elevated inflation concerns (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">4</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">2</a>).</li>
+    <li><strong>Real-Economy Confirmation:</strong> MIXED — Confirms softening labor demand and persistent, moderate inflation pressures, with some slowing in activity and emerging financial stress (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  </ul>
+
+  <p><strong>Divergence (this is signal):</strong></p>
+  <ul>
+    <li><strong>Macro says:</strong> <span style="color:#007700;">CUT</span></li>
+    <li><strong>Behaviour says:</strong> <span style="color:#666666;">HOLD</span></li>
+    <li><strong>Fed worldview says:</strong> <span style="color:#007700;">CUT</span></li>
+  </ul>
+
+  <p><strong>Decision Probabilities (sum = 100%):</strong></p>
+  <ul>
+    <li><strong>CUT:</strong> 25%</li>
+    <li><strong>HOLD:</strong> 75%</li>
+    <li><strong>HIKE:</strong> 0%</li>
+  </ul>
+
+  <p><strong>Forward Guidance Bias:</strong> <span style="color:#007700;">DOVISH</span> — Will likely emphasize patience, data dependency, and a balanced approach, while reinforcing the SEP's implicit path of future easing by focusing on downside employment risks and the evolving inflation outlook (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>).<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">4</a>) </p>
+
+  <p><strong>Surprise Risk:</strong> <span style="color:#666666;">MEDIUM</span> — Source: divergence between the Fed's stated longer-term intention for cuts (SEP) and recent guidance for a "wait and see" approach; uncertainty regarding data due to government shutdown impacts; and the potential for rapid escalation of financial stress given recent risk signals (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Synthesiser/" target="_blank">25</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>).</p>
+
+  <p><strong>Final Call:</strong> <span style="color:#666666;">Outcome: HOLD with dovish guidance.</span></p>
+
+  <!--
+    INTERNAL DISCIPLINE (DO NOT REMOVE)
+    - Do not blend signals into a single “average” view before stating divergence.
+    - Probabilities must reflect:
+        * Macro justification strength (from Macro confidence)
+        * Behavioural feasibility (action vs hold bias)
+        * Worldview alignment (SEP / official framing)
+        * Path dependency (recent consecutive moves)
+        * Beige Book as confirmation only
+    - If Macro and Behaviour disagree, state it explicitly and let probabilities express the resolution.
+  -->
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-macro" aria-labelledby="tab-macro"><div class="panel-title">Macro Signal Synthesiser</div><div class="panel-body"><p><em>Conditions-based macro assessment for Federal Reserve policy justification.</em></p>
+
+<h3>1. Macro Conditions Summary</h3>
+<p>
+The current US macroeconomic landscape presents a nuanced and increasingly disinflationary picture, with signals suggesting a gradual moderation in economic activity and an easing of inflationary pressures. The overall Fed Inflation Signal is in a COOL regime (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>), driven by weak inflation momentum, although policy-relevant PCE measures remain Neutral (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>) and market-implied expectations are STABLE (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>). A key tension arises from the CPI-PPI divergence, which has normalized to NEUTRAL, hinting at potential re-emerging pipeline pressures (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">4</a>).
+</p>
+<p>
+The US labor market is characterized as Neutral with Underlying Cooling Tendencies, reflected by an Explicit Slack Gap that is NEUTRAL and STABLE with MEDIUM confidence (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>). While aggregate tightness measures are neutral (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">6</a>), underlying signals such as rising underemployment (U-6) (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">7</a>) and a Bearish Labor Market Turnover Differential (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">8</a>) indicate increasing slack and weakening worker confidence.
+</p>
+<p>
+US Credit Conditions are largely Neutral/Normal (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">9</a>) with historically low corporate spreads (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">10</a>), but an important divergence is noted by the standalone Financial Stress Index (STLFSI4) which is Bearish, signaling elevated systemic tension (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>). Private credit impulse is Stable (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">12</a>).
+</p>
+<p>
+Monetary conditions are predominantly easing, with the Federal Reserve Liquidity Composite in an Expansionary regime due to significant ON RRP unwinds (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">13</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Projections_Synthesiser/" target="_blank">14</a>). M2 money supply growth is Bullish (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">15</a>), and the real-rate regime is Neutral (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">16</a>), having stabilized after a period of decline. The policy stance is NEAR NEUTRAL relative to the Explicit Neutral Rate (r*), with the r* drift assessed as STABLE (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">17</a>).
+</p>
+<p>
+Cross-asset positioning indicates a bifurcated market. While the VIX Volatility Signal is NORMAL (<a href="https://investoranatomy.com/signal_report/Market_Volatility_VIX/" target="_blank">18</a>), there is High Squeeze Risk across futures markets (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk_Indicators/" target="_blank">19</a>), and a dominant Macro Positioning Theme of Supply Stress is ACTIVE (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">20</a>). Extreme speculative long positioning in Fed Funds futures against deep hedger shorts suggests an elevated risk profile for policy expectations (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">21</a>).
+</p>
+<p>
+The US Growth & Business Cycle signal was not explicitly provided in the current theme reports, presenting a data gap for a comprehensive domestic growth assessment. However, global growth context shows a "Resilient Mid-Cycle with Metals-Led Tailwinds and Emerging Rate Support" (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">22</a>), driven by industrial demand for metals (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">23</a>).
+</p>
+
+<h3>2. Why a Simple Taylor-Style Rule Is Insufficient</h3>
+<p>
+A simple Taylor-style rule, which prescribes a mechanical policy rate based on inflation and output gaps, is insufficient for guiding policy in the current complex macroeconomic regime. Such rules inherently assume stable economic relationships and policy coefficients, which are demonstrably time-varying. The relative weights assigned to inflation versus labor market mandates frequently shift depending on the prevailing economic regime, often in response to unforeseen shocks or structural changes. Furthermore, mechanical rules fail to adequately incorporate risk asymmetry, where the costs of one type of error (e.g., overtightening into a recession) may substantially outweigh the costs of another (e.g., allowing temporary inflation overshoots). In an environment characterized by heightened uncertainty and the importance of regime persistence, policy requires a flexible reaction function that prioritizes decisive evidence of regime shifts over point estimates, accommodates non-linearities, and considers the potential for tail risks to dominate average outcomes.
+</p>
+
+<h3>3. Reaction-Function Relevant Signals</h3>
+<ul>
+  <li>Inflation dynamics:
+    <ul>
+      <li><strong>Levels vs direction:</strong> Overall Fed Inflation Signal is COOL (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>), indicating weak momentum. Policy-Relevant PCE is Neutral (2.79% headline, 2.83% core YoY) (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>).</li>
+      <li><strong>Persistence vs moderation:</strong> Moderation is evident in the Fed Inflation Signal. However, PCE figures near 2.8% and market expectations remaining STABLE (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>), with a Neutral inflation term-structure (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">24</a>), suggest some underlying stickiness or anchored long-term views.</li>
+      <li><strong>Upside vs downside inflation risk:</strong> Upside risk stems from the CPI-PPI divergence normalizing to NEUTRAL (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">4</a>) and potential resilience in core services. Downside risks include further deceleration of the broader Fed Inflation Signal and pronounced labor market cooling.</li>
+    </ul>
+  </li>
+  <li>Labour market:
+    <ul>
+      <li><strong>Composite labour regime:</strong> Neutral with Underlying Cooling Tendencies.</li>
+      <li><strong>Explicit Slack Gap:</strong> Direction is <strong>NEUTRAL</strong>, Momentum is <strong>STABLE</strong>, and Confidence is <strong>MEDIUM</strong> (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>). Underlying U-6 rising (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">7</a>) and Bearish turnover (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">8</a>) suggest increasing slack.</li>
+    </ul>
+  </li>
+  <li>Growth & demand:
+    <ul>
+      <li><strong>Business-cycle phase:</strong> US-specific growth signals are not explicitly provided in the theme reports. Global growth signals point to a "Resilient Mid-Cycle with Metals-Led Tailwinds and Emerging Rate Support" (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">22</a>).</li>
+      <li><strong>Momentum vs stall-speed risk:</strong> Cooling tendencies in the US labor market (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>) and rising systemic stress signals (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>) introduce stall-speed risks domestically.</li>
+      <li><strong>Reinforcement or contradiction from credit conditions:</strong> Credit conditions are Neutral/Normal (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">9</a>) and private credit impulse Stable (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">12</a>), broadly supportive, but contradicted by the Bearish Financial Stress Index (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>), signaling underlying fragility.</li>
+    </ul>
+  </li>
+  <li>Financial conditions & liquidity:
+    <ul>
+      <li><strong>Liquidity impulse:</strong> Expansionary, driven by ON RRP unwinds and Bullish M2 growth (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">13</a>)(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">15</a>).</li>
+      <li><strong>Real-rate regime:</strong> Neutral (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">16</a>), having stabilized after a declining trend.</li>
+      <li><strong>Policy stance relative to Neutral Rate (r*):</strong> <strong>NEAR NEUTRAL</strong>. The directional drift of r* is <strong>STABLE</strong> (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">17</a>).</li>
+    </ul>
+  </li>
+  <li>Risk asymmetry & regime persistence:
+    <ul>
+      <li><strong>Upside inflation vs downside growth risks:</strong> Upside inflation risks exist from normalizing CPI-PPI dynamics (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">4</a>) and sticky PCE (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>). However, downside growth and financial stability risks are highlighted by a cooling labor market (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>), Bearish STLFSI4 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>), High Squeeze Risk (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk_Indicators/" target="_blank">19</a>), and extreme Fed Funds positioning (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">21</a>).</li>
+      <li><strong>Signal alignment vs contradiction:</strong> There are notable contradictions: COOL aggregate inflation (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>) vs. Neutral PCE and STABLE expectations (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>); Neutral credit composites (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">9</a>) vs. Bearish STLFSI4 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>).</li>
+      <li><strong>Bias toward continuation unless decisively broken:</strong> The prevailing disinflationary trend and labor market cooling tendencies suggest a continuation bias towards moderation. However, the identified contradictions and risks, particularly in financial stability and positioning, introduce potential inflection points that could decisively break the current narrative.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>4. Macro Directional Bias (Conditions Only)</h3>
+<p>
+<strong>CUT</strong>
+</p>
+<p>
+This reflects economic justification only, not timing, probability, or intent.
+</p>
+
+<h3>5. Confidence Score</h3>
+<p>
+<strong>MEDIUM</strong>
+</p>
+
+<hr>
+
+<p><em>
+This assessment reflects economic justification, not policy timing or decision-making.
+</em></p></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-projections" aria-labelledby="tab-projections"><div class="panel-title">Projections Synthesiser</div><div class="panel-body"><p><em>
+Inference of the Federal Reserve’s internally prepared future economic state,
+based exclusively on Fed-authored projections and communications.
+</em></p>
+
+<h3>1. Fed-Implied Growth Outlook</h3>
+<p>
+The Federal Reserve appears to be preparing for a future state where economic growth, while having moderated in the near-term, re-accelerates in the medium-term. The Summary of Economic Projections (SEP) from December 2025 (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20251210.pdf" target="_blank">14</a>) projects real GDP to rise from a median of 1.7% in 2025 to 2.3% in 2026, then settle at 2.0% in 2027 and 1.9% in 2028, consistent with its longer-run projection of 1.8% (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20251210.pdf" target="_blank">14</a>). This marks an upward revision for 2026 growth compared to the September 2025 SEP (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20250917.pdf" target="_blank">13</a>). Chair Powell clarified that, adjusting for the temporary impact of the government shutdown, the underlying growth outlook for 2025 and 2026 would be 1.9% and 2.1% respectively (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>). This re-acceleration is partly attributed to resilient consumer spending and strong business investment, particularly in AI infrastructure (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>). However, Beige Book reports (<a href="https://www.federalreserve.gov/monetarypolicy/files/beigebook202510.pdf" target="_blank">1</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/files/beigebook202511.pdf" target="_blank">2</a>) indicate economic activity has been "little changed" or "modestly declined" in recent months, with diverse regional outlooks ranging from expected upticks in 6-12 months to continued elevated uncertainty and downside risks from policy events like the government shutdown (<a href="https://www.federalreserve.gov/monetarypolicy/files/beigebook202510.pdf" target="_blank">1</a>). Confidence in this outlook is Medium, as Chair Powell acknowledges forecasting difficulties and the impact of data limitations due to the shutdown on granular understanding of the economy (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>).
+</p>
+
+<h3>2. Fed-Implied Inflation Trajectory</h3>
+<p>
+The Fed appears to be preparing for a path of continued **disinflation** over the medium-term, but acknowledges **sticky** elevated levels in the near-term, primarily due to tariff effects. The December 2025 SEP (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20251210.pdf" target="_blank">14</a>) projects total PCE inflation to decline from a median of 2.9% in 2025 to 2.4% in 2026, reaching 2.1% in 2027 and the 2.0% longer-run target in 2028. Core PCE inflation follows a similar downward path (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20251210.pdf" target="_blank">14</a>). The framing emphasizes that tariff-induced price increases are likely a "one-time shift in the price level" rather than an "ongoing inflation problem" (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>), though Chair Powell stresses the importance of careful monitoring to prevent these effects from becoming entrenched (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>). Tariffs are expected to cause further upward pressure into Q1 2026, with inflation from goods then declining in the latter half of 2026, and "non-tariff inflation" already near the 2% target (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>). The Fed's overall sensitivity remains high, with risks to the inflation forecast consistently viewed as **skewed to the upside** (<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20250730.htm" target="_blank">7</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20250917.htm" target="_blank">8</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20251029.htm" target="_blank">9</a>), particularly concerning the persistence of tariff effects and the potential for longer-term inflation expectations to become unanchored if inflation remains above target for an extended period (<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20251029.htm" target="_blank">9</a>). Longer-term inflation expectations, however, are explicitly stated to be "well anchored" at 2% (<a href="https://www.federalreserve.gov/monetarypolicy/files/FOMC_LongerRunGoals.pdf" target="_blank">15</a>).
+</p>
+
+<h3>3. Fed-Implied Labour Market Trajectory</h3>
+<p>
+The Federal Reserve appears to be preparing for a **gradual loosening** of the labor market, moving from solid conditions earlier in the year to a "less dynamic and somewhat softer labor market" (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>). Employment levels were largely stable to declining slightly in recent weeks (<a href="https://www.federalreserve.gov/monetarypolicy/files/beigebook202510.pdf" target="_blank">1</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/files/beigebook202511.pdf" target="_blank">2</a>), with job gains slowing significantly (e.g., to 29,000 per month in the three months to August (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>)). The unemployment rate has edged up (to 4.3% in August (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>) and 4.4% in September (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>)), though it remains low overall. The speed of adjustment is anticipated to be gradual, with staff projections in the October minutes (<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20251029.htm" target="_blank">9</a>) expecting the unemployment rate to decline gradually after this year. While there are anecdotal reports of AI-driven job cuts and hiring freezes from some large companies (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>), aggregate layoff numbers have not sharply increased (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>). Reduced labor supply due to lower immigration and participation rates also contributes to slower job creation (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>). The Fed expresses a **high degree of concern** about the labor market's trajectory, particularly the increasing "downside risks to employment" (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">4</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">5</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">6</a>). Chair Powell highlighted concerns for economically vulnerable groups, including younger Americans and minorities (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>), and the potential for a "K-shaped economy" where lower-income households face increasing struggles (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>). This heightened concern for employment is a primary driver for the recent policy rate adjustments (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>).
+</p>
+
+<h3>4. Dominant Risk Narrative</h3>
+<p>
+The dominant risk narrative the Federal Reserve appears to be preparing for is the **challenging tension between elevated upside inflation risks and increasing downside employment risks**, with recent policy decisions indicating a proactive stance to mitigate the latter. While the Fed continues to assess inflation risks as "skewed to the upside" (<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20251029.htm" target="_blank">9</a>) due to the potential persistence of tariff effects and the risk of unanchored long-term inflation expectations, the Committee has explicitly noted a "shift in the balance of risks" (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">4</a>) towards employment concerns since September. This is evidenced by slower job gains, an edging up of the unemployment rate, and a "less dynamic and somewhat softer labor market" (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>).
+
+The **asymmetric preparation** is evident in the three consecutive policy rate reductions (September, October, and December 2025) (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">4</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">5</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">6</a>), which Chair Powell described as "risk-management cuts" to move policy towards a more neutral stance (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>). The goal is to prevent a "sharper downturn" in the labor market (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>). Additionally, the decision to halt quantitative tightening (QT) and initiate purchases of shorter-term Treasury securities in December (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">6</a>) reflects a proactive measure to maintain ample reserves and support smooth market functioning, thereby mitigating potential financial stability risks. The Committee emphasizes a "balanced approach" to its dual mandate and stresses that policy is "not on a preset course," with future decisions being meeting-by-meeting and data-dependent, especially given uncertainties like the government shutdown's impact on data availability (<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>).
+</p>
+
+<h3>5. Evidence Map (Concise)</h3>
+<ul>
+  <li><b>Key SEP signals</b> (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20250917.pdf" target="_blank">13</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcprojtabl20251210.pdf" target="_blank">14</a>):
+    <ul>
+      <li>Median GDP growth for 2026 revised up significantly (from 1.8% to 2.3%) in December, suggesting a re-accelerating medium-term growth outlook.</li>
+      <li>Median unemployment rate projections remain stable at low levels (4.5% for 2025, 4.4% for 2026), indicating a gradual loosening rather than sharp deterioration.</li>
+      <li>Median PCE inflation projections for 2025 and 2026 are slightly lower in December but remain above 2%, signaling persistent but moderating price pressures.</li>
+      <li>Median Federal Funds Rate path was reduced in September and held steady in December, indicating a move towards a neutral policy stance.</li>
+    </ul>
+  </li>
+  <li><b>Key Beige Book themes</b> (<a href="https://www.federalreserve.gov/monetarypolicy/files/beigebook202510.pdf" target="_blank">1</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/files/beigebook202511.pdf" target="_blank">2</a>):
+    <ul>
+      <li>Overall economic activity "little changed" or "modestly declined," with mixed regional outlooks but persistent elevated uncertainty and concerns over government shutdown impacts.</li>
+      <li>Labor markets show muted demand, easier worker availability (except skilled trades/immigrants), slight declines in employment, and modest wage growth with rising compensation costs (health insurance). AI is noted for replacing entry-level positions.</li>
+      <li>Prices continue to rise moderately, driven by tariff-induced input costs and services, with firms experiencing margin compression and anticipating persistent cost pressures.</li>
+    </ul>
+  </li>
+  <li><b>Key language or framing from statements or speeches</b> (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">3</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">4</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">5</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">6</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20250917.pdf" target="_blank">10</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251029.pdf" target="_blank">11</a>)(<a href="https://www.federalreserve.gov/mediacenter/files/FOMCpresconf20251210.pdf" target="_blank">12</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20250730.htm" target="_blank">7</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20250917.htm" target="_blank">8</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/fomcminutes20251029.htm" target="_blank">9</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/files/FOMC_LongerRunGoals.pdf" target="_blank">15</a>):
+    <ul>
+      <li>"Uncertainty about the economic outlook remains elevated."</li>
+      <li>"Downside risks to employment have risen in recent months" and "shift in the balance of risks."</li>
+      <li>"Inflation has moved up and remains somewhat elevated," with risks "skewed to the upside."</li>
+      <li>Tariff effects are primarily viewed as a "one-time shift in the price level" that requires careful monitoring for persistence.</li>
+      <li>Policy rate cuts are characterized as "risk-management cuts" to move towards a "more neutral policy stance."</li>
+      <li>"Policy is not on a preset course," emphasizing data dependence and evaluation of the "evolving outlook, and the balance of risks."</li>
+      <li>Concerns about a "K-shaped economy" and the impact of AI on labor demand.</li>
+      <li>Decision to conclude QT and initiate short-term Treasury purchases to maintain ample reserves, addressing money market conditions.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+
+<h3>6. Missing or Incomplete Inputs</h3>
+<p>
+One expected Fed-authored document was not provided:
+</p>
+<ul>
+  <li>"Federal Open Market Committee announces its tentative meeting schedule for 2027" (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250905a.htm" target="_blank">16</a>). This document sets future policy meeting dates and is typically available via RSS. Its absence is not material for inferring the future economic state, as it is administrative rather than a projection or direct policy communication.</li>
+</ul>
+
+<hr>
+
+<p><em>
+This module provides projection conditioning only.
+It does not determine policy, timing, or behavioural feasibility.
+</em></p></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-beigebook" aria-labelledby="tab-beigebook"><div class="panel-title">Beige Book Summary</div><div class="panel-body"><h2>Publication Date — <em>November 2025</em></h2>
+<p><em>Descriptive synthesis of current US economic conditions based on district-level reporting.</em>(<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>)</p>
+<hr>
+
+<h3>National Backdrop</h3>
+<p>Overall economic activity remained largely unchanged since the previous report, with a majority of Federal Reserve Districts noting stable conditions, while two observed modest declines and one reported modest growth (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Consumer spending saw a further decline, although higher-end retail remained resilient, with some retailers attributing negative impacts to the government shutdown and auto dealers noting decreased EV sales after federal tax credits expired (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Manufacturing activity increased somewhat across most Districts, despite ongoing headwinds from tariffs and associated uncertainty (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Revenues in the nonfinancial services sector were mostly flat to down, and residential construction activity varied by region, with some declines and some stable reports (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Loan demand was mixed, while office real estate saw signs of recovery (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). The outlooks generally remained unchanged, though some contacts noted an increased risk of slower activity in the coming months, while manufacturers expressed some optimism (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p>
+<hr>
+
+<h3>Labour Market Conditions</h3>
+<p>Employment levels declined slightly overall, with roughly half of the Districts reporting weaker labor demand (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). While there was an uptick in layoff announcements, most contacts opted to limit headcounts through hiring freezes, replacement-only hiring, and attrition rather than widespread layoffs (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Several employers adjusted hours worked to match business volume, and a few firms noted that artificial intelligence was replacing entry-level positions or boosting productivity, thus curbing new hiring (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Worker availability improved across most Districts, making it easier to find employees, though challenges persisted in securing skilled workers and amidst fewer immigrant workers (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Wage growth generally maintained a modest pace, but sectors like manufacturing, construction, and health care experienced more moderate wage pressures due to tighter labor supply and rising health insurance premiums contributing to overall labor costs (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p>
+<hr>
+
+<h3>Prices & Cost Pressures</h3>
+<p>Prices rose moderately during the reporting period, with input cost pressures noted as widespread in manufacturing and retail, often attributed to tariffs (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Additionally, several Districts cited rising costs for insurance, utilities, technology, and health care (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). The ability to pass through these higher costs to customers varied significantly, depending on demand, competitive pressures, and consumer price sensitivity, leading to multiple reports of margin compression for firms facing financial strain from tariffs (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Conversely, prices for certain materials declined, which contacts attributed to sluggish demand, deferred tariff implementation, or reduced tariff rates (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Looking ahead, contacts largely anticipate that upward cost pressures will persist, though plans to raise selling prices in the near term remained mixed (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p>
+<hr>
+
+<h3>Sector Themes</h3>
+<ul>
+  <li><strong>Consumer activity:</strong> Overall consumer spending declined further, with lower- and middle-income consumers notably tightening their discretionary spending (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Higher-end retail spending remained resilient, as observed in New York (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). EV sales saw declines following the expiration of federal tax credits across several Districts (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Manufacturing:</strong> Activity increased somewhat across most Districts, although tariffs and trade policy uncertainty continued to be a headwind (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Manufacturers in Cleveland reported a boost from AI data centers (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Production growth continued modestly in Dallas, while some firms in Philadelphia anticipated increasing future capital expenditures (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Services:</strong> Nonfinancial services revenues were mostly flat to down (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Professional and business services saw increased demand in Cleveland, partly due to tax policy changes and evolving data needs (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Leisure and hospitality activity was mixed, with some areas reporting cautious discretionary spending (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Housing & construction:</strong> Residential construction activity saw declines in some Districts and was unchanged in others, with home sales varying (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Commercial real estate activity picked up slightly, with an ongoing recovery in the office market noted across Districts like Boston and New York (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). High construction costs, influenced by labor shortages and tariffs, continued to deter development (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Banking & credit:</strong> Loan demand was mixed overall, with declines reported in consumer and commercial & industrial lending in Dallas, but an uptick in residential mortgages in New York (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Credit standards were largely unchanged but some tightening was reported for business loans and commercial mortgages in New York and by lenders in St. Louis and Dallas (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Delinquencies improved for some loan types but remained elevated (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Agriculture & energy:</strong> Conditions in agriculture and energy sectors were largely stable, though both faced challenges from low-price environments for oil and some crops (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Kansas City reported oil and gas activity declining slightly as oil prices fell below profitable levels, while Atlanta noted strong demand for primary energy sources, particularly LNG, solar, and wind, attributed to data center activity (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+</ul>
+<hr>
+
+<h3>Regional Dispersion</h3>
+<ul>
+  <li><strong>Stronger districts:</strong>
+    <ul>
+      <li><p><strong>Boston:</strong> Experienced slight expansion in economic activity, marked by renewed strength in home sales, with an overall cautiously optimistic outlook (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Chicago:</strong> Noted slight increases across employment, consumer spending, business spending, construction, real estate, and manufacturing, coupled with some loosening of financial conditions (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Cleveland:</strong> Reported a slight increase in business activity, moderate growth in professional and business services, and a boost to manufacturing from AI data centers (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+    </ul>
+  </li>
+  <li><strong>Softer districts:</strong>
+    <ul>
+      <li><p><strong>New York:</strong> Economic activity declined modestly, with slight employment decreases and a moderate decline in the service sector (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Philadelphia:</strong> Activity was trending down even before the government shutdown, which further spurred modest declines across most sectors, alongside falling employment levels (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>St. Louis:</strong> Economic activity and employment remained unchanged, but contacts reported a slowdown in demand, amplified by the government shutdown, leading to a pessimistic outlook (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Dallas:</strong> Showed slight weakening in nonfinancial services, retail, and banking, with a general worsening of outlooks due to various economic concerns (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+    </ul>
+  </li>
+  <li><strong>Common constraints:</strong>
+    <ul>
+      <li><p><strong>Tariffs and Trade Policy Uncertainty:</strong> Frequently cited as a headwind for manufacturing and retail across Districts like New York, Philadelphia, Cleveland, and Dallas (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Government Shutdown Impacts:</strong> Disrupted consumer purchases, social services, and business activity in multiple regions, including Philadelphia, St. Louis, and Kansas City (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Consumer Price Sensitivity:</strong> Particularly among lower- and middle-income households, leading to cautious discretionary spending and a search for discounts in Cleveland, Philadelphia, and San Francisco (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+    </ul>
+  </li>
+  <li><strong>Outliers:</strong>
+    <ul>
+      <li><p><strong>New York:</strong> Despite overall modest declines, higher-end retail and housing markets demonstrated resilience (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Philadelphia:</strong> Noted a shift towards part-time work, with employees returning to supplement wages at restaurant jobs (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+      <li><p><strong>Kansas City:</strong> Firms reported only passing through approximately 20 percent of input cost increases to customers, indicating limited pricing power (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</p></li>
+    </ul>
+  </li>
+</ul>
+<hr>
+
+<h3>Signals to Watch</h3>
+<ul>
+  <li><strong>Growth risks:</strong> The bifurcation in consumer spending, with higher-income households remaining resilient while lower- and middle-income segments tighten their belts, suggests potential shifts in overall demand momentum (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>). Ongoing uncertainties related to tariffs and trade policy continue to pose headwinds for manufacturing and retail activity (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Labour inflections:</strong> The increased reliance on hiring freezes, attrition, and AI to manage headcounts, coupled with easier worker availability for general positions but persistent difficulty for skilled roles, indicates a softening labor market with specific structural adjustments (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Inflation persistence:</strong> Widespread and robust input cost pressures, particularly from tariffs, insurance, and health care, suggest that while some selling price increases are being absorbed by firms, the underlying cost structure remains elevated and may lead to renewed price pass-through if demand conditions allow (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Capital investment:</strong> Mixed signals on business capital spending, with some firms delaying investments due to tight margins and economic uncertainty, while others, particularly in manufacturing, are planning future expenditures or dusting off expansion plans, suggesting a cautious but potentially shifting investment tone (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+  <li><strong>Financial stress:</strong> Rising delinquencies among households and small businesses, increasing reliance on debt to cover essential expenses, and tightening credit standards by lenders for certain loan categories, point to emerging signs of financial stress, particularly for vulnerable segments (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">1</a>).</li>
+</ul></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-tone" aria-labelledby="tab-tone"><div class="panel-title">Tone Decoder</div><div class="panel-body">Fed Tone Decoder – Communications Interpretation Module.
+
+<div class="fed-tone-block">
+  <h3>Speaker: Chair Powell | Date: December 10, 2025 | Source: Press Conference</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Gradual cooling continues, unemployment edged up, downside risks risen (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Remains somewhat elevated, goods inflation picked up due to tariffs, but disinflation continues for services; upside risks still present (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Policy Bias:</strong> Lowered policy rate by 1/4 percentage point; initiated purchases of shorter-term Treasury securities to maintain ample reserves; eliminated aggregate limit on repo operations (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Risks to inflation tilted to upside, employment to downside; policy now "well positioned to wait and see" given three cuts (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> Strong divisions on future path ("clearly very divided" with "soft dissents from four others" in addition to official dissents) (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Policy eased due to downside employment risks and gradual cooling, while balance sheet purchases initiated, despite elevated inflation and committee divisions.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: December 10, 2025 | Source: Summary of Economic Projections</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Median unemployment rate projected at 4.5% for 2025, gradually declining to 4.2% longer run, slightly lower than Sep projections for 2026-2028 (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">2</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Median PCE inflation 2.9% for 2025, falling to 2.0% longer run; Core PCE inflation 3.0% for 2025, also falling to 2.0% longer run (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">2</a>).</li>
+    <li><strong>Policy Bias:</strong> Median federal funds rate projects further cuts: 3.6% for 2025, 3.4% for 2026, 3.1% for 2027, 3.0% longer run, indicating continued easing into 2027 (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">2</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Implied shift to address employment downside, given continued policy easing despite inflation being above target (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> Wide range of individual projections for the federal funds rate across all years (e.g., 2025 range 1.88-2.12% to 4.38-4.62%), indicating substantial disagreement (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">2</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#AA8800;">ACTION-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Projections signal further rate cuts over the medium term to support labor market stability, despite near-term inflation remaining elevated.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: December 10, 2025 | Source: FOMC Statement</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Job gains have slowed; unemployment rate edged up through September, downside risks to employment rose (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Inflation moved up since earlier in the year and remains somewhat elevated (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>).</li>
+    <li><strong>Policy Bias:</strong> Lowered federal funds rate by 1/4 percentage point; initiated purchases of shorter-term Treasury securities to maintain ample reserves (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Attentive to risks to both sides, but judges downside risks to employment rose in recent months (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>).</li>
+    <li><strong>Internal Divergence:</strong> Stephen I. Miran preferred 1/2 percentage point lower; Austan D. Goolsbee and Jeffrey R. Schmid preferred no change (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#AA8800;">ACTION-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Further easing through rate cut and reserve management purchases to address rising employment risks, despite elevated inflation and committee dissent.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Event: Rate Decision | Date: December 10, 2025</h3>
+  <p><strong>Policy Action:</strong> 25bps CUT</p>
+  <p><strong>Context:</strong> Third consecutive rate cut in 2025, bringing the federal funds rate to 3-1/2 to 3-3/4 percent (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210a.htm" target="_blank">1</a>).
+</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: Federal Reserve System | Date: November 2025 | Source: The Beige Book</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Employment declined slightly, labor demand weaker in about half of Districts; modest wage growth, but some sectors saw more moderate wage pressure due to tighter supply (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">3</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Prices rose moderately; input costs widespread, largely due to tariffs, with firms anticipating persistent upward cost pressures (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">3</a>).</li>
+    <li><strong>Policy Bias:</strong> Overall activity mixed, softening in some sectors, but manufacturing picked up; implicit data-dependency due to mixed signals (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Some contacts noted increased risk of slower activity in coming months (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> N/A.</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#666666;">NEUTRAL</span> — Mixed economic conditions with softening labor and persistent inflation pressures, suggesting a cautious data-dependent approach.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: Chair Powell | Date: October 29, 2025 | Source: Press Conference</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Labor market gradually cooling, job gains slowed, unemployment rate low but edged up, downside risks to employment rose (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Inflation remains somewhat elevated; tariffs are pushing up goods prices, though effects expected to be one-time price shift; risks to inflation tilted to the upside (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Policy Bias:</strong> Lowered policy rate by 1/4 percentage point; concluded balance sheet reduction as of Dec 1; future December cut "not a foregone conclusion" (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Risks to inflation tilted upside, employment to downside; balance of risks shifted, policy action is "risk management" for employment downside (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> "Strongly differing views" on future path, with dissents on current rate cut (one for larger cut, one for no change) (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Eased policy with a rate cut and ended QT, driven by concerns for the labor market, but signalled future uncertainty and a less prescriptive path.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: October 29, 2025 | Source: FOMC Statement</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Job gains slowed, unemployment rate edged up but remained low; recent indicators consistent with gradual cooling (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Inflation moved up since earlier in the year and remains somewhat elevated (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>).</li>
+    <li><strong>Policy Bias:</strong> Lowered federal funds rate by 1/4 percentage point to 3-3/4 to 4 percent; decided to conclude reduction of aggregate securities holdings on December 1 (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Attentive to risks to both sides, judges downside risks to employment rose in recent months (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>).</li>
+    <li><strong>Internal Divergence:</strong> Stephen I. Miran preferred 1/2 percentage point lower; Jeffrey R. Schmid preferred no change (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#AA8800;">ACTION-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Eased policy with a rate cut and announced the end of balance sheet runoff, reflecting a shift to address downside employment risks amidst elevated inflation.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Event: Rate Decision | Date: October 29, 2025</h3>
+  <p><strong>Policy Action:</strong> 25bps CUT</p>
+  <p><strong>Context:</strong> Second consecutive rate cut, bringing the federal funds rate to 3-3/4 to 4 percent, and announced end of balance sheet runoff on December 1 (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251029a.htm" target="_blank">4</a>).
+</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: October 28-29, 2025 | Source: Minutes of the Federal Open Market Committee</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Job gains slowed, unemployment edged up, downside risks to employment risen; gradual softening but not sharply deteriorated (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">3</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Inflation moved up and remained somewhat elevated; core inflation elevated, goods inflation higher due to tariffs; upside risks to inflation remained elevated (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">3</a>).</li>
+    <li><strong>Policy Bias:</strong> Lowered federal funds rate by 1/4 percentage point; agreed to conclude balance sheet runoff on Dec 1; mixed views on future path, some supported lowering, some no change, one preferred larger cut (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">3</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Downside risks to employment increased; upside risks to inflation elevated; balanced approach in promoting dual mandate goals (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> Two dissents on rate decision (one for 1/2 pt cut, one for no change); "strongly differing views" regarding December meeting (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251119a.htm" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Eased policy by cutting rates and ending QT to address rising employment risks, despite persistent inflation and significant internal divisions on future actions.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: Federal Reserve System | Date: October 2025 | Source: The Beige Book</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Employment largely stable, demand muted; more layoffs/attrition; improved labor availability, but some strained supply due to immigration policy; modest to moderate wage growth, intensifying labor cost pressures (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">3</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Prices rose further; input costs increased faster due to tariffs and services; some firms passed costs, others did not; concerns about possible acceleration in 2026 (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">3</a>).</li>
+    <li><strong>Policy Bias:</strong> Overall economic activity changed little, with some softening but also modest growth in certain districts; mixed outlook with elevated uncertainty (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Downside risk to growth highlighted (government shutdown, Boston contacts saw mostly downside risks) (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> N/A.</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#666666;">NEUTRAL</span> — Mixed economic signals with softening labor and persistent, elevated inflation pressures, indicating caution and data dependency.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: Chair Powell | Date: September 17, 2025 | Source: Press Conference</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Unemployment rate edged up, job gains slowed significantly; downside risks to employment risen; job creation below "breakeven" rate (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Inflation risen recently, remains somewhat elevated; goods inflation picked up due to tariffs; near-term expectations moved up; risks tilted to the upside (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Policy Bias:</strong> Lowered policy rate by 1/4 percentage point; "take another step toward a more neutral policy stance" due to shift in balance of risks (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Balance of risks shifted; downside risks to employment increased, justifying current cut; upside risks to inflation remain (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> Acknowledged "pretty wide range of views" and "wide dispersion of views" among participants on policy path (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#AA8800;">ACTION-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Policy easing initiated via rate cut due to rising downside risks to employment and cooling labor market, despite elevated inflation and diverse committee views.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: September 17, 2025 | Source: Summary of Economic Projections</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Median unemployment rate projected at 4.5% for 2025 (up from June), then 4.4% (2026), 4.3% (2027), 4.2% (2028, longer run), indicating slight softening (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">7</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Median PCE inflation 3.0% for 2025, 2.6% for 2026 (up from June); Core PCE inflation 3.1% for 2025, 2.6% for 2026 (up from June), both returning to 2.0% by 2028 (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">7</a>).</li>
+    <li><strong>Policy Bias:</strong> Median federal funds rate projects cuts: 3.6% for 2025 (down from June), 3.4% for 2026 (down from June), 3.1% for 2027 (down from June), 3.0% longer run (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">7</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Judged that downside risks to employment had risen, while upside risks to inflation remained elevated (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> Wide dispersion in individual federal funds rate projections, especially for 2025 and 2026, suggesting varied views on appropriate policy path (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">7</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#AA8800;">ACTION-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Projections indicate a clear path of rate cuts to address rising employment risks, despite persistent, elevated inflation in the near term.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: September 17, 2025 | Source: FOMC Statement</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Job gains have slowed, and the unemployment rate has edged up but remains low (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Inflation has moved up and remains somewhat elevated (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>).</li>
+    <li><strong>Policy Bias:</strong> Lowered the target range for the federal funds rate by 1/4 percentage point to 4 to 4-1/4 percent; continue reducing securities holdings (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Attentive to risks to both sides of its dual mandate; judges that downside risks to employment have risen (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>).</li>
+    <li><strong>Internal Divergence:</strong> Stephen I. Miran voted against, preferring a 1/2 percentage point reduction (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#AA8800;">ACTION-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#007700;">DOVISH</span> — Initiated policy easing with a rate cut, emphasizing rising downside risks to employment despite elevated inflation, and acknowledging internal dissent for a larger move.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Event: Rate Decision | Date: September 17, 2025</h3>
+  <p><strong>Policy Action:</strong> 25bps CUT</p>
+  <p><strong>Context:</strong> First rate cut in the current cycle, following a period of sustained restrictive policy (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917a.htm" target="_blank">6</a>).
+</p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: August 22, 2025 | Source: Statement on Longer-Run Goals and Monetary Policy Strategy (as amended effective August 22, 2025)</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✗ Maximum employment is a dynamic, unmeasurable goal; policy decisions informed by assessments, recognizing uncertainty; allows for employment above real-time maximum without price risks (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">8</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Reaffirms 2 percent PCE inflation as longer-run goal; committed to acting forcefully to ensure longer-term inflation expectations remain well anchored (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">8</a>).</li>
+    <li><strong>Policy Bias:</strong> Primary tool is federal funds rate; prepared to use full range of tools; balanced approach if objectives are not complementary, considering extent of departures and time horizons (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">8</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Emphasizes a balanced approach when employment and inflation objectives are not complementary (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250822a.htm" target="_blank">8</a>).</li>
+    <li><strong>Internal Divergence:</strong> N/A (Strategy document, adopted by consensus).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#666666;">NEUTRAL</span> — A strategy document reaffirming the dual mandate with flexibility on employment and a firm 2% inflation target, supporting a data-dependent, balanced policy approach.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: July 29-30, 2025 | Source: Minutes of the Federal Open Market Committee</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Conditions solid, unemployment low; but staff projected unemployment to rise above natural rate by year-end, and some participants saw softening labor demand (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250820a.htm" target="_blank">9</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Disinflation appeared to have stalled, tariffs put upward pressure on goods inflation; overall inflation somewhat elevated (PCE 2.5%, Core PCE 2.7%); majority saw upside risk to inflation as greater (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250820a.htm" target="_blank">9</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Policy Bias:</strong> Maintained target range for federal funds rate at 4-1/4 to 4-1/2 percent; continued reducing securities holdings (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250820a.htm" target="_blank">9</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Uncertainty elevated; risks to both sides of dual mandate, but a majority viewed upside inflation risk as greater (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+    <li><strong>Internal Divergence:</strong> Two members preferred to lower the target range for the federal funds rate by 25 basis points (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Tone_Decoder/" target="_blank">3</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#666666;">NEUTRAL</span> — Held rates steady amid solid labor conditions, but noted stalled disinflation, elevated inflation concerns, and significant internal debate for easing.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Speaker: FOMC | Date: July 30, 2025 | Source: FOMC Statement</h3>
+  <ul>
+    <li><strong>Labour Market:</strong> ✓ Unemployment rate remains low, and labor market conditions remain solid (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">10</a>).</li>
+    <li><strong>Inflation Concern:</strong> ✓ Inflation remains somewhat elevated (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">10</a>).</li>
+    <li><strong>Policy Bias:</strong> Maintained target range for the federal funds rate at 4-1/4 to 4-1/2 percent; continued reducing securities holdings (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">10</a>).</li>
+    <li><strong>Risk Asymmetry:</strong> Uncertainty about economic outlook remains elevated; attentive to risks to both sides of its dual mandate (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">10</a>).</li>
+    <li><strong>Internal Divergence:</strong> Michelle W. Bowman and Christopher J. Waller voted against, preferring to lower the target range by 1/4 percentage point (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">10</a>).</li>
+  </ul>
+
+  <p><strong>Behavioural Feasibility:</strong> 
+     <span style="color:#666666;">HOLD-BIASED</span>
+  </p>
+
+  <p><strong>TONE:</strong> 
+     <span style="color:#666666;">NEUTRAL</span> — Held rates steady amid solid labor market and elevated inflation, acknowledging elevated uncertainty and notable dissent for a rate cut.
+  </p>
+</div>
+
+<hr>
+
+<div class="fed-tone-block">
+  <h3>Event: Rate Decision | Date: July 30, 2025</h3>
+  <p><strong>Policy Action:</strong> HOLD</p>
+  <p><strong>Context:</strong> Maintained the federal funds rate at 4.25-4.50 percent, despite some calls for easing (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250730a.htm" target="_blank">10</a>).
+</p>
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-docs" aria-labelledby="tab-docs"><div class="panel-title">Document Validator</div><div class="panel-body"><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Fed Document Interpreter:</strong></p>
+
+  <p><strong>Loaded Documents (This Run):</strong></p>
+  <ul>
+    <li><strong>The Beige Book, October 2025</strong> — Type: Beige Book — October 2025</li>
+    <li><strong>The Beige Book, November 2025</strong> — Type: Beige Book — November 2025</li>
+    <li><strong>Minutes of the Federal Open Market Committee</strong> — Type: Minutes — July 29-30, 2025</li>
+    <li><strong>Minutes of the Federal Open Market Committee</strong> — Type: Minutes — September 16-17, 2025</li>
+    <li><strong>Minutes of the Federal Open Market Committee</strong> — Type: Minutes — October 28-29, 2025</li>
+    <li><strong>Transcript of Chair Powell's Press Conference</strong> — Type: Press Conf — September 17, 2025</li>
+    <li><strong>Transcript of Chair Powell's Press Conference</strong> — Type: Press Conf — October 29, 2025</li>
+    <li><strong>Transcript of Chair Powell's Press Conference</strong> — Type: Press Conf — December 10, 2025</li>
+    <li><strong>Summary of Economic Projections</strong> — Type: SEP — September 17, 2025</li>
+    <li><strong>Economic Projections from the December 9-10 FOMC meeting</strong> — Type: SEP — December 10, 2025</li>
+    <li><strong>Statement on Longer-Run Goals and Monetary Policy Strategy (as amended effective August 22, 2025)</strong> — Type: Statement — August 22, 2025</li>
+    <li><strong>Federal Reserve issues FOMC statement</strong> — Type: Statement — July 30, 2025</li>
+    <li><strong>Federal Reserve issues FOMC statement</strong> — Type: Statement — September 17, 2025</li>
+    <li><strong>Federal Reserve issues FOMC statement</strong> — Type: Statement — October 29, 2025</li>
+    <li><strong>Federal Reserve issues FOMC statement</strong> — Type: Statement — December 10, 2025</li>
+  </ul>
+
+  <p><strong>Important Fed Documents Not Loaded:</strong></p>
+  <ul>
+    <li><strong>Federal Open Market Committee announces its tentative meeting schedule for 2027</strong> — 2025-09-05 — <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250905a.htm" target="_blank">Source</a> — <em>Missing</em>: Sets future policy meeting dates.</li>
+  </ul>
+
+  <p><strong>Coverage Notes:</strong></p>
+  <ul>
+    <li><strong>RSS Coverage:</strong> RSS feed was provided and appears complete for the period.</li>
+    <li><strong>Non-RSS Gaps:</strong> Not verifiable from RSS provided.</li>
+  </ul>
+
+</div></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • Federal Reserve Watcher • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

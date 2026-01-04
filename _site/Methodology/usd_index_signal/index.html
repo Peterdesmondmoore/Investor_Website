@@ -31,12 +31,12 @@
   <main class="container mx-auto px-5 py-10">
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">USD Index Signal</h1>
-      <div class="mt-2 text-slate-600 text-sm">A reproducible specification using FRED <strong>DTWEXBGS</strong> (Broad U.S. Dollar Index) to derive a macro‑directional risk signal, applicable across asset classes. Silver and other commodities are used as examples for interpretation.</div>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification using FRED <strong>DTWEXBGS</strong> (Broad U.S. Dollar Index) to derive a macro‑directional risk signal, applicable across asset classes. This specification is USD‑centric and the labels reflect U.S. dollar direction.</div>
     </header>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
-      <p class="leading-7">This document formalises a rules‑based signal from the Broad U.S. Dollar Index (<code>DTWEXBGS</code>). The method computes a 12‑month moving average and a 6‑month percentage change on a monthly series, then classifies regimes as <em>Strengthening</em>, <em>Neutral</em>, or <em>Weakening</em>. The framework is broadly applicable to global macro analysis, FX strategies, and commodity risk interpretation, with silver cited only as an illustrative example where a weaker USD tends to support precious metal prices.</p>
+      <p class="leading-7">This document formalises a rules‑based signal from the Broad U.S. Dollar Index (<code>DTWEXBGS</code>). The method computes a 12‑month moving average and a 6‑month percentage change on a monthly series, then classifies regimes as <strong>Bullish</strong>, <strong>Neutral</strong>, or <strong>Bearish</strong>.. The framework is broadly applicable to global macro analysis, FX strategies, and commodity risk interpretation, The labels refer strictly to U.S. dollar direction and are not asset‑specific.</p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -64,12 +64,12 @@
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">3. Signal Classification</h2>
-      <p class="leading-7">Interpretation is generic: a falling USD reflects potential easing in financial conditions, while a strengthening USD indicates tightening. For commodities such as silver, this relationship typically implies inverse price sensitivity.</p>
+      <p class="leading-7">Interpretation is USD-centric: a weakening U.S. dollar reflects potential easing in financial conditions, while a strengthening U.S. dollar indicates tightening. Signal labels refer strictly to U.S. dollar direction and are not asset-specific.</p>
       <div class="box text-sm">
         <ul class="list-disc pl-6">
-          <li><strong>Weakening (USD):</strong> <span class="eq">USD_{6M\,chg} &lt; −5\%</span> <em>or</em> <span class="eq">USD_t &lt; USD_{12M\,MA,t}</span>.</li>
-          <li><strong>Strengthening (USD):</strong> <span class="eq">USD_{6M\,chg} &gt; +5\%</span> <em>or</em> <span class="eq">USD_t &gt; USD_{12M\,MA,t}</span>.</li>
-          <li><strong>Neutral:</strong> otherwise or when inputs are missing.</li>
+          <li><strong>Bearish (USD):</strong> <span class="eq">USD_{6M\,chg} &lt; −5%</span> <em>or</em> <span class="eq">USD_t &lt; USD_{12M\,MA,t}</span>.</li>
+<li><strong>Bullish (USD):</strong> <span class="eq">USD_{6M\,chg} &gt; +5%</span> <em>or</em> <span class="eq">USD_t &gt; USD_{12M\,MA,t}</span>.</li>
+<li><strong>Neutral:</strong> otherwise or when inputs are missing.</li>
         </ul>
       </div>
       <p class="leading-7 mt-3">Thresholds (±5%) are heuristic and may be tuned to volatility regimes or target applications.</p>
@@ -107,18 +107,25 @@ monthly['USD_12Month_MA']    = monthly['Value_Monthly'].rolling(12).mean()
 monthly['USD_6Month_Change'] = monthly['Value_Monthly'].pct_change(6) * 100
 
 def generate_usd_signal(row):
-    chg6 = row['USD_6Month_Change']
-    val  = row['Value_Monthly']
-    ma12 = row['USD_12Month_MA']
-    if pd.isna(chg6) or pd.isna(val) or pd.isna(ma12):
+    usd_6month_change = row['USD_6Month_Change']
+    usd_value = row['Value_Monthly']
+    usd_12month_ma = row['USD_12Month_MA']
+
+    if pd.isna(usd_6month_change) or pd.isna(usd_value) or pd.isna(usd_12month_ma):
         return 'Neutral'
-    if (chg6 < -5) or (val < ma12):
-        return 'Weakening'
-    if (chg6 > 5)  or (val > ma12):
-        return 'Strengthening'
+
+    # Bearish USD (weakening)
+    if (usd_6month_change < -5) or (usd_value < usd_12month_ma):
+        return 'Bearish'
+
+    # Bullish USD (strengthening)
+    if (usd_6month_change > 5) or (usd_value > usd_12month_ma):
+        return 'Bullish'
+
     return 'Neutral'
 
 monthly['USD_Signal'] = monthly.apply(generate_usd_signal, axis=1)
+
 </code></pre>
       </div>
     </section>
@@ -143,7 +150,7 @@ monthly['USD_Signal'] = monthly.apply(generate_usd_signal, axis=1)
 
     <section class="mb-16">
       <h2 class="text-2xl font-semibold mb-3">7. Applications</h2>
-      <p class="leading-7">The USD Index Signal serves as a broad macro indicator of currency strength, risk sentiment, and financial conditions. It can be applied to FX positioning, commodity hedging (e.g., silver and gold), equity rotation strategies, and multi‑factor macro regime models alongside liquidity, rates, and inflation metrics.</p>
+      <p class="leading-7">The USD Index Signal serves as a broad macro indicator of currency strength, risk sentiment, and financial conditions. It can be applied to FX positioning, cross-asset risk analysis, equity rotation strategies, and multi‑factor macro regime models alongside liquidity, rates, and inflation metrics.</p>
     </section>
 
     <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the USD Index Signal.</footer>

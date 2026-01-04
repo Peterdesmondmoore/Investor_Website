@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synthesises Federal Reserve liquidity measures, money supply, real-rate signals and SOFR positioning to assess the current US monetary and liquidity regime.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="Synthesises Federal Reserve liquidity measures, money supply, real-rate signals and SOFR positioning to assess the current US monetary and liquidity regime." />
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>US Liquidity and Monetary Conditions</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> US Liquidity and Monetary Conditions</div>
+        <div class="page-title">Synthesises Federal Reserve liquidity measures, money supply, real-rate signals and SOFR positioning to assess the current US monetary and liquidity regime.</div>
+        <div class="hero-inject market-report"><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Regime Assessment:</strong></p>
+  <ul>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>Stability: Fragile</li>
+  </ul>
+
+  <p><strong>Why This Regime:</strong></p>
+  <ul>
+    <li>The regime is characterized by conflicting signals regarding interest rate expectations and a neutral, but internally conflicted, liquidity backdrop. The SOFR-3M signal, a high-weighted tactical indicator, suggests market expectations for lower rates (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">9</a>). Conversely, the SOFR-5Y signal, a medium-weighted cyclical indicator, points to expectations for sustained or higher rates (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">12</a>). This fundamental tension is a primary driver.</li>
+    <li>Broader liquidity measures reinforce a balanced, rather than expansive, state. The Federal Reserve Liquidity Composite is Neutral, exhibiting conflicting forces from contracting Federal Reserve assets and easing overnight reverse repo usage (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>). The M2 Money Supply signal is transitioning from a transient Bullish state to Neutral (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">6</a>).</li>
+    <li>Signals were dynamically weighted. The Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>) and the US 10-year Real Yield signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>) were downweighted due to mixed interpretation confidence and internal conflict. The M2 Money Supply signal (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">6</a>), while exhibiting high confidence, was treated as a waning expansive force due to its projected shift to Neutral.</li>
+  </ul>
+
+  <p><strong>Alignment & Tensions:</strong></p>
+  <ul>
+    <li>Tensions exist in the market's implied interest rate expectations. Tactical SOFR-3M positioning signals a bias towards lower rates (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">9</a>), while cyclical SOFR-5Y positioning implies expectations for sustained or higher rates (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">12</a>).</li>
+    <li>The overall Neutral state of the Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>) and the M2 Money Supply's (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">6</a>) shift to Neutral reinforce a stable, but not expansive, monetary backdrop. This aligns with the neutral real interest rate trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
+    <li>These tensions do not overturn the regime call. Instead, they define it as transitional and fragile, highlighting uncertainty in the monetary policy outlook. The lack of clear, broad-based expansive or contractive liquidity signals supports this.</li>
+  </ul>
+
+  <p><strong>Scenario Balance:</strong></p>
+  <ul>
+    <li>Dominant scenario: Continued neutrality in liquidity and real rates, with unresolved tensions in interest rate expectations (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
+    <li>Primary upside risk: A sustained re-acceleration of M2 growth beyond current projections (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">6</a>), alongside a clear market consensus for lower rates across the curve.</li>
+    <li>Primary downside risk: Intensified Federal Reserve balance sheet reduction or a sharp decline in reserve balances (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>), coupled with an unwinding of speculative long positions in SOFR markets (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">9</a>)(<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">12</a>).</li>
+  </ul>
+
+  <p><strong>What Would Change the Regime:</strong></p>
+  <ul>
+    <li>A clear and sustained reversal in the Federal Reserve's balance sheet policy or a significant acceleration in quantitative tightening (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    <li>A sustained drop in the 3-month M2 growth rate below 1.0%, or its year-over-year growth falling below 2.0% (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">6</a>).</li>
+    <li>A deviation of the 10-year real yield by more than ±0.05% from its 6-month trend, shifting to a clear accommodative or restrictive stance (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
+  </ul>
+
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-federal_reserve_liquidity_composite_signal" id="tab-federal_reserve_liquidity_composite_signal">Federal Reserve Liquidity Composite Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-m2_money_supply_signal" id="tab-m2_money_supply_signal">M2 Money Supply Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-real_interest_rate_trend_signal" id="tab-real_interest_rate_trend_signal">Real Interest Rate Trend Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-sof_3m_individual_market_analysis" id="tab-sof_3m_individual_market_analysis">SOFR 3M Individual Market Analysis</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-sof_5y_individual_market_analysis" id="tab-sof_5y_individual_market_analysis">SOFR 5Y Individual Market Analysis</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-federal_reserve_liquidity_composite_signal" aria-labelledby="tab-federal_reserve_liquidity_composite_signal"><div class="panel-title">Federal Reserve Liquidity Composite Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Federal Reserve Liquidity Composite is currently in a Neutral regime, with a composite value of -0.312708 as of 2025-12-31 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>). This marks a transition from an Expansion regime observed in the prior month.</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: Mixed Signals | Internal Conflict Flag: Yes.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The shift to Neutral from Expansion is primarily driven by persistent "Bearish" signals from Federal Reserve assets and reserve balances.</li>
+        <li>The M2 signal is Neutral, though its underlying YoY and 3-month changes are not available for the latest observation date (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Conversely, the inverted Overnight Reverse Repo (ON RRP) signal remains "Bullish," indicating an easing component due to falling usage.</li>
+        <li>Conditional Invalidation: A clear and sustained reversal in the Federal Reserve's balance sheet policy or a significant acceleration in quantitative tightening.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued Neutral liquidity, as conflicting forces from contracting Fed balance sheet components and easing ON RRP usage maintain equilibrium.</li>
+        <li>Upside secondary: Liquidity expansion could resume if M2 growth shows renewed acceleration and ON RRP declines further, pushing the composite above its Expansion threshold.</li>
+        <li>Downside residual: A contraction in liquidity is plausible if Federal Reserve asset reduction intensifies or reserve balances decline more sharply.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months). This signal, based on monthly data and multi-month changes, reflects trends that typically unfold over several months.</li>
+        <li>Aggregation Weight Hint: Medium. The signal captures a critical macro dimension, but exhibits internal component conflicts and a recent regime transition.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Liquidity, monetary conditions (<a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank">2</a>).</li>
+        <li>Cycle position: Mid-cycle, reflecting an ongoing adjustment in monetary policy and financial conditions.</li>
+        <li>Typical interaction with other macro signals: Often combined with real interest rates (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>), credit conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">4</a>), and market sentiment (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">5</a>) to assess broader financial stability and risk appetite.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Federal Reserve Liquidity Composite (2025-12-31).</li>
+        <li>Influential datapoints include the M2 Money Stock, Federal Reserve Total Assets, Reserve Balances, and Overnight Reverse Repo usage.</li>
+        <li>Additional public datasets that would improve depth or reliability: Federal Funds Rate futures for policy expectations and a broader financial conditions index (e.g., CFNAI Financial Conditions Index).</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Liquidity_Composite_with_signals_mpl.png" alt="Federal Reserve Liquidity Composite Signal" /><div class="media-cap">Federal Reserve Liquidity Composite Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-m2_money_supply_signal" aria-labelledby="tab-m2_money_supply_signal" hidden><div class="panel-title">M2 Money Supply Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The M2 Money Supply signal currently indicates a Bullish liquidity regime as of 2025-11-01, driven by positive 3-month momentum. However, this state appears transient, with the signal projected to transition to Neutral in 2025-12-01.</li>
+        <li>Conviction Band: Medium, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The current Bullish classification for 2025-11-01 stems from the 3-month change in M2 Money Stock (M2SL) being 1.12%, which is just above the 1.0% acceleration threshold (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>The year-over-year growth rate stands at 3.44%, which is below the 6.0% high growth threshold (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Momentum indicates weakening, as the 3-month change is projected to drop to 0.79% for 2025-12-01, causing a shift to a Neutral regime.</li>
+        <li>Conditional Invalidation: A sustained drop in the 3-month M2 growth rate below 1.0% would invalidate the Bullish signal, moving it to Neutral or Bearish if further deceleration occurs (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Neutral liquidity conditions with moderating momentum are expected to prevail as the 3-month growth rate normalizes.</li>
+        <li>Upside secondary: M2 3-month momentum re-accelerates above 1.0%, or year-over-year growth exceeds 6.0%.</li>
+        <li>Downside residual: M2 year-over-year growth falls below 2.0%, or 3-month momentum drops below -1.0%, indicating significant liquidity contraction (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the medium-term impact of money supply trends on economic activity and asset markets.</li>
+        <li>Aggregation Weight Hint: Medium, given M2 is a foundational liquidity indicator but its current Bullish signal is fragile and near a regime shift.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs the Liquidity dimension of the macro environment.</li>
+        <li>The transition from Bullish to Neutral suggests a shift from an expansive to a more stable or moderately contracting liquidity phase, potentially signaling a mid-to-late cycle liquidity environment.</li>
+        <li>It typically interacts with other macro signals by influencing risk-on/off sentiment, particularly for metals and cyclical assets, and serves as an input to broader liquidity composites (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>M2 Money Stock (FRED: M2SL), latest observation 2025-11-01.</li>
+        <li>The `M2SL_YoY` (3.44%) and `M2SL_3Month_Change` (1.12%) values were most influential for the current Bullish state.</li>
+        <li>Additional public datasets that would improve depth or reliability include the velocity of M2 money stock and commercial bank credit growth.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_M2_Money_Supply_Signal_chart_mpl.png" alt="M2 Money Supply Signal" /><div class="media-cap">M2 Money Supply Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-real_interest_rate_trend_signal" aria-labelledby="tab-real_interest_rate_trend_signal" hidden><div class="panel-title">Real Interest Rate Trend Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The US 10-year real yield signal is currently Neutral as of 2025-12-01 (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>), suggesting real rates are closely aligned with their medium-term trend. Conviction Band: Medium, Interpretation Confidence: Mixed Signals, Internal Conflict Flag: Yes.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The latest 10-year real yield (DFII10) is 1.85, closely tracking its 6-month moving average trend of 1.86 (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>). This difference of -0.01 falls within the ±0.05% neutral band defined by the signal's methodology (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>).</li>
+        <li>Internal offsets or tensions: A discrepancy exists where some historical "Bearish" signals in the provided data table (e.g., 2025-06-01: Real yield 2.00, Trend 1.993333, Signal Bearish) are inconsistent with the explicit methodology which would classify them as "Neutral" (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: The signal would shift from Neutral if the real yield deviates more than ±0.05% from its 6-month trend, leading to a Bullish or Bearish classification (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant (Neutral conditions persist) given the latest data point shows the real yield closely aligned with its trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>); risks balanced.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the medium-term trend analysis using a 6-month moving average (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, due to the identified inconsistencies between the reported signal and its defined methodology impacting confidence.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Monetary conditions, liquidity, and cost of capital.</li>
+        <li>Cycle position: A Neutral real rate trend suggests balanced monetary accommodation/restriction, often found in mid-cycle stability or during transitions between easing and tightening phases.</li>
+        <li>Typical interaction with other macro signals: Neutral real rates can accompany stable growth and inflation, influencing asset valuations and potentially easing pressures on financial conditions (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">2</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>US 10-Year Treasury Inflation-Indexed Security, Constant Maturity (DFII10), latest value 1.85 as of 2025-12-01 (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>).</li>
+        <li>The 6-month moving average of DFII10, latest value 1.86 as of 2025-12-01 (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>).</li>
+        <li>Additional public datasets that would improve depth or reliability: Market Implied Inflation Signal (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>) for breakeven context, and Federal Reserve Liquidity Composite Signal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">4</a>) for broader monetary conditions.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Real_Yield_Signal_chart_mpl.png" alt="Real Interest Rate Trend Signal" /><div class="media-cap">Real Interest Rate Trend Signal</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-sof_3m_individual_market_analysis" aria-labelledby="tab-sof_3m_individual_market_analysis" hidden><div class="panel-title">SOFR 3M Individual Market Analysis</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The SOFR-3M market currently shows high positioning tension, with speculative net long positions (`Spec_zscore` 1.86) and commercial hedgers deeply short (`Hedger_zscore` -1.85) as of 2025-12-23 (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">1</a>). The 4-week flow indicates continued `Long_Build`, maintaining a `Balanced_Long_Bias` market structure. Conviction: High, Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative net positioning is significantly stretched long (z-score 1.86), while commercial hedgers are deeply short (z-score -1.85), highlighting strong divergence (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The 4-week flow of 2.8 signals a persistent `Long_Build` by speculators, reinforcing the existing long bias (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Despite the `High_Tension_Low_Flags` state, no explicit `squeeze_risk` or `exhaustion_risk` is currently identified (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A reversal in the 4-week flow to `Long_Reduction` by speculators, or a material unwinding of deep short positions by hedgers.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued market expectations for lower interest rates, driven by persistent speculative long positioning and deep commercial hedger shorts.</li>
+        <li>Upside secondary: An accelerated decline in interest rates could trigger a short-covering rally from hedgers, amplifying the downside pressure on rates.</li>
+        <li>Downside residual: Unexpectedly hawkish shifts in monetary policy or stronger economic data could lead to a rapid unwinding of speculative long positions.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks), as weekly CoT data captures short-term positioning shifts and is best suited for tactical trading signals.</li>
+        <li>Aggregation Weight Hint: High, due to the clarity of the directional bias, the high conviction in positioning stretch, and SOFR's direct relevance to monetary policy expectations.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Liquidity, pricing (interest rates), and market sentiment regarding monetary policy.</li>
+        <li>Cycle position: Mid-cycle, reflecting ongoing adjustments in monetary conditions.</li>
+        <li>Typical interaction with other macro signals: This signal provides market-implied insights into rate expectations, interacting closely with `Federal Reserve Watcher` (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Watcher/" target="_blank">2</a>), `Yield Curve Slope` (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">3</a>), and `Real Interest Rate Trend` (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">4</a>) signals.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>SOFR-3M - CHICAGO MERCANTILE EXCHANGE (legacy) data, latest observation 2025-12-23 (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Key datapoints influencing the current state are `Spec_zscore` (1.86), `Hedger_zscore` (-1.85), `Flow_4w` (2.8), and `hedger_pressure_regime` (Hedgers_Deep_Short).</li>
+        <li>Additional public datasets that would improve depth include CME FedWatch Tool probability data and US Treasury auction results.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_SOFR_3_Diagnostics.png" alt="SOFR 3M Individual Market Analysis" /><div class="media-cap">SOFR 3M Individual Market Analysis</div></figure></div></div>
+<div class="panel" role="tabpanel" id="panel-sof_5y_individual_market_analysis" aria-labelledby="tab-sof_5y_individual_market_analysis" hidden><div class="panel-title">SOFR 5Y Individual Market Analysis</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>For 5-year ERIS SOFR Swaps, the latest data (2025-12-23) shows sustained speculative long positioning with strong accumulation, while hedgers maintain an offsetting net short position. The market is in a Balanced_Long_Bias regime, indicating a stable, upward-trending expectation for rates. Conviction Band: Medium, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative net positioning stands at a notable 17.3% of open interest, with a z-score of 0.93 (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Hedgers hold an almost perfectly offsetting net short position at -17.2% of open interest, with a z-score of -0.92 (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The 4-week flow indicates a strong Long_Build of 19.6 (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">1</a>), suggesting continued speculative buying momentum.</li>
+        <li>No extreme positioning, crowding, squeeze, or exhaustion risk flags are active (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">1</a>), despite the significant positioning.</li>
+        <li>Conditional Invalidation: A sustained shift to significant `Long_Reduction` or `Short_Build` in 4-week flow, or if `squeeze_risk` or `exhaustion_risk` flags are triggered.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued speculative long bias and accumulation in 5-year SOFR swaps, driven by expectations of higher or sustained rates.</li>
+        <li>Upside secondary: Further aggressive long accumulation, pushing speculative z-scores into extreme territories and potentially triggering crowding flags.</li>
+        <li>Downside residual: A sharp reversal in speculative flow (e.g., strong long reduction) or a significant shift in hedger positioning.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical, as positioning and flow shifts in interest rate futures typically evolve over weeks to months, reflecting medium-term policy expectations.</li>
+        <li>Aggregation Weight Hint: Medium, as it provides a clear directional bias from active participants but lacks immediate "alert" signals for tactical shifts.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Liquidity, pricing (interest rates), and sentiment regarding monetary conditions.</li>
+        <li>Cycle position: Mid-to-late cycle, as positioning in SOFR swaps is highly sensitive to Federal Reserve policy expectations amidst elevated rates.</li>
+        <li>Typical interaction with other macro signals: This signal can inform real interest rate trends (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>), shape of the yield curve (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">5</a>), and overall monetary conditions (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">6</a>), acting as a market-based gauge of central bank policy bias (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Synthesiser/" target="_blank">7</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Commitment of Traders (CoT) data for 5-Year ERIS SOFR Swap, latest observation 2025-12-23.</li>
+        <li>The `Spec_Net_%OI`, `Hedger_Net_%OI`, and `Flow_4w` datapoints are most influential for the current state.</li>
+        <li>Additional public datasets that would improve depth or reliability: Daily SOFR futures prices (for price overlay), implied volatility data for SOFR options.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_SOFR_5_Diagnostics.png" alt="SOFR 5Y Individual Market Analysis" /><div class="media-cap">SOFR 5Y Individual Market Analysis</div></figure></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • US Liquidity and Monetary Conditions • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

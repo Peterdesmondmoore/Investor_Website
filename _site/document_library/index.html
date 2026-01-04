@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Investor Anatomy · Document Library</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/images/Favicon.png" />
+
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    select option {
+      background-color: #1f2937;
+      color: #fff;
+    }
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background-color: rgba(99, 102, 241, 0.2);
+      color: rgb(165, 180, 252);
+      margin-right: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+    .filter-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 0.5rem;
+      background-color: rgb(31, 41, 55);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+    .filter-dropdown.active {
+      display: block;
+    }
+    .filter-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .filter-checkbox:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .filter-checkbox input {
+      margin-right: 0.5rem;
+      cursor: pointer;
+    }
+    .summary-text {
+      max-height: 4.5em;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .summary-text.expanded {
+      max-height: none;
+    }
+    .expired {
+      opacity: 0.6;
+    }
+    .expiry-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .expiry-active {
+      background-color: rgba(34, 197, 94, 0.2);
+      color: rgb(134, 239, 172);
+    }
+    .expiry-soon {
+      background-color: rgba(251, 191, 36, 0.2);
+      color: rgb(253, 224, 71);
+    }
+    .expiry-expired {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: rgb(252, 165, 165);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-black text-white">
+  <!-- Background -->
+  <div class="pointer-events-none fixed inset-0">
+    <div class="absolute inset-0 bg-[radial-gradient(1200px_circle_at_20%_10%,rgba(99,102,241,0.25),transparent_55%),radial-gradient(900px_circle_at_80%_30%,rgba(34,211,238,0.18),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(16,185,129,0.12),transparent_60%)]"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/75 to-black"></div>
+  </div>
+
+  <div class="relative">
+    <!-- Header -->
+    <div class="w-full">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
+        <a
+          href="https://investoranatomy.com/"
+          class="group flex items-center gap-3 transition-all hover:gap-4"
+        >
+          <svg
+            class="size-6 text-white/70 transition-all group-hover:text-white"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span class="text-sm font-medium text-white/70 transition-all group-hover:text-white">
+            Back to Home
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="mx-auto max-w-6xl px-4 pb-10 pt-8">
+      <div class="mb-4 flex items-center gap-2 text-sm font-medium text-indigo-300">
+        <span>📚 Document Library</span>
+      </div>
+
+      <h1 class="mb-4 text-5xl font-bold tracking-tight text-white sm:text-6xl">
+        Research Library
+      </h1>
+
+      <p class="mb-8 max-w-2xl text-lg leading-relaxed text-white/60">
+        Curated research reports, market commentary, and economic analysis from leading institutions.
+      </p>
+
+      <!-- Filters -->
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <!-- Search -->
+          <div class="relative flex-1">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search documents..."
+              class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/40 backdrop-blur-sm transition-all focus:border-indigo-400/50 focus:bg-white/10 focus:outline-none"
+            />
+          </div>
+
+          <!-- Sort -->
+          <div class="relative">
+            <select
+              id="sortSelect"
+              class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 pr-10 text-sm text-white backdrop-blur-sm transition-all focus:border-indigo-400/50 focus:bg-white/10 focus:outline-none sm:w-56"
+            >
+              <option value="date-desc" selected>Newest First</option>
+              <option value="date-asc">Oldest First</option>
+              <option value="relevance-desc">Relevance: High to Low</option>
+              <option value="title-asc">Title A-Z</option>
+              <option value="title-desc">Title Z-A</option>
+            </select>
+          </div>
+
+          <!-- Hide Expired Toggle -->
+          <button
+            id="hideExpiredBtn"
+            class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/10 sm:w-48"
+            onclick="toggleHideExpired()"
+          >
+            Show All
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <!-- Source Filter -->
+          <div class="relative flex-1">
+            <button
+              id="sourceFilterBtn"
+              onclick="toggleDropdown('sourceDropdown')"
+              class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-white backdrop-blur-sm transition-all hover:border-indigo-400/50 hover:bg-white/10"
+            >
+              <span id="sourceFilterLabel">All Sources</span>
+            </button>
+            <div id="sourceDropdown" class="filter-dropdown">
+              <label class="filter-checkbox">
+                <input type="checkbox" value="all" checked onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">All Sources</span>
+              </label>
+                            <label class="filter-checkbox">
+                <input type="checkbox" value="Axis Direct" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Axis Direct</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="BIS" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">BIS</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="BMO Capital Markets" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">BMO Capital Markets</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Banco Central de Chile" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Banco Central de Chile</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Bank for International Settlements" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Bank for International Settlements</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Bank for International Settlements (BIS)" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Bank for International Settlements (BIS)</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="BlackRock Investment Institute" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">BlackRock Investment Institute</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Brookfield Asset Management" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Brookfield Asset Management</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="D.A. Davidson & Co. Wealth Management Research" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">D.A. Davidson & Co. Wealth Management Research</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Document Loader" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Document Loader</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Emirates NBD Research" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Emirates NBD Research</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Global X Investments Canada Inc." onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Global X Investments Canada Inc.</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="ING" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">ING</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Invesco Strategy&Insights" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Invesco Strategy&Insights</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="J.P. Morgan" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">J.P. Morgan</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="J.P. Morgan Asset Management" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">J.P. Morgan Asset Management</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="McKinsey & Company" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">McKinsey & Company</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="OCBC" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">OCBC</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="PT KB Valbury Sekuritas" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">PT KB Valbury Sekuritas</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Raymond James" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Raymond James</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="S&P Dow Jones Indices" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">S&P Dow Jones Indices</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="S&P Global Market Intelligence" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">S&P Global Market Intelligence</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Sterling Capital Management LLC" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Sterling Capital Management LLC</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="Sunflower Bank" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">Sunflower Bank</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="UOB Global Economics & Markets Research" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">UOB Global Economics & Markets Research</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="World Gold Council" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">World Gold Council</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-season-kevin" onchange="handleSourceFilter(this)">
+                <span class="text-sm text-white">https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-season-kevin</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Document Type Filter -->
+          <div class="relative flex-1">
+            <button
+              id="docTypeFilterBtn"
+              onclick="toggleDropdown('docTypeDropdown')"
+              class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-white backdrop-blur-sm transition-all hover:border-indigo-400/50 hover:bg-white/10"
+            >
+              <span id="docTypeFilterLabel">All Types</span>
+            </button>
+            <div id="docTypeDropdown" class="filter-dropdown">
+              <label class="filter-checkbox">
+                <input type="checkbox" value="all" checked onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">All Types</span>
+              </label>
+                            <label class="filter-checkbox">
+                <input type="checkbox" value="annual_or_multiyear_outlook" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Annual Or Multiyear Outlook</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="asset_class_research" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Asset Class Research</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="data_or_indicator_report" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Data Or Indicator Report</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="economic_analysis" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Economic Analysis</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="industry_report" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Industry Report</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="monthly_market_update" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Monthly Market Update</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="news_article" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">News Article</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="policy_or_rates_research" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Policy Or Rates Research</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="quarterly_outlook" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Quarterly Outlook</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="thematic_research" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Thematic Research</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="weekly_market_update" onchange="handleDocTypeFilter(this)">
+                <span class="text-sm text-white">Weekly Market Update</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Relevance Filter -->
+          <div class="relative flex-1">
+            <button
+              id="relevanceFilterBtn"
+              onclick="toggleDropdown('relevanceDropdown')"
+              class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-white backdrop-blur-sm transition-all hover:border-indigo-400/50 hover:bg-white/10"
+            >
+              <span id="relevanceFilterLabel">All Relevance</span>
+            </button>
+            <div id="relevanceDropdown" class="filter-dropdown">
+              <label class="filter-checkbox">
+                <input type="checkbox" value="all" checked onchange="handleRelevanceFilter(this)">
+                <span class="text-sm text-white">All Relevance</span>
+              </label>
+                            <label class="filter-checkbox">
+                <input type="checkbox" value="critical" onchange="handleRelevanceFilter(this)">
+                <span class="text-sm text-white">Critical</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="high" onchange="handleRelevanceFilter(this)">
+                <span class="text-sm text-white">High</span>
+              </label>
+              <label class="filter-checkbox">
+                <input type="checkbox" value="very high" onchange="handleRelevanceFilter(this)">
+                <span class="text-sm text-white">Very High</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Theme Tags Filter -->
+        <div class="relative">
+          <button
+            id="themeFilterBtn"
+            onclick="toggleDropdown('themeDropdown')"
+            class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-white backdrop-blur-sm transition-all hover:border-indigo-400/50 hover:bg-white/10"
+          >
+            <span id="themeFilterLabel">All Themes</span>
+          </button>
+          <div id="themeDropdown" class="filter-dropdown">
+            <label class="filter-checkbox">
+              <input type="checkbox" value="all" checked onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">All Themes</span>
+            </label>
+                        <label class="filter-checkbox">
+              <input type="checkbox" value="Alternatives" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Alternatives</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Commodities" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Commodities</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Cross Asset Positioning and Sentiment Analyst" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Cross Asset Positioning and Sentiment Analyst</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Equities" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Equities</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Fixed Income" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Fixed Income</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Foreign Exchange" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Foreign Exchange</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Global Growth and Economic Cycle" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Global Growth and Economic Cycle</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Global Inflation and FX Dynamics" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Global Inflation and FX Dynamics</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Global Trade and Demand" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Global Trade and Demand</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Policy or Rates Research" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Policy or Rates Research</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="Property" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">Property</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="US Credit Conditions" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">US Credit Conditions</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="US Growth & Business Cycle" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">US Growth & Business Cycle</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="US Inflation and Price Dynamics" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">US Inflation and Price Dynamics</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="US Labour Market" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">US Labour Market</span>
+            </label>
+            <label class="filter-checkbox">
+              <input type="checkbox" value="US Liquidity and Monetary Conditions" onchange="handleThemeFilter(this)">
+              <span class="text-sm text-white">US Liquidity and Monetary Conditions</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="mx-auto max-w-6xl px-4 pb-16">
+      <div id="resultsCount" class="mb-6 text-sm text-white/50"></div>
+
+      <div id="resultsContainer" class="space-y-4">
+        <!-- Documents populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data
+    const allItems = [{"file_name": "2026 market outlook.A multidimensional polarization.pdf", "title": "2026 market outlook: A multidimensional polarization", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-09", "expiry_date": "2026-06-09", "source": "J.P. Morgan", "source_url": "https://www.jpmorgan.com/insights/global-research/outlook/market-outlook", "relevance": "critical", "theme_tags": ["Cross Asset Positioning and Sentiment Analyst", "Equities", "Fixed Income", "Commodities", "Foreign Exchange", "US Growth & Business Cycle", "US Inflation and Price Dynamics", "US Liquidity and Monetary Conditions", "Global Growth and Economic Cycle", "Global Inflation and FX Dynamics"], "summary": "J.P. Morgan Global Research presents its 2026 market outlook, characterizing the year as one of \"multidimensional polarization\" driven by uneven monetary policy, relentless AI expansion, and intensifying market dynamics. The overall market environment is described as \"fragile, and investors must navigate a landscape where risk and resilience coexist.\" Despite a forecast of a \"35% probability of a U.S. and global recession in 2026,\" global growth is expected to remain resilient, supported by AI investment and front-loaded fiscal policy.\n\nKey takeaways include a positive outlook for global equities, with forecasts for \"double-digit gains across both developed markets (DM) and emerging markets (EM),\" propelled by robust earnings growth, lower rates, and the continued rise of AI, which is fueling record capital expenditure and earnings expansion. Regional equity outlooks are bullish for the US (S&amp;P 500 earnings growth 13-15% due to AI), Eurozone (13%+ earnings growth), Japan (Sanaenomics and corporate reforms), and EM (lower local interest rates, higher earnings growth). \"Sticky inflation\" is expected to persist as a prevailing theme, with elevated goods price pressures at least through the first half of 2026.\n\nRegarding rates, a decoupling of monetary policy is anticipated, with the Federal Reserve expected to cut rates by another 50 basis points (bp) while the Bank of Japan hikes by the same amount. Most other DM central banks are projected to conclude easing or stay on hold in the first half of the year, and DM yields are forecast to grind higher, with 10-year Treasuries potentially reaching 4.35% by Q4 2026. In foreign exchange, J.P. Morgan Global Research maintains a bearish view on the dollar for 2026, albeit with smaller magnitude, and is moderately bullish on the euro. Forecasts for December 2026 include EUR/USD at 1.20, GBP/USD at 1.36, and USD/JPY at 164.\n\nIn credit markets, a shift from macro to micro focus is expected, with spreads likely to widen in 2026 due to increased issuance from AI-related capex and M&amp;A activity. U.S. high-grade spreads are forecast to widen to 110bp by year-end 2026. Emerging markets are expected to see lower macro volatility supporting local markets and further rate cuts, though the pace will moderate. In commodities, despite expanding oil demand, supply is forecast to outstrip demand, leading to a Brent price forecast of $58 in 2026. Natural gas prices are expected to trend downwards. Gold is bullish, with prices projected to \"soar to $5,000/oz by the fourth quarter of 2026, averaging $4,753/oz for the full year.\" Agricultural markets face sensitivity and price volatility due to low stocks-to-use ratios."}, {"file_name": "2026-annual-investment-outlook-resilience-and-rebalancing-retail.pdf", "title": "2026 Annual Investment Outlook: Resilience and Rebalancing", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-01", "expiry_date": "2026-06-01", "source": "Invesco Strategy&Insights", "source_url": "https://www.invesco.com/au/en/insights/investment-outlook.html", "relevance": "critical", "theme_tags": ["Equities", "Fixed Income", "Alternatives", "Foreign Exchange", "Global Growth and Economic Cycle"], "summary": "This Invesco 2026 Annual Investment Outlook, titled \"Resilience and rebalancing,\" outlines an optimistic view for global markets in 2026. The report emphasizes two key themes: \"Resilience\" of the private sector, supported by healthy balance sheets and policy easing/fiscal support, and \"Rebalancing\" due to elevated valuations in US equity markets (particularly tech/AI), presenting opportunities in non-US markets, smaller-capitalization stocks, cyclical sectors, and alternative assets. Key takeaways include: \"global growth reaccelerating\" driven by lower US policy rates and increased fiscal spending in Europe, Japan, and China; \"The Federal Reserve (Fed) is cutting rates,\" which, combined with better growth outside the US, should lead to a \"soft dollar environment\" supportive of non-US assets, especially \"emerging market (EM) equities and EM debt.\" The document suggests \"reduc[ing] allocations to expensive parts of the market, particularly large US artificial-intelligence (AI)-related stocks, and look[ing] for other opportunities.\" Private credit and cryptocurrencies are highlighted as attractive alternatives. The outlook expects a reacceleration from a mid-cycle slowdown, broadening market participation, continued EM strength due to supportive macro conditions and attractive valuations, and private credit offering diversified income streams amidst a benign risk environment and easier US monetary policy."}, {"file_name": "alternative-outlook.pdf", "title": "Alternative Investments Outlook 2026 8th Annual Edition: A new era of public-private convergence", "document_type": "annual_or_multiyear_outlook", "publication_date": "2026-01-03", "expiry_date": "2027-01-03", "source": "J.P. Morgan Asset Management", "source_url": "https://am.jpmorgan.com/us/en/asset-management/adv/about-us/media/press-releases/jp-morgan-unveils-2026-global-alternatives-outlook-highlighting-opportunities-for-investors-in-private-markets-amid-the-ai-boom/", "relevance": "critical", "theme_tags": ["Alternatives", "Property", "Cross Asset Positioning and Sentiment Analyst", "Global Growth and Economic Cycle", "Fixed Income"], "summary": "J.P. Morgan Asset Management's 8th Annual Alternative Investments Outlook 2026 posits that the world is entering \"a new era of public-private convergence\" driven by rapid technological advancement, particularly Artificial Intelligence (AI), and a once-in-a-generation capital expenditure cycle. Private markets, now estimated at USD20 trillion, are seen as a \"structural mainstay of global finance,\" offering essential avenues for innovation and diversification as companies stay private longer and a wider investor base gains access.Key conclusions across alternative asset classes include: The Macro View: Private markets are \"essential for accessing innovation and diversification,\" especially for AI themes, at potentially \"more attractive valuations than public markets.\" Private Credit: Thriving due to \"structural demand\" and offering a \"healthy premium relative to public market credit,\" with senior-secured U.S. direct lending offering yields \"around 200 basis points (bps) above leveraged loans.\" Early signs of stress are viewed as \"issuer-specific rather than systemic.\" Private Equity: Expected to see a strong 2026 for exits and distributions as \"interest rates fall, financing costs ease,\" continuing its track record as a \"strong generator of alpha,\" outperforming public equity by \"500bps per annum over the past decade.\" Hedge Funds: Positioned to \"capitalize on volatility across regions,\" benefiting from \"higher equity volatility, greater dispersion and more normal rates\" to deliver excess returns through macro and relative value strategies. Real Estate: Anticipates a \"durable global commercial real estate recovery...for 2026,\" driven by lower interest rates and limited supply. Key themes include \"onshoring trends drive demand for high-powered industrial space\" (e.g., data centers, manufacturing), a \"global housing shortage\" supporting strong performance in rentals, retail regaining strength, and high-quality offices leading the recovery. Infrastructure: At an \"inflection point,\" with capital expenditure projected to \"outpace depreciation for the first time this century,\" driven by \"rising energy demand, the need for energy security and the current energy transition.\" This capital shortage means investors can expect \"higher returns for the same or even lower risk.\" Transportation: Offers compelling opportunities due to a \"USD3.5 trillion asset replacement cycle\" and evolving global trade patterns. Demand is resilient, bolstered by \"decarbonization and supply dislocation,\" which increases demand for modern, efficient assets, and geopolitical events (e.g., Red Sea crisis) lengthening trade routes and tightening capacity. Timberland: Highlights \"resilient returns and inflation protection\" as global supply tightens. Improving housing affordability (U.S., Australia) is expected to \"support lumber demand,\" while \"dynamic trade policies and shifting demand\" (e.g., tariffs, import bans) reshape global wood product flows, and \"evolving natural capital markets\" create additional value pathways (carbon credits)."}, {"file_name": "CB_Infographic_November_2025.pdf", "title": "Central bank gold statistics September 2025", "document_type": "data_or_indicator_report", "publication_date": "2025-11-01", "expiry_date": "2026-03-01", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/gold-focus/2025/11/central-bank-gold-statistics-september-2025", "relevance": "high", "theme_tags": ["Commodities", "Cross Asset Positioning and Sentiment Analyst"], "summary": "Central banks reported significant net gold purchases in September 2025, totaling 39 tonnes. This figure represents a \"79% m/m\" increase and marks \"the highest month of reported net buying in 2025 so far.\" Year-to-date, central banks have accumulated \"200t of net gold buying,\" though this is slightly lower than the 215t reported for the same period in 2024. The Central Bank of Brazil was the primary buyer during September, acquiring \"15t.\" Other notable buyers included the National Bank of Kazakhstan and the Bank of Guatemala. Conversely, the Central Bank of Uzbekistan was the sole reported seller, divesting 4t. For the year-to-date, the National Bank of Poland remains the largest net buyer with \"67t,\" followed by Kazakhstan (40t) and Azerbaijan (SOFAZ) (38t)."}, {"file_name": "Central-bank-considerations-when-pricing-ASGM-purchases.pdf", "title": "Central bank considerations when pricing ASGM purchases", "document_type": "policy_or_rates_research", "publication_date": "2025-12-01", "expiry_date": "2026-12-01", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/research/central-bank-asgm", "relevance": "critical", "theme_tags": ["Commodities", "Foreign Exchange"], "summary": "This World Gold Council paper, \"Central bank considerations when pricing ASGM purchases,\" examines the price-setting process for central banks involved in State Gold Buying Programs (SGBP) for Artisanal and Small-Scale Gold Mining (ASGM) output. The paper's purpose is to \"examine the price-setting process for central banks in a SGBP\" while acknowledging broader environmental, societal, legal, regulatory, and economic challenges. It outlines a \"credible rationale\" for central banks to purchase gold, including \"the maintenance of foreign exchange reserves, financial stability, and the encouragement of economic growth.\" The document discusses defining the central bank's gold buying mandate, legal authority, and necessary infrastructure. A significant focus is on \"Considerations when setting the price for ASGM purchases,\" emphasizing market neutrality, the effect of royalties and taxes, and various pricing strategies like paying a percentage discount on the current LBMA price. The paper delves into the accounting framework, noting that \"Internationally recognised accounting standards require the recognition of non-monetary gold at the lower of cost or net realisable value (NRV)\" and that \"On converting ASGM gold to monetary gold the bank recognises the monetary gold at market value rather than at cost.\" It also provides case studies from several central banks, including Ecuador and the Philippines, detailing their specific objectives, pricing models, and operational approaches."}, {"file_name": "Central-Bank-Gold-Statistics-October-2025.pdf", "title": "Central Bank Gold Statistics | Central banks ramp up gold buying in October", "document_type": "data_or_indicator_report", "publication_date": "2025-11-01", "expiry_date": "2026-03-01", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october", "relevance": "very high", "theme_tags": ["Commodities", "Global Growth and Economic Cycle"], "summary": "Central banks significantly increased gold purchases in October 2025, buying a net 53 tonnes, which is 36% higher month-on-month and represents the largest monthly net demand year-to-date. This activity continues a strong trend seen throughout the year, driven by a concentrated group of central banks, predominantly from emerging markets. Despite a slower year-to-date pace of 254 tonnes compared to the previous three years, possibly due to higher prices, these purchases are described as \"strategic rather than opportunistic, reinforcing gold’s importance amid persistent macroeconomic uncertainty.\" Key buyers in October included the National Bank of Poland (16t), which re-entered the market after a pause and increased its gold reserves to 26% of total reserves, and the Central Bank of Brazil (16t). Other notable buyers included Uzbekistan (9t), Bank Indonesia (4t), and the Central Bank of Turkey (3t). The Central Bank of Russia was the only reported seller, with a 3t decline. Year-to-date, the National Bank of Poland remains the largest buyer at 83t. Looking ahead, the National Bank of Serbia plans to almost double its gold reserves to 100t by 2030, and other nations like Madagascar and South Korea have signaled interest in increasing their holdings. This sentiment is reinforced by a 2025 survey indicating that 95% of respondents expect central bank gold reserves to increase."}, {"file_name": "economic-conditions-outlook-december-2025.pdf", "title": "Economic conditions outlook, December 2025", "document_type": "economic_analysis", "publication_date": "2025-12-05", "expiry_date": "2026-06-05", "source": "McKinsey & Company", "source_url": "https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights/economic-conditions-outlook", "relevance": "critical", "theme_tags": ["Global Growth and Economic Cycle", "US Growth & Business Cycle", "Global Trade and Demand", "US Inflation and Price Dynamics"], "summary": "Economic sentiment has taken a positive turn as 2025 closes, with executives expressing increased optimism for both the macroeconomic environment and their organizations' performance, marking \"the brightest near-term expectations seen this year.\" The latest McKinsey Global Survey on economic conditions, conducted from November 24 to December 5, 2025, reveals a shift in perceived risks; trade policy concerns have receded, replaced by \"Geopolitical instability and/or conflicts\" as the top risk to global economic growth, while inflation has reemerged as a significant concern, particularly in North America. Companies are also more confident in their prospects, with \"Sixty-three percent of respondents say their companies’ profits will increase in the next six months,\" and customer demand expectations rising. Technology, particularly \"Investment in AI (including gen AI),\" is highlighted as the most-cited growth opportunity for the next 12 months, especially among larger companies. Overall, executives are ending the year on an optimistic note, anticipating stronger demand and profits in 2026."}, {"file_name": "gei-global-summary-october-2025.pdf", "title": "Global Economics Intelligence Global Summary Report, October 2025", "document_type": "monthly_market_update", "publication_date": "2025-10-01", "expiry_date": "2026-02-01", "source": "McKinsey & Company", "source_url": "https://www.mckinsey.com/capabilities/strategy-and-corporate-finance/our-insights/global-economics-intelligence", "relevance": "critical", "theme_tags": ["Global Growth and Economic Cycle", "Global Inflation and FX Dynamics", "US Growth & Business Cycle", "Equities", "Global Trade and Demand"], "summary": "This Global Economics Intelligence report for October 2025 indicates that \"Global growth remains uneven as the world contends with policy uncertainty and trade realignments.\" Key developments include the US experiencing its longest government shutdown, adding \"near-term downside risks\" and potentially cutting $14 billion from GDP, while the Federal Reserve cut rates for a second consecutive month by 25 basis points to 3.75–4%. US-China trade tensions eased with tariff reductions. Consumer confidence remains below long-term averages in many regions, \"suggesting continued caution in spending.\" Global manufacturing shows weakness, while services activity remains steady.\n\nInflation trends are divergent: among developed economies, it continues to accelerate (e.g., UK headline CPI at 3.8%), moving away from central bank targets, whereas in developing countries, \"consumer price inflation is mainly easing, driven largely by declining food prices.\" Central banks are adjusting policies, with the US and Russia cutting rates, while the ECB and Bank of England held theirs steady amid slow growth and persistent inflation concerns. Commodities markets saw precious metal prices, including gold, reach \"new record highs, fueled by rising demand\" due to geopolitical uncertainty, while oil prices continued to drop to around $60 per barrel.\n\nEquity markets performed strongly in October across several countries, including the US (S&amp;P 500 up 2.3%), UK (equities gained around 3%), and India (SENSEX climbing 5.30%). China's GDP recorded a \"resilient year-on-year growth rate of 4.8% In the third quarter of 2025,\" exceeding its annual target, with consumption and net exports driving growth, though investment declined. India's economy showed strength despite global uncertainty, with retail inflation easing dramatically to 1.54% in September, its lowest since June 2017. Russia's economy continued a \"sluggish performance,\" with growth expected to slow further due to mounting imbalances and new sanctions. Mexico's economic activity declined 0.6% year-on-year, \"signaling near stagnation,\" with inflation rising to 3.8% and a widening trade deficit. A McKinsey Global Institute report concludes that \"productivity is the key going forward\" to restore global balance sheet health."}, {"file_name": "gli2510.pdf", "title": "Statistical release: BIS international banking statistics and global liquidity indicators at end-June 2025", "document_type": "data_or_indicator_report", "publication_date": "2025-10-30", "expiry_date": "2026-01-30", "source": "BIS", "source_url": "https://www.bis.org/statistics/rppb2510.htm", "relevance": "critical", "theme_tags": ["Global Growth and Economic Cycle", "US Liquidity and Monetary Conditions", "US Credit Conditions", "Foreign Exchange", "Cross Asset Positioning and Sentiment Analyst"], "summary": "The Bank for International Settlements (BIS) statistical release for end-June 2025 indicates that \"Global cross-border bank credit expanded by $917 billion in the second quarter of 2025, reaching $37 trillion.\" This expansion was largely \"driven by lending to financial sector borrowers ($773 billion), mainly lending to banks ($540 billion).\" The growth was equally split between dollar and euro-denominated credit, pushing the year-on-year growth rate to 10%. Lending to advanced economies saw the fastest growth, with euro-denominated credit rising 11% year-on-year and dollar-denominated credit at 10%. \"Cross-border bank credit to the United States grew by $112 billion against a backdrop of tariff developments and a depreciating dollar,\" primarily due to lending to US-domiciled non-bank financial institutions. Credit to emerging market and developing economies (EMDEs) increased by $70 billion, mainly driven by Africa and the Middle East, while credit to emerging Asia-Pacific contracted, largely due to a decline in credit to China. The BIS global liquidity indicators highlight that \"foreign currency credit in dollars, euros and yen grew by 6%, 13% and 0% year-on-year at end-Q2 2025, respectively,\" for non-bank borrowers outside their currency areas. Furthermore, \"Malaysia joins the BIS consolidated banking statistics reporting list of countries\" with Malaysian banks' foreign claims just under $200 billion as of Q2 2025."}, {"file_name": "Gold-Demand-Trends-Q3-2025.pdf", "title": "Gold Demand Trends | Q3 2025", "document_type": "industry_report", "publication_date": "2025-10-01", "expiry_date": "2026-02-01", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025", "relevance": "critical", "theme_tags": ["Commodities", "Global Inflation and FX Dynamics", "Cross Asset Positioning and Sentiment Analyst"], "summary": "Global gold demand reached a new quarterly record in Q3 2025, rising 3% year-on-year to 1,313 tonnes, with its value surging 44% to US$146 billion. This growth was primarily driven by investment, as \"investors remained firmly in the driving seat,\" fueled by \"Huge ETF buying (+222t)\" and robust \"bar and coin demand (316t).\" Central bank buying also remained \"elevated at 220t.\" In contrast, \"Jewellery consumption in Q3 posted a double-digit y/y decline... as volumes remained under pressure in the record price environment,\" with total consumption falling to 371t. Technology demand was marginally weaker, affected by high gold prices and US tariff policy, though supported by AI-related growth. The LBMA (PM) gold price saw \"13 new all-time highs in the quarter,\" rising 16% to average US$3456.54/oz. Total gold supply also hit a record 1,313t, supported by increased mine production and elevated recycled gold. The outlook for FY 2025 projects materially higher investment, lower jewellery expectations, and modestly higher central bank purchases, with supply potentially reaching a new annual record. Key drivers for investment include the US dollar's fate, anticipated US policy rate cuts, and gold's role as a diversifier against richly valued equity markets."}, {"file_name": "Gold_ETF_Commentary_November.pdf", "title": "Gold ETF Commentary | November 2025", "document_type": "monthly_market_update", "publication_date": "2025-12-01", "expiry_date": "2026-02-01", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12", "relevance": "very high", "theme_tags": ["Commodities", "US Inflation and Price Dynamics", "Cross Asset Positioning and Sentiment Analyst", "Global Inflation and FX Dynamics"], "summary": "Global physically-backed gold ETFs recorded their sixth consecutive monthly inflow in November 2025, adding US$5.2bn, a figure well above the 2024 monthly average. Total assets under management (AUM) reached a new month-end peak of US$530bn, up 5.4% for the month, with holdings rising 1% to 3,932t, also the highest month-end value ever. The report highlights that \"Global gold ETF inflows remain on track for their strongest year ever.\" The November trend was predominantly driven by Asia, which continued to see strong investor buying, while North American inflows slowed, and European demand turned positive. Regional overview showed North America adding US$1bn, supported by \"the upward trending gold price,\" intensified \"investor expectations of a Fed cut\" due to softer inflation, and resurgent \"geopolitical risks amid rising US-Venezuela tension,\" though partially offset by earlier cooling Fed expectations and equity market swings. European flows flipped positive at US$978mn, attributed to \"Equity weakness and gold price strength, in local currencies,\" particularly in the UK and Germany. Asian funds attracted a significant US$3.2bn, marking the region's third consecutive monthly inflow, primarily led by Chinese investors. This demand was spurred by \"Equity market weakness, a rebounding gold price and geopolitical tensions,\" with China's VAT reform also contributing to gold ETF investment. Overall gold market trading volumes saw a 26% month-over-month pullback in November, averaging US$417bn, but still remained \"well above their 2024 average of US$232bn/day,\" with all sectors experiencing slower activity due to decreased gold price volatility."}, {"file_name": "Gold_Outlook_2026.pdf", "title": "Gold Outlook 2026: Push ahead or pull back", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-01", "expiry_date": "2026-12-31", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/research/gold-outlook-2026", "relevance": "critical", "theme_tags": ["Commodities", "Global Growth and Economic Cycle", "US Liquidity and Monetary Conditions", "Global Inflation and FX Dynamics"], "summary": "Gold experienced a remarkable 2025, achieving over 50 all-time highs and returning over 60%, supported by \"heightened geopolitical and economic uncertainty, a weaker US dollar, and positive price momentum.\" Looking to 2026, the outlook is shaped by ongoing geoeconomic uncertainty and continued market volatility. The report presents three hypothetical macroeconomic scenarios for gold's performance in 2026. In a \"shallow slip\" scenario, characterized by a softening US economy, declining risk appetite, and further Fed rate cuts, gold could rise \"5% – 15% in 2026 from current levels.\" A more severe \"doom loop\" scenario, driven by a \"deeper and more synchronised slowdown, driven by rising geopolitical and geoeconomic risk,\" could see gold surge \"15% – 30% in 2026.\" Conversely, a \"reflation return\" scenario, where \"policies set by the Trump administration succeed, resulting in stronger-than-expected growth,\" could lead to a gold price correction of \"between 5% and 20%.\" Wildcards for 2026 include continued central bank demand, especially from emerging markets, and gold recycling trends, which have been subdued due to increased use of gold as collateral. Ultimately, gold's capacity to provide \"diversification and downside protection remains as relevant as ever\" amid increasing shocks and surprises."}, {"file_name": "India_gold_market_update_Investment_led_support.pdf", "title": "India Gold Market Update: Investment-led Support (November 2025)", "document_type": "monthly_market_update", "publication_date": "2025-11-30", "expiry_date": "2026-2-01", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/gold-focus/2025/12/india-gold-market-update-investment-led-support", "relevance": "critical", "theme_tags": ["Commodities", "Global Inflation and FX Dynamics", "Cross Asset Positioning and Sentiment Analyst"], "summary": "The World Gold Council's India gold market update for November 2025 highlights a continued uptrend in gold prices, driven by a weakening US dollar and sustained investment flows. International gold prices extended their rally, ending November up 4.5% and gaining a further 3.7% by December 12, taking year-to-date returns to 67%. Domestic prices outperformed, rising 73% year-to-date, aided by INR depreciation. Gold demand in India showed divergence: while jewellery volumes fell due to higher prices impacting affordability in mid- and small-ticket segments, \"investment demand holds firm.\" Inflows into Indian gold ETFs remained strong in November, totaling INR37.4bn (US$421mn), although slower than the prior two months. Cumulative net inflows for the first 11 months of 2025 reached a record INR313bn (US$3.6bn), and total accounts expanded significantly to 9.8mn. The Reserve Bank of India's (RBI) gold purchases moderated sharply in 2025, with net purchases of just 4t compared to 72.6t in the previous year. However, \"valuation gains lift reserve share,\" increasing gold's share in foreign exchange reserves from 10% to 15.6% year-on-year. Gold imports saw a significant decline in November, dropping 73% month-on-month to US$4bn, primarily due to slowing post-festive demand. Looking ahead, the report notes that \"the inauspicious period from mid-December to mid-January is likely to weigh on jewellery demand, while investment interest is expected to be sustained.\""}, {"file_name": "Is-golds-appeal-fading-on-rising-vol.pdf", "title": "Is gold’s appeal fading on rising vol?", "document_type": "asset_class_research", "publication_date": "2025-12-15", "expiry_date": "2026-12-15", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/gold-focus/2025/12/you-asked-we-answered-golds-appeal-fading-rising-vol", "relevance": "very high", "theme_tags": ["Commodities", "Cross Asset Positioning and Sentiment Analyst"], "summary": "This document from the World Gold Council addresses whether gold's appeal is fading amidst rising volatility in 2025. It concludes that while gold's volatility did rise in 2025, it did so \"from a low base and in line with other assets,\" and its volatility appears to have normalized, remaining broadly consistent with long-term averages. Despite recent price strength, gold \"has moved in an orderly manner.\" The report highlights that the increased volatility across equities, coupled with a positive correlation between stocks and bonds, has led to higher portfolio risk. In this context, gold continues to serve as an effective diversifier. The authors state, \"adding gold to a diversified portfolio continues to help reduce overall risk, especially in an environment where correlation between bonds and equities has risen.\" The analysis shows that gold maintains a low correlation to equities and fixed income assets, making it an \"efficient source of portfolio diversification.\" Furthermore, in a hypothetical portfolio, \"adding 5% of gold reduces the portfolio risk by nearly 5% while its contribution to overall portfolio risk is negligible at 1.9%.\" In summary, the document reinforces gold's \"resilience as a strategic asset\" and its continued importance for investors seeking stability."}, {"file_name": "news251229a.pdf", "title": "Morning Chatter: Market Commentary and News Highlight", "document_type": "news_article", "publication_date": "2025-12-29", "expiry_date": "2026-01-05", "source": "PT KB Valbury Sekuritas", "source_url": "https://www.kbvalbury.com/cfind/source/files/news251223a.pdf", "relevance": "high", "theme_tags": ["Equities", "Commodities", "Foreign Exchange", "Global Growth and Economic Cycle", "Global Inflation and FX Dynamics"], "summary": "The S&amp;P 500 saw modest gains near its latest record high, while European markets had a mixed finish, reflecting a year of significant market volatility. Oil prices dropped by $1 due to global supply surplus concerns and optimism about a potential peace deal in Ukraine. In contrast, precious metals surged, with silver breaking the $77 mark and both gold and platinum reaching new all-time highs. The Japanese yen weakened in quiet holiday trading, keeping investors on high alert for possible government intervention. Fresh government data revealed Tokyo’s core consumer prices rose 2.3% in December, exceeding the Bank of Japan's target but cooling from previous months, maintaining pressure on interest rate policy. Domestically, the Jakarta Composite Index (JCI) slipped 0.55% to 8,537.91, with investors looking ahead to critical economic indicators scheduled for release in early January 2026. In company news, Bank Tabungan Negara (BBTN) 'dominates national subsidized mortgage distribution', having realized financing for 46.7% of total national distribution of subsidized housing units as of December 22, 2025, positioning it as a 'key partner' for the Indonesian government's housing targets. TBS Energi Utama (TOBA) plans a share buyback of up to IDR586.28 bn, which could 'cut free float to ~19%, tightening liquidity but supporting valuations'. Phapros (PEHA) launched a new erectile dysfunction (ED) therapy product, targeting an 'underpenetrated male health market' in Indonesia. Temas (TMAS) expects 'positive full-year performance despite 9M25 pressure', supported by operational efficiency, asset utilization, and ongoing fleet expansion. Fast Food Indonesia (FAST) plans 'aggressive store expansion', targeting 1,000 outlets by 2030, with management projecting a return to positive net profit from 2027. Diagnos Laboratorium Utama (DGNS) 'accelerates network expansion targeting double-digit growth in 2026', projecting approximately 16% YoY revenue growth."}, {"file_name": "otc_hy2512.pdf", "title": "OTC derivatives statistics at end-June 2025", "document_type": "data_or_indicator_report", "publication_date": "2025-12-08", "expiry_date": "2026-06-08", "source": "Bank for International Settlements (BIS)", "source_url": "https://www.bis.org/publ/otc_hy2512.htm", "relevance": "critical", "theme_tags": ["Fixed Income", "Foreign Exchange", "Equities", "Commodities", "Cross Asset Positioning and Sentiment Analyst"], "summary": "The notional value of outstanding over-the-counter (OTC) derivatives surged to $846 trillion at June 2025, marking a 16% increase from June 2024 and an acceleration from the moderate 5% annual upward trend observed since end-2016. Concurrently, the gross market value of OTC derivatives climbed by $5 trillion (+29%) year-on-year to $21.8 trillion, primarily driven by euro-denominated interest rate derivatives (IRD). The foreign exchange (FX) risk category also experienced significant growth, expanding by $25 trillion (19%) year-on-year in notional value to $155 trillion, with $100 trillion composed of forwards and swaps maturing within a year. This exceptional expansion in notional amounts is attributed to \"elevated uncertainty over trade, monetary policy outlooks and geopolitical tensions,\" which spurred market participants to increase hedging activities. Interest rate derivatives, comprising 79% of all OTC derivatives' notional amounts, grew by 15%, while credit derivatives registered the fastest growth at 23% year-on-year. Notably, euro-denominated IRD notional amounts have surpassed dollar-denominated contracts since 2022. In contrast to a general decline in gross market values for most commodity-based risk derivatives, gold derivatives saw their gross market value double to $0.08 trillion, following a \"25% increase in gold prices observed in the first half of 2025.\" The report also highlights that \"June 2025 numbers benefited from the broader reporting base of the BIS Triennial Central Bank Survey\" which enhanced coverage."}, {"file_name": "Outlook 2026. Navigate new pathways.pdf", "title": "Outlook 2026: Navigate new pathways", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-11-25", "expiry_date": "2026-11-25", "source": "Document Loader", "source_url": "https://ap.allianzgi.com/en-ap/insights/market-insights/outlook-and-commentary/outlook-2026", "relevance": "critical", "theme_tags": ["Equities", "Fixed Income", "Alternatives", "Global Growth and Economic Cycle", "Foreign Exchange"], "summary": "The document, \"Outlook 2026: Navigate new pathways\", provides an investment outlook for the year, emphasizing a need for vigilance and ambition in a rapidly evolving landscape. Global growth is expected to \"remain resilient, supported by the AI revolution and proactive policy responses\" despite trade war impacts. However, inflation dynamics will diverge significantly, with \"US inflation set to rise above 3%\" while \"Europe and Asia will see more subdued price pressures,\" leading to asynchronous monetary policies.\n\nInvestors are advised to be selective with US tech stocks due to \"richly priced\" valuations and extreme concentration. Europe, China, and India are highlighted as offering \"broader, more diversified and attractively priced opportunities\" in equities. Stagflationary risks in the US and a potentially weaker dollar may encourage global investors to reconsider high exposures to US assets, with \"potential upside for fixed income issued in Europe and Asia, as well as for gold.\"\n\nThe fixed income environment is seen as benign overall, presenting \"opportunities for selective duration and credit positioning across regions,\" particularly in emerging market debt. Private markets, specifically private credit and infrastructure, are viewed as \"foundational to long-term portfolio construction,\" serving as \"powerful drivers of long-term value creation\" through financing real economy needs, energy transition, and digitalization. The report concludes that navigating 2026 will necessitate diversification across asset classes, active management, and a re-evaluation of US dollar exposures due to its expected \"renewed weakness.\""}, {"file_name": "pp_residential_2511.pdf", "title": "Statistical release: BIS residential property price statistics in Q2 2025", "document_type": "data_or_indicator_report", "publication_date": "2025-11-27", "expiry_date": "2026-02-27", "source": "BIS", "source_url": "https://www.bis.org/statistics/pp_residential_2511.htm", "relevance": "high", "theme_tags": ["Property", "Global Growth and Economic Cycle"], "summary": "Global real house prices declined by 0.8% year on year (yoy) in Q2 2025, marking the third consecutive year of falling property prices globally, albeit at a slightly slower pace than the previous quarter (–1.0%). Diverging trends persisted between advanced economies (AEs) and emerging market economies (EMEs). \"In advanced economies (AEs), real house prices continued to increase, albeit at a slower pace (0.6%), while the price decline in emerging market economies (EMEs) moderated (to –1.9%).\" Despite the aggregate global decline, \"Over 70% of AEs and 50% of EMEs experienced moderate residential property price growth (0–10%) in Q2 2025,\" with the median growth among 57 reporting jurisdictions remaining positive at +1.7% yoy. Regionally, the decline in EMEs was primarily driven by Asia (–3.6%), while central and eastern Europe (3.0%) and Latin America (1.9%) recorded significant price growth. Noteworthy country-level changes in Q2 2025 include sharp real price rises in North Macedonia (16%), Portugal (15%), and Bulgaria (11%), contrasted with declines in Hong Kong SAR (–8%), China (–6%), and Canada (–5%). From a longer-term perspective, since the Great Financial Crisis (GFC) of 2007–09, \"real house prices have more than doubled in Türkiye... while they remain below their 2010 levels in Italy, South Africa and China\" (–25%, –12%, and –9% respectively)."}, {"file_name": "research-benchmarking-the-energy-transition-insights-from-spdji.pdf", "title": "Benchmarking the Energy Transition: Insights from S&amp;P DJI", "document_type": "thematic_research", "publication_date": "2025-12-01", "expiry_date": "2026-12-01", "source": "S&P Dow Jones Indices", "source_url": "https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/", "relevance": "very high", "theme_tags": ["Equities", "Fixed Income", "Commodities", "Property", "Cross Asset Positioning and Sentiment Analyst"], "summary": "This research paper from S&amp;P Dow Jones Indices highlights the global energy transition, noting the S&amp;P 500's 72.34% decarbonization over nearly 21 years. It explores how various indices serve as strategic tools for market participants navigating associated risks and opportunities across asset classes. The S&amp;P Global Clean Energy Transition Index, focusing on clean energy companies, outperformed the S&amp;P Global BMI Energy (Sector) by 26.13% from Oct. 31, 2024, to Oct. 31, 2025, driven by record-breaking global investment in clean energy, projected to reach \"USD 2.2 trillion for 2025—double the level of fossil fuel spending\". The S&amp;P Global Essential Metals Producers Index, tracking companies mining critical energy transition metals (copper, lithium, nickel, rare earths), rallied 62.53% during the same period, with \"Cobalt... a standout performer, with the S&amp;P GSCI Cobalt Index gaining 113.44%\". The S&amp;P Global Carbon Credit Index shows a \"low correlation\" with broad market indices, suggesting diversification benefits, and can help \"shield themselves from adverse shifts in carbon prices\". In real estate, the Dow Jones Global Select ESG Tilted RESI achieved an \"annualized excess performance... of 0.77% and 0.46% for the one- and three-year periods, respectively\", by overweighting companies with higher GRESB scores, reflecting the sector's adaptation to climate challenges. Finally, the iBoxx EUR Corporates Paris-Aligned Index reduced its \"carbon footprint and fossil fuel reserves by 54.85% and 100%, respectively\" compared to its benchmark, with minimal tracking error, demonstrating that \"market participants can pursue significant improvements in sustainability metrics... without sacrificing the risk and performance profiles of a broad fixed income benchmark\". The document concludes that these diverse indices are vital for strategic positioning within the evolving market landscape of global energy transformation."}, {"file_name": "r_qt2509.pdf", "title": "BIS Quarterly Review September 2025 International banking and financial market developments", "document_type": "quarterly_outlook", "publication_date": "2025-09-01", "expiry_date": "2025-12-01", "source": "Bank for International Settlements", "source_url": "https://www.bis.org/publ/qtrpdf/r_qt2509.htm", "relevance": "critical", "theme_tags": ["Equities", "Fixed Income", "Global Growth and Economic Cycle", "Global Trade and Demand", "Policy or Rates Research"], "summary": "The BIS Quarterly Review for September 2025 covers international banking and financial market developments from June 1 to September 4, 2025, highlighting a \"risk-on tone\" in global financial markets that largely shrugged off trade conflicts and policy uncertainty. Equity markets saw robust rallies, notably in US stocks led by large-cap technology firms, and Japanese equities, while European markets remained flat. Credit spreads compressed, indicating reduced credit risk compensation, and financial conditions eased significantly, particularly in the US and UK. The US dollar's behavior was \"unusual for a risk-on phase,\" appreciating after a fiscal package despite historical tendencies. Emerging Market Economies (EMEs) capitalized on this sentiment, experiencing currency appreciation and equity market gains in places like China, Colombia, and Korea.\n\nCentral banks in major advanced economies continued to lower policy rates, with markets anticipating \"a faster pace of policy loosening.\" However, \"long-term yields stayed high and yield curves steepened at the very long end on fiscal and inflation concerns,\" particularly in the UK, France, and Germany, coinciding with an upward shift in US market-implied inflation expectations.\n\nA key article assesses the \"macroeconomic effects of tariffs,\" concluding that \"Higher import tariffs could lower global growth and disrupt supply chains.\" For countries imposing tariffs, such as the United States, these acted primarily as \"cost-push shocks that lower aggregate supply,\" leading to a \"significant drop in output and rise in the price level.\" For major trading partners, tariffs often resembled a demand shock. The analysis emphasizes the \"substantial role\" of sectoral linkages, with the services sector, though not directly tariffed, significantly contributing to overall output and price changes. The document also includes articles on a global survey of household perceptions and expectations and a new taxonomy for monetary policy operational frameworks, alongside an analysis of international bond markets through BIS statistics."}, {"file_name": "SPGlobalMarketIntelligence_TheAgeofAgility_2026.pdf", "title": "The age of agility: Seeking advantage amid uncertainty", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-10-13", "expiry_date": "2026-12-31", "source": "S&P Global Market Intelligence", "source_url": "https://www.spglobal.com/market-intelligence/en/events/webinars/age-agility-seeking-advantage-amid-uncertainty-within-economics-geopolitical-risk-trade-supply-chain", "relevance": "very high", "theme_tags": ["Global Growth and Economic Cycle", "Global Trade and Demand", "Global Inflation and FX Dynamics", "US Growth & Business Cycle", "US Liquidity and Monetary Conditions"], "summary": "This S&amp;P Global Market Intelligence \"2026 Annual Report\" titled \"The age of agility: Seeking advantage amid uncertainty\" analyzes the recalibration expected in trade patterns, the economy, and the geopolitical landscape in 2026 following seismic shifts in 2025. The report identifies three core themes driving strategic recalibration: \"adapting to trade realities, shaky economic foundations and shifting asymmetric power in geopolitics.\" On trade, it anticipates continued tariffs (especially from a potential Trump administration), a shift towards \"global regionalization\" with thinning Asia-North America supply chain connections, and the critical eight-year review of the USMCA. Supply chains will also face \"significant physical challenges... with volatile shipping costs\" and increased \"resource nationalism.\" Economically, 2026 is characterized by a \"delicate balance between emerging tailwinds and persistent headwinds,\" with moderating inflation and looser fiscal policies supporting growth, offset by \"elevated debt burdens and the specter of renewed inflationary pressures.\" Emerging market growth is forecast to slow due to US trade barriers and mainland China's \"anti-involution\" campaign. Geopolitically, the global order will be shaped by \"shifting asymmetries in geopolitical power relations\" driven by technology, particularly AI, leading to fragmented governance and regulatory approaches. The competition between the US and mainland China will impact access to critical minerals and emerging technologies, and AI's role in defense could make \"comparatively cheap UAVs and weapons systems, AI-supported decision making\" easier to initiate conflicts. While the role of the US dollar in trade may see \"opposing trends\" from new payment systems and stablecoins, its \"dominance as a reserve currency is unlikely to be challenged... in 2026.\""}, {"file_name": "TheWeekAhead.pdf", "title": "The Week Ahead", "document_type": "weekly_market_update", "publication_date": "2025-12-29", "expiry_date": "2026-01-12", "source": "D.A. Davidson & Co. Wealth Management Research", "source_url": "https://www.dadavidson.com/Portals/0/Wealth_Management/Research/TheWeekAhead.pdf?ver=1723654459458", "relevance": "very high", "theme_tags": ["Equities", "Fixed Income", "Commodities", "US Growth & Business Cycle", "US Labour Market"], "summary": "This weekly market update from D.A. Davidson &amp; Co. reviews key economic data and market performance. U.S. economic growth in the third quarter (3Q25) \"increased +4.3% at an inflation-adjusted annual rate in 3Q25, well above the FactSet consensus estimate of +3.0%,\" driven by strong consumer spending and net exports, despite a deceleration in business investment. The report notes that \"we expect 4Q25 data to moderate,\" potentially due to a six-week government shutdown, although the Atlanta Fed's GDPNow estimate for 4Q25 was a better \"+3.0% on 12/23/25, driven mostly by consumer spending.\" Equity markets concluded the year with a \"Santa Claus rally,\" with \"The S&amp;P 500 equity index closed at 6,932 on 12/24/25, an all-time closing high.\" The document also provides detailed performance data for major U.S. and international equity indices, sectors, and commodities, along with an economic calendar for the upcoming week."}, {"file_name": "Top 10 Economic Insights for 2026.pdf", "title": "Top 10 Economic Insights for 2026", "document_type": "annual_or_multiyear_outlook", "publication_date": "2026-01-03", "expiry_date": "2027-01-03", "source": "S&P Global Market Intelligence", "source_url": "https://www.spglobal.com/market-intelligence/en/news-insights/research/2025/12/top-10-economic-insights-2026", "relevance": "critical", "theme_tags": ["US Growth & Business Cycle", "Global Growth and Economic Cycle", "Global Inflation and FX Dynamics", "Fixed Income", "Commodities"], "summary": "This document outlines the 'Top 10 Economic Insights for 2026', forecasting global economic trends. Key conclusions include the expectation that 'The US economy is not en route to a recession, with growth to be supported by a few key tailwinds', such as 'personal tax cuts, elevated refunds, and rising federal spending'. Western Europe's domestic demand prospects are improving, although overall growth will remain subdued. Growth in mainland China is forecast to slow relative to 2025, despite enhanced stimulus, while India is expected to remain the world’s fastest-growing large economy, albeit with a slight moderation. Developing economies are anticipated to outperform larger emerging economies due to resilient domestic demand and less exposure to US tariffs. AI presents both positive risks, like increased spending on 'AI-related structures, equipment, software, and research and development (R&amp;D)', and negative risks, such as a major correction in equity prices. 'Supply-driven declines in crude oil prices are expected to contribute to generally moderating consumer price inflation rates', with Dated Brent prices potentially falling below US$60/b in early 2026, though the US, India, and mainland China are exceptions. Many central banks are expected to continue easing cycles, with the 'US Federal Reserve’s easing cycle... expected to extend through to 2026'. The 'US dollar’s depreciating trend is forecast to resume', with a modest 2% decline in 2026. Finally, the 'trend of steepening sovereign yield curves... is expected to resume', driven by continued central bank rate cuts and significant premiums for longer-maturity sovereign bonds due to public finance concerns."}, {"file_name": "US_Gold_Demand_Trends_Q3_2025.pdf", "title": "US Gold Demand Trends | Q3 2025", "document_type": "quarterly_outlook", "publication_date": "2025-11-01", "expiry_date": "2026-02-01", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025?gad_source=1&gad_campaignid=12711106950&gbraid=0AAAAADt5-AKOQnVlArpHfBD2FQbtLvGrW&gclid=CjwKCAiAmePKBhAfEiwAU3Ko3P3ZPEQvvPCXAL_tL6tdBM49voxOkQlbTR7jMRPVfetJb_nBSBjrMxoCs4sQAvD_BwE", "relevance": "critical", "theme_tags": ["Commodities"], "summary": "Overall US gold demand in Q3 2025 rebounded significantly, growing \"58% y/y to 186t,\" primarily driven by robust investor appetite for gold-backed ETFs. While \"Consumer demand (jewellery + bar and coin) of 32t, fell 33% y/y\" and \"Bar and coin demand witnessed another sharp decline falling 64% y/y to 7t,\" US-listed ETFs took the lead by adding \"137t in Q3 – a 160% y/y surge,\" bringing total holdings to 1,922t. North American ETF inflows, predominantly from US-based funds, accounted for \"62% of global inflows,\" reaching US$16bn in Q3 and a cumulative US$37bn year-to-date through September. Gold trading volumes in the US surged, with \"US volumes rose 59% m/m in September and another 51% m/m in October to a record US$208bn (1,587t) per day.\" The LBMA (PM) gold price achieved multiple new highs, with the average quarterly price reaching a record \"US$3,456.54/oz, up by 40% y/y and 5% q/q.\" Post-Q3, retail gold demand improved, leading to increased refinery demand, though capacity expansion faces challenges. Analyst forecasts anticipate gold prices to continue rising through H1 2026, with a Q4’25 consensus forecast of \"US$4,000/oz,\" and full-year 2026 targets ranging from \"US$4,500 to US$5,000/oz.\""}, {"file_name": "Weekly-Market-Commentary_12-29-25.pdf", "title": "Market Update – December 29, 2025", "document_type": "weekly_market_update", "publication_date": "2025-12-29", "expiry_date": "2026-01-12", "source": "Sunflower Bank", "source_url": "https://www.sunflowerbank.com/getmedia/0ec6aeeb-ce39-47ae-8225-b374ea3536d5/Weekly-Market-Commentary_12-29-25.pdf", "relevance": "very high", "theme_tags": ["Equities", "Commodities", "US Inflation and Price Dynamics", "Fixed Income", "US Labour Market"], "summary": "This weekly market commentary, dated December 29, 2025, provides a snapshot of market performance and key economic data. Equity markets experienced gains during the holiday-shortened week, with the S&amp;P 500 increasing +1.4%. Precious metals had a \"very strong week,\" with gold rising +4.5%, silver surging +18%, and platinum increasing +25%. The document attributes gold's year-to-date increase of +73% to \"central bank buying of the metal\" at a rate of \"73 tons per month this year\" as central banks \"seek to reduce reliance on the US Dollar.\" The significant gains in silver and platinum are noted as a \"sign of speculative fervor.\" Economically, the November CPI report indicated inflation \"well below expectations,\" with headline CPI at +2.7% year-over-year and Core CPI at +2.6% year-over-year. However, the report's accuracy is questioned due to the Bureau of Labor Statistics' \"methodology the BLS used to calculate the data\" during a government shutdown, leading to estimations, particularly for \"shelter inflation, which accounts for approximately 40% of the core CPI reading\" and \"appears to have been held flat.\" The document concludes that \"Market participants and the FOMC members alike will take the report with a grain of salt\" due to these methodological issues. The report also provides a \"Market Snapshot\" including Industrial Production, Initial Jobless Claims, and Continuing Claims data."}, {"file_name": "Weekly-Market-Update-12-29-25.pdf", "title": "Weekly Market Update December 29, 2025", "document_type": "weekly_market_update", "publication_date": "2025-12-29", "expiry_date": "2026-01-12", "source": "Sterling Capital Management LLC", "source_url": "https://sterlingcapital.com/cdn/Weekly-Market-Update-12-29-25.pdf", "relevance": "high", "theme_tags": ["Equities", "Fixed Income", "Commodities", "Foreign Exchange", "US Growth & Business Cycle"], "summary": "This Weekly Market Update from December 29, 2025, provides an overview of economic and market developments. Key U.S. economic data for 3Q25 showed \"Real gross domestic product (GDP) increased at a +4.3% annual rate\", with positive contributions from personal consumption and net exports. Industrial production rose \"+0.2% in November\", though manufacturing was unchanged. New orders for durable goods declined \"-2.2% in October\", but orders excluding transportation were up \"+3.6%\" from a year ago. The report highlights upcoming U.S. economic events including FOMC meeting minutes, initial jobless claims, and manufacturing PMI. Commodity prices showed significant movements, with gold at \"$4529.10\" per ounce, notably higher than six months prior. Equity markets, represented by the S&amp;P 500, recorded a \"1.41%\" return for the week and a \"19.32%\" year-to-date return. Bond rates varied, with the 10Y U.S. Treasury at \"4.13%\". The Bloomberg U.S. Aggregate Bond index reported a YTD return of \"7.31%\"."}, {"file_name": "weekly_rate_monitor.pdf", "title": "Weekly Interest Rate Monitor", "document_type": "weekly_market_update", "publication_date": "2025-12-29", "expiry_date": "2026-01-12", "source": "Raymond James", "source_url": "https://www.raymondjames.com/-/media/rj/common/portfolio-strategy/weekly_market_guide.pdf", "relevance": "critical", "theme_tags": ["Fixed Income", "Equities", "Policy or Rates Research", "US Credit Conditions"], "summary": "This \"Weekly Interest Rate Monitor\" from Raymond James, dated December 29, 2025, provides a comprehensive overview of fixed income yields and equity market performance. The report presents current, previous, weekly change, and year-ago data for various instruments including Corporate Index bonds (A and BBB rated, across utility, industrial, and financial sectors), Treasury Inflation-Protected Securities (TIPS), Municipal bonds (AAA), Mortgage-Backed Securities (MBS), Treasuries, Agencies, and Brokered CDs. Most corporate and treasury yields showed a slight weekly decline; for instance, the \"Corporate Index (A) (YTW) 1 yr\" decreased by \"-0.02\" to \"3.49%\", and \"Treasuries (YTW) 2 yr\" decreased by \"-0.02\" to \"3.46%\". Concurrently, major equity indices demonstrated positive price appreciation, with the \"S&amp;P 500\" increasing by \"95\" points to \"6930\" and the \"DJIA\" rising by \"576\" points to \"48711\". Other reported rates include SOFR, which increased by \"0.10\" to \"3.76%\", and FedFunds, which remained unchanged at \"3.64%\". The document also includes detailed index statistics for total returns across various bond categories and yield curve comparisons for Treasuries, AAA Municipal bonds, and A-rated Corporate bonds."}, {"file_name": "WMM_22_December_2025_A_season_for_Kevin.pdf", "title": "Weekly Markets Monitor: A season for Kevin?", "document_type": "weekly_market_update", "publication_date": "2025-12-22", "expiry_date": "2026-01-05", "source": "https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-season-kevin", "source_url": "https://www.gold.org", "relevance": "very high", "theme_tags": ["Commodities", "US Liquidity and Monetary Conditions", "US Growth & Business Cycle", "Global Growth and Economic Cycle", "Cross Asset Positioning and Sentiment Analyst"], "summary": "This Weekly Markets Monitor from the World Gold Council details a week of diverging global economic data and central bank actions, alongside a significant focus on the upcoming US Fed chair nomination and gold's performance. The ECB and Nordic banks held rates, while the BoE cut and the BoJ hiked. In the US, jobs rebounded and inflation eased, but consumer spending and housing remained tight, while China's economic momentum slowed. Global equity markets were mixed, US Treasury yields fell, and both the US dollar and oil edged higher. A key narrative is the tight race for the next Fed chair between Kevin Hassett and Kevin Warsh, both considered more dovish than the incumbent. The report notes, \"Regardless of the outcome, there is likely to be concern over decreased independence and a shakeup of how the Fed operates,\" and suggests Hassett's potential nomination could lead to \"more rate cuts than investors currently expect.\" Gold extended its rally, with the report stating, \"we see no technical reason not to look for an eventual break to new record highs.\" It recorded a 66% year-to-date return, supported by persistent safe-haven demand amidst \"Geopolitical tensions globally remain elevated.\" US Q3 GDP is expected to remain robust, though Q4 growth may slow due to a government shutdown. The report also anticipates lighter gold market trading activity during the holiday season."}, {"file_name": "WMM_8_December_2025_The_2026_Gold_Outlook.pdf", "title": "The 2026 Gold Outlook", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-08", "expiry_date": "2026-12-31", "source": "World Gold Council", "source_url": "https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook", "relevance": "critical", "theme_tags": ["Commodities", "Fixed Income", "Foreign Exchange", "US Liquidity and Monetary Conditions", "Global Growth and Economic Cycle"], "summary": "This \"Weekly Markets Monitor\" from 8 December 2025, primarily focuses on \"The 2026 gold outlook\", offering potential macro scenarios and their implications for gold based on the Gold Valuation Framework. The report highlights that \"Should current macro conditions persist, gold could remain rangebound – but based on past experiences, 2026 may continue to surprise.\" Gold extended its strength, with the LBMA Gold Price PM rising 1.2% week-on-week to US$4,243/oz, leading to an impressive year-to-date gain of 63%. This strength was supported by declining FX opportunity costs (+0.7%), which outweighed pressure from rising yields (-0.3%) and slowing gold ETF inflows (-0.1%).\n\nFrom a technical perspective, gold is \"struggling to complete a “triangle” continuation pattern\" for its core uptrend, requiring a sustained move above resistance at US$4,245/oz. Silver has already formed such a pattern and is reaching new highs, which is expected to \"help to reinforce the uptrend seen in Gold\". Macroeconomic observations indicate sectoral divergence, with services remaining resilient while manufacturing struggled in major economies. The US labor market showed mixed signals (private payrolls fell by 32,000, but jobless claims hit a three-year low), Eurozone inflation rose, China's exports increased, and India cut rates. Geopolitical tensions, particularly in Russia and Venezuela, showed no signs of easing.\n\nMonetary policy is a key focus, with an 88% chance of a 25bps Fed rate cut this week. However, the Fed’s guidance and the potential for a more dovish successor to Chair Powell could prove more influential, impacting yields, the dollar, and gold. The US Dollar (DXY) appears to be turning lower again, which is seen as a \"supportive driver for Gold\", while 10-year US Real Yields continue to edge higher, potentially acting as a \"headwind for Gold\" if they break significant resistance levels."}, {"file_name": "bii-global-outlook-2026.pdf", "title": "2026 Global Outlook: Pushing limits", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-31", "expiry_date": "2026-12-31", "source": "BlackRock Investment Institute", "source_url": "https://www.blackrock.com/corporate/insights/blackrock-investment-institute/publications/outlook", "relevance": "critical", "theme_tags": ["Equities", "Fixed Income", "Alternatives", "Global Growth and Economic Cycle", "US Growth & Business Cycle"], "summary": "BlackRock's 2026 Global Outlook details how the global economy and financial markets are undergoing structural transformation driven by \"mega forces,\" with Artificial Intelligence (AI) being the most prominent. The report emphasizes that AI's buildout is potentially \"unprecedented in both speed and scale,\" shifting growth to be more capital-intensive and requiring substantial front-loaded investment of an estimated U.S.$5-8 trillion globally through 2030. This necessitates greater leverage in the financial system, with private credit and infrastructure playing key financing roles. BlackRock states, \"We remain pro-risk and see the AI theme still the main driver of U.S. equities,\" advocating for active investing to identify winners as AI gains spread beyond the tech sector. The document also highlights a \"diversification mirage,\" where traditional diversifiers are less effective, recommending a focus on \"idiosyncratic exposures in private markets\" and high-conviction strategies. Key constraints to the AI buildout include energy and physical infrastructure, creating opportunities in power systems and critical minerals. Geopolitical fragmentation, particularly the U.S.-China rivalry, and the evolution of the \"future of finance\" through stablecoins are also significant mega forces. Tactical views include being overweight U.S. stocks (due to the broadening AI theme and Fed rate cuts), Japan equities, and EM hard-currency debt, while being underweight long-term U.S. Treasuries due to expected rising term premium. Strategically, BlackRock favors a scenario-based approach, leveraging private markets and hedge funds, and recommends above-benchmark allocations to Indian equities due to strong long-term growth prospects."}, {"file_name": "Brookfield 2026 Investment Outlook.pdf", "title": "2026 Investment Outlook", "document_type": "annual_or_multiyear_outlook", "publication_date": "2026-01-03", "expiry_date": "2027-01-03", "source": "Brookfield Asset Management", "source_url": "https://www.brookfield.com/2026-investment-outlook", "relevance": "critical", "theme_tags": ["Alternatives", "Property", "Cross Asset Positioning and Sentiment Analyst", "Global Growth and Economic Cycle", "Commodities"], "summary": "Brookfield's 2026 Investment Outlook highlights the enduring value of private assets and real-asset businesses, driven by stability, inflation resilience, and compounding growth. The report identifies three key megatrends—digitalization, deglobalization, and decarbonization—as"}, {"file_name": "QGO-1Q2026.pdf", "title": "Quarterly Global Outlook 1Q 2026", "document_type": "quarterly_outlook", "publication_date": "2025-12-05", "expiry_date": "2026-03-31", "source": "UOB Global Economics & Markets Research", "source_url": "https://www.uobgroup.com/research/quarterly-global-outlook.page", "relevance": "critical", "theme_tags": ["Fixed Income", "Foreign Exchange", "Commodities", "Global Growth and Economic Cycle", "Global Inflation and FX Dynamics"], "summary": "This Quarterly Global Outlook for 1Q 2026 from UOB Global Economics &amp; Markets Research indicates that ASEAN economies are entering 2026 on a firm footing, driven by surprising resilience in regional exports, strengthening regional currencies, and a benign inflation trajectory. The report notes that \"key regional economies grew from strength to strength and ended the year on a firm footing.\" This export strength is particularly evident in AI-related and electronics supply chains, while \"strength in ASEAN regional currencies\" is supported by strong export performance and de-dollarization trends. Inflation remains contained due to resilient supply chains absorbing tariffs and strong regional currencies increasing purchasing power.\n\nThe outlook maintains a bearish bias on the USD, expecting \"further Fed easing expected to remain the dominant driver,\" with DXY forecasts declining through 2026. For Asian currencies, a \"constructive medium-term outlook\" is presented, contingent on stable trade relations and narrowing yield differentials, with the SGD expected to outperform. US rates are projected to see gradual cuts in 2026, leading to a terminal Fed Funds Target Rate of 3.25% (upper bound).\n\nIn commodities, gold is \"likely to sustain its strong trend-like rally into 2026\" due to safe-haven demand, central bank accumulation, and Fed rate cut expectations, with forecasts rising to USD 4,600/oz by 4Q26. Brent crude oil maintains a \"cautiously neutral outlook,\" with forecasts lowered to USD 55/bbl by 2H26, citing oversupply, a potential Russia-Ukraine peace deal, and slowing growth in China. LME copper has a \"cautiously neutral outlook\" amidst conflicting drivers of US inventory accumulation (due to tariff fears) and weakening Chinese demand, with forecasts updated to USD 10,000/MT by 2H26. The document also provides specific forecasts for FX rates, policy rates, and interest rates for various economies. Longer-term, ASEAN is positioned as \"a resilient hub for advanced manufacturing, digital services, and green investments through 2035.\""}, {"file_name": "1h26 commodities outlook.pdf", "title": "1H2026 Commodities Outlook", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-03", "expiry_date": "2026-06-30", "source": "OCBC", "source_url": "https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf", "relevance": "very high", "theme_tags": ["Commodities", "Global Growth and Economic Cycle", "Global Inflation and FX Dynamics"], "summary": "This OCBC Global Markets Research &amp; Strategy report provides a 1H2026 Commodities Outlook, published on 3 December 2025. In 2025, 'Precious Metals' clearly outperformed other categories, with Gold rallying 60% YTD and Silver surging 100% YTD, reflecting structural, fundamental, seasonal, and sentiment-driven demand, acting as a hedge against geopolitical stress and a store of value. 'Energy' remained in negative territory due to easing geopolitical tensions and supply glut concerns. The outlook for gold into 2026 remains constructive, supported by structural shifts, macro factors including the Fed's easing cycle, and sustained central bank purchases. Silver's medium-term picture is also constructive, benefiting from its dual role as a precious and industrial metal, supported by tight supply, firm industrial demand, ETF inflows, and macro tailwinds. Crude Palm Oil (CPO) prices are expected to ease slightly in 2026, averaging around MYR4,200/mt, down from MYR4,300/mt in 2025, due to a 'more comfortable balance in the global vegetable-oil complex' and improving supply, though early 2026 demand remains firm. Crude oil prices are forecasted to fall further in 2026, with WTI and Brent crude oil prices averaging USD59/bbl and USD62/bbl respectively, down from 2025 forecasts. This decline reflects 'a favourable supply outlook', a 'developing global oil supply glut', and robust supply growth from OPEC+ and non-OPEC+ amid broadly stable consumption, with 'easing geopolitical tensions in the Middle East — and potentially in Eastern Europe — reducing geopolitical risk premiums'."}, {"file_name": "Box II.1 December 2025 IPoM.pdf", "title": "BOX II.1: Copper price outlook", "document_type": "economic_analysis", "publication_date": "2025-12-01", "expiry_date": "2027-12-31", "source": "Banco Central de Chile", "source_url": "https://www.bcentral.cl/documents/d/banco-central/box-ii-1-december-2025-ipom-pdf?download=true", "relevance": "very high", "theme_tags": ["Commodities", "Global Trade and Demand", "US Liquidity and Monetary Conditions"], "summary": "The document, 'BOX II.1: Copper price outlook' from the December 2025 Monetary Policy Report, analyzes the significant recent rise in copper prices, reaching a nominal all-time high of over US$5 per pound, motivating an upward revision in the price outlook. This behavior is attributed to strong demand and tight supply. On the demand side, 'geopolitical and technological factors have consolidated and strengthened,' including increased defense spending and strategic mineral protection plans. Additionally, the 'rapid growth of the Artificial Intelligence (AI) industry' is estimated to require 'between 300,000 and 500,000 additional tons of copper each year until 2030,' with indirect consumption from associated electrical infrastructure expansion. Increased risk appetite in financial markets and prospects for 'looser monetary policy in the United States' also contribute to higher commodity prices. On the supply side, 'multiple disruptions' and 'accidents and cuts to production plans at mines' have led to estimated cuts of 'around 400,000 tons in global production this year,' with effects expected to 'continue throughout 2026 and 2027.' The central scenario now assumes the copper price will average 'around US$4.6 per pound' in 2027, up from US$4.3 in the previous report. According to analysis, around one-third of the copper price increase since February 2025 is due to supply constraints, with the remaining two-thirds split among geopolitical factors, green transition/AI demand, traditional demand, and financial factors/monetary policy prospects. For Chile, the macroeconomic impact of these higher copper prices might be lower than usual, considering the reasons behind the higher price (supply and geopolitical shocks versus demand shocks) and increased production costs."}, {"file_name": "Comm Weekly Report_29 dec 25_29-12-2025_14.pdf", "title": "Weekly Commodity Insights", "document_type": "weekly_market_update", "publication_date": "2025-12-29", "expiry_date": "2026-01-12", "source": "Axis Direct", "source_url": "https://simplehai.axisdirect.in/app/index.php/insights/reports/commodity", "relevance": "high", "theme_tags": ["Commodities"], "summary": "This weekly report from Axis Direct, published on December 29, 2025, provides insights into the performance and outlook for key commodities, including Gold, Crude Oil, Silver, and Copper. Comex Gold extended its winning streak for three weeks, rallying over 4% last week, supported by a softer dollar, safe-haven demand amid geopolitical tensions, strong ETF inflows, and expectations of"}, {"file_name": "commoditiesoutlook.pdf", "title": "Commodities Outlook: Our Key Commodities Forecasts for December 2025", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-09", "expiry_date": "2026-12-09", "source": "BMO Capital Markets", "source_url": "https://economics.bmo.com/media/filer_public/fc/3d/fc3d0b80-ae57-475d-9f07-c1e83a029fb5/commoditiesoutlook.pdf", "relevance": "critical", "theme_tags": ["Commodities", "Global Growth and Economic Cycle"], "summary": "The \"Commodities Outlook for December 2025\" by BMO Capital Markets Economic Research provides comprehensive forecasts for key commodities, including energy, materials, agriculture, and base and precious metals. The report offers detailed historical data up to November/December 2025 and projects average prices for both 2025 and 2026. For instance, Crude Oil (US$/bbl) is forecast to average \"65.00\" for 2025 and \"62.00\" for 2026, while Gold (US$/oz) is projected to average \"3,428\" for 2025 and \"4,200\" for 2026. Silver (US$/oz) is forecast at \"39.34\" for 2025 and \"50.00\" for 2026. The publication also includes commodity price indices and their forecasts in both US$ and C$ terms, alongside a technical note on the methodology of the BMO Capital Markets Commodity Price Index, highlighting its fixed-weight, export-based nature and component weights across different commodity groups."}, {"file_name": "Commodities_Outlook_2026.pdf", "title": "Commodities Outlook 2026", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-31", "expiry_date": "2026-12-31", "source": "ING", "source_url": "https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf", "relevance": "very high", "theme_tags": ["Commodities", "Global Growth and Economic Cycle", "Global Trade and Demand", "US Liquidity and Monetary Conditions", "Global Inflation and FX Dynamics"], "summary": "This ING \"Commodities Outlook 2026\" report provides a divergent forecast for various commodity markets, emphasizing a bearish view on energy, a supportive outlook for most metals, and a mixed to tighter perspective on agricultural commodities. The report states, \"We are heading into 2026 with a fairly bearish view on energy markets, while we believe most metals will be better supported by tighter fundamentals.\" For energy, a large global oil surplus is expected in 2026 due to OPEC+ output increases and modest demand growth, forecasting ICE Brent at US$57/bbl, although supply risks from Russian sanctions and reduced OPEC spare capacity could introduce volatility. The European gas market faces short-term upside risks due to tighter winter storage but a bearish long-term outlook as LNG export capacity ramps up, especially from the US. The EU carbon market is projected to tighten in 2026, pushing EUA prices higher, but faces risks related to competitiveness concerns and potential delays in decarbonization efforts.\n\nMost base metals are expected to remain well supported. Copper is bullish for 2026, facing a deficit due to significant mine supply disruptions and trade flow distortions from US tariffs, with \"refined copper balance for 2026 is now showing a deficit of around 600kt.\" Aluminium is also bullish, driven by China's production cap, supply disruptions outside China, and competition for power from AI data centers, expecting a deficit of around 200kt. In contrast, Nickel is anticipated to remain in surplus throughout 2026, primarily due to continued supply growth from Indonesia, despite some local scrutiny. Iron ore faces a bearish outlook for 2026, influenced by weakening Chinese demand, particularly in the property sector, and increasing seaborne supply, including the significant Simandou project.\n\nPrecious metals show strong prospects, with gold expected to \"remain strong and reach yet new heights,\" averaging $4,325/oz in 2026. This is attributed to robust central bank demand, anticipated Fed rate cuts, a weaker US dollar, and ongoing geopolitical uncertainties. Silver is also bullish, predicted to average $55/oz in 2026, outperforming gold due to a persistent supply deficit, strong industrial demand (solar, EVs), and renewed investor interest as a cheaper alternative to gold. Agricultural markets present a varied picture: the global soybean market is set to tighten in 2025/26 and 2026/27, contingent on China's buying of US soybeans and US biofuel policy. Corn prices are expected to find support in 2026 due to an anticipated \"meaningful tightening in the 2026/27 marketing year, with a global deficit of around 39m tonnes.\" Conversely, global wheat prices are expected to have \"any upside... be limited\" due to comfortable global stocks following record production in 2025/26."}, {"file_name": "emirates_nbd_research_-_market_economics_precious_metals_2026.pdf", "title": "Precious metals to extend gains in 2026", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-18", "expiry_date": "2026-12-18", "source": "Emirates NBD Research", "source_url": "https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf", "relevance": "critical", "theme_tags": ["Commodities", "Global Growth and Economic Cycle", "Global Inflation and FX Dynamics"], "summary": "Emirates NBD Research anticipates that precious metals will continue to extend their significant gains into 2026, following a 'stratospheric performance in 2025' where \"Gold prices rallied to record levels of more than USD 4,300/oz, up more than 60% by mid December, while silver prices have risen more than 120% to trade above USD 60/oz\". The outlook for gold in 2026 remains constructive, supported by expectations of lower rates from the Federal Reserve, a softer US dollar, persistent global geopolitical unease, and concerns over the fiscal sustainability of G20 economies. Central banks have been substantial buyers of gold, with purchases averaging \"almost 260 tonnes per quarter since Q1 2022\", and retail investment, including ETF holdings and bar and coin demand, has also been strong. Despite this, \"ETF holdings across all precious metals are still well below their highest levels\", suggesting room for further investor participation. The report forecasts \"gold prices at an average of USD 4,500/troy oz in Q4 2026\". Silver is expected to see even greater upside potential due to tight supply, its increasing industrial applications, particularly in AI-related hardware, and its recent designation as a 'critical mineral' by the US government. Other precious metals such as platinum and palladium are also expected to see gains, with Dec-26 forecasts of 1,700.00 USD/troy oz for Platinum and 1,650.00 USD/troy oz for Palladium."}, {"file_name": "Global-X-2026-Perspectives-EN.pdf", "title": "2026 PERSPECTIVES", "document_type": "annual_or_multiyear_outlook", "publication_date": "2025-12-18", "expiry_date": "2026-12-18", "source": "Global X Investments Canada Inc.", "source_url": "https://www.globalx.ca/insights/articles/2026-perspectives-from-global-x", "relevance": "critical", "theme_tags": ["Equities", "Fixed Income", "Commodities", "US Growth & Business Cycle", "Global Growth and Economic Cycle"], "summary": "This Global X 2026 Perspectives report outlines key economic and market trends for the year ahead across North America, global equities, fixed income, commodities, and cash allocations. For North America, Canada is expected to face slowing momentum and shifting growth drivers, while the U.S. confronts tight labor conditions and potential upward wage and consumer price pressures. The report notes, \"Canada enters 2026 facing slowing momentum, shifting growth drivers, and heightened sensitivity to global trade and commodity trends.\" In fixed income, the U.S. Federal Reserve is challenged by a strained dual mandate amidst labor weakness and persistent inflation, with discussions around quantitative easing cessation and yield curve control. \"Extending duration appears tactical as term premiums increase, though sticky inflation and volatility remain primary investor risks.\" Global equity themes include anticipated continued volatility, strong performance in Canadian equities due to materials exposure, a moderately optimistic outlook for the S&amp;P 500, and AI as a central driver for the Nasdaq 100. China’s technology sector demonstrates \"durable, cost-driven momentum supported by scalable AI commercialization, favourable policy shifts, and expanding sector breadth.\" Commodities are a significant focus, with precious metals and energy expected to remain strong after 2025's rally. Gold has \"strong tailwinds entering 2026\" from central bank buying and currency debasement concerns, while forecasted shortages in various commodities due to sustainable energy transition and AI buildout suggest a potential super-cycle: \"The outlook for commodities in 2026 is strong. Perhaps 2026 is the start of the commodity super cycle?\" Finally, High Interest Savings Account (HISA) ETFs are presented as a viable option for investors seeking yield, flexibility, and liquidity in an uncertain interest rate environment."}];
+
+    let filteredItems = [...allItems];
+    let selectedSources = ['all'];
+    let selectedDocTypes = ['all'];
+    let selectedRelevance = ['all'];
+    let selectedThemes = ['all'];
+    let hideExpired = false;
+
+    // DOM elements
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsCount = document.getElementById('resultsCount');
+    const hideExpiredBtn = document.getElementById('hideExpiredBtn');
+
+    // Event listeners
+    searchInput.addEventListener('input', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.relative')) {
+        document.querySelectorAll('.filter-dropdown').forEach(dropdown => {
+          dropdown.classList.remove('active');
+        });
+      }
+    });
+
+    function toggleDropdown(dropdownId) {
+      event.stopPropagation();
+      const dropdown = document.getElementById(dropdownId);
+      const allDropdowns = document.querySelectorAll('.filter-dropdown');
+      allDropdowns.forEach(d => {
+        if (d.id !== dropdownId) d.classList.remove('active');
+      });
+      dropdown.classList.toggle('active');
+    }
+
+    function toggleHideExpired() {
+      hideExpired = !hideExpired;
+      const btn = hideExpiredBtn;
+      if (hideExpired) {
+        btn.classList.add('border-indigo-400/50', 'bg-indigo-500/20');
+        btn.classList.remove('border-white/10', 'bg-white/5');
+        btn.textContent = '✓ Hide Expired';
+      } else {
+        btn.classList.remove('border-indigo-400/50', 'bg-indigo-500/20');
+        btn.classList.add('border-white/10', 'bg-white/5');
+        btn.textContent = 'Show All';
+      }
+      applyFilters();
+    }
+
+    function handleSourceFilter(checkbox) {
+      handleMultiSelectFilter(checkbox, 'sourceDropdown', selectedSources, 'sourceFilterLabel', 'Sources');
+    }
+
+    function handleDocTypeFilter(checkbox) {
+      handleMultiSelectFilter(checkbox, 'docTypeDropdown', selectedDocTypes, 'docTypeFilterLabel', 'Types', formatDocType);
+    }
+
+    function handleRelevanceFilter(checkbox) {
+      handleMultiSelectFilter(checkbox, 'relevanceDropdown', selectedRelevance, 'relevanceFilterLabel', 'Relevance', formatRelevance);
+    }
+
+    function handleThemeFilter(checkbox) {
+      handleMultiSelectFilter(checkbox, 'themeDropdown', selectedThemes, 'themeFilterLabel', 'Themes');
+    }
+
+    function handleMultiSelectFilter(checkbox, dropdownId, selectedArray, labelId, labelText, formatter = null) {
+      const value = checkbox.value;
+      const dropdown = document.getElementById(dropdownId);
+      const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+
+      if (value === 'all') {
+        if (checkbox.checked) {
+          selectedArray.length = 0;
+          selectedArray.push('all');
+          checkboxes.forEach(cb => {
+            if (cb.value !== 'all') cb.checked = false;
+          });
+        } else {
+          checkbox.checked = true;
+        }
+      } else {
+        if (checkbox.checked) {
+          checkboxes[0].checked = false;
+          const index = selectedArray.indexOf('all');
+          if (index > -1) selectedArray.splice(index, 1);
+          selectedArray.push(value);
+        } else {
+          const index = selectedArray.indexOf(value);
+          if (index > -1) selectedArray.splice(index, 1);
+          if (selectedArray.length === 0) {
+            selectedArray.push('all');
+            checkboxes[0].checked = true;
+          }
+        }
+      }
+
+      updateFilterLabel(labelId, selectedArray, labelText, formatter);
+      applyFilters();
+    }
+
+    function updateFilterLabel(labelId, selectedArray, labelText, formatter = null) {
+      const label = document.getElementById(labelId);
+      if (selectedArray.includes('all') || selectedArray.length === 0) {
+        label.textContent = `All ${labelText}`;
+      } else if (selectedArray.length === 1) {
+        label.textContent = formatter ? formatter(selectedArray[0]) : selectedArray[0];
+      } else {
+        label.textContent = `${selectedArray.length} ${labelText.toLowerCase()} selected`;
+      }
+    }
+
+    function formatDocType(type) {
+      return type.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function formatRelevance(rel) {
+      return rel.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function applyFilters() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const sortBy = sortSelect.value;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Filter
+      filteredItems = allItems.filter(item => {
+        const matchesSearch = 
+          item.title.toLowerCase().includes(searchTerm) ||
+          item.summary.toLowerCase().includes(searchTerm) ||
+          item.source.toLowerCase().includes(searchTerm) ||
+          item.theme_tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+        const matchesSource = selectedSources.includes('all') || selectedSources.includes(item.source);
+        const matchesDocType = selectedDocTypes.includes('all') || selectedDocTypes.includes(item.document_type);
+        const matchesRelevance = selectedRelevance.includes('all') || selectedRelevance.includes(item.relevance);
+
+        const matchesTheme = selectedThemes.includes('all') || 
+                            selectedThemes.some(theme => item.theme_tags.includes(theme));
+
+        // Expiry filter
+        const isExpired = item.expiry_date && new Date(item.expiry_date) < today;
+        const matchesExpiry = !hideExpired || !isExpired;
+
+        return matchesSearch && matchesSource && matchesDocType && matchesRelevance && matchesTheme && matchesExpiry;
+      });
+
+      // Sort
+      filteredItems.sort((a, b) => {
+        if (sortBy === 'date-desc') {
+          return new Date(b.publication_date || 0) - new Date(a.publication_date || 0);
+        } else if (sortBy === 'date-asc') {
+          return new Date(a.publication_date || 0) - new Date(b.publication_date || 0);
+        } else if (sortBy === 'relevance-desc') {
+          const relevanceOrder = { 'critical': 3, 'very high': 2, 'high': 1, 'medium': 0, 'low': -1 };
+          return (relevanceOrder[b.relevance] || 0) - (relevanceOrder[a.relevance] || 0);
+        } else if (sortBy === 'title-asc') {
+          return a.title.localeCompare(b.title);
+        } else if (sortBy === 'title-desc') {
+          return b.title.localeCompare(a.title);
+        }
+        return 0;
+      });
+
+      renderResults();
+    }
+
+    function getRelevanceColor(relevance) {
+      const colors = {
+        'critical': 'bg-red-500/20 text-red-300',
+        'very high': 'bg-orange-500/20 text-orange-300',
+        'high': 'bg-amber-500/20 text-amber-300',
+        'medium': 'bg-blue-500/20 text-blue-300',
+        'low': 'bg-gray-500/20 text-gray-300'
+      };
+      return colors[relevance] || colors['medium'];
+    }
+
+    function getDocTypeColor(docType) {
+      const colors = {
+        'research_report': 'bg-indigo-500/20 text-indigo-300',
+        'market_commentary': 'bg-cyan-500/20 text-cyan-300',
+        'economic_analysis': 'bg-emerald-500/20 text-emerald-300',
+        'other': 'bg-gray-500/20 text-gray-300'
+      };
+      return colors[docType] || colors['other'];
+    }
+
+    function getExpiryStatus(expiryDate) {
+      if (!expiryDate) return 'unknown';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiry = new Date(expiryDate);
+      expiry.setHours(0, 0, 0, 0);
+      const daysUntilExpiry = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+
+      if (daysUntilExpiry < 0) return 'expired';
+      if (daysUntilExpiry <= 30) return 'soon';
+      return 'active';
+    }
+
+    function getExpiryBadge(expiryDate) {
+      if (!expiryDate) return '';
+
+      const status = getExpiryStatus(expiryDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiry = new Date(expiryDate);
+      expiry.setHours(0, 0, 0, 0);
+      const daysUntilExpiry = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
+
+      let text, cssClass;
+      if (status === 'expired') {
+        text = `Expired ${Math.abs(daysUntilExpiry)}d ago`;
+        cssClass = 'expiry-expired';
+      } else if (status === 'soon') {
+        text = `Expires in ${daysUntilExpiry}d`;
+        cssClass = 'expiry-soon';
+      } else {
+        text = `Valid ${daysUntilExpiry}d`;
+        cssClass = 'expiry-active';
+      }
+
+      return `<span class="expiry-badge ${cssClass}">${text}</span>`;
+    }
+
+    function toggleSummary(id) {
+      const element = document.getElementById(`summary-${id}`);
+      const button = document.getElementById(`toggle-${id}`);
+
+      if (element.classList.contains('line-clamp-3')) {
+        element.classList.remove('line-clamp-3');
+        button.textContent = 'Show less';
+      } else {
+        element.classList.add('line-clamp-3');
+        button.textContent = 'Show more';
+      }
+    }
+
+    function renderResults() {
+      resultsCount.textContent = `Showing ${filteredItems.length} of ${allItems.length} documents`;
+
+      if (filteredItems.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="py-16 text-center">
+            <p class="text-lg text-white/50">No documents found matching your criteria.</p>
+          </div>
+        `;
+        return;
+      }
+
+      resultsContainer.innerHTML = filteredItems.map((item, index) => {
+        const expiryStatus = getExpiryStatus(item.expiry_date);
+        const isExpired = expiryStatus === 'expired';
+        const containerClass = isExpired ? 'expired' : '';
+
+        return `
+        <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-indigo-400/50 hover:bg-white/10 ${containerClass}">
+          <!-- Header row: Source, Type, Relevance, Date, Expiry -->
+          <div class="mb-3 flex flex-wrap items-center gap-2 text-xs">
+            <span class="rounded-full bg-indigo-500/20 px-3 py-1 font-medium text-indigo-300">
+              ${item.source}
+            </span>
+            <span class="rounded-full px-3 py-1 font-medium ${getDocTypeColor(item.document_type)}">
+              ${formatDocType(item.document_type)}
+            </span>
+            <span class="rounded-full px-3 py-1 font-medium ${getRelevanceColor(item.relevance)}">
+              ${formatRelevance(item.relevance)}
+            </span>
+            <span class="text-white/40">
+              ${formatDate(item.publication_date)}
+            </span>
+            ${getExpiryBadge(item.expiry_date)}
+          </div>
+
+          <!-- Title -->
+          <h3 class="mb-2 text-lg font-semibold leading-snug text-white">
+            ${item.source_url ? `<a href="${item.source_url}" target="_blank" class="hover:text-indigo-300 transition-colors">${item.title}</a>` : item.title}
+          </h3>
+
+          <!-- Theme Tags -->
+          ${item.theme_tags && item.theme_tags.length > 0 ? `
+            <div class="mb-3 flex flex-wrap gap-1">
+              ${item.theme_tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+          ` : ''}
+
+          <!-- Summary -->
+          <div id="summary-${index}" class="line-clamp-3 text-sm leading-relaxed text-white/60 mb-3">
+            ${item.summary}
+          </div>
+
+          <!-- Show more/less button -->
+          <button
+            id="toggle-${index}"
+            onclick="toggleSummary(${index})"
+            class="text-sm font-medium text-indigo-300 transition-all hover:text-indigo-200"
+          >
+            Show more
+          </button>
+
+          <!-- File name -->
+          <div class="mt-3 text-xs text-white/40">
+            📄 ${item.file_name}
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'Date unknown';
+      try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      } catch {
+        return dateStr;
+      }
+    }
+
+    // Initial render
+    applyFilters();
+  </script>
+</body>
+</html>

@@ -18,13 +18,14 @@
     .eq{font-family:"Merriweather",serif;font-style:italic}
     .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
     code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    .callout{border-left:4px solid #0ea5e9;background:#f0f9ff}
   </style>
 </head>
 <body class="bg-white text-slate-800">
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -32,6 +33,8 @@
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Energy‑Adjusted Metals Tailwind</h1>
       <div class="mt-2 text-slate-600 text-sm">Signal that extracts the copper‑specific demand residual after controlling for energy (WTI oil) and the broad U.S. dollar. Residual strength indicates a metals demand tailwind.</div>
+
+      </div>
     </header>
 
     <section class="mb-10">
@@ -44,19 +47,20 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><strong>PCOPPUSDM</strong> — Copper price (USD/MT, FRED), monthly.</li>
-        <li><strong>DCOILWTICO</strong> — WTI spot price, daily (resample to month‑end average/last).</li>
+        <li><strong>COPPER_YF_USD_LB</strong> — Copper price proxy from <code>yfinance</code> (<code>HG=F</code>, COMEX copper futures), daily (resample to month‑end).</li>
+        <li><strong>DCOILWTICO</strong> — WTI spot price, daily (resample to month‑end).</li>
         <li><strong>DTWEXBGS</strong> — Trade Weighted U.S. Dollar Index: Broad, Goods, daily (resample to month‑end).</li>
       </ul>
       <p class="leading-7 mt-3">Construct <code>df_metals_adj</code> as a monthly panel with columns above before running the signal.</p>
+      <p class="text-sm text-slate-600 mt-2">Units note: <code>HG=F</code> is typically quoted in USD per pound. Unit comparability vs USD/MT is not required for this signal because the residual is converted to a robust z‑score (scale‑invariant). If you need unit comparability for other use cases, USD/lb → USD/MT can be converted by multiplying by ~2204.6226.</p>
     </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2. Model</h2>
       <p class="leading-7">Estimate a simple OLS of copper levels on oil and USD with an intercept, using all available overlapping observations (minimum 24 months). Compute the fitted value and residual:</p>
       <div class="box text-sm">
-        <div class="eq">y_t = \beta_0 + \beta_1\,Oil_t + \beta_2\,USD_t + \varepsilon_t</div>
-        <div class="eq mt-1">\text{Copper\_Residual}_t = y_t − \hat{y}_t</div>
+        <div class="eq">Copperₜ = β₀ + β₁·Oilₜ + β₂·USDₜ + εₜ</div>
+        <div class="eq mt-1">Copper_Residualₜ = Copperₜ − Copper_Fittedₜ</div>
       </div>
       <p class="text-sm text-slate-600 mt-2">Levels regression is chosen for simplicity and interpretability; differenced or log specifications are valid alternatives when stationarity is a concern.</p>
     </section>
@@ -64,15 +68,15 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">3. Normalisation</h2>
       <div class="box text-sm">
-        <div class="eq">z\_{rob}(\varepsilon)_t = \dfrac{\varepsilon_t − \mathrm{median}(\varepsilon)_{t,w}}{1.4826·\mathrm{MAD}(\varepsilon)_{t,w}}</div>
-        <div class="text-xs mt-2">Rolling window <span class="eq">w = 60</span> months (minimum 24) to capture medium‑term deviations.</div>
+        <div class="eq">zᵣₒᵦ(ε)ₜ = (εₜ − median(ε)ₜ,ᵥ) / (1.4826 × MAD(ε)ₜ,ᵥ)</div>
+        <div class="text-xs mt-2">Rolling window <span class="eq">v = 60</span> months (minimum 24) to capture medium‑term deviations.</div>
       </div>
     </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">4. Regime Mapping</h2>
       <div class="box text-sm">
-        <div class="eq">If\ C_t > 0.75 → \textit{Demand\_Tailwind};\quad |C_t| ≤ 0.75 → \textit{Neutral};\quad C_t < −0.75 → \textit{Headwind}</div>
+        <div class="eq">If Cₜ &gt; 0.75 → Demand_Tailwind · |Cₜ| ≤ 0.75 → Neutral · Cₜ &lt; −0.75 → Headwind</div>
       </div>
     </section>
 
@@ -94,15 +98,16 @@ d = df_metals_adj.copy()
 # Simple monthly OLS of copper on oil & USD (rolling residual level)
 X = d[["DCOILWTICO","DTWEXBGS"]].copy()
 X = X.assign(const=1.0)
-y = d["PCOPPUSDM"]
+
+y = d["COPPER_YF_USD_LB"]
 
 mask = X.join(y).dropna().index
-if len(mask) >= 24:
+if len(mask) &gt;= 24:
     Xn = X.loc[mask, ["const","DCOILWTICO","DTWEXBGS"]].values
     yn = y.loc[mask].values
     beta = np.linalg.pinv(Xn.T @ Xn) @ (Xn.T @ yn)
     d.loc[mask, "Copper_Fitted"] = (Xn @ beta)
-    d["Copper_Residual"] = d["PCOPPUSDM"] - d["Copper_Fitted"]
+    d["Copper_Residual"] = d["COPPER_YF_USD_LB"] - d["Copper_Fitted"]
 else:
     d["Copper_Residual"] = np.nan
 
@@ -112,7 +117,7 @@ hi, lo = 0.75, -0.75
 
 def _regime(v):
     if pd.isna(v): return np.nan
-    return "Demand_Tailwind" if v > hi else ("Headwind" if v < lo else "Neutral")
+    return "Demand_Tailwind" if v &gt; hi else ("Headwind" if v &lt; lo else "Neutral")
 
 d["Metals_Regime"] = d["Metals_Tailwind"].apply(_regime)
 
@@ -120,14 +125,26 @@ df_sig_metals = d
 display(df_sig_metals.tail())
 </code></pre>
       </div>
+      <p class="text-sm text-slate-600 mt-3">If you previously used <code>PCOPPUSDM</code>, replace it with <code>COPPER_YF_USD_LB</code> throughout.</p>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">6. Notes & Extensions</h2>
+      <h2 class="text-2xl font-semibold mb-3">6. Visualisation</h2>
+      <p class="leading-7">Plot copper vs fitted copper on the primary axis, and the residual z‑score on a secondary axis. For long‑horizon context, the standard implementation plots the last <strong>30 years</strong> (where available).</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li>Primary axis: <strong>COPPER_YF_USD_LB</strong> vs <strong>Copper_Fitted</strong></li>
+        <li>Secondary axis: <strong>Metals_Tailwind</strong> with thresholds at <code>±0.75</code></li>
+        <li>Optional regime shading using <strong>Metals_Regime</strong></li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Notes & Extensions</h2>
       <ul class="list-disc pl-6 leading-7">
         <li><strong>Specification:</strong> Consider logs and/or first differences to reduce heteroskedasticity; re‑estimate betas in a rolling window if time‑variation is expected.</li>
         <li><strong>Broader metals basket:</strong> Adapt the approach to aluminum, nickel, or a composite LME index.</li>
         <li><strong>FX controls:</strong> Replace broad USD with trade‑weighted EM FX for China/EM demand tilt.</li>
+        <li><strong>Alternative copper proxies:</strong> Substitute a spot or LME series by replacing the copper column while keeping the OLS + robust z framework intact.</li>
       </ul>
     </section>
 
