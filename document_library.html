@@ -7,6 +7,13 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="/images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
 
   <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -567,7 +574,7 @@
       const value = checkbox.value;
       const dropdown = document.getElementById(dropdownId);
       const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
-
+      
       if (value === 'all') {
         if (checkbox.checked) {
           selectedArray.length = 0;
@@ -593,7 +600,7 @@
           }
         }
       }
-
+      
       updateFilterLabel(labelId, selectedArray, labelText, formatter);
       applyFilters();
     }
@@ -630,14 +637,14 @@
           item.summary.toLowerCase().includes(searchTerm) ||
           item.source.toLowerCase().includes(searchTerm) ||
           item.theme_tags.some(tag => tag.toLowerCase().includes(searchTerm));
-
+        
         const matchesSource = selectedSources.includes('all') || selectedSources.includes(item.source);
         const matchesDocType = selectedDocTypes.includes('all') || selectedDocTypes.includes(item.document_type);
         const matchesRelevance = selectedRelevance.includes('all') || selectedRelevance.includes(item.relevance);
-
+        
         const matchesTheme = selectedThemes.includes('all') || 
                             selectedThemes.some(theme => item.theme_tags.includes(theme));
-
+        
         // Expiry filter
         const isExpired = item.expiry_date && new Date(item.expiry_date) < today;
         const matchesExpiry = !hideExpired || !isExpired;
@@ -693,7 +700,7 @@
       const expiry = new Date(expiryDate);
       expiry.setHours(0, 0, 0, 0);
       const daysUntilExpiry = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
-
+      
       if (daysUntilExpiry < 0) return 'expired';
       if (daysUntilExpiry <= 30) return 'soon';
       return 'active';
@@ -701,14 +708,14 @@
 
     function getExpiryBadge(expiryDate) {
       if (!expiryDate) return '';
-
+      
       const status = getExpiryStatus(expiryDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const expiry = new Date(expiryDate);
       expiry.setHours(0, 0, 0, 0);
       const daysUntilExpiry = Math.floor((expiry - today) / (1000 * 60 * 60 * 24));
-
+      
       let text, cssClass;
       if (status === 'expired') {
         text = `Expired ${Math.abs(daysUntilExpiry)}d ago`;
@@ -720,14 +727,14 @@
         text = `Valid ${daysUntilExpiry}d`;
         cssClass = 'expiry-active';
       }
-
+      
       return `<span class="expiry-badge ${cssClass}">${text}</span>`;
     }
 
     function toggleSummary(id) {
       const element = document.getElementById(`summary-${id}`);
       const button = document.getElementById(`toggle-${id}`);
-
+      
       if (element.classList.contains('line-clamp-3')) {
         element.classList.remove('line-clamp-3');
         button.textContent = 'Show less';
@@ -753,7 +760,7 @@
         const expiryStatus = getExpiryStatus(item.expiry_date);
         const isExpired = expiryStatus === 'expired';
         const containerClass = isExpired ? 'expired' : '';
-
+        
         return `
         <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-indigo-400/50 hover:bg-white/10 ${containerClass}">
           <!-- Header row: Source, Type, Relevance, Date, Expiry -->

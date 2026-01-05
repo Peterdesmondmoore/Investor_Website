@@ -69,8 +69,12 @@ pageCategories: {
   
   // Protected pages
   '/signal_catalogue.html': 'signals',
-  '/market-reports/*': 'reports',
+  '/rss_feed.html' : 'signals',
+  '/document_library.html' : 'signals',
+  '/signal_report/*': 'reports',
   '/investment-strategy/*': 'strategy',
+  '/methodology/*': 'methodology',
+  '/historic_reports/*': 'reports',
   // ... add more pages
 }
 ```

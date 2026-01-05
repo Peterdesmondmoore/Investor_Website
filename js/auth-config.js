@@ -69,7 +69,10 @@ const AuthConfig = {
     '/signal_map.html': 'signals',
     '/signal_map/*': 'signals',
     '/signal_map': 'signals',
-    '/signal_report/*': 'signals',
+    '/rss_feed.html': 'signals',
+    '/rss_feed/*': 'signals',
+    '/document_library.html': 'signals',
+    '/document_library/*': 'signals',
     '/trading-recommendation/*': 'signals',
     
     // Market reports
@@ -77,8 +80,7 @@ const AuthConfig = {
     '/historic_reports/*': 'reports',
     '/summary-reports/*': 'reports',
     '/pricing-reports/*': 'reports',
-    '/rss_feed.html': 'reports',
-    '/rss_feed/*': 'reports',
+    '/signal_report/*': 'reports',
     
     // Investment strategy
     '/investment-strategy/*': 'strategy',
@@ -92,8 +94,6 @@ const AuthConfig = {
     '/portfolio_characteristics/*': 'portfolio',
     
     // Other premium content
-    '/document_library.html': 'premium',
-    '/document_library/*': 'premium',
     '/metals-comparative-analysis.html': 'premium',
     '/metals-comparative-analysis/*': 'premium',
     '/quantum-companies/*': 'premium'
