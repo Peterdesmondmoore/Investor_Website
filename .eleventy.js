@@ -31,8 +31,9 @@ module.exports = function(eleventyConfig) {
       return collectionApi.getFilteredByGlob("china-industrial/*.html");
   });
 
-  // Tell Eleventy to copy the 'css' and 'images' folders to the output folder
+  // Tell Eleventy to copy the 'css', 'js', and 'images' folders to the output folder
   eleventyConfig.addPassthroughCopy("css");
+  eleventyConfig.addPassthroughCopy("js");
   eleventyConfig.addPassthroughCopy("images");
 
 

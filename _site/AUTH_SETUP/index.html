@@ -1,0 +1,331 @@
+<h1>Centralized Authentication System</h1>
+<p>This authentication system provides category-based access control for your Netlify-hosted website. It uses Netlify Identity for user authentication and enforces access rules based on page categories.</p>
+<h2>Features</h2>
+<ul>
+<li>✅ Centralized configuration for all protected pages</li>
+<li>✅ Category-based access control (signals, reports, strategy, methodology, etc.)</li>
+<li>✅ Beautiful popup modal for non-authenticated users</li>
+<li>✅ Automatic redirection to investoranatomy.com</li>
+<li>✅ Works seamlessly with Netlify Identity</li>
+<li>✅ Easy to add to any page with just 3 script tags</li>
+</ul>
+<h2>File Structure</h2>
+<pre><code>js/
+├── auth-config.js    # Central configuration file
+└── auth-guard.js     # Authentication enforcement script
+</code></pre>
+<h2>Quick Start</h2>
+<h3>1. Add Authentication to a Page</h3>
+<p>To protect any page, add these three script tags in the <code>&lt;head&gt;</code> section:</p>
+<pre><code class="language-html">&lt;!-- Netlify Identity Widget for Authentication --&gt;
+&lt;script defer src=&quot;https://identity.netlify.com/v1/netlify-identity-widget.js&quot;&gt;&lt;/script&gt;
+
+&lt;!-- Authentication System --&gt;
+&lt;script defer src=&quot;/js/auth-config.js&quot;&gt;&lt;/script&gt;
+&lt;script defer src=&quot;/js/auth-guard.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot; /&gt;
+  &lt;title&gt;My Protected Page&lt;/title&gt;
+  
+  &lt;!-- Add these three lines --&gt;
+  &lt;script defer src=&quot;https://identity.netlify.com/v1/netlify-identity-widget.js&quot;&gt;&lt;/script&gt;
+  &lt;script defer src=&quot;/js/auth-config.js&quot;&gt;&lt;/script&gt;
+  &lt;script defer src=&quot;/js/auth-guard.js&quot;&gt;&lt;/script&gt;
+  
+  &lt;!-- Your other scripts and styles --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- Your content --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h3>2. Configure Page Categories</h3>
+<p>Edit <code>js/auth-config.js</code> to configure which pages require authentication:</p>
+<pre><code class="language-javascript">pageCategories: {
+  // Public pages (no authentication needed)
+  '/': 'public',
+  '/index.html': 'public',
+  '/login.html': 'public',
+  '/pricing.html': 'public',
+  
+  // Protected pages
+  '/signal_catalogue.html': 'signals',
+  '/market-reports/*': 'reports',
+  '/investment-strategy/*': 'strategy',
+  // ... add more pages
+}
+</code></pre>
+<h2>Access Categories</h2>
+<p>The system includes these predefined categories:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Requires Auth</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>public</code></td>
+<td>❌ No</td>
+<td>Accessible to everyone</td>
+</tr>
+<tr>
+<td><code>premium</code></td>
+<td>✅ Yes</td>
+<td>Premium content</td>
+</tr>
+<tr>
+<td><code>reports</code></td>
+<td>✅ Yes</td>
+<td>Market reports and analysis</td>
+</tr>
+<tr>
+<td><code>signals</code></td>
+<td>✅ Yes</td>
+<td>Trading signals and catalogues</td>
+</tr>
+<tr>
+<td><code>strategy</code></td>
+<td>✅ Yes</td>
+<td>Investment strategy documents</td>
+</tr>
+<tr>
+<td><code>methodology</code></td>
+<td>✅ Yes</td>
+<td>Technical methodology</td>
+</tr>
+<tr>
+<td><code>portfolio</code></td>
+<td>✅ Yes</td>
+<td>Portfolio characteristics</td>
+</tr>
+</tbody>
+</table>
+<h2>Configuration Options</h2>
+<h3>Change Redirect URL</h3>
+<p>To change where users are sent when not authenticated, edit <code>auth-config.js</code>:</p>
+<pre><code class="language-javascript">const AuthConfig = {
+  redirectUrl: 'https://your-login-page.com', // Change this
+  // ...
+};
+</code></pre>
+<h3>Add a New Category</h3>
+<ol>
+<li>Open <code>js/auth-config.js</code></li>
+<li>Add your category to the <code>categories</code> object:</li>
+</ol>
+<pre><code class="language-javascript">categories: {
+  // ... existing categories
+  
+  mycategory: {
+    name: 'My Custom Category',
+    requiresAuth: true,
+    description: 'Description of this category'
+  }
+}
+</code></pre>
+<ol start="3">
+<li>Map pages to your new category:</li>
+</ol>
+<pre><code class="language-javascript">pageCategories: {
+  // ... existing mappings
+  
+  '/my-page.html': 'mycategory',
+  '/my-folder/*': 'mycategory'
+}
+</code></pre>
+<h3>Use Wildcard Patterns</h3>
+<p>You can use wildcards (<code>*</code>) to match multiple pages:</p>
+<pre><code class="language-javascript">pageCategories: {
+  '/reports/*': 'reports',           // Matches all pages under /reports/
+  '/strategy/*.html': 'strategy',     // Matches all .html files in /strategy/
+  '/api/*/data.json': 'premium'       // Matches nested paths
+}
+</code></pre>
+<h2>How It Works</h2>
+<ol>
+<li><strong>Page Load</strong>: When a protected page loads, <code>auth-guard.js</code> runs automatically</li>
+<li><strong>Check Path</strong>: The script checks the current page path against <code>auth-config.js</code></li>
+<li><strong>Determine Category</strong>: Based on the path, it determines which category the page belongs to</li>
+<li><strong>Check Auth</strong>: If the category requires authentication, it checks if user is logged in via Netlify Identity</li>
+<li><strong>Show Popup</strong>: If not authenticated, a modal popup appears with a button to redirect to <code>investoranatomy.com</code></li>
+<li><strong>Grant Access</strong>: If authenticated, the page loads normally</li>
+</ol>
+<h2>Authentication Status</h2>
+<h3>Check if User is Logged In</h3>
+<p>The system uses Netlify Identity. Users are considered authenticated if:</p>
+<ul>
+<li>They have logged in through Netlify Identity Widget</li>
+<li>Their session token is still valid</li>
+<li>They haven't logged out</li>
+</ul>
+<h3>Login Page</h3>
+<p>Your login page (<code>login.html</code>) should already have Netlify Identity Widget configured. Users log in there, then can access protected pages.</p>
+<h2>Styling the Popup</h2>
+<p>The authentication popup is styled inline in <code>auth-guard.js</code>. To customize:</p>
+<ol>
+<li>Open <code>js/auth-guard.js</code></li>
+<li>Find the <code>showAuthPopup</code> function</li>
+<li>Modify the CSS styles in the <code>style.cssText</code> and <code>innerHTML</code> sections</li>
+</ol>
+<p>Example customizations:</p>
+<ul>
+<li>Change colors by modifying gradient and border colors</li>
+<li>Adjust border radius for different rounded corners</li>
+<li>Modify padding and spacing</li>
+<li>Change font sizes and families</li>
+</ul>
+<h2>Testing</h2>
+<h3>Test Public Pages</h3>
+<ol>
+<li>Visit a public page (e.g., <code>/index.html</code>)</li>
+<li>Should load without popup</li>
+</ol>
+<h3>Test Protected Pages</h3>
+<ol>
+<li>Log out of Netlify Identity</li>
+<li>Visit a protected page (e.g., <code>/signal_catalogue_v1.0.html</code>)</li>
+<li>Should see authentication popup</li>
+<li>Click &quot;Go to Login Page&quot; button</li>
+<li>Should redirect to <code>investoranatomy.com</code></li>
+</ol>
+<h3>Test After Login</h3>
+<ol>
+<li>Log in through your login page</li>
+<li>Visit a protected page</li>
+<li>Should load without popup</li>
+</ol>
+<h2>Netlify Configuration</h2>
+<p>Ensure Netlify Identity is enabled:</p>
+<ol>
+<li>Go to your Netlify dashboard</li>
+<li>Navigate to Site settings → Identity</li>
+<li>Enable Identity</li>
+<li>Configure registration preferences</li>
+<li>Set external providers if needed (Google, GitHub, etc.)</li>
+</ol>
+<h3>Enable Identity on Specific Pages</h3>
+<p>Add this to your <code>netlify.toml</code>:</p>
+<pre><code class="language-toml">[[redirects]]
+  from = &quot;/admin/*&quot;
+  to = &quot;/.netlify/identity/admin/:splat&quot;
+  status = 200
+</code></pre>
+<h2>Troubleshooting</h2>
+<h3>Popup doesn't appear on protected pages</h3>
+<ul>
+<li>Check browser console for errors</li>
+<li>Verify the script tags are in the correct order</li>
+<li>Ensure Netlify Identity Widget is loaded (check Network tab)</li>
+</ul>
+<h3>Popup appears on public pages</h3>
+<ul>
+<li>Check the path mapping in <code>auth-config.js</code></li>
+<li>Verify the page path matches exactly (including trailing slashes)</li>
+</ul>
+<h3>Users see popup even after logging in</h3>
+<ul>
+<li>Check Netlify Identity is properly initialized</li>
+<li>Verify user is actually logged in (check <code>netlifyIdentity.currentUser()</code> in console)</li>
+<li>Clear browser cache and cookies</li>
+</ul>
+<h3>Console error: &quot;AuthConfig not loaded&quot;</h3>
+<ul>
+<li>Ensure <code>auth-config.js</code> loads before <code>auth-guard.js</code></li>
+<li>Use <code>defer</code> attribute on both scripts</li>
+<li>Check file paths are correct</li>
+</ul>
+<h2>Advanced Usage</h2>
+<h3>Custom Authentication Check</h3>
+<p>To add custom authentication logic, modify <code>auth-guard.js</code>:</p>
+<pre><code class="language-javascript">isAuthenticated: function() {
+  // Custom logic here
+  const user = netlifyIdentity.currentUser();
+  
+  // Example: Check if user has specific role
+  if (user &amp;&amp; user.app_metadata &amp;&amp; user.app_metadata.roles) {
+    return user.app_metadata.roles.includes('premium');
+  }
+  
+  return user !== null;
+}
+</code></pre>
+<h3>Role-Based Access</h3>
+<p>To implement role-based access, modify the categories:</p>
+<pre><code class="language-javascript">categories: {
+  premium: {
+    name: 'Premium Content',
+    requiresAuth: true,
+    requiredRoles: ['premium', 'admin']
+  }
+}
+</code></pre>
+<p>Then update the authentication check to verify roles.</p>
+<h2>Support</h2>
+<p>For issues or questions:</p>
+<ol>
+<li>Check the browser console for error messages</li>
+<li>Verify Netlify Identity is properly configured</li>
+<li>Test authentication flow manually</li>
+<li>Review the configuration in <code>auth-config.js</code></li>
+</ol>
+<h2>Migration Guide</h2>
+<h3>Adding Authentication to Existing Pages</h3>
+<p>For each page you want to protect:</p>
+<ol>
+<li>✅ Add the three script tags to the <code>&lt;head&gt;</code> section</li>
+<li>✅ Add the page path to <code>auth-config.js</code> with appropriate category</li>
+<li>✅ Test the page while logged out</li>
+<li>✅ Test the page while logged in</li>
+<li>✅ Deploy to Netlify</li>
+</ol>
+<h3>Bulk Update</h3>
+<p>To add authentication to all pages at once, you can:</p>
+<ol>
+<li>Create a template header file with the script tags</li>
+<li>Use a build tool to inject the header into all HTML files</li>
+<li>Or manually add to each page's <code>&lt;head&gt;</code> section</li>
+</ol>
+<h2>Example: Complete Protected Page</h2>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot; /&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot; /&gt;
+  &lt;title&gt;Protected Content&lt;/title&gt;
+  
+  &lt;!-- Netlify Identity Widget --&gt;
+  &lt;script defer src=&quot;https://identity.netlify.com/v1/netlify-identity-widget.js&quot;&gt;&lt;/script&gt;
+  
+  &lt;!-- Authentication System --&gt;
+  &lt;script defer src=&quot;/js/auth-config.js&quot;&gt;&lt;/script&gt;
+  &lt;script defer src=&quot;/js/auth-guard.js&quot;&gt;&lt;/script&gt;
+  
+  &lt;style&gt;
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 2rem;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;This is Protected Content&lt;/h1&gt;
+  &lt;p&gt;Only authenticated users can see this page.&lt;/p&gt;
+  
+  &lt;!-- Your protected content here --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Then add to <code>auth-config.js</code>:</p>
+<pre><code class="language-javascript">pageCategories: {
+  // ... other mappings
+  '/protected-content.html': 'premium'
+}
+</code></pre>
+<p>That's it! Your page is now protected. 🔒</p>
