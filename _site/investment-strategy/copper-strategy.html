@@ -1,429 +1,1736 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copper Investment Strategy | Super-Cycle</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        .card-hover {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-        }
-        .scenario-btn {
-            transition: all 0.2s ease-in-out;
-        }
-        .scenario-btn.active {
-            background-color: #0A2540; /* primary */
-            color: white;
-            box-shadow: 0 4px 14px 0 rgb(0 0 0 / 10%);
-        }
-        .scenario-btn:not(.active) {
-             background-color: #F6F9FC; /* accent */
-             color: #0A2540; /* primary */
-        }
-        .performance-value.positive {
-            color: #16a34a; /* green-600 */
-        }
-        .performance-value.negative {
-            color: #dc2626; /* red-600 */
-        }
-        .drawdown-year {
-            color: #6b7280; /* gray-500 */
-        }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0A2540',
-                        secondary: '#3C6FD6',
-                        accent: '#F6F9FC',
-                        'mine-shaft': '#333333',
-                    },
-                    fontFamily: {
-                        heading: ['Montserrat', 'sans-serif'],
-                        body: ['Lato', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="UTF-8" />
+  <title>Copper Core + Tactical Strategy - Midcap Styled</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #3b82f6; /* Strategy accent: brand blue */
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --text-main: #f1f5f9;
+      --text-soft: #94a3b8;
+      --border-subtle: #1f2937;
+      --danger: #ef4444;
+      --positive: #22c55e;
+      --warn: #fbbf24;
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .tabs {
+      margin-top: 16px;
+    }
+
+    .tab-list {
+      display: inline-flex;
+      gap: 8px;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .tab-button {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .tab-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .tab-panel {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .pill-hot {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--danger);
+    }
+
+    .pill-oppty {
+      border-color: rgba(74, 222, 128, 0.7);
+      color: var(--positive);
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    .section {
+      margin-top: 14px;
+    }
+
+    .section h3 {
+      font-size: 0.9rem;
+      margin: 0 0 6px;
+    }
+
+    .section p {
+      font-size: 0.8rem;
+      margin: 0 0 8px;
+      color: var(--text-soft);
+    }
+
+    .table-wrapper {
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    thead {
+      background: #020617;
+    }
+
+    th, td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .col-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .risk-low { color: var(--positive); }
+    .risk-medium { color: var(--warn); }
+    .risk-high { color: var(--danger); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--text-soft);
+    }
+
+    .tag-positive { color: var(--positive); border-color: rgba(34, 197, 94, 0.5); }
+    .tag-warn { color: var(--warn); border-color: rgba(250, 204, 21, 0.5); }
+    .tag-risk { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+
+
+    .tag-neutral { color: var(--text-soft); border-color: rgba(148, 163, 184, 0.5); }
+    .tag-info { color: var(--accent); border-color: rgba(59, 130, 246, 0.5); }
+    .tag-negative { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+    .tag-role { color: #c084fc; border-color: rgba(192, 132, 252, 0.55); }
+
+    .pill-warn { border-color: rgba(250, 204, 21, 0.6); color: var(--warn); }
+    .pill-positive { border-color: rgba(34, 197, 94, 0.6); color: var(--positive); }
+    .pill-negative { border-color: rgba(248, 113, 113, 0.6); color: var(--danger); }
+    .pill-info { border-color: rgba(59, 130, 246, 0.6); color: var(--accent); }
+    .pill-role { border-color: rgba(192, 132, 252, 0.6); color: #c084fc; }
+
+    ul.bullet-tight {
+      padding-left: 18px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    a {
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #fbbf24;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-two {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .grid-three {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 1000px) {
+      .grid-three {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .grid-three {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .performance-note {
+      font-size: 0.75rem;
+      margin-top: 6px;
+      color: var(--text-soft);
+    }
+  </style>
 </head>
-<body class="bg-white font-body text-mine-shaft">
+<body>
+  <!-- Reference: investment-strategy/Operating_Model/Investment_Strategy_Specification.md for compliance updates. -->
+  <nav>
+    <div class="nav-inner">
+      <div>Copper Core + Tactical Strategy</div>
+      <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">
+        Back to dashboard
+      </a>
+    </div>
+  </nav>
 
-    <!-- Navigation Bar -->
-    <nav class="bg-primary text-white py-4 shadow-lg">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-                <a href="../index.html" class="font-heading text-xl font-bold hover:text-accent transition-colors">
-                    ← Back to Home
-                </a>
-                <div class="text-sm text-gray-300">Investment Strategy</div>
+  <div class="page">
+    <header class="header">
+      <div class="eyebrow">Strategy Overview</div>
+      <h1>Capitalising on the Copper Super-Cycle</h1>
+      <p class="subtitle">
+        A "Core + Tactical" rules-based strategy designed to capture the structural copper deficit
+        and geopolitical asymmetry, balancing diversified sector exposure with focused growth
+        positions in high-conviction producers.
+      </p>
+      <div class="meta-row">
+        <div class="chip"><span class="chip-dot"></span>Universe: Copper miners &amp; producers</div>
+        <div class="chip">Instruments: COPX/WIRE, FCX, SFR</div>
+        <div class="chip">Horizon: 3-7 years (2025-2032)</div>
+        <div class="chip">Structure: Core + Tactical sleeves</div>
+        <div class="chip">As of: Jan 2026 (baseline Oct 2025)</div>
+        <div class="chip">Spot copper: ~US$13,000/t (~US$6.00/lb)</div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-button active" data-tab="overview">Overview &amp; Allocation</button>
+        <button class="tab-button" data-tab="macro">Scenarios, Performance &amp; Risk</button>
+        <button class="tab-button" data-tab="updates">Strategy Updates</button>
+        <button class="tab-button" data-tab="spec">Specification</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-panel active">
+        <main class="layout">
+          <!-- LEFT: CORE THESIS -->
+          <section class="card" aria-labelledby="core-thesis-heading">
+            <div class="card-title-row">
+              <h2 id="core-thesis-heading">Core Investment Thesis</h2>
+              <span class="pill pill-oppty">Structural deficit setup</span>
             </div>
-        </div>
-    </nav>
-
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-
-        <!-- Header Section -->
-        <header class="text-center mb-16">
-            <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4">
-                Capitalizing on the Copper Super-Cycle 🔋
-            </h1>
-            <p class="max-w-3xl mx-auto text-lg text-gray-600">
-                A detailed breakdown of our "Core + Tactical" investment strategy, designed to capitalize on structural deficits and geopolitical asymmetry in the copper market.
+            <p>
+              The core investment thesis is that a powerful long-term structural bull market in
+              copper is currently being obscured by near-term macroeconomic and geopolitical
+              volatility. This dynamic creates a compelling entry point for investors targeting a
+              <strong>3-7 year horizon</strong>.
             </p>
-        </header>
 
-        <!-- High-Level Strategy & Rationale Section -->
-        <section class="my-16 p-8 md:p-12 bg-accent rounded-2xl">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-heading text-3xl md:text-4xl font-bold text-primary text-center mb-8">Our High-Level Strategy & Rationale</h2>
-                <div class="space-y-4 text-gray-700">
-                    <p>The core investment thesis is that a powerful long-term structural bull market in copper is currently being obscured by near-term macroeconomic and geopolitical volatility. This dynamic, primarily stemming from U.S. tariff policy and uncertainty surrounding Chinese demand, creates a compelling entry point for long-term investors targeting a <strong class="text-primary">3- to 7-year investment horizon.</strong></p>
-                    <ul class="list-disc list-inside space-y-2 pl-4">
-                        <li><strong class="text-secondary">Structural Demand Supercycle:</strong> Demand is anchored by the green energy transition (EVs, renewables) and amplified by a new shock from the buildout of AI and data center infrastructure.</li>
-                        <li><strong class="text-secondary">Deepening Supply Deficit:</strong> The market faces a chronic deficit from years of underinvestment in new mines, declining ore grades, and increasing production disruptions.</li>
-                    </ul>
-                    <div class="pt-6 mt-6 border-t border-gray-300">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-3">Timelines & Execution</h3>
-                        <p><strong class="text-secondary">Deployment (2025-2026):</strong> Deploy capital via dollar-cost averaging to navigate near-term volatility and build positions ahead of the anticipated market tightening.</p>
-                        <p><strong class="text-secondary">Drawdown (2029-2032):</strong> Seek to exit the investment as the super-cycle matures and evidence emerges of a significant new wave of supply coming online to balance the market.</p>
-                    </div>
-                </div>
+            <div class="section">
+              <h3>High-Level Strategy &amp; Rationale</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Structural demand supercycle:</strong> Copper demand is anchored by the
+                  <strong>green energy transition</strong> (EVs, renewables, grid buildout) and
+                  amplified by the rapid expansion of <strong>AI and data centre infrastructure</strong>.
+                </li>
+                <li>
+                  <strong>Deepening supply deficit:</strong> Years of underinvestment, falling ore
+                  grades and rising disruption rates have left the market facing a chronic supply
+                  shortfall that tightens into the late 2020s.
+                </li>
+                <li>
+                  <strong>Geopolitical asymmetry:</strong> Tariff policy and COMEX/LME pricing
+                  dynamics introduce a regional premium, especially supportive for US-linked
+                  production.
+                </li>
+              </ul>
+              <p>
+                Near-term volatility driven by tariffs and China uncertainty masks this structural
+                backdrop. The strategy is designed to <strong>lean into that volatility</strong> via
+                staged deployment, while ensuring the portfolio remains robust across macro regimes.
+              </p>
             </div>
-        </section>
-
-        <!-- The "Core + Tactical" Strategy Section -->
-        <section class="my-16">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-heading text-3xl md:text-4xl font-bold text-primary text-center mb-12">The "Core + Tactical" Strategy: Balancing Diversification & Growth</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
-                    <!-- Pillar 1: Core Holding -->
-                    <div class="bg-white p-8 rounded-2xl border border-gray-200 card-hover">
-                        <div class="flex items-center justify-center h-16 w-16 mx-auto mb-4 rounded-full bg-secondary/10 text-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M5.338 1.59a.5.5 0 0 0-.223.936l.349.19c.22.119.342.358.342.611V11a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V3.328a.5.5 0 0 0 .342-.61l.349-.19a.5.5 0 0 0-.223-.936C10.638 1.45 9.24 1 8 1 7.24 1 5.362.45 4.338.59z"/><path d="M8 15c-1.657 0-3-1.567-3-3.5 0-.175.01-1.008.08-1.5H8v5zm0 0c1.657 0 3-1.567 3-3.5 0-.175-.01-1.008-.08-1.5H8v5z"/></svg>
-                        </div>
-                        <h3 class="font-heading text-2xl font-bold text-primary mb-2">Core Holding</h3>
-                        <p class="text-secondary font-bold text-xl mb-3">70% - 80% Allocation</p>
-                        <p class="text-gray-600">The portfolio's foundation is a diversified global copper miners ETF. This mitigates single-company operational and political risk while capturing broad, leveraged exposure to the sector.</p>
-                    </div>
-                    <!-- Pillar 2: Tactical Growth -->
-                    <div class="bg-white p-8 rounded-2xl border border-gray-200 card-hover">
-                        <div class="flex items-center justify-center h-16 w-16 mx-auto mb-4 rounded-full bg-secondary/10 text-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg>
-                        </div>
-                        <h3 class="font-heading text-2xl font-bold text-primary mb-2">Tactical Growth</h3>
-                        <p class="text-secondary font-bold text-xl mb-3">20% - 30% Allocation</p>
-                        <p class="text-gray-600">Concentrated positions in best-in-class individual producers to target higher growth potential and capture benefits from specific assets or geopolitical positioning.</p>
-                    </div>
-                </div>
+            <div class="section">
+              <h3>Timelines &amp; Execution</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Deployment (2025-2026):</strong> Capital is deployed gradually through
+                  dollar-cost averaging, using pullbacks linked to macro headlines (China, tariffs,
+                  growth scares) as opportunities to build core and tactical positions.
+                </li>
+                <li>
+                  <strong>Super-cycle realisation (2027-2029):</strong> As the structural deficit
+                  tightens, higher incentive prices support sector-wide re-rating; quality producers
+                  capture strong cash flow growth and operating leverage.
+                </li>
+                <li>
+                  <strong>Drawdown (2029-2032):</strong> Positions are progressively reduced as
+                  evidence emerges of a meaningful new supply wave funded and constructed, signalling
+                  late-cycle conditions.
+                </li>
+              </ul>
+              <p>
+                <strong>Current phase (Jan 2026):</strong> Maintain core exposure while actively
+                managing volatility; tactical adds are reserved for dislocations tied to tariff
+                headlines or China macro surprises.
+              </p>
             </div>
-        </section>
+          </section>
 
-        <!-- Suggested Asset Allocation Section -->
-        <section class="my-16">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-heading text-3xl md:text-4xl font-bold text-primary text-center mb-10">Suggested Asset Allocation</h2>
-                <div class="overflow-x-auto bg-white rounded-2xl border border-gray-200">
-                    <table class="w-full text-left">
-                        <thead class="bg-accent">
-                            <tr>
-                                <th class="p-4 sm:p-6 text-sm font-bold text-primary tracking-wider">Investment</th>
-                                <th class="p-4 sm:p-6 text-sm font-bold text-primary tracking-wider">Ticker</th>
-                                <th class="p-4 sm:p-6 text-sm font-bold text-primary tracking-wider">Category</th>
-                                <th class="p-4 sm:p-6 text-sm font-bold text-primary tracking-wider text-right">Target Allocation</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr>
-                                <td class="p-4 sm:p-6 font-bold text-primary">Global X Copper Miners ETF</td>
-                                <td class="p-4 sm:p-6 text-gray-600">NYSE:COPX / ASX:WIRE</td>
-                                <td class="p-4 sm:p-6 text-gray-600"><span class="inline-block bg-secondary/10 text-secondary px-2 py-1 text-xs font-bold rounded-full">Core Holding</span></td>
-                                <td class="p-4 sm:p-6 text-gray-800 font-mono text-right">70% - 80%</td>
-                            </tr>
-                             <tr>
-                                <td class="p-4 sm:p-6 font-bold text-primary">Freeport-McMoRan Inc.</td>
-                                <td class="p-4 sm:p-6 text-gray-600">NYSE:FCX</td>
-                                <td class="p-4 sm:p-6 text-gray-600"><span class="inline-block bg-green-600/10 text-green-700 px-2 py-1 text-xs font-bold rounded-full">Tactical Growth</span></td>
-                                <td class="p-4 sm:p-6 text-gray-800 font-mono text-right">10% - 20%</td>
-                            </tr>
-                            <tr>
-                                <td class="p-4 sm:p-6 font-bold text-primary">Sandfire Resources Ltd.</td>
-                                <td class="p-4 sm:p-6 text-gray-600">ASX:SFR</td>
-                                <td class="p-4 sm:p-6 text-gray-600"><span class="inline-block bg-green-600/10 text-green-700 px-2 py-1 text-xs font-bold rounded-full">Tactical Growth</span></td>
-                                <td class="p-4 sm:p-6 text-gray-800 font-mono text-right">10% - 20%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <p class="text-center text-sm text-gray-600 mt-4">Note: Allocation bands provide flexibility. The total portfolio allocation should sum to 100%.</p>
+          <!-- RIGHT: CORE + TACTICAL STRUCTURE -->
+          <aside class="card" aria-labelledby="structure-heading">
+            <div class="card-title-row">
+              <h2 id="structure-heading">"Core + Tactical" Structure</h2>
+              <span class="pill">No leverage, equity-only</span>
             </div>
-        </section>
-
-
-        <!-- Prime Investment Candidates Section -->
-        <section class="my-16">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-heading text-3xl md:text-4xl font-bold text-primary text-center mb-12">Prime Investment Candidates</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-accent p-8 rounded-2xl border border-gray-200 card-hover">
-                        <span class="inline-block bg-secondary text-white text-sm font-bold px-3 py-1 rounded-full mb-4">Core Holding</span>
-                        <h3 class="font-heading text-2xl font-bold text-primary mb-2">Global X Copper Miners ETF (COPX/WIRE)</h3>
-                        <p class="text-gray-600 mb-4 italic">The core portfolio holding, offering instant diversification across the world's leading copper mining companies.</p>
-                        <p class="font-bold text-primary">Investment Thesis:</p>
-                        <p class="text-gray-600 text-sm">The most prudent and efficient way to execute the copper thesis. This vehicle provides leveraged exposure to a rising copper price while systematically mitigating idiosyncratic risks like single-mine operational failures or country-specific political instability. It captures industry-wide momentum, removing the need for single-stock selection.</p>
-                    </div>
-
-                    <div class="bg-accent p-8 rounded-2xl border border-gray-200 card-hover">
-                        <span class="inline-block bg-green-600 text-white text-sm font-bold px-3 py-1 rounded-full mb-4">Tactical Growth Pick</span>
-                        <h3 class="font-heading text-2xl font-bold text-primary mb-2">Freeport-McMoRan (NYSE:FCX)</h3>
-                        <p class="text-gray-600 mb-4 italic">A pure-play copper major with significant US assets, uniquely positioned to benefit from geopolitical dynamics.</p>
-                        <p class="font-bold text-primary">Investment Thesis:</p>
-                        <p class="text-gray-600 text-sm">Provides concentrated exposure to a major producer with significant U.S. operations. These assets may derive a unique benefit from the tariff-induced premium on COMEX-priced copper, allowing the company to directly capture the geopolitical asymmetry at the heart of the current market structure. It's a tactical play on both the copper price and U.S. market dynamics.</p>
-                    </div>
-
-                    <div class="bg-accent p-8 rounded-2xl border border-gray-200 card-hover">
-                        <span class="inline-block bg-green-600 text-white text-sm font-bold px-3 py-1 rounded-full mb-4">Tactical Growth Pick</span>
-                        <h3 class="font-heading text-2xl font-bold text-primary mb-2">Sandfire Resources (ASX:SFR)</h3>
-                        <p class="text-gray-600 mb-4 italic">A dynamic, pure-play mid-tier producer offering higher growth potential and direct leverage to the copper price.</p>
-                        <p class="font-bold text-primary">Investment Thesis:</p>
-                        <p class="text-gray-600 text-sm">This allocation targets higher growth potential through Sandfire's international portfolio, including the MATSA complex in Spain and the Motheo mine in Botswana. As a mid-tier pure-play, it offers more significant torque to a rising copper price than diversified majors, providing the potential for outsized returns based on operational execution and exploration success.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Predicted Performance Section -->
-        <section class="my-16">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-heading text-3xl md:text-4xl font-bold text-primary text-center mb-4">Predicted Performance Scenarios</h2>
-                <p class="text-center text-gray-600 mb-10 max-w-3xl mx-auto">Select a market scenario to view the projected year-on-year performance for each asset and the underlying assumptions.</p>
-                
-                <div id="scenario-controls" class="flex justify-center items-center gap-2 md:gap-4 mb-8">
-                    <button data-scenario="bear" class="scenario-btn font-bold py-2 px-4 md:py-3 md:px-6 rounded-full">🐻 Bear Case</button>
-                    <button data-scenario="neutral" class="scenario-btn font-bold py-2 px-4 md:py-3 md:px-6 rounded-full active">😐 Neutral Case</button>
-                    <button data-scenario="bull" class="scenario-btn font-bold py-2 px-4 md:py-3 md:px-6 rounded-full">🐂 Bull Case</button>
-                </div>
-                
-                <div id="scenario-descriptions" class="my-8 max-w-4xl mx-auto bg-accent p-6 rounded-2xl border border-gray-200">
-                    <div id="desc-bear" class="scenario-desc hidden text-left">
-                        <h4 class="font-heading text-lg font-bold text-red-700 mb-2">The Bear Scenario: 15% Probability (A Tail Risk)</h4>
-                        <div class="text-sm text-gray-600 space-y-3">
-                            <p><strong class="text-primary block mb-1">Assumptions:</strong>This scenario is defined by the materialization of key macroeconomic risks. A severe global recession, a "hard landing" in the Chinese economy, or both, lead to a significant contraction in industrial and construction activity. This demand-side shock temporarily overwhelms the supply deficit, pushing copper prices down toward the more cautious forecasts of institutions like J.P. Morgan and ING, potentially revisiting the $9,100-$9,500/tonne range before beginning a slow, prolonged recovery.</p>
-                            <p><strong class="text-primary block mb-1">Probability Rationale:</strong>The 15% probability reflects this scenario's status as a "tail risk." It is not driven by a change in the copper supply/demand story but by a severe, synchronized global recession or a "hard landing" for the Chinese economy. Such an event would cause widespread demand destruction, temporarily overwhelming the market's underlying supply deficit. While cautious near-term views from institutions like J.P. Morgan anticipate a temporary "payback period," a sustained, multi-year bear market is considered a low-probability event that would require a significant deterioration in the global economic outlook.</p>
-                        </div>
-                    </div>
-                    <div id="desc-neutral" class="scenario-desc text-left">
-                        <h4 class="font-heading text-lg font-bold text-primary mb-2">The Neutral Scenario: 55% Probability (The Base Case)</h4>
-                        <div class="text-sm text-gray-600 space-y-3">
-                            <p><strong class="text-primary block mb-1">Assumptions:</strong>This scenario represents the consensus view. The structural supply/demand imbalance is the dominant force, but its effects are tempered by periods of moderate economic growth and fluctuating Chinese demand. The market remains tight, supporting elevated prices in line with consensus forecasts from institutions like Goldman Sachs and UBS, which see copper holding in a $10,000-$11,000/tonne range before gradually trending higher as the deficit deepens toward the end of the decade.</p>
-                            <p><strong class="text-primary block mb-1">Probability Rationale:</strong>The 55% probability is anchored in the powerful, non-negotiable fundamentals of a structural supply deficit colliding with multi-decade demand from the energy transition and digitization. This view, supported by institutions like Goldman Sachs and UBS, posits that the underlying market tightness is the dominant, persistent force. It assumes that while macroeconomic headwinds and fluctuations in Chinese demand will create volatility, they will not be severe enough to derail the primary upward trend. This leads to the most likely outcome: a sustained, tight market that supports a gradual, upward grind in prices over the long term.</p>
-                        </div>
-                    </div>
-                    <div id="desc-bull" class="scenario-desc hidden text-left">
-                        <h4 class="font-heading text-lg font-bold text-green-700 mb-2">The Bull Scenario: 30% Probability (A Significant Possibility)</h4>
-                        <div class="text-sm text-gray-600 space-y-3">
-                            <p><strong class="text-primary block mb-1">Assumptions:</strong>This scenario assumes the structural supply deficit becomes acute sooner than expected. Demand from the energy transition and AI data centers accelerates exponentially, while China's strategic infrastructure spending continues unabated. Persistent supply disruptions and a lack of new projects coming online create a severe market squeeze, pushing copper prices toward the most optimistic long-term forecasts, such as Bank of America's projection of over $13,500/tonne by 2027 with a potential peak of $15,000/tonne.</p>
-                            <p><strong class="text-primary block mb-1">Probability Rationale:</strong>The 30% probability is justified by the potential for the already-identified structural drivers to accelerate beyond current expectations. This would occur if demand from AI data centers and EV adoption grows exponentially rather than linearly, and/or if the pattern of acute supply disruptions at major mines becomes more frequent or severe. Such a combination would rapidly transform the structural deficit into an acute shortage, creating the conditions for a "short squeeze" and pushing prices toward the most bullish long-term forecasts, such as those from Bank of America, which see a potential peak of $15,000 per tonne.</p>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-                    <!-- COPX/WIRE Performance Card -->
-                    <div class="bg-accent p-6 md:p-8 rounded-2xl border border-gray-200">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-4">Global X ETF (COPX)</h3>
-                        <table class="w-full mb-4">
-                            <thead>
-                                <tr class="border-b">
-                                    <th class="text-left font-semibold text-gray-600 pb-2">Year</th>
-                                    <th class="text-right font-semibold text-gray-600 pb-2">Return</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td class="py-1.5">2026</td><td class="text-right font-bold text-lg"><span id="copx-y1" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5">2027</td><td class="text-right font-bold text-lg"><span id="copx-y2" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5">2028</td><td class="text-right font-bold text-lg"><span id="copx-y3" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2029*</td><td class="text-right font-bold text-lg"><span id="copx-y4" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2030*</td><td class="text-right font-bold text-lg"><span id="copx-y5" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2031*</td><td class="text-right font-bold text-lg"><span id="copx-y6" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2032*</td><td class="text-right font-bold text-lg"><span id="copx-y7" class="performance-value"></span></td></tr>
-                            </tbody>
-                        </table>
-                        <p class="text-xs text-gray-600"><strong class="text-primary">Asset Assumptions:</strong> Performance is directly correlated with the broader copper mining sector, offering diversified but leveraged returns (beta ~1.8x) to the underlying commodity price movements defined by each scenario. *Drawdown phase.</p>
-                    </div>
-
-                    <!-- FCX Performance Card -->
-                    <div class="bg-accent p-6 md:p-8 rounded-2xl border border-gray-200">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-4">Freeport-McMoRan (FCX)</h3>
-                         <table class="w-full mb-4">
-                            <thead>
-                                <tr class="border-b">
-                                    <th class="text-left font-semibold text-gray-600 pb-2">Year</th>
-                                    <th class="text-right font-semibold text-gray-600 pb-2">Return</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td class="py-1.5">2026</td><td class="text-right font-bold text-lg"><span id="fcx-y1" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5">2027</td><td class="text-right font-bold text-lg"><span id="fcx-y2" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5">2028</td><td class="text-right font-bold text-lg"><span id="fcx-y3" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2029*</td><td class="text-right font-bold text-lg"><span id="fcx-y4" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2030*</td><td class="text-right font-bold text-lg"><span id="fcx-y5" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2031*</td><td class="text-right font-bold text-lg"><span id="fcx-y6" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2032*</td><td class="text-right font-bold text-lg"><span id="fcx-y7" class="performance-value"></span></td></tr>
-                            </tbody>
-                        </table>
-                        <p class="text-xs text-gray-600"><strong class="text-primary">Asset Assumptions:</strong> Assumes higher leverage (beta ~2.0x) due to its scale and significant US operations that may benefit from COMEX price premiums. Performance is sensitive to both copper prices and US market dynamics. *Drawdown phase.</p>
-                    </div>
-
-                    <!-- SFR Performance Card -->
-                    <div class="bg-accent p-6 md:p-8 rounded-2xl border border-gray-200">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-4">Sandfire Resources (SFR)</h3>
-                         <table class="w-full mb-4">
-                            <thead>
-                                <tr class="border-b">
-                                    <th class="text-left font-semibold text-gray-600 pb-2">Year</th>
-                                    <th class="text-right font-semibold text-gray-600 pb-2">Return</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td class="py-1.5">2026</td><td class="text-right font-bold text-lg"><span id="sfr-y1" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5">2027</td><td class="text-right font-bold text-lg"><span id="sfr-y2" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5">2028</td><td class="text-right font-bold text-lg"><span id="sfr-y3" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2029*</td><td class="text-right font-bold text-lg"><span id="sfr-y4" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2030*</td><td class="text-right font-bold text-lg"><span id="sfr-y5" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2031*</td><td class="text-right font-bold text-lg"><span id="sfr-y6" class="performance-value"></span></td></tr>
-                                <tr><td class="py-1.5 drawdown-year font-semibold">2032*</td><td class="text-right font-bold text-lg"><span id="sfr-y7" class="performance-value"></span></td></tr>
-                            </tbody>
-                        </table>
-                        <p class="text-xs text-gray-600"><strong class="text-primary">Asset Assumptions:</strong> Assumes the highest leverage (beta ~2.5x) as a mid-tier pure-play producer. Performance is amplified in both positive and negative scenarios, reflecting higher operational risk and growth potential from its asset portfolio. *Drawdown phase.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Key Risks Section -->
-        <section class="my-16">
-            <div class="max-w-6xl mx-auto">
-                <h2 class="font-heading text-3xl md:text-4xl font-bold text-primary text-center mb-12">Navigating the Headwinds: Key Risks</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-accent p-8 rounded-2xl border border-gray-200">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-3">Global Recession</h3>
-                        <p class="text-gray-600">A severe economic downturn remains the most significant threat to industrial demand. The long-term, policy-driven nature of the "green" demand drivers is expected to provide a more resilient floor for prices compared to previous cycles.</p>
-                    </div>
-                    <div class="bg-accent p-8 rounded-2xl border border-gray-200">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-3">Mine-Specific Disruptions</h3>
-                        <p class="text-gray-600">Labor strikes, political instability, or operational failures can impact individual miners. The core of our strategy relies on a diversified ETF to mitigate the impact of any single-company or single-country event.</p>
-                    </div>
-                    <div class="bg-accent p-8 rounded-2xl border border-gray-200">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-3">Chinese Demand Uncertainty</h3>
-                        <p class="text-gray-600">As the world's largest consumer, a "hard landing" for China's economy presents a significant risk. Our thesis is built on the long-term, global nature of demand from the energy transition and AI, which diversifies the demand base away from being solely reliant on China's industrial sector.</p>
-                    </div>
-                     <div class="bg-accent p-8 rounded-2xl border border-gray-200">
-                        <h3 class="font-heading text-xl font-bold text-primary mb-3">US Tariff Policy Reversal</h3>
-                        <p class="text-gray-600">An unexpected reversal of U.S. tariff policy would cause significant short-term volatility by collapsing the LME/COMEX price arbitrage. The strategy's long-term horizon is designed to look past this, as the core structural supply deficit would remain the dominant market driver.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="text-center my-16 pt-8 border-t border-gray-200">
-            <p class="text-sm text-gray-500 max-w-4xl mx-auto">
-                Disclaimer: This information is for informational purposes only and does not constitute financial advice. All investment strategies and investments involve risk of loss. Please conduct your own research and consult with a financial professional before making any investment decisions.
+            <p>
+              The portfolio is split into a diversified <strong>core ETF sleeve</strong> and a
+              concentrated <strong>tactical growth sleeve</strong>, balancing resilience with
+              upside torque to the copper super-cycle.
             </p>
-        </footer>
 
+            <div class="section">
+              <h3>Strategic sleeves &amp; bands</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Sleeve</th>
+                      <th>Description</th>
+                      <th class="col-right">Indicative band</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Core Holding</td>
+                      <td>
+                        Diversified global copper miners ETF exposure. Mitigates single-asset and
+                        single-country risk while capturing sector-wide leverage to rising prices.
+                      </td>
+                      <td class="col-right">70-80%</td>
+                    </tr>
+                    <tr>
+                      <td>Tactical Growth</td>
+                      <td>
+                        Concentrated positions in best-in-class individual producers with attractive
+                        assets, geopolitical positioning and operating leverage.
+                      </td>
+                      <td class="col-right">20-30%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="performance-note">
+                Bands are expressed within the copper sleeve; overall portfolio sizing is managed at
+                the total portfolio level.
+              </p>
+            </div>
+          </aside>
+        </main>
+
+        <!-- ALLOCATION TABLE -->
+        <section class="card" style="margin-top:20px;" aria-labelledby="allocation-heading">
+          <div class="card-title-row">
+            <h2 id="allocation-heading">Suggested Asset Allocation</h2>
+            <span class="pill pill-oppty">Core + Tactical implementation</span>
+          </div>
+          <p>
+            The allocation table preserves the original band structure and role of each instrument.
+            Core exposure is provided via a global copper miners ETF, complemented by two tactical
+            producer positions.
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Investment</th>
+                  <th>Ticker</th>
+                  <th>Category</th>
+                  <th class="col-right">Target allocation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Global X Copper Miners ETF</td>
+                  <td>NYSE:COPX / ASX:WIRE</td>
+                  <td><span class="tag tag-positive">Core holding</span></td>
+                  <td class="col-right">70% - 80%</td>
+                </tr>
+                <tr>
+                  <td>Freeport-McMoRan Inc.</td>
+                  <td>NYSE:FCX</td>
+                  <td><span class="tag tag-warn">Tactical growth</span></td>
+                  <td class="col-right">10% - 20%</td>
+                </tr>
+                <tr>
+                  <td>Sandfire Resources Ltd.</td>
+                  <td>ASX:SFR</td>
+                  <td><span class="tag tag-warn">Tactical growth</span></td>
+                  <td class="col-right">10% - 20%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="performance-note">
+            Note: Allocation bands provide flexibility; total copper sleeve allocation should sum to
+            100% within the broader multi-asset portfolio.
+          </p>
+        </section>
+
+        <!-- PRIME CANDIDATES -->
+        <section class="card" style="margin-top:20px;" aria-labelledby="candidates-heading">
+          <div class="card-title-row">
+            <h2 id="candidates-heading">Prime Investment Candidates</h2>
+            <span class="pill">Curated core &amp; tactical line-up</span>
+          </div>
+          <p>
+            This section recasts the original qualitative theses for each holding into a consistent
+            card layout, preserving all underlying rationale.
+          </p>
+          <div class="grid-three" style="margin-top:12px;">
+            <!-- COPX / WIRE -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Global X Copper Miners ETF (COPX / WIRE)</h2>
+                <span class="pill pill-oppty">Core holding</span>
+              </div>
+              <p>
+                The core portfolio holding, offering instant diversification across the world's
+                leading copper mining companies.
+              </p>
+              <div class="section">
+                <h3>Investment thesis</h3>
+                <p>
+                  The most prudent and efficient way to execute the copper thesis. This vehicle
+                  provides leveraged exposure to a rising copper price while systematically
+                  mitigating idiosyncratic risks such as single-mine failures or country-specific
+                  instability. It captures industry-wide momentum and removes the need for
+                  heavy single-stock selection within the core sleeve.
+                </p>
+              </div>
+            </article>
+
+            <!-- FCX -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Freeport-McMoRan (NYSE: FCX)</h2>
+                <span class="pill pill-warn">Tactical growth</span>
+              </div>
+              <p>
+                A pure-play copper major with significant US assets, uniquely positioned to benefit
+                from geopolitical dynamics.
+              </p>
+              <div class="section">
+                <h3>Investment thesis</h3>
+                <p>
+                  Provides concentrated exposure to a major producer with substantial US operations.
+                  These assets may derive a unique benefit from tariff-induced COMEX price premiums,
+                  allowing the company to capture the geopolitical asymmetry at the heart of the
+                  current copper market. It is a tactical play on both copper prices and US market
+                  structure.
+                </p>
+              </div>
+            </article>
+
+            <!-- SFR -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Sandfire Resources (ASX: SFR)</h2>
+                <span class="pill pill-warn">Tactical growth</span>
+              </div>
+              <p>
+                A dynamic, pure-play mid-tier producer offering higher growth potential and direct
+                leverage to the copper price.
+              </p>
+              <div class="section">
+                <h3>Investment thesis</h3>
+                <p>
+                  Targets higher growth potential through Sandfire's international portfolio,
+                  including the MATSA complex in Spain and the Motheo mine in Botswana. As a
+                  mid-tier pure-play, it offers greater torque to a rising copper price than
+                  diversified majors, with scope for outsized returns driven by execution and
+                  exploration success.
+                </p>
+              </div>
+            </article>
+          </div>
+          </section>
+      </div>
+
+      <!-- MACRO / SCENARIOS TAB -->
+      <div id="tab-macro" class="tab-panel">
+        <section class="layout" style="margin-top:20px;">
+          <!-- SCENARIOS & ASSUMPTIONS -->
+          <section class="card" aria-labelledby="scenarios-heading">
+            <div class="card-title-row">
+              <h2 id="scenarios-heading">Scenario Framework &amp; Market Logic</h2>
+              <span class="pill pill-hot">Regime-sensitive</span>
+            </div>
+            <p>
+              The strategy uses three explicit scenarios - Bear, Neutral and Bull - each with defined assumptions, probabilities and price paths rebased to the current spot level.
+            </p>
+            <div class="section">
+              <h3>Bear scenario - 10% probability (tail risk)</h3>
+              <p>
+                <strong>Assumptions:</strong> A severe global recession, a "hard landing" in China,
+                or both, trigger a significant contraction in industrial and construction activity.
+                This demand shock temporarily overwhelms the structural deficit, pushing copper
+                prices down toward cautious forecasts (around US$9,000-10,000/t) before a slow,
+                prolonged recovery.
+              </p>
+              <p>
+                <strong>Probability rationale:</strong> A tail risk driven not by a change in the
+                long-term copper story but by an extreme macro event. A synchronized global
+                recession or sharp Chinese slowdown would cause broad-based demand destruction and
+                temporarily suppress prices despite the underlying deficit. Such a multi-year
+                bear market is considered low probability.
+              </p>
+            </div>
+
+            <div class="section">
+              <h3>Neutral scenario - 50% probability (base case)</h3>
+              <p>
+                <strong>Assumptions:</strong> Represents the consensus view. The structural
+                supply/demand imbalance is the dominant force, moderated by periods of moderate
+                growth and fluctuating Chinese demand. The market remains tight, supporting
+                elevated prices, with copper holding in the US$11,000-13,000/t range and gradually
+                trending higher as deficits deepen late in the decade.
+              </p>
+              <p>
+                <strong>Probability rationale:</strong> Anchored in the powerful, non-negotiable
+                fundamentals of a supply deficit colliding with multi-decade demand from the energy
+                transition and digitisation. Macro headwinds and higher price elasticity create
+                volatility but do not derail the primary upward trend.
+              </p>
+            </div>
+
+            <div class="section">
+              <h3>Bull scenario - 40% probability (significant upside)</h3>
+              <p>
+                <strong>Assumptions:</strong> The structural deficit becomes acute sooner than
+                expected. Demand from energy transition and AI data centres accelerates
+                <em>exponentially</em>, while supply disruptions become more frequent and few new
+                large-scale projects reach production. The market experiences a severe squeeze,
+                pushing prices toward US$14,000-15,500+/t as the incentive price threshold is
+                exceeded.
+              </p>
+              <p>
+                <strong>Probability rationale:</strong> Reflects the potential for known structural
+                drivers to overshoot. Faster-than-expected AI and EV adoption and/or persistent
+                disruptions at major mines would rapidly transform a tight market into an outright
+                shortage, creating conditions for a sharp price spike.
+              </p>
+            </div>
+
+            <div class="section">
+              <h3>Return expectations &amp; volatility (rebased from current spot)</h3>
+              <p>
+                Near-term CAGRs are trimmed after the price re-rating, while long-run terminal price
+                logic remains intact. Drawdown assumptions are increased to reflect higher
+                volatility at elevated price levels.
+              </p>
+              <div class="table-wrapper" style="margin-top:6px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Updated assumption</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Copper price return (base case, annualised)</td>
+                      <td>~0-5% near-term</td>
+                      <td>Higher later-cycle as deficits deepen</td>
+                    </tr>
+                    <tr>
+                      <td>Copper equities return (base case, annualised)</td>
+                      <td>~5-8%</td>
+                      <td>Operating leverage still meaningful</td>
+                    </tr>
+                    <tr>
+                      <td>Bull case equities return</td>
+                      <td>High</td>
+                      <td>Timing expected to be front-loaded</td>
+                    </tr>
+                    <tr>
+                      <td>Copper price volatility (annualised)</td>
+                      <td>~30-35%</td>
+                      <td>Up from ~20-25% baseline</td>
+                    </tr>
+                    <tr>
+                      <td>Copper equities volatility (annualised)</td>
+                      <td>~35-45%</td>
+                      <td>Wider drawdowns should be expected</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- RISKS & MODEL USE -->
+          <aside class="card" aria-labelledby="risk-heading">
+            <div class="card-title-row">
+              <h2 id="risk-heading">Key Risks &amp; Intended Use by a Model</h2>
+              <span class="pill pill-hot">Macro &amp; mining risk</span>
+            </div>
+            <p>
+              The copper thesis is powerful but exposed to cyclical, geopolitical and project-level
+              risks. This section preserves the original risk framing and adds a brief note on how a
+              model should use the strategy page.
+            </p>
+
+            <div class="section">
+              <h3>Key risks</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Risk</th>
+                      <th>Channel</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Global recession</td>
+                      <td>
+                        A severe downturn remains the most significant threat to industrial demand.
+                        While policy-driven "green" demand provides a more resilient floor than in
+                        past cycles, prices can still experience large drawdowns in a hard landing.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Mine-specific disruptions</td>
+                      <td>
+                        Labour strikes, political instability or operational failures can affect
+                        individual miners. The core ETF sleeve mitigates single-asset and
+                        single-country shocks by diversifying across many producers.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Chinese demand uncertainty</td>
+                      <td>
+                        As the largest consumer, a sharp slowdown or "hard landing" in China is a
+                        key risk. The thesis leans on the increasingly global nature of demand from
+                        the energy transition and AI, which progressively diversifies the demand
+                        base away from single-country dependence.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>US tariff policy reversal</td>
+                      <td>
+                        An unexpected reversal of US tariffs would collapse the LME/COMEX price
+                        arbitrage, causing sharp short-term volatility. Over the full horizon, the
+                        structural deficit remains the primary driver, but path dependency matters
+                        for timing tactical adds and trims.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Intended use by a model</h3>
+              <ul class="bullet-tight">
+                <li>
+                  Map macro inputs (global growth, China indicators, AI/data centre capex,
+                  supply disruption rates) into the three scenarios and compute
+                  probability-weighted outcomes at the sleeve and asset level.
+                </li>
+                <li>
+                  Use the scenario framework and return expectations as <strong>illustrative inputs</strong>, not forecasts, to stress-test the "Core + Tactical" structure and assess whether bands remain appropriate under different regimes.
+                </li>
+                <li>
+                  Analyse relative risk/return between the diversified ETF and higher-beta producers,
+                  highlighting concentration and correlation risks.
+                </li>
+                <li>
+                  Integrate the copper sleeve into a broader multi-asset portfolio framework,
+                  focusing on correlations with other commodities, equities and macro regimes.
+                </li>
+                <li>
+                  Track key newsflow (tariffs, mine disruptions, China data) as triggers for
+                  scenario probability shifts and for adjusting tactical exposure within the bands.
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </section>
+      </div>
+
+      <!-- STRATEGY UPDATES TAB -->
+      <div id="tab-updates" class="tab-panel">
+        <section style="margin-top:20px;">
+          <section class="card" aria-labelledby="updates-heading" style="width:100%;">
+            <div class="card-title-row">
+              <h2 id="updates-heading">Strategy Updates</h2>
+              <span class="pill">Rebased assumptions</span>
+            </div>
+            <p>
+              This tab captures incremental updates to the copper strategy as spot prices and
+              supply-demand balances evolve. Use the expandable section to review the latest
+              assumptions without cluttering the main scenario view.
+            </p>
+
+            <div class="section">
+              <h3>January 2026 market update (rebased)</h3>
+              <div class="table-wrapper" style="margin-top:10px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Oct 2025 baseline</th>
+                      <th>Jan 2026 update</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Copper spot (US$/t)</td>
+                      <td>~9,500-10,000</td>
+                      <td>~13,000 (+30% to +35%)</td>
+                    </tr>
+                    <tr>
+                      <td>Copper spot (US$/lb)</td>
+                      <td>-</td>
+                      <td>~6.00</td>
+                    </tr>
+                    <tr>
+                      <td>Global demand growth 2026</td>
+                      <td>~3.0%</td>
+                      <td>~2.0-2.5%</td>
+                    </tr>
+                    <tr>
+                      <td>Demand mix</td>
+                      <td>China property higher share</td>
+                      <td>China property declining; energy transition + AI/data centres rising</td>
+                    </tr>
+                    <tr>
+                      <td>Demand price elasticity</td>
+                      <td>Medium</td>
+                      <td>Medium-High (higher price level)</td>
+                    </tr>
+                    <tr>
+                      <td>Mine supply growth 2025</td>
+                      <td>~2.0%+</td>
+                      <td>~0.0-1.0% realised</td>
+                    </tr>
+                    <tr>
+                      <td>Mine supply growth 2026</td>
+                      <td>-</td>
+                      <td>~1.0% or less</td>
+                    </tr>
+                    <tr>
+                      <td>Structural balance 2026</td>
+                      <td>Flat / small surplus</td>
+                      <td>Deficit (~150k-600k t)</td>
+                    </tr>
+                    <tr>
+                      <td>Incentive price</td>
+                      <td>-</td>
+                      <td>&gt;13,000/t (long run)</td>
+                    </tr>
+                    <tr>
+                      <td>Visible stocks</td>
+                      <td>Normal</td>
+                      <td>Low ex-US; US distortion treated as noise</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario probabilities</td>
+                      <td>Bear 15% / Neutral 55% / Bull 30%</td>
+                      <td>Bear 10% / Neutral 50% / Bull 40%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>11. Page structure &amp; compliance</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Tab structure</td>
+                      <td>Include Strategy, Strategy Updates, and Specification tabs.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategy updates table</td>
+                      <td>Present prior vs updated values with dates in headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Baseline-only updates</td>
+                      <td>When no prior version exists, label as Baseline (Month YYYY).</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification tab</td>
+                      <td>Include a compliance table aligned to the standard.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spec reference comment</td>
+                      <td>HTML comment references the specification file path.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>12. Style &amp; formatting guide</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Header hierarchy</td>
+                      <td>Title, descriptor, and metadata chips in a single header block.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Metadata chips</td>
+                      <td>Include as-of and baseline dates in the chip row.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tab navigation</td>
+                      <td>Tabs styled consistently with active state and spacing.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Section cards</td>
+                      <td>Major sections appear in card containers with consistent padding.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Table styling</td>
+                      <td>Consistent header styling, row spacing, and full-width layout.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario tables</td>
+                      <td>Scenario tables include clear Bear/Base/Bull headings.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification table</td>
+                      <td>Three-column compliance table (Field / Definition / Status).</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Notes and captions</td>
+                      <td>Notes appear above/below tables in subdued text.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Card grid layout</td>
+                      <td>Card grids support 2-3 cards per row with wrapping.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scrollable tables</td>
+                      <td>Wide tables use a horizontal scroll wrapper.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Typography</td>
+                      <td>Consistent heading and body text hierarchy.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Color accents</td>
+                      <td>Accent colors used sparingly for chips, tabs, headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spacing</td>
+                      <td>Consistent vertical spacing between sections and tables.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Responsiveness</td>
+                      <td>Layout remains readable on tablet and mobile.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tag color taxonomy</td>
+                      <td>Tags use a consistent color meaning across tables and cards.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>13. Constraints &amp; disclaimers</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Leverage policy</td>
+                      <td>No implicit leverage unless explicitly stated.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Forecasting disclaimer</td>
+                      <td>Assumptions are conditional and revisable.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Decision disclaimer</td>
+                      <td>Outputs inform decisions; they are not decisions.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+
+      <!-- SPECIFICATION TAB -->
+      <div id="tab-spec" class="tab-panel">
+        <section style="margin-top:20px;">
+          <section class="card" aria-labelledby="spec-heading" style="width:100%;">
+            <div class="card-title-row">
+              <h2 id="spec-heading">Specification Summary</h2>
+              <span class="pill">Governance view</span>
+            </div>
+            <p>
+              This tab provides a compact view aligned to the Investment Strategy Specification
+              standard, referencing existing content where available and flagging items not yet
+              explicitly defined on this page.
+            </p>
+            <div class="section">
+              <h3>1. Strategy metadata</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Strategy name</td>
+                      <td>Formal title used to identify the strategy and its version.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Asset / theme</td>
+                      <td>Primary asset class or thematic exposure targeted by the strategy.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategy type</td>
+                      <td>Classification of approach (core/tactical/relative value/thematic).</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Primary objective</td>
+                      <td>Primary intent (growth, income, diversification, convexity, hedging).</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>As-of date</td>
+                      <td>Date the assumptions and spot anchors are valid for.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Original baseline date</td>
+                      <td>Prior reference date used for change comparisons.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Review cadence</td>
+                      <td>Planned update frequency (monthly/quarterly/event-driven).</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>2. Investment universe &amp; horizon</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Eligible asset classes</td>
+                      <td>Allowed instruments (equities, ETFs, futures, options, physical).</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Geographic scope</td>
+                      <td>Regions or countries eligible for exposure.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Sector constraints</td>
+                      <td>Industry or sub-sector limitations for holdings.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Instrument eligibility rules</td>
+                      <td>Liquidity, listing venue, currency, and leverage constraints.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategic horizon</td>
+                      <td>Multi-year investment window for the core thesis.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tactical horizon</td>
+                      <td>Shorter-term holding window for tactical sleeve.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Expected holding period per sleeve</td>
+                      <td>Typical holding duration by sleeve.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>3. Core thesis &amp; mispricing</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Primary thesis statement</td>
+                      <td>Single statement explaining drivers, mispricing, and persistence.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Structural drivers</td>
+                      <td>Named drivers with mechanism, duration, sensitivity, effects.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Why mispricing persists</td>
+                      <td>Short-term noise and structural reasons for mispricing.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>4. Portfolio structure</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Sleeve definitions</td>
+                      <td>Core and tactical sleeve roles and risk intent.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Allocation bands</td>
+                      <td>Target ranges, hard limits, and breach conditions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Rebalancing rules</td>
+                      <td>Explicit triggers and frequency for rebalancing.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Instrument roles</td>
+                      <td>Role, primary risk, correlation intent, and inclusion rationale.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>5. Deployment &amp; execution framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Entry strategy</td>
+                      <td>Rules for staged vs lump-sum entry and triggers.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Scaling rules</td>
+                      <td>Explicit add/trim/pause/stop conditions.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Exit strategy</td>
+                      <td>Structural exit signals and invalidation triggers.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>6. Scenario framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Scenario definitions</td>
+                      <td>Macro, demand, supply, policy assumptions per scenario.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario probabilities</td>
+                      <td>Explicit weights with rationale and shift conditions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Price / valuation paths</td>
+                      <td>Spot anchor, range, terminal assumptions, path dependency.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>7. Return &amp; risk assumptions</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Return expectations</td>
+                      <td>Asset- and sleeve-level returns with probability weights.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Volatility &amp; drawdowns</td>
+                      <td>Ranges and peak-to-trough assumptions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Correlation assumptions</td>
+                      <td>Within-strategy and cross-asset correlations by regime.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>8. Risk framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Key risks</td>
+                      <td>Risk name, transmission channel, affected assets, mitigation.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Thesis invalidation</td>
+                      <td>Conditions to reduce, pause, or terminate strategy.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>8. Monitoring inputs</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Quantitative signals</td>
+                      <td>Price levels, volatility, inventories, spreads.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Fundamental indicators</td>
+                      <td>Demand growth, supply growth, capex cycle, pipelines.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Event-driven triggers</td>
+                      <td>Policy, earnings, geopolitics, disruptions.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>9. Updates &amp; versioning</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Update log</td>
+                      <td>Record date, variable changed, old vs new, and reason.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Re-baselining rules</td>
+                      <td>Explicit triggers for when to rebase assumptions.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>10. Model use &amp; integration</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Model consumption rules</td>
+                      <td>How models should treat assumptions and bands.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Agent responsibilities</td>
+                      <td>Who monitors inputs and flags probability shifts.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Integration context</td>
+                      <td>How this strategy plugs into portfolio and risk systems.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>11. Page structure &amp; compliance</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Tab structure</td>
+                      <td>Include Strategy, Strategy Updates, and Specification tabs.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategy updates table</td>
+                      <td>Present prior vs updated values with dates in headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Baseline-only updates</td>
+                      <td>When no prior version exists, label as Baseline (Month YYYY).</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification tab</td>
+                      <td>Include a compliance table aligned to the standard.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spec reference comment</td>
+                      <td>HTML comment references the specification file path.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>12. Style &amp; formatting guide</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Header hierarchy</td>
+                      <td>Title, descriptor, and metadata chips in a single header block.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Metadata chips</td>
+                      <td>Include as-of and baseline dates in the chip row.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tab navigation</td>
+                      <td>Tabs styled consistently with active state and spacing.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Section cards</td>
+                      <td>Major sections appear in card containers with consistent padding.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Table styling</td>
+                      <td>Consistent header styling, row spacing, and full-width layout.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario tables</td>
+                      <td>Scenario tables include clear Bear/Base/Bull headings.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification table</td>
+                      <td>Three-column compliance table (Field / Definition / Status).</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Notes and captions</td>
+                      <td>Notes appear above/below tables in subdued text.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Card grid layout</td>
+                      <td>Card grids support 2-3 cards per row with wrapping.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scrollable tables</td>
+                      <td>Wide tables use a horizontal scroll wrapper.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Typography</td>
+                      <td>Consistent heading and body text hierarchy.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Color accents</td>
+                      <td>Accent colors used sparingly for chips, tabs, headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spacing</td>
+                      <td>Consistent vertical spacing between sections and tables.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Responsiveness</td>
+                      <td>Layout remains readable on tablet and mobile.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tag color taxonomy</td>
+                      <td>Tags use a consistent color meaning across tables and cards.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>13. Constraints &amp; disclaimers</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Leverage policy</td>
+                      <td>No implicit leverage unless explicitly stated.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Forecasting disclaimer</td>
+                      <td>Assumptions are conditional and revisable.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Decision disclaimer</td>
+                      <td>Outputs inform decisions; they are not decisions.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const performanceData = {
-                bear: {
-                    copx: [-11, 8, 10, 9, 10, 9, 8],
-                    fcx: [-8, 14, 13, 11, 10, 9, 8],
-                    sfr: [-18, 11, 20, 17, 21, 18, 15]
-                },
-                neutral: {
-                    copx: [14, 13, 11, 10, 9, 7, 8],
-                    fcx: [17, 15, 13, 11, 9, 8, 9],
-                    sfr: [20, 22, 23, 19, 19, 13, 12]
-                },
-                bull: {
-                    copx: [32, 32, 20, 12, 10, 7, 6],
-                    fcx: [36, 33, 25, 12, 11, 7, 6],
-                    sfr: [59, 43, 30, 15, 13, 8, 9]
-                }
-            };
+    <div class="footer">
+      Disclaimer: This information is for informational purposes only and does not constitute
+      financial advice or a recommendation to buy or sell any security. All investment strategies
+      and investments involve risk of loss. Please conduct your own research and consult with a
+      financial professional before making any investment decisions. Projections are illustrative
+      and not guaranteed.
+    </div>
+  </div>
 
-            const scenarioControls = document.getElementById('scenario-controls');
-            const buttons = scenarioControls.querySelectorAll('.scenario-btn');
-            
-            const descriptionContainer = document.getElementById('scenario-descriptions');
-            const allDescriptions = descriptionContainer.querySelectorAll('.scenario-desc');
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const buttons = document.querySelectorAll('.tab-button');
+      const panels = document.querySelectorAll('.tab-panel');
 
-            const elements = {
-                copx: [
-                    document.getElementById('copx-y1'), document.getElementById('copx-y2'), document.getElementById('copx-y3'),
-                    document.getElementById('copx-y4'), document.getElementById('copx-y5'), document.getElementById('copx-y6'), document.getElementById('copx-y7')
-                ],
-                fcx: [
-                    document.getElementById('fcx-y1'), document.getElementById('fcx-y2'), document.getElementById('fcx-y3'),
-                    document.getElementById('fcx-y4'), document.getElementById('fcx-y5'), document.getElementById('fcx-y6'), document.getElementById('fcx-y7')
-                ],
-                sfr: [
-                    document.getElementById('sfr-y1'), document.getElementById('sfr-y2'), document.getElementById('sfr-y3'),
-                    document.getElementById('sfr-y4'), document.getElementById('sfr-y5'), document.getElementById('sfr-y6'), document.getElementById('sfr-y7')
-                ]
-            };
-
-            function updateDisplay(scenario) {
-                // Update performance numbers
-                for (const asset in performanceData[scenario]) {
-                    performanceData[scenario][asset].forEach((value, index) => {
-                        const el = elements[asset][index];
-                        if (el) {
-                            const isPositive = value >= 0;
-                            el.textContent = `${isPositive ? '+' : ''}${Math.round(value)}%`;
-                            el.classList.toggle('positive', isPositive);
-                            el.classList.toggle('negative', !isPositive);
-                        }
-                    });
-                }
-                
-                // Update descriptions
-                allDescriptions.forEach(desc => desc.classList.add('hidden'));
-                const activeDesc = document.getElementById(`desc-${scenario}`);
-                if(activeDesc) {
-                    activeDesc.classList.remove('hidden');
-                }
-            }
-
-            scenarioControls.addEventListener('click', (event) => {
-                const target = event.target.closest('.scenario-btn');
-                if (!target) return;
-
-                buttons.forEach(btn => btn.classList.remove('active'));
-                target.classList.add('active');
-                
-                const scenario = target.dataset.scenario;
-                updateDisplay(scenario);
-            });
-
-            // Initial load
-            updateDisplay('neutral');
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-tab');
+          buttons.forEach(function (b) { b.classList.remove('active'); });
+          panels.forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          const panel = document.getElementById('tab-' + target);
+          if (panel) {
+            panel.classList.add('active');
+          }
         });
-    </script>
-
+      });
+    });
+  </script>
 </body>
 </html>
