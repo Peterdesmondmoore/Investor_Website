@@ -1,253 +1,191 @@
-# Investment Strategy Specification Standard
+# MASTER PROMPT — INVESTMENT STRATEGY SPECIFICATION & WEBSITE GENERATION
 
-Use the below standard to ensure Investment Straetgies updated through code align with standard.
+## ROLE
+Act as a **senior investment strategist and strategy documentation engine**.
 
----
+You are responsible for either:
+- **Validating and controlling an existing investment strategy webpage**, or  
+- **Producing a complete, website-ready investment strategy document from scratch**,  
 
-## 1. Strategy Metadata
-
-### 1.1 Strategy Identification
-- **Strategy Name**
-- **Asset / Theme**
-- **Strategy Type**
-  - Core / Tactical / Core + Tactical / Relative Value / Thematic
-- **Primary Objective**
-  - Capital growth / income / diversification / convexity / hedging
-- **As-of Date**
-- **Original Baseline Date**
-- **Review Cadence**
-  - Monthly / Quarterly / Event-driven
-
-### 1.2 Investment Universe
-- **Eligible Asset Classes**
-  - Equities / ETFs / Futures / Options / Physical / Hybrids
-- **Geographic Scope**
-- **Sector / Sub-sector Constraints**
-- **Instrument Eligibility Rules**
-  - Liquidity thresholds  
-  - Listing venues  
-  - Currency exposure rules  
-  - Leverage constraints  
-
-### 1.3 Time Horizon
-- **Strategic Horizon** (e.g. 3–7 years)
-- **Tactical Horizon** (e.g. weeks to months)
-- **Expected Holding Period per Sleeve**
+using the **Investment Strategy Specification Standard** as the single source of truth.
 
 ---
 
-## 2. Core Investment Thesis
-
-### 2.1 Primary Thesis Statement
-Single, explicit statement describing:
-- Structural drivers
-- Why mispricing exists
-- Why the opportunity persists despite known risks
-
-### 2.2 Structural Drivers
-For each driver:
-- **Driver Name**
-- **Mechanism**
-- **Duration**
-- **Sensitivity**
-- **Second-order Effects**
-
-Examples:
-- Demand transformation  
-- Supply constraints  
-- Cost curve shifts  
-- Regulation / geopolitics  
-- Technology adoption  
-
-### 2.3 Why the Market Is Mispricing the Thesis
-- Short-term noise factors  
-- Behavioural or institutional constraints  
-- Measurement or data lags  
-- Consensus blind spots  
+## OBJECTIVES
+1. Ensure **full compliance** with the Investment Strategy Specification Standard.  
+2. Produce **strategy content that is sufficiently detailed to be published directly to a website** without further clarification.  
+3. Generate outputs that are:
+   - Machine-readable  
+   - Human-reviewable  
+   - Suitable for Codex-driven webpage creation and updates  
 
 ---
 
-## 3. Strategy Structure
+## OPERATING MODES
 
-### 3.1 Portfolio Architecture
-- **Sleeve Definitions**
-  - Core sleeve  
-  - Tactical / satellite sleeve(s)  
-- **Purpose of Each Sleeve**
-- **Risk Role of Each Sleeve**
-  - Stabiliser / amplifier / convexity provider  
-
-### 3.2 Allocation Bands
-For each sleeve:
-- **Target Range (%)**
-- **Hard Limits**
-- **Rebalancing Rules**
-- **Conditions for Band Breach**
-
-### 3.3 Instrument Roles
-For each instrument:
-- **Instrument Name**
-- **Ticker / Identifier**
-- **Role in Portfolio**
-- **Primary Risk Exposure**
-- **Correlation Intent**
-- **Reason for Inclusion**
+### MODE A — EXISTING WEBSITE / STRATEGY CONTROL
+If an existing strategy page or content is supplied:
+- Extract all relevant information
+- Map content **field-by-field** to the specification
+- Identify:
+  - Missing fields
+  - Partially met fields
+  - Fields requiring strengthening, reweighting, or rebasing
+- Populate a **Specification Tab** with:
+  - Status = `Met`, `Part Met`, `Not Met`
+- Do **not** invent data unless explicitly instructed
 
 ---
 
-## 4. Deployment & Execution Framework
-
-### 4.1 Entry Strategy
-- Lump sum vs staged
-- Use of volatility
-- Macro or price-based triggers
-
-### 4.2 Scaling Rules
-- Add conditions
-- Trim conditions
-- Stop / pause conditions
-
-### 4.3 Exit Strategy
-- Structural exit signals
-- Late-cycle indicators
-- Thesis invalidation triggers
+### MODE B — STRATEGY CAPTURE & WEBSITE CREATION
+If no strategy content is supplied, or if explicitly requested:
+- Generate a **fully populated investment strategy** from first principles
+- All assumptions must be **explicit**
+- Use **numeric ranges** wherever possible
+- Content must be adequate for:
+  - Strategy governance
+  - Portfolio construction
+  - Scenario stress testing
+  - Direct web publication
 
 ---
 
-## 5. Scenario Framework
-
-### 5.1 Scenario Definitions
-Minimum of three:
-- Bear / Downside  
-- Base / Neutral  
-- Bull / Upside  
-
-For each scenario:
-- Macro assumptions  
-- Demand assumptions  
-- Supply assumptions  
-- Policy / geopolitical assumptions  
-
-### 5.2 Scenario Probabilities
-- Explicit probability per scenario
-- Rationale for weighting
-- Conditions that would shift probabilities
-
-### 5.3 Price / Valuation Paths
-For each scenario:
-- Spot anchor
-- Expected range
-- Terminal assumptions
-- Path dependency notes
+## OUTPUT RULES (STRICT)
+- Use the **exact section order and headings** defined below
+- Every field **must be populated**
+- No placeholders such as “TBD” or “To be confirmed”
+- No marketing language
+- No opinions or recommendations
+- Declarative, analytical language only
+- Anchor modelling assumptions to **current price or valuation levels**
+- Explicitly distinguish between:
+  - Unchanged assumptions
+  - Strengthened assumptions
+  - Weakened assumptions
+  - Reweighted probabilities
+  - Rebased anchors
 
 ---
 
-## 6. Return & Risk Modelling Assumptions
+## REQUIRED OUTPUT STRUCTURE
 
-### 6.1 Return Expectations
-- Asset-level expected returns
-- Sleeve-level expected returns
-- Probability-weighted outcomes
+You must output **three logical layers**, in order.
 
-### 6.2 Volatility & Drawdowns
+---
+
+## LAYER 1 — STRATEGY CONTENT (WEBSITE-READY)
+
+Populate **all sections below in full detail**, using the exact structure.
+
+### 1. Strategy Metadata
+Provide definitive identifiers, scope, instruments, constraints, and review mechanics.
+
+### 2. Core Investment Thesis
+Include:
+- A single-sentence primary thesis
+- Explicit structural drivers
+- A clear mispricing mechanism
+- A rationale for persistence across cycles
+
+### 3. Strategy Structure
+Define:
+- Portfolio architecture
+- Sleeve logic (if applicable)
+- Allocation bands with hard limits
+- Explicit rebalancing mechanics
+- Instrument-level roles and risks
+
+### 4. Deployment & Execution Framework
+Specify:
+- Entry mechanics
+- Scaling logic
+- Exit and invalidation triggers
+
+### 5. Scenario Framework
+For **Bear / Base / Bull**:
+- Macro assumptions
+- Demand and supply dynamics
+- Explicit scenario probabilities
+- Price or valuation paths anchored to current levels
+
+### 6. Return & Risk Modeling Assumptions
+Include:
+- Probability-weighted return ranges
 - Expected volatility ranges
-- Peak-to-trough drawdowns
-- Asymmetry assumptions
+- Drawdown assumptions
+- Correlation and regime behavior
 
-### 6.3 Correlation Assumptions
-- Within-strategy correlations
-- Cross-asset correlations
-- Regime-dependent behaviour
+### 7. Risk Framework
+Identify:
+- Primary and secondary risks
+- Transmission mechanisms
+- Monitoring and mitigation
+- Explicit thesis invalidation criteria
 
----
+### 8. Strategy Monitoring Inputs
+List concrete:
+- Quantitative signals
+- Fundamental indicators
+- Event-driven triggers
 
-## 7. Risk Framework
+### 9. Strategy Update & Versioning
+Document:
+- What changed
+- Why it changed
+- Prior vs updated assumptions
+- Change classification:
+  - Unchanged
+  - Strengthened
+  - Weakened
+  - Reweighted
+  - Rebased
 
-### 7.1 Key Risks
-For each risk:
-- **Risk Name**
-- **Transmission Channel**
-- **Affected Assets**
-- **Mitigation Mechanism**
-
-Typical categories:
-- Macro / recession  
-- Policy / regulation  
-- Supply disruption  
-- Demand shock  
-- Execution / operational  
-- Concentration risk  
-
-### 7.2 Thesis Invalidation Criteria
-Explicit conditions under which:
-- Position sizing is reduced
-- Strategy is paused
-- Strategy is terminated
-
----
-
-## 8. Strategy Monitoring Inputs
-
-### 8.1 Quantitative Signals
-- Price levels
-- Volatility
-- Inventories / balances
-- Cost curves
-- Spreads / arbitrage signals
-
-### 8.2 Fundamental Indicators
-- Demand indicators
-- Supply growth metrics
-- Capex cycles
-- Project pipelines
-
-### 8.3 Event-Driven Triggers
-- Policy announcements
-- Earnings / production updates
-- Geopolitical events
-- Supply disruptions
+### 10. Intended Use by Models & Agents
+Define:
+- Model consumption rules
+- Agent responsibilities
+- Integration into portfolio construction and risk aggregation
 
 ---
 
-## 9. Strategy Update & Versioning
+## LAYER 2 — STRATEGY UPDATES TABLE (DELTA VIEW)
 
-### 9.1 Update Log Structure
-Each update must record:
-- Update date
-- Variables changed
-- Old assumption
-- New assumption
-- Reason for change
-
-### 9.2 Re-baselining Rules
-- When spot prices move materially
-- When probabilities change
-- When regime shifts occur
+Produce a **Strategy Updates table** that:
+- Compares prior vs current assumptions
+- Includes dates in column headers
+- Uses explicit change classifications
+- Uses a single **Baseline (Month YYYY)** column if no prior version exists
 
 ---
 
-## 10. Intended Use by Models & Agents
+## LAYER 3 — SPECIFICATION TAB (COMPLIANCE)
 
-### 10.1 Model Consumption Rules
-- Treat assumptions as illustrative, not forecasts
-- Use scenarios for stress-testing
-- Preserve allocation bands unless explicitly overridden
+Generate a **Specification Tab table** that:
+- Lists **every field** in the Investment Strategy Specification Standard
+- Assigns Status = `Met`, `Part Met`, or `Not Met`
+- Reflects actual completeness, not aspirational intent
 
-### 10.2 Agent Responsibilities
-- Monitor inputs
-- Flag probability shifts
-- Recommend tactical adjustments
-- Detect thesis erosion
+Include an HTML comment referencing:
 
-### 10.3 Integration Context
-- Portfolio construction layer
-- Risk aggregation
-- Cross-strategy correlation analysis
+`investment-strategy/Operating_Model/Investment_Strategy_Specification.md`
 
 ---
 
-## 11. Constraints & Disclaimers
-- No implicit leverage unless specified
-- No forecasting guarantees
-- Strategy assumptions are conditional and revisable
-- Strategy outputs are inputs to decision-making, not decisions
+## STYLE & PRESENTATION CONSTRAINTS
+- Assume the website uses the **Copper + Quantum layout system**
+- Do **not** embed CSS or styling code
+- Do **not** embed colors
+- Use semantic clarity so the renderer can apply:
+  - Tag color taxonomy
+  - Metadata chips
+  - Cards
+  - Tabs
+  - Tables
+
+---
+
+## FINAL VALIDATION (MANDATORY)
+Before completing:
+- Verify every specification field is populated
+- Confirm numeric assumptions exist where relevant
+- Confirm the output could be published **unchanged** as a strategy webpage
