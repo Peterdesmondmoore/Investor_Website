@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Silver · Media Watcher</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Silver · Media Watcher</h1>
+      <p class="subtitle">Silver Media &amp; Narrative Context Summary</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-18</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="asset-media-watcher" data-asset="Silver" data-lookback-days="7" data-as-of-date="2026-01-16">
+
+  <section class="headline">
+    <h2 data-field="title">Silver — Weekly Media &amp; Narrative Context</h2>
+    <p class="subtitle" data-field="subtitle">Weekly sentiment, key themes, and material headlines from the last 7 days.</p>
+  </section>
+
+  <section class="weekly-sentiment">
+    <h3>Weekly Narrative Sentiment (Contextual)</h3>
+    <p data-field="sentiment_paragraph">
+      Silver experienced strong positive momentum early in the week, repeatedly reaching new all-time highs, primarily driven by increasing global demand from AI and data center infrastructure, ongoing geopolitical tensions, and a weaker U.S. dollar. This upward trajectory was further supported by reports of tightening physical supplies, a reduction in registered inventories creating a scarcity premium, and a projection of a continued market deficit throughout 2026 by Fitch’s BMI. However, prices saw a sharp pullback towards the end of the week, attributed to easing geopolitical concerns and the U.S. government holding off on critical minerals tariffs. Despite the intraday volatility, a disconnect between paper market movements and physical supply tightness was noted, while Bank of America downgraded mining stocks, signaling caution. Experts presented a mixed outlook, forecasting potential for silver to reach $100/oz but warning of an impending sharp correction and key risks.
+    </p>
+
+    <ul class="sentiment-counts">
+      <li><strong>Positive:</strong> <span data-field="count_positive">5</span></li>
+      <li><strong>Neutral:</strong> <span data-field="count_neutral">1</span></li>
+      <li><strong>Negative:</strong> <span data-field="count_negative">3</span></li>
+    </ul>
+
+    <p class="note">Sentiment reflects narrative context only and is non-decisional.</p>
+  </section>
+
+  <section class="key-news">
+    <h3>Key Silver News (Last 7 Days)</h3>
+
+    <ul class="news-list">
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/12/silver-and-gold-futures-hit-all-time-highs-1-12-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver and Gold futures hit all-time highs.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2026-01-12</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver prices reached new all-time highs, driven by increasing industrial demand from AI/data centers, geopolitical tensions, and a weaker U.S. dollar, indicating strong market fundamentals.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/14/silver-futures-surged-to-new-all-time-highs-1-14-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver futures surged to new all-time highs.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2026-01-14</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver extended its rally to new all-time highs, buoyed by favorable inflation data, continued geopolitical tensions, and robust industrial demand for energy and data infrastructure.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/15/silver-futures-rebounded-from-sharp-sell-off-as-physical-supplie.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver futures rebounded from sharp sell-off as physical supplies tightened.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2026-01-15</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver futures showed resilience, recovering from an intraday sell-off, with underlying support attributed to tightening physical supplies and a notable reduction in registered inventories creating a scarcity premium.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/silver-market-deficit-to-continue-throughout-2026-says-fitchs-bmi/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver market deficit to continue throughout 2026, says Fitch’s BMI</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-14</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Fitch’s BMI projects a continued silver market deficit throughout 2026, implying persistent supply tightness and supportive conditions for prices due to industrial and retail demand.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/883910311/ofwBNbNdnHZGLpc3?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Fresh Friday Highs for Gold and Silver as Central Banks Attack Trump's 'Populism'</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-16</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Gold and silver reached fresh highs, influenced by central bank actions and the broader impact of soaring commodity prices contributing to cost pressures.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="neutral">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/883882013/p17b155b45vmeoHP?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver rate today: White metal may touch $100/oz before sharp correction; experts warn of key risks</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-16</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Experts project a potential rally for silver to $100/oz but also warn of an impending sharp correction and risks, including potential import tariffs on critical minerals.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/883881499/3otw57d8JLixpSMM?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold rates today: MCX gold slips ₹720 per 10g, silver plunges ₹7,000 per kg on easing geopolitical worries</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-16</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver prices experienced a significant decline, attributed to easing geopolitical tensions, which had previously served as a supportive factor for the metal.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/silver-price-falls-from-record-as-us-holds-off-on-critical-minerals-tariff/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver price falls from record as US holds off on critical minerals tariff</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-15</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver prices fell significantly from their record high, potentially influenced by the US holding off on critical minerals tariffs, which might reduce policy-driven demand or uncertainty.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/883853240/Yx2jTtmZBMlLMuO2?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Bank of America downgrades miners, ups energy stocks after commodity divergence</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-16</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Bank of America downgraded mining stocks, projecting underperformance despite recent silver price peaks, which could imply a cautious outlook for the supply side of the market.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+</div></div></section>
+</main>
+</body>
+</html>

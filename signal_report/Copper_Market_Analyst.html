@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Copper Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of copper’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="The Copper Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of copper’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction." />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Copper Market Analyst</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> Copper Market Analyst</div>
+        <div class="page-title">The Copper Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of copper’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</div>
+        <div class="hero-inject market-report"><div class="ia-report-block" id="copper-macro-outlook">
+  <h2>Copper Macro Outlook</h2>
+
+  <h3>Regime Assessment</h3>
+  <p>
+    Current conditions align with the <strong>Mixed / Conflicting Drivers</strong> regime (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>), with low overall confidence.
+    Dominant drivers include a weakening U.S. Dollar (Bullish influence) (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>) alongside neutral growth (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>) and liquidity regimes (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>), compounded by conflicting tactical positioning signals (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>).
+  </p>
+
+  <h3>1-Month Outlook (Tactical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bearish (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>)</li>
+    <li><strong>Probability:</strong> Probability anchors for the 'Mixed / Conflicting Drivers' regime are not defined in the provided framework; therefore, explicit probabilities are not provided per instructions.</li>
+    <li><strong>Primary Influences:</strong> Recent media indicates a predominantly positive weekly narrative sentiment with strong price action and new record highs for copper futures (<a href="https://www.cmegroup.com/videos/2026/01/14/silver-futures-surged-to-new-all-time-highs-1-14-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">18</a>)(<a href="https://www.mining.com/copper-price-extends-hot-start-to-year-tin-price-also-breaks-record/" target="_blank">19</a>), supported by a weakening U.S. dollar (<a href="https://www.cmegroup.com/videos/2026/01/12/stocks-slide-as-metals-surge-1-12-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">20</a>). However, the deterministic summary's 1-Month bias is predominantly influenced by bearish reversal risk in Copper Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>) due to hedger deep short positioning and speculative long reduction (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>). China activity signals, also emphasized for this horizon, are noted as missing (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Composite Pricing &amp; Volatility Signals:</strong> Composite pricing signals exhibit mixed sentiment (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>). Producers show a flat composite view despite persistent uptrends (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">15</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">16</a>), contrasting with a 'Reduce' view from Processors/Fabricators who also show established uptrends (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">14</a>).</li>
+    <li><strong>Positioning / CoT Signals:</strong> Tactical positioning signals from Copper Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>) indicate bearish reversal risk. Other short-term positioning signals—Cross-Sector Positioning (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">7</a>), Specs vs Hedgers Divergence Reversal Risk (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">8</a>), Hedger Pressure Indicator (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">9</a>), and Squeeze & Exhaustion Risk Indicators (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">10</a>)—are all currently Neutral (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Volatility Profile:</strong> The deterministic stress level is assessed as Normal / Neutral (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">12</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">13</a>), suggesting a normal volatility profile for the near term (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+  </ul>
+
+  <h3>3-Month Outlook (Cyclical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bullish (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>)</li>
+    <li><strong>Probability:</strong> Probability anchors for the 'Mixed / Conflicting Drivers' regime are not defined in the provided framework; therefore, explicit probabilities are not provided per instructions.</li>
+    <li><strong>Macro Drivers:</strong> The primary macro driver for this horizon is the Weakening USD trend (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>), which typically provides a tailwind for commodities like copper (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>). Global growth and liquidity conditions are currently Neutral (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>), offering no clear directional push (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Confirmation / Tension Signals:</strong> The 3-Month Bullish bias conflicts with the 1-Month Bearish tactical bias (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>). The Growth & Demand Regime could not be deterministically classified due to critical missing inputs (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+  </ul>
+
+  <h3>12-Month Outlook (Strategic)</h3>
+  <ul>
+    <li><strong>Regime Persistence:</strong> The strategic 6-12 month outlook indicates a persistent bullish stance with high confidence, driven by structural demand and supply factors (<a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/" target="_blank">18</a>). This extends the medium-term macro tailwinds.</li>
+    <li><strong>Historical Outcome Bias:</strong> Bullish (<a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/" target="_blank">18</a>)</li>
+    <li><strong>Structural Context (from provided inputs only):</strong> Long-term drivers include accelerating electrification, AI, and surging defense spending, which are projected to swell copper demand significantly by 2040 (<a href="https://press.spglobal.com/2026-01-08-Substantial-Shortfall-in-Copper-Supply-Widends-as-the-Race-for-AI-and-Growing-Defense-Spending-Add-to-Accelerating-Demand,-New-S-P-Global-Study-Finds" target="_blank">22</a>)(<a href="https://www.spglobal.com/content/dam/spglobal/global-assets/en/special-reports/copper-in-the-age-of-ai/Copper%20in%20the%20Age%20of%20AI_January%202026.pdf" target="_blank">23</a>). Persistent supply constraints, declining ore grades, rising costs, and long development timelines for new mines are expected to create a structural supply deficit (<a href="https://www.bcentral.cl/documents/d/banco-central/box-ii-1-december-2025-ipom-pdf?download=true" target="_blank">20</a>)(<a href="https://press.spglobal.com/2026-01-08-Substantial-Shortfall-in-Copper-Supply-Widends-as-the-Race-for-AI-and-Growing-Defense-Spending-Add-to-Accelerating-Demand,-New-S-P-Global-Study-Finds" target="_blank">22</a>)(<a href="https://www.spglobal.com/content/dam/spglobal/global-assets/en/special-reports/copper-in-the-age-of-ai/Copper%20in%20the%20Age%20of%20AI_January%202026.pdf" target="_blank">23</a>). Anticipated Fed rate cuts and a weaker U.S. dollar are also supportive factors (<a href="https://www.uobgroup.com/research/quarterly-global-outlook.page" target="_blank">19</a>)(<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">21</a>).</li>
+  </ul>
+
+  <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
+  <ul>
+    <li><strong>Signal Normalization Conflicts:</strong> Real Interest Rate Trend Signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>), Federal Reserve Liquidity Composite Signal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>), and M2 Money Supply Signal (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>) displayed internal ambiguities or projected transitions, leading to Neutral classifications despite underlying directional components (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Growth Regime Classification Conflict:</strong> The Growth & Demand Regime could not be deterministically classified due to critical missing inputs, impacting overall confidence in the copper outlook (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Overall Directional Conflict:</strong> A key conflict exists between the Bullish influence of a Weakening USD (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>) and the Bearish tactical signal from Copper Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>), contributing to the 'Mixed / Conflicting Drivers' regime (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Horizon Bias Conflict:</strong> The 1-Month Horizon Bias is Bearish, while the 3-Month Horizon Bias is Bullish, indicating a divergence in short-term tactical views versus medium-term macro drivers (<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Market Expression Conflict:</strong> The Copper Pricing signal shows mixed sentiment, with Producers exhibiting a flat composite view despite persistent uptrends (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">15</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">16</a>), contrasting with a 'Reduce' view from Processors/Fabricators who also show established uptrends (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">14</a>)(<a href="https://investoranatomy.com/signal_report/Copper_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Invalidation Trigger:</strong> Faster-than-expected development and deployment of new mining capacity or resolution of supply chain bottlenecks could alleviate long-term supply concerns (<a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/" target="_blank">18</a>). Conversely, a significant global economic slowdown, particularly in China (<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">21</a>), could dampen industrial metals consumption and invalidate the bullish medium-term macro outlook (<a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/" target="_blank">18</a>). A stronger-than-forecast US dollar or delayed/fewer Fed rate cuts could also weaken support for copper (<a href="https://www.uobgroup.com/research/quarterly-global-outlook.page" target="_blank">19</a>).</li>
+  </ul>
+</div>
+<!--
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>The provided `Copper_Regime_Framework_v1.0` document is internally labeled as `Gold_Regime_Framework_v1.0` and its regime taxonomy (G1-G8) does not include the deterministic 'Mixed / Conflicting Drivers' regime for Copper. This prevents mapping the current Copper regime to the specified outcome probability anchors.</li>
+  <li>The `Global_Growth_Composite_Signal` was not provided, which is a primary macro driver for the Growth & Demand Regime, preventing its deterministic classification.</li>
+  <li>The `Global_PMI_Manufacturing_Signal` was not provided, impacting the deterministic classification of the Growth & Demand Regime.</li>
+  <li>The `China_Activity_Composite_Signal` was not provided, preventing deterministic classification of the Growth & Demand Regime and hindering the 1-Month Horizon emphasis.</li>
+  <li>The `Energy_Transition_Demand_Proxy` was not provided, which is a key input for the Growth & Demand Regime classification.</li>
+  <li>The `Macro_Theme_Global_Inflation_and_FX_Dynamics` signal was not provided, limiting the comprehensiveness of the USD Regime analysis.</li>
+  <li>No specific pricing signals were provided for the "Developer" cohort, preventing a comprehensive cohort-aware interpretation for this segment of market expression.</li>
+</ul>
+--></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-price" id="tab-price">Price Signal Decoder</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-CoT" id="tab-CoT">Copper Positioning Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-news" id="tab-news">Copper Media Watcher</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-supply_demand" id="tab-supply_demand">Copper Research Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-regime" id="tab-regime">Copper Signal Interpreter</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-price" aria-labelledby="tab-price"><div class="panel-title">Price Signal Decoder</div><div class="panel-body"><div class="ia-report-block" id="copper-pricing-qualitative-cohort">
+  <h2>Copper Pricing Regime — Qualitative Interpretation</h2>
+
+  <div class="ia-panel">
+    <h3>Executive Summary</h3>
+    <p>The copper pricing regime currently reflects an established positive underlying technical trend across observed cohorts. Producers generally exhibit a flat composite pricing view, aligning with persistent uptrends and prices trading near 52-week highs (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">3</a>). In contrast, the Processor / Fabricator cohort presents mixed signals, with a 'Reduce' composite view despite also being in an established uptrend (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>). Cross-cohort alignment is partial, characterized by broad technical strength but divergent composite sentiment, with Producers maintaining a more stable stance. This suggests an established technical regime encountering potentially transitional shifts in overall sentiment.</p>
+  </div>
+
+  <div class="ia-grid ia-grid-3">
+    <div class="ia-panel">
+      <h3>Producers</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr><th>Directionality</th><td>flat</td></tr>
+          <tr><th>Breadth</th><td>broad</td></tr>
+          <tr><th>Persistence</th><td>established</td></tr>
+          <tr><th>Dispersion</th><td>low</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ia-panel">
+      <h3>Developers</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr><th>Directionality</th><td>No explicit data available.</td></tr>
+          <tr><th>Breadth</th><td>No explicit data available.</td></tr>
+          <tr><th>Persistence</th><td>No explicit data available.</td></tr>
+          <tr><th>Dispersion</th><td>No explicit data available.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ia-panel">
+      <h3>Processors / Fabricators</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr><th>Directionality</th><td>mixed</td></tr>
+          <tr><th>Breadth</th><td>narrow</td></tr>
+          <tr><th>Persistence</th><td>established</td></tr>
+          <tr><th>Dispersion</th><td>not applicable</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ia-panel" style="margin-top:12px;">
+    <h3>Cross-Cohort Alignment</h3>
+    <p>The cohorts are partially aligned. The Producer cohort exhibits generally flat composite pricing signals ('Hold' view) while maintaining established uptrends and trading near 52-week highs (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">3</a>). In contrast, the Processor / Fabricator cohort displays mixed sentiment, with a 'Reduce' composite view alongside similar established uptrend characteristics (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>). This represents uneven movement across the copper complex, where broad technical strength coexists with diverging composite sentiment. The Producer cohort appears to be leading with a more stable, albeit neutral, sentiment profile compared to the more cautious stance observed in the Processor cohort.</p>
+  </div>
+</div>
+
+<!--
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Explicit 'Prior_State' observations are not provided for any cohort's pricing signals within the input documents, which limits the precision of "Directionality" and "Persistence" assessments as defined by the prompt.</li>
+  <li>No specific pricing signals were provided for the "Developer" cohort, preventing a comprehensive cohort-aware interpretation for this segment.</li>
+</ul>
+--></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank" rel="noopener" class="report-btn">IA Copper Pricing Model</a></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Copper Positioning Analyst</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Copper CoT signal for 2026-01-13 indicates a shift towards potential bearish reversal risk (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>This transition is characterized by hedgers maintaining deep short positions while speculators reduce longs.</li>
+        <li>Conviction Band: High | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Hedgers are deeply short, with a Net %OI of -30.66% and Hedger_zscore of -1.20 (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Speculators show a 4-week flow of -5.75%, indicating long reduction (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The `bearish_reversal_risk` flag is true, supported by a reversal score of -1 and a market structure regime of "Hedger_Adding_Short" (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A sustained positive shift in speculative 4-week flow or significant reduction in hedger deep short positioning would reverse this signal.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Copper prices face continued downward pressure or stability due to persistent hedger shorting and speculative long reduction.</li>
+        <li>Upside secondary: Aggressive short covering by hedgers or renewed speculative long accumulation.</li>
+        <li>Downside residual: Accelerated unwinding of speculative long positions combined with further hedger short build-up.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks), as CoT data provides weekly updates on positioning and flow dynamics.</li>
+        <li>Aggregation Weight Hint: High, due to the clear alignment of components and strong directional bias in a key industrial metal.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Demand (through speculative interest), Pricing, and Supply (via hedger activity).</li>
+        <li>Cycle position: Suggests potential softening in demand or increasing supply expectations within the current cycle.</li>
+        <li>Typical interaction with other macro signals: Can pre-empt shifts in broader commodity indices, industrial production signals, and inflation expectations.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>COPPER- #1 - COMMODITY EXCHANGE INC. (disaggregated), latest observation: 2026-01-13 (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Key data points are Spec_Net_%OI (23.49%), Hedger_Net_%OI (-30.66%), Flow_4w (-5.75%), and the `bearish_reversal_risk` flag.</li>
+        <li>Additional public datasets that would improve depth: Global Industrial Production, Copper inventories data.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_COPPER_Diagnostics.png" alt="Copper CoT diagnostics" /><div class="media-cap">Copper CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Copper Media Watcher</div><div class="panel-body"><div class="asset-media-watcher" data-asset="Copper" data-lookback-days="7" data-as-of-date="2026-01-17">
+
+  <section class="headline">
+    <h2 data-field="title">Copper — Weekly Media &amp; Narrative Context</h2>
+    <p class="subtitle" data-field="subtitle">Weekly sentiment, key themes, and material headlines from the last 7 days.</p>
+  </section>
+
+  <section class="weekly-sentiment">
+    <h3>Weekly Narrative Sentiment (Contextual)</h3>
+    <p data-field="sentiment_paragraph">
+      The narrative for Copper this week was predominantly positive, reflecting strong price action and various factors supporting both demand and future supply. Copper futures reached new record highs on the London Metal Exchange and CME, propelled by industrial demand, particularly from energy and data system build-outs, and a weakening U.S. dollar. While significant long-term demand drivers like electric vehicles, renewables, and infrastructure were highlighted, the persistent challenge of supply constraints due to long mine development cycles was also noted. On the supply front, news included a new copper-gold discovery in Yukon, an Arizona project nearing its first output, and First Quantum preparing to process stockpiles at Cobre Panama. Innovation in copper recovery from low-grade sulfides and new demand from major tech companies like Amazon further underscore the positive sentiment around the metal.
+    </p>
+
+    <ul class="sentiment-counts">
+      <li><strong>Positive:</strong> <span data-field="count_positive">7</span></li>
+      <li><strong>Neutral:</strong> <span data-field="count_neutral">2</span></li>
+      <li><strong>Negative:</strong> <span data-field="count_negative">0</span></li>
+    </ul>
+
+    <p class="note">Sentiment reflects narrative context only and is non-decisional.</p>
+  </section>
+
+  <section class="key-news">
+    <h3>Key Copper News (Last 7 Days)</h3>
+
+    <ul class="news-list">
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/14/silver-futures-surged-to-new-all-time-highs-1-14-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver futures surged to new all-time highs.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2026-01-14</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Copper futures set new record highs, supported by ongoing geopolitical tensions and increased industrial demand from energy and data system build-outs.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/copper-price-extends-hot-start-to-year-tin-price-also-breaks-record/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Copper price extends hot start to year, tin price breaks record</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-14</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Copper prices on the London Metal Exchange reached a record $13,310 per ton, indicating strong market momentum.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/12/stocks-slide-as-metals-surge-1-12-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Stocks Slide as Metals Surge.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2026-01-12</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          A weaker U.S. dollar provided a tailwind for copper prices, contributing to a broader surge in the metals complex.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="neutral">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/883930643/VV_u_G6k2N0yZZU9?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Investing in copper: How EVs, renewables and infra are reshaping the metal’s future - 3 top ETFs</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-16</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Discusses significant long-term demand drivers for copper from EVs, renewables, and infrastructure, while highlighting persistent supply constraints and long mine development times.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/taseko-wraps-florence-build-nears-first-copper-output/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Taseko wraps up Florence build, nears first copper output</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-13</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          The Florence copper project in Arizona has completed construction and is nearing initial production, signaling an upcoming increase in supply.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/first-quantum-nears-stockpile-processing-at-cobre-copper-mine/" target="_blank" rel="noopener">
+            <span data-field="news_headline">First Quantum nears stockpile processing at Cobre Panama copper mine</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-16</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          First Quantum is preparing to process stockpiles at Cobre Panama, expecting to yield 70,000 tonnes of copper and partially offset preservation costs for 2026.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/amazon-to-be-first-user-of-copper-made-by-rio-tinto-venture/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Amazon to be first user of copper made by Rio Tinto venture</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-15</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Amazon's AWS will integrate copper products from a Rio Tinto venture into its US data centers, demonstrating growing demand from the technology sector.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/transition-metal-scales-microbe-tech-for-copper-recovery/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Transition Metal scales microbe tech for copper recovery</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-15</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          New microbial technology for enhancing copper recovery from low-grade sulfides could help address supply challenges as richer deposits decline.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/883912371/yaaRhhjDv-DVeVwS?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gladiator Metals makes new discovery at Whitehorse Copper Belt, Yukon</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-16</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          A new discovery of copper and gold mineralization in the Whitehorse Copper Belt indicates potential for future resource expansion.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Copper Research Analyst</div><div class="panel-body"><div class="asset-forward-view"
+     data-as-of-date="2026-01-18"
+     data-horizon-min-months="6"
+     data-horizon-max-months="12">
+
+  <section class="stance">
+    <h2>6–12 Month Stance</h2>
+    <p><strong>Stance:</strong>
+      <span data-field="stance">bullish</span>
+    </p>
+    <p><strong>Confidence:</strong>
+      <span data-field="confidence">high</span>
+    </p>
+  </section>
+
+  <section class="core-narrative">
+    <h2>Core Narrative</h2>
+    <p data-field="core_narrative">
+      The outlook for the Metals asset class is strongly bullish over the next 6-12 months, driven by robust demand, persistent supply constraints, and supportive macroeconomic factors. "Most metals will be better supported by tighter fundamentals" (4), particularly those critical for the energy transition and advanced technologies. Demand for copper is projected to "swell copper demand to 42 million metric tons by 2040, a 50% increase from current levels," propelled by "accelerating electrification, the race for artificial intelligence (AI), and surging defense spending" (5)(6). Silver is also highlighted for its "pivotal role as a 'next generation metal' across industries critical to green energy transition and digital transformation" (7), with strong demand from solar photovoltaics, electric vehicles, and data centers (7). Gold is expected to "sustain its strong trend-like rally into 2026" (2) and "reach yet new heights" (4), supported by safe-haven demand, central bank accumulation, and anticipated Fed rate cuts (2)(4). Uranium is also in a "bull market setup strengthens into 2026" (8).
+      <br><br>
+      On the supply side, "multiple disruptions" (3) and long development timelines for new mines (5)(6) are creating deficits. For example, "refined copper balance for 2026 is now showing a deficit of around 600kt" (4), contributing to a projected "supply deficit of 10 million metric tons by 2040—25% below projected demand" (5). Geopolitical factors and "deglobalization" (8) further exacerbate supply challenges, positioning hard assets as "strategic levers in a multi-polar world" (8). While some metals like Nickel and Iron Ore face oversupply or bearish outlooks (4), the overarching picture for critical industrial and precious metals remains strongly positive (3)(4)(5)(6)(7)(8).
+    </p>
+  </section>
+
+  <section class="key-drivers">
+    <h2>Key Drivers</h2>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Energy Transition Demand</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Accelerating global energy transition initiatives, including widespread electrification, drive significant demand for critical metals. "Electric vehicles (EVs) require 2.9 times more copper than a conventional car" (6), with global EV production forecast to grow at a 13% CAGR between 2025 and 2031 (7). Solar PV capacity has grown over tenfold, leading to a threefold increase in silver demand (7). Record global investment in clean energy, projected to reach "USD 2.2 trillion for 2025" (1), underpins this demand.
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">AI and Data Center Expansion</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        The "rapid growth of the Artificial Intelligence (AI) industry" is estimated to require "between 300,000 and 500,000 additional tons of copper each year until 2030" (3). "Data Centres and Artificial Intelligence represent another critical growth area for silver," with "total global IT power capacity grew by an estimated 53x, from 0.93 GW in 2000 to nearly 50 GW in 2025" (7). AI-driven capital expenditure also contributes to the "Long Hard Asset Trade" (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Geopolitical Tensions & Defense Spending</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        "Geopolitical and technological factors have consolidated and strengthened" demand for copper, including "increased defense spending and strategic mineral protection plans" (3). Surging defense spending further adds to accelerating demand for copper (5)(6). The accelerating "Deglobalization" trend (8) alters global commodity flows and reinforces hard assets as "strategic levers in a multi-polar world" (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Supply Constraints and Disruptions</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        "Multiple disruptions" (3) and "accidents and cuts to production plans at mines" have led to estimated cuts of "around 400,000 tons in global production this year" for copper, with effects expected to "continue throughout 2026 and 2027" (3). Copper faces "significant mine supply disruptions" (4). Overall, the supply response is constrained by factors such as "declining ore grades, rising costs, and long development timelines" (6), leading to "tighter fundamentals" (4) and "structural supply deficits" (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Monetary Policy & US Dollar Weakness</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Prospects for "looser monetary policy in the United States" (3) contribute to higher commodity prices, especially for precious metals. "Further Fed easing expected to remain the dominant driver" for a bearish bias on the USD (2). "Anticipated Fed rate cuts, a weaker US dollar" (4) are expected to keep gold "strong and reach yet new heights" (4), supporting its "Role as a Core Store of Value Strengthens" (8).
+      </p>
+    </div>
+  </section>
+
+  <section class="key-risks">
+    <h2>Key Risks</h2>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Supply Chain Concentration</h3>
+      <p data-field="why_it_matters">
+        The concentration of supply chains, with "six countries responsible for two-thirds of mining production and China dominating processing capacity, making global supply vulnerable to disruptions" (5). Specifically, "China accounts for 12 of the 29 million metric tons of global smelting capacity" (6), posing a systemic risk.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Long Development Timelines for New Mines</h3>
+      <p data-field="why_it_matters">
+        Overcoming projected shortfalls, particularly for copper, "requires significant investment in new mines and expansion of existing assets," but the sector faces challenges like environmental opposition and "lengthy permitting processes, taking an average of 17 years for a new mine to go from discovery to production" (5)(6). This long lead time makes a rapid supply response challenging.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Technological Thrifting in Silver</h3>
+      <p data-field="why_it_matters">
+        While overall demand for silver is strong, "technological 'thrifting' reduces silver per cell" in solar PV, and "copper plating technologies show promise in further reducing silver content" (7). If widely adopted, such innovations could partially offset the growth in industrial demand.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Oversupply in Specific Metals</h3>
+      <p data-field="why_it_matters">
+        Not all metals face a bullish outlook; for example, "Nickel is anticipated to remain in surplus throughout 2026, primarily due to continued supply growth from Indonesia" (4). Similarly, "Iron ore faces a bearish outlook for 2026, influenced by weakening Chinese demand, particularly in the property sector, and increasing seaborne supply" (4). These specific market dynamics could weigh on the overall metals sector sentiment.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Global Economic Slowdown</h3>
+      <p data-field="why_it_matters">
+        Slowing growth in key demand regions, such as "slowing growth in China" (2), could reduce overall industrial metals consumption. A general weakening in global economic activity could dampen the strong demand projected from traditional industrial sectors (4).
+      </p>
+    </div>
+  </section>
+
+  <section class="signposts">
+    <h2>Signposts to Watch</h2>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Investment in New Mining Capacity</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued reports of "multiple disruptions" (3) and long development timelines (5)(6) without significant new projects reaching production would confirm persistent supply tightness and likely higher prices.</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Accelerated permitting, significant new mine discoveries, or rapid development of existing assets (5)(6) could alleviate long-term supply concerns and ease price pressures.</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Evolution of AI and Energy Transition Demand</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Sustained "rapid growth of the Artificial Intelligence (AI) industry" (3) and accelerating electrification (5)(6), with demand figures for copper and silver continuing to surge in line with or exceeding projections (7).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Slower-than-expected deployment of AI infrastructure, a deceleration in green energy investments, or policy shifts that reduce incentives (7) could lead to lower demand growth.</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Central Bank Monetary Policy</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Materialization of "further Fed easing expected to remain the dominant driver" (2) and the "anticipated Fed rate cuts, a weaker US dollar" (4) would provide a supportive backdrop for gold and other commodity prices.</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Delayed or fewer-than-expected interest rate cuts by major central banks, or a stronger-than-forecast US dollar, could dampen the upward momentum for precious metals and broader commodities (2)(4).</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Technological Developments in Material Usage</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Widespread adoption of "new next-gen solar cells (TOPCon, SHJ)" that "require more silver" (7) would confirm strong and sustained industrial demand for silver despite existing thrifting efforts.</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Rapid scaling and adoption of "copper plating technologies" (7) in solar cells, which significantly reduce silver content, could weaken silver's industrial demand outlook.</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="scenarios">
+    <h2>Scenarios</h2>
+
+    <div class="scenario" data-scenario="base">
+      <h3 data-field="scenario_name">base</h3>
+      <p data-field="scenario_description">
+        The "structural shifts" (8) of deglobalization, fiscal dominance, and AI-driven capital expenditure continue to drive a "Long Hard Asset Trade" (8). "Most metals will be better supported by tighter fundamentals" (4) due to persistent demand from electrification, AI, and defense spending (5)(6)(7), coupled with ongoing supply disruptions and long development cycles for new mines (3)(5)(6). Precious metals, particularly gold, will "sustain its strong trend-like rally" (2) amid "anticipated Fed rate cuts, a weaker US dollar, and ongoing geopolitical uncertainties" (4). Copper prices are expected to average "around US$4.6 per pound" in 2027 (3).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Energy Transition Demand; AI and Data Center Expansion; Geopolitical Tensions & Defense Spending; Supply Constraints and Disruptions; Monetary Policy & US Dollar Weakness
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="upside">
+      <h3 data-field="scenario_name">upside</h3>
+      <p data-field="scenario_description">
+        Faster-than-anticipated growth in AI adoption and energy transition leads to an even sharper "swell copper demand" (5) and intensified industrial silver demand, exceeding current projections (6)(7). Geopolitical tensions escalate further, increasing defense spending and exacerbating "fragmentation of global metal inventory systems" (8), creating more localized shortages and price dislocations (8). Supply disruptions are more severe or prolonged than currently expected (3)(4). Central banks accelerate gold accumulation and Fed rate cuts are deeper and faster, leading to a significantly weaker USD (2)(4). Gold will "reach yet new heights" (4) well beyond current forecasts.
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          strongly bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          AI and Data Center Expansion; Energy Transition Demand; Geopolitical Tensions & Defense Spending; Supply Constraints and Disruptions; Monetary Policy & US Dollar Weakness
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="downside">
+      <h3 data-field="scenario_name">downside</h3>
+      <p data-field="scenario_description">
+        A significant global economic slowdown, particularly in key demand centers like China (4), dampens industrial metals consumption. Technological breakthroughs in material substitution or more aggressive "thrifting" for silver (7) significantly reduce demand per unit in key sectors like solar. Unexpectedly rapid development and deployment of new mining capacity or a resolution of supply chain bottlenecks (5)(6) alleviate deficits. Geopolitical tensions ease, reducing defense spending and encouraging more stable commodity flows. Central banks slow gold accumulation, and monetary policy tightening is prolonged or rate cuts are delayed (2)(4).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          neutral
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Global Economic Slowdown; Technological Thrifting in Silver; Long Development Timelines for New Mines; Monetary Policy & US Dollar Weakness
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <section class="disagreements">
+    <h2>Disagreements & Uncertainties</h2>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Silver Demand from Solar PV: Thrifting vs. New Cell Technology</h3>
+      <p data-field="what_conflicts">
+        There is an ongoing dynamic between technological advancements that aim to reduce silver content per solar cell and the emergence of new cell technologies that require more silver, creating uncertainty about net silver demand in the solar photovoltaic sector.
+      </p>
+      <ul>
+        <li data-field="side_a">Claim A: Technological "thrifting" reduces silver per cell, potentially limiting overall demand growth for silver in solar PV (7).</li>
+        <li data-field="side_b">Claim B: New next-generation solar cells (TOPCon, SHJ) require more silver, potentially offsetting reductions from thrifting, though "copper plating technologies show promise in further reducing silver content" (7) in the future.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="research-quality">
+    <h2>Research Quality & Coverage Assessment</h2>
+
+    <p><strong>Overall quality:</strong>
+      <span data-field="research_quality">
+        strong
+      </span>
+    </p>
+
+    <p data-field="quality_rationale">
+      The research is highly credible and consistent, drawing from major financial institutions and industry bodies including S&P Dow Jones Indices, UOB Global Economics & Markets Research, Banco Central de Chile, ING, S&P Global, The Silver Institute, and Sprott (1)(2)(3)(4)(5)(6)(7)(8). There is significant consistency in the identified demand drivers (AI, energy transition, defense spending) and supply constraints across multiple reports (3)(5)(6)(7)(8). The depth includes specific quantitative forecasts for deficits and demand growth for key metals (3)(4)(5)(6)(7), providing a robust and well-supported foundation for the forward view.
+    </p>
+
+    <p><strong>Coverage completeness:</strong>
+      <span data-field="coverage_completeness">
+        comprehensive
+      </span>
+    </p>
+
+    <p data-field="coverage_gaps">
+      none identified
+    </p>
+
+    <p data-field="missing_thematic_research">
+      none identified
+    </p>
+  </section>
+
+  <section class="coverage-stats">
+    <h2>Sources Used</h2>
+    <ul>
+      <li><strong>Documents provided:</strong>
+        <span data-field="documents_provided">8</span>
+      </li>
+      <li><strong>Documents used:</strong>
+        <span data-field="documents_used">8</span>
+      </li>
+      <li><strong>Sources used:</strong>
+        <ol>
+          <li id="ref-1">
+            <a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/">Benchmarking the Energy Transition: Insights from S&P DJI</a>
+          </li>
+          <li id="ref-2">
+            <a href="https://www.uobgroup.com/research/quarterly-global-outlook.page">Quarterly Global Outlook 1Q 2026</a>
+          </li>
+          <li id="ref-3">
+            <a href="https://www.bcentral.cl/documents/d/banco-central/box-ii-1-december-2025-ipom-pdf?download=true">BOX II.1: Copper price outlook</a>
+          </li>
+          <li id="ref-4">
+            <a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf">Commodities Outlook 2026</a>
+          </li>
+          <li id="ref-5">
+            <a href="https://press.spglobal.com/2026-01-08-Substantial-Shortfall-in-Copper-Supply-Widends-as-the-Race-for-AI-and-Growing-Defense-Spending-Add-to-Accelerating-Demand,-New-S-P-Global-Study-Finds">'Substantial Shortfall' in Copper Supply Widens as the Race for AI and Growing Defense Spending Add to Accelerating Demand, New S&P Global Study Finds</a>
+          </li>
+          <li id="ref-6">
+            <a href="https://www.spglobal.com/content/dam/spglobal/global-assets/en/special-reports/copper-in-the-age-of-ai/Copper%20in%20the%20Age%20of%20AI_January%202026.pdf">Copper in the Age of AI: Challenges of Electrification</a>
+          </li>
+          <li id="ref-7">
+            <a href="https://silverinstitute.org/wp-content/uploads/2025/12/Silver_The-Next-Generation-Metal_DECEMBER-Release.pdf">Silver, The Next Generation Metal</a>
+          </li>
+          <li id="ref-8">
+            <a href="https://sprott.com/insights/top-10-themes-for-2026/">Top 10 Themes for 2026</a>
+          </li>
+        </ol>
+      </li>
+      <li><strong>Date range:</strong>
+        <span data-field="earliest_publication_date">2025-12-01</span>
+        to
+        <span data-field="latest_publication_date">2026-01-13</span>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Copper Signal Interpreter</div><div class="panel-body"><div class="market-report">
+    <h2>Copper Regime State — Deterministic Summary</h2>
+    <table class="ia-table ia-table-striped ia-table-fixed-layout">
+        <thead>
+            <tr>
+                <th>Element</th>
+                <th>Classification</th>
+                <th>Confidence</th>
+                <th>Conflicts Identified</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Overall Copper Regime</strong></td>
+                <td>Mixed / Conflicting Drivers</td>
+                <td>Low</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td><strong>Growth & Demand Regime</strong></td>
+                <td>Neutral</td>
+                <td>Low (due to missing data)</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td><strong>Liquidity Regime</strong></td>
+                <td>Neutral</td>
+                <td>Medium</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td><strong>USD Regime</strong></td>
+                <td>Weakening (Bullish for Copper)</td>
+                <td>High</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td><strong>Stress Level</strong></td>
+                <td>Normal / Neutral</td>
+                <td>High</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td><strong>Overall Directional Bias</strong></td>
+                <td>Neutral / Mixed</td>
+                <td>Low</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td><strong>1-Month Horizon Bias</strong></td>
+                <td>Bearish</td>
+                <td>Medium</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td><strong>3-Month Horizon Bias</strong></td>
+                <td>Bullish</td>
+                <td>Medium</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td><strong>Market Expression</strong></td>
+                <td>Mixed / Conflicting</td>
+                <td>Medium</td>
+                <td>Yes</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Key Drivers & Logic</h3>
+    <ul>
+        <li>The **Growth & Demand Regime** is classified as Neutral due to the absence of key input signals: Global Growth Composite Signal, Global PMI Manufacturing Signal, China Activity Composite Signal, and Energy Transition Demand Proxy. This significantly reduces confidence in the growth outlook for copper.</li>
+        <li>The **Liquidity Regime** is Neutral. This is a result of the Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>) and Real Interest Rate Trend signals (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>) being normalized to Neutral due to identified internal conflicts within their source documents. The M2 Money Supply signal (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>) also normalizes to Neutral due to its projected imminent transition from Bullish to Neutral, creating an ambiguity for the current state.</li>
+        <li>The **USD Regime** is Weakening (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>), interpreted as a Bullish influence for copper. This is driven by the USD Index trading below its 12-month average, classifying the USD Index Signal (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>) as Bearish for the USD itself. The USD Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>) is Neutral.</li>
+        <li>**Stress Level** remains Normal / Neutral. The Financial Stress Index (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>), Financial Stress Composite (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">12</a>), and Market Volatility VIX Signal (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">13</a>) are all in Neutral or Normal regimes, thus no stress override logic is triggered.</li>
+        <li>The **Overall Directional Bias** for copper is Neutral / Mixed, primarily driven by a conflict between the Bullish influence from a Weakening USD trend (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>) and the Bearish tactical signal from Copper Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>). Growth and Liquidity regimes are Neutral and do not provide a clear directional push.</li>
+    </ul>
+
+    <h3>Horizon-Specific Biases</h3>
+    <ul>
+        <li>For the **1-Month Horizon**, the bias is Bearish. This is primarily influenced by the Copper Individual Market Analysis signal (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>) which indicates bearish reversal risk due to hedger deep short positioning and speculative long reduction. Other short-term positioning signals—Cross-Sector Positioning (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">7</a>), Specs vs Hedgers Divergence Reversal Risk (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">8</a>), Hedger Pressure Indicator (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">9</a>), and Squeeze & Exhaustion Risk Indicators (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">10</a>)—are Neutral. China activity signals, also emphasized for this horizon, are missing.</li>
+        <li>For the **3-Month Horizon**, the bias is Bullish. This is primarily driven by the Weakening USD trend (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>), which typically provides a tailwind for commodities like copper. Global growth regime and liquidity conditions, also emphasized for this horizon, are Neutral.</li>
+    </ul>
+
+    <h3>Conflicts Identified</h3>
+    <ul>
+        <li>**Signal Normalization Conflicts:** Real Interest Rate Trend Signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>), Federal Reserve Liquidity Composite Signal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>), and M2 Money Supply Signal (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>) all displayed internal ambiguities or projected transitions that led to a Neutral classification despite underlying directional components.</li>
+        <li>**Growth Regime Classification Conflict:** The Growth & Demand Regime could not be deterministically classified due to critical missing inputs.</li>
+        <li>**Overall Directional Conflict:** A key conflict exists between the Bullish influence of a Weakening USD (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>) and the Bearish tactical signal from Copper Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>).</li>
+        <li>**Horizon Bias Conflict:** The 1-Month Horizon Bias is Bearish, while the 3-Month Horizon Bias is Bullish, indicating a divergence in short-term tactical views versus medium-term macro drivers.</li>
+        <li>**Market Expression Conflict:** The Copper Pricing signal shows mixed sentiment, with Producers exhibiting a flat composite view despite persistent uptrends (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">15</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">16</a>), contrasting with a 'Reduce' view from Processors/Fabricators who also show established uptrends (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">14</a>).</li>
+    </ul>
+</div>
+
+<!--
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>The `Global_Growth_Composite_Signal` was not provided, which is a primary macro driver for the Growth & Demand Regime, preventing its deterministic classification.</li>
+  <li>The `Global_PMI_Manufacturing_Signal` was not provided, impacting the deterministic classification of the Growth & Demand Regime.</li>
+  <li>The `China_Activity_Composite_Signal` was not provided, preventing deterministic classification of the Growth & Demand Regime and hindering the 1-Month Horizon emphasis.</li>
+  <li>The `Energy_Transition_Demand_Proxy` was not provided, which is a key input for the Growth & Demand Regime classification.</li>
+  <li>The `Macro_Theme_Global_Inflation_and_FX_Dynamics` signal was not provided, limiting the comprehensiveness of the USD Regime analysis.</li>
+  <li>No specific pricing signals were provided for the "Developer" cohort, preventing a comprehensive cohort-aware interpretation for this segment of market expression.</li>
+</ul>
+--></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • Copper Market Analyst • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

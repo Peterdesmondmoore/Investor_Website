@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Lithium Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of lithium’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="The Lithium Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of lithium’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction." />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Lithium Market Analyst</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> Lithium Market Analyst</div>
+        <div class="page-title">The Lithium Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of lithium’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</div>
+        <div class="hero-inject market-report"><div class="ia-report-block" id="lithium-hydroxide-macro-outlook">
+  <h2>Lithium Hydroxide Macro Outlook</h2>
+
+  <h3>Regime Assessment</h3>
+  <p>
+    Current conditions align with the <strong>Expansionary</strong> regime.
+    Dominant drivers include the Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>) indicating expansion, and a weakening USD Index (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>) as a key supporting factor. This aligns thematically with a "Liquidity Expansion" environment.
+  </p>
+
+  <h3>1-Month Outlook (Tactical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bullish</li>
+    <li><strong>Probability:</strong> Regime anchors indicate a 65% probability of an upward move and 35% probability of a downward move (based on analogous 'Liquidity Expansion' (G1) Gold regime probabilities from the provided framework).</li>
+    <li><strong>Primary Influences:</strong> Near-term drivers include recent positive media narratives, such as Chile's government funding for new lithium extraction technologies (<a href="https://investoranatomy.com/signal_report/Lithium_Media_Watcher/" target="_blank">22</a>). However, tactical tension exists from positioning dynamics.</li>
+    <li><strong>Composite Pricing &amp; Volatility Signals:</strong> Lithium Pricing cohorts (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">19</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">20</a>)(<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">21</a>) are currently Mixed / Flat (Neutral). Market Volatility (VIX) Signal (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">7</a>) indicates Normal (Neutral) conditions.</li>
+    <li><strong>Positioning / CoT Signals:</strong> Lithium Hydroxide CoT Signals (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>) show a Bullish bias with High Tension, characterized by speculative long positions against deep hedger shorts. Cross Sector Positioning (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">15</a>), Specs vs Hedgers Divergence Reversal Risk (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">16</a>), Hedger Pressure Indicator (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">17</a>), and Squeeze Exhaustion Risk Indicators (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">18</a>) are all Neutral/Normal.</li>
+    <li><strong>Volatility Profile:</strong> The Market Volatility (VIX) Signal (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">7</a>) indicates Normal (Neutral) volatility. However, the analogous 'Liquidity Expansion' (G1) regime, if fully aligned, typically exhibits Medium volatility.</li>
+  </ul>
+
+  <h3>3-Month Outlook (Cyclical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bullish</li>
+    <li><strong>Probability:</strong> Regime anchors indicate a 75% probability of an upward move and 25% probability of a downward move (based on analogous 'Liquidity Expansion' (G1) Gold regime probabilities from the provided framework).</li>
+    <li><strong>Macro Drivers:</strong> The deterministic regime state points to a Liquidity-Driven Expansion. This is primarily supported by the Bullish Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>) and M2 Money Supply Signal (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">8</a>), alongside a weakening USD Index (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>).</li>
+    <li><strong>Confirmation / Tension Signals:</strong> The strong Bullish states of the Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>) and M2 Money Supply (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">8</a>) confirm the liquidity-driven expansion. A key tension arises from the Real Interest Rate Trend Signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>) being "Bearish (Headwind)", indicating restrictive real rates that could temper the liquidity-driven upside.</li>
+  </ul>
+
+  <h3>12-Month Outlook (Strategic)</h3>
+  <ul>
+    <li><strong>Regime Persistence:</strong> The strategic forward view (6-12 Month Stance) indicates a bullish outlook with high confidence.</li>
+    <li><strong>Historical Outcome Bias:</strong> Bullish</li>
+    <li><strong>Structural Context (from provided inputs only):</strong> The strategic outlook (6-12 Month Stance) highlights a projected significant increase in demand from Energy Stationary Storage (ESS) batteries, which is expected to move the lithium market into a deficit. This demand is underpinned by record global investment in clean energy. A key structural risk identified is the delayed supply response, as miners require consistent price levels ($1200-1500/t) to restart idle capacity.</li>
+  </ul>
+
+  <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
+  <ul>
+    <li>The overall "Expansionary" regime, predominantly driven by strong liquidity (Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>), M2 Money Supply (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">8</a>)), conflicts with the "Bearish (Headwind)" Real Interest Rate Trend Signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>). This suggests that accommodative liquidity conditions are partially offset by restrictive real rates, potentially capping sustained upside. This also creates a definitional tension with the analogous 'Liquidity Expansion' (G1) regime which implies falling real rates.</li>
+    <li>While the macro bias is bullish, Lithium Hydroxide CoT signals (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>) show "Bullish bias / High Tension" due to crowded speculative long positions against deep hedger shorts. This tactical positioning creates potential for short-term reversals or increased volatility, conflicting with a smooth, macro-driven upward trend.</li>
+    <li>Invalidation for the bullish strategic outlook (6-12 Month Stance) would occur if: 1) Lithium prices fail to consistently trade at the $1200-1500/t threshold required to incentivize supply restarts. 2) There is a significant downgrade or slowdown in Energy Stationary Storage (ESS) battery production estimates, undermining the primary demand driver. Macro regime invalidation would involve a material shift in the Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>) from Expansion to Neutral/Contraction, or a sustained reversal in the weakening trend of the USD Index (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>).</li>
+  </ul>
+</div>
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>The provided "Lithium_Hydroxide_Regime_Framework_v1.0" was for Gold instead of Lithium Hydroxide. This required an analogous mapping of the "Expansionary" regime to "Liquidity Expansion" (G1) and necessitated explicit mention of definitional conflicts (e.g., real rates), limiting the precision of probability anchors and typical volatility. Providing the correct framework would significantly enhance the report's accuracy.</li>
+  <li>The "6-12 Month Stance" input document, while critical for the strategic outlook, could only be cited textually as "(6-12 Month Stance)" without a hyperlink, due to its absence from the signal catalogue. A dedicated signal entry for strategic outlook documents or clearer guidance on citing such inputs would improve direct traceability and compliance with citation rules.</li>
+  <li>The "Lithium Composite Pricing Signal" was only available as a summary state ("Mixed / Flat (Neutral)") within the Deterministic Summary, citing specific miner/producer signals. The prompt suggested "technicals, volatility, trend, breadth/participation diagnostics" for pricing, which were not provided in detail. This limits the depth of tactical pricing analysis.</li>
+  <li>While "Lithium Hydroxide - Individual Market Analysis" provides an overall "Bullish bias / High Tension" classification, detailed aspects such as specific positioning stretch, recent flow shifts, precise crowding metrics, or specific squeeze/exhaustion risk levels (as described in the signal catalogue for "Individual Market Analysis") were not explicitly broken out in the Deterministic Summary. Providing these granular details would enrich the tactical positioning analysis.</li>
+</ul>
+--></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-price" id="tab-price">Price Signal Decoder</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-CoT" id="tab-CoT">Lithium Positioning Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-news" id="tab-news">Lithium Media Watcher</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-supply_demand" id="tab-supply_demand">Lithium Research Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-regime" id="tab-regime">Lithium Signal Interpreter</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel is-active" role="tabpanel" id="panel-price" aria-labelledby="tab-price"><div class="panel-title">Price Signal Decoder</div><div class="panel-body"><div class="ia-report-block" id="lithium-pricing-qualitative-cohort">
+  <h2>Lithium Pricing Regime — Qualitative Interpretation</h2>
+
+  <div class="ia-panel">
+    <h3>Executive Summary</h3>
+    <p>The lithium pricing regime currently exhibits divergence across company cohorts. Miners and producers are showing a largely neutral and flat directional bias, characterized by narrow breadth and low dispersion (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">2</a>). In contrast, the projects and developers cohort displays mixed directionality and moderate dispersion, with some entities indicating bullish sentiment alongside predominantly neutral signals (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). This suggests nascent positive signals are emerging from the development stage, while established producers maintain a more subdued posture. The overall regime appears transitional and internally fragmented, with participation not yet broadening uniformly across the entire value chain.</p>
+  </div>
+
+  <div class="ia-grid ia-grid-3">
+    <div class="ia-panel">
+      <h3>Miners / Producers</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr><th>Directionality</th><td>Flat</td></tr>
+          <tr><th>Breadth</th><td>Narrow</td></tr>
+          <tr><th>Persistence</th><td>Short-lived</td></tr>
+          <tr><th>Dispersion</th><td>Low</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ia-panel">
+      <h3>Projects / Developers</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr><th>Directionality</th><td>Mixed</td></tr>
+          <tr><th>Breadth</th><td>Moderate</td></tr>
+          <tr><th>Persistence</th><td>Short-lived</td></tr>
+          <tr><th>Dispersion</th><td>Moderate</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ia-panel">
+      <h3>Technology / Processing</h3>
+      <table class="ia-table ia-table-compact">
+        <tbody>
+          <tr><th>Directionality</th><td>Not applicable</td></tr>
+          <tr><th>Breadth</th><td>Not applicable</td></tr>
+          <tr><th>Persistence</th><td>Not applicable</td></tr>
+          <tr><th>Dispersion</th><td>Not applicable</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ia-panel" style="margin-top:12px;">
+    <h3>Cross-Cohort Alignment</h3>
+    <p>Cohorts are currently divergent. The Miners / Producers cohort exhibits a predominantly neutral stance (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">2</a>), while the Projects / Developers cohort shows mixed signals including some bullish views (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). This indicates that the Projects / Developers cohort is potentially leading in terms of emergent positive sentiment, with Miners / Producers currently lagging in a more neutral state.</p>
+  </div>
+</div>
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>The prompt specified that "Prior_State (one or more historical observations)" would be included in the pricing signal summaries. This information was not present in the provided HTML inputs. Accurate assessment of "Directionality" (improving/deteriorating) and "Persistence" (emerging/established/fading) for each cohort requires historical context, which was inferred or generalized due to its absence. Providing explicit Prior_State for each pricing signal would significantly enhance the precision of these qualitative assessments.</li>
+</ul>
+--></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank" rel="noopener" class="report-btn">IA Lithium Pricing Model</a></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Lithium Positioning Analyst</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>Lithium Hydroxide futures (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>) show a state of high positioning tension (2.10) with a balanced market structure favoring a long bias, as of 2026-01-13. Speculators are relatively long (z-score 1.08) while hedgers hold relatively deep short positions (z-score -1.03), indicating a clear divergence (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conviction: Medium, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative z-score (1.08) and Hedger z-score (-1.03) show sustained divergence, confirming `specs_vs_hedgers_divergence` is True (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The `Hedgers_Deep_Short` regime signals significant commercial supply pressure (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">2</a>).</li>
+        <li>Recent 4-week flow indicates a `Long_Build` (3.4), contributing to a `Balanced_Long_Bias` market structure (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The `positioning_tension_score` is elevated at 2.10, despite `reversal_regime` being `No_Clear_Reversal` and `risk_flags_count` at 0.</li>
+        <li>Conditional Invalidation: A material reduction in hedger deep short positioning, or a shift from speculative long building to reduction.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Lithium Hydroxide prices stabilize or exhibit slight upward drift, as ongoing speculative long accumulation is offset by persistent hedger supply pressure.</li>
+        <li>Upside secondary: An accelerated build in speculative long positions, overcoming hedger pressure, leading to a strong upward price movement.</li>
+        <li>Downside residual: A significant and sustained reduction in speculative long positions, potentially triggering an unwind of hedger shorts and a sharp price decline.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks). The signal's focus on weekly positioning, flow, and developing tactical setups aligns with shorter-term market dynamics.</li>
+        <li>Aggregation Weight Hint: Medium. The high confidence in current tension, coupled with medium conviction on immediate direction, suggests a moderate weight for composite signals.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Primarily sentiment (speculative positioning) and supply (hedger positioning). It also reflects demand dynamics for the underlying commodity.</li>
+        <li>Cycle position: This signal provides granular market structure insights within a specific commodity, offering potential turning points rather than broad cycle positions.</li>
+        <li>Typical interaction: Complements broader industrial commodity demand signals (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">3</a>) and global growth indicators (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">4</a>) by detailing conviction and supply/demand imbalances. It also interacts with overall Cross-Asset Positioning & Sentiment (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">5</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>`LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.` CoT data, latest observation 2026-01-13 (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Datapoints most influential for the current state: `Spec_zscore`, `Hedger_zscore`, `Flow_4w`, `hedger_pressure_regime`, `specs_vs_hedgers_divergence`, `synthetic_state`.</li>
+        <li>Additional public datasets that would improve depth or reliability: Daily spot or futures prices for Lithium Hydroxide to directly correlate with positioning shifts, and production/inventory data for a more complete supply context.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_LITHIUM_Diagnostics.png" alt="Lithium CoT diagnostics" /><div class="media-cap">Lithium CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Lithium Media Watcher</div><div class="panel-body"><div class="asset-media-watcher" data-asset="Lithium" data-lookback-days="7" data-as-of-date="2026-01-17">
+
+  <section class="headline">
+    <h2 data-field="title">Lithium — Weekly Media &amp; Narrative Context</h2>
+    <p class="subtitle" data-field="subtitle">Weekly sentiment, key themes, and material headlines from the last 7 days.</p>
+  </section>
+
+  <section class="weekly-sentiment">
+    <h3>Weekly Narrative Sentiment (Contextual)</h3>
+    <p data-field="sentiment_paragraph">
+      The week's narrative for Lithium was predominantly positive, driven by government initiatives aimed at bolstering future supply. A key development included substantial funding from Chile for new extraction technologies, which is expected to enhance efficiency and reduce environmental impact. This focus on technological advancement supports the long-term supply outlook for the asset.
+    </p>
+
+    <ul class="sentiment-counts">
+      <li><strong>Positive:</strong> <span data-field="count_positive">1</span></li>
+      <li><strong>Neutral:</strong> <span data-field="count_neutral">0</span></li>
+      <li><strong>Negative:</strong> <span data-field="count_negative">0</span></li>
+    </ul>
+
+    <p class="note">Sentiment reflects narrative context only and is non-decisional.</p>
+  </section>
+
+  <section class="key-news">
+    <h3>Key Lithium News (Last 7 Days)</h3>
+
+    <ul class="news-list">
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/chile-backs-lithium-rare-earth-tech-with-5-8m-funding/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Chile backs lithium, rare earth tech with $5.8M funding</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-13</span>
+          </span>
+        </p>
+
+        <p class="why-it-matters" data-field="why_it_matters">
+          Government funding for new lithium extraction technologies in a major producing nation like Chile could enhance future supply efficiency, reduce environmental costs, and potentially lower production costs, supporting long-term supply stability.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Lithium Research Analyst</div><div class="panel-body"><div class="asset-forward-view"
+     data-as-of-date="2026-01-18"
+     data-horizon-min-months="6"
+     data-horizon-max-months="12">
+
+  <section class="stance">
+    <h2>6–12 Month Stance</h2>
+    <p><strong>Stance:</strong>
+      <span data-field="stance">bullish</span>
+    </p>
+    <p><strong>Confidence:</strong>
+      <span data-field="confidence">high</span>
+    </p>
+  </section>
+
+  <section class="core-narrative">
+    <h2>Core Narrative</h2>
+    <p data-field="core_narrative">
+      The outlook for lithium over the next 6-12 months is bullish, primarily driven by a significant increase in demand from Energy Stationary Storage (ESS) batteries. This heightened demand is projected to pull the market into a deficit, leading to significantly upgraded short-term and long-term price forecasts for lithium (2). The broader global energy transition theme, marked by substantial investment in clean energy, underpins this demand, with critical energy transition metals already exhibiting strong performance (1).
+    </p>
+  </section>
+
+  <section class="key-drivers">
+    <h2>Key Drivers</h2>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Energy Stationary Storage (ESS) Demand</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Material upgrades to ESS battery production estimates are anticipated (+50%/+43% in 2025/26), causing the lithium market to shift from a projected surplus to a deficit. ESS is expected to account for 30% of lithium demand in 2026, rising to 36% by 2030 (2).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Global Energy Transition Investment</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Record-breaking global investment in clean energy, projected to reach "USD 2.2 trillion for 2025—double the level of fossil fuel spending", is driving demand for critical energy transition metals, including lithium (1).
+      </p>
+    </div>
+  </section>
+
+  <section class="key-risks">
+    <h2>Key Risks</h2>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Delayed Supply Response</h3>
+      <p data-field="why_it_matters">
+        Despite rising demand and prices, supply is expected to take time to respond. Several miners have indicated they would not look at restarting idle capacity unless the market consistently trades at $1200-1500/t. A slower-than-expected supply response could lead to prolonged market tightness but also potentially cap demand if prices surge too rapidly (2).
+      </p>
+    </div>
+  </section>
+
+  <section class="signposts">
+    <h2>Signposts to Watch</h2>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Consistent Lithium Price Levels</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">If the lithium market "consistently trades at $1200-1500/t", it would likely incentivize miners to restart idle capacity, confirming strong market demand and supporting higher price levels (2).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A failure to reach or sustain these price levels could suggest insufficient market demand or a more rapid supply response than currently anticipated, challenging the bullish outlook (2).</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">ESS Battery Production Growth</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued or accelerated upgrades to Energy Stationary Storage battery production estimates would reinforce the primary demand driver for lithium, solidifying the market's projected deficit (2).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A slowdown or downgrade in ESS battery production estimates would weaken the demand outlook, potentially alleviating market tightness and impacting price forecasts (2).</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="scenarios">
+    <h2>Scenarios</h2>
+
+    <div class="scenario" data-scenario="base">
+      <h3 data-field="scenario_name">base</h3>
+      <p data-field="scenario_description">
+        Driven by "Material upgrades to our Energy Stationary Storage battery production estimates (+50%/+43% in 2025/26)", the lithium market is pulled into a deficit, leading to "significantly upgraded" short-term and long-term price forecasts. ESS demand becomes a crucial factor, as "ESS comes through and saves the market from persistent surplus" (2). Global investment in clean energy continues to grow, supporting the overall demand for critical metals (1).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          ESS Demand; Global Energy Transition Investment
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="upside">
+      <h3 data-field="scenario_name">upside</h3>
+      <p data-field="scenario_description">
+        ESS demand grows even more rapidly than currently projected, or the supply response is significantly delayed beyond expectations. This would push lithium prices well above current upgraded forecasts, potentially quickly surpassing the "$1200-1500/t" threshold needed to incentivize capacity restarts (2). Such a scenario would lead to sustained higher profitability for lithium miners.
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          ESS Demand; Delayed Supply Response
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="downside">
+      <h3 data-field="scenario_name">downside</h3>
+      <p data-field="scenario_description">
+        The anticipated increase in ESS demand is tempered, or new supply comes online faster than currently projected, preventing prices from consistently reaching the "$1200-1500/t" threshold required for significant idle capacity restarts. This could lead to a less pronounced market deficit or even a return to surplus conditions, putting downward pressure on lithium prices compared to current forecasts (2).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          neutral
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          ESS Demand; Supply Response Lag
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <section class="disagreements">
+    <h2>Disagreements & Uncertainties</h2>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Timing and Magnitude of Supply Response</h3>
+      <p data-field="what_conflicts">
+        While the overall market outlook for lithium is bullish due to ESS demand, there is an inherent uncertainty regarding how quickly and effectively lithium supply can ramp up to meet this demand.
+      </p>
+      <ul>
+        <li data-field="side_a">The market is expected to move into deficit due to ESS demand, and upgraded prices are deemed appropriate, implying that demand will outpace immediate supply (2).</li>
+        <li data-field="side_b">"Supply is expected to take time to respond, as 'several miners have stated they won’t look at restarting idle capacity unless the market consistently trades at $1200-1500/t'", suggesting a potential lag or constraint in supply responsiveness (2).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="research-quality">
+    <h2>Research Quality & Coverage Assessment</h2>
+
+    <p><strong>Overall quality:</strong>
+      <span data-field="research_quality">
+        strong
+      </span>
+    </p>
+
+    <p data-field="quality_rationale">
+      The research provided is of strong quality, originating from highly reputable financial institutions (J.P. Morgan, S&P Dow Jones Indices). The J.P. Morgan report offers deep, quantitative analysis on lithium, including specific price forecast upgrades and demand estimates (2). The S&P report provides a broader, data-backed perspective on the global energy transition and the performance of related indices, lending credibility to the underlying thematic drivers (1). Both documents use clear, concise language and present well-supported conclusions.
+    </p>
+
+    <p><strong>Coverage completeness:</strong>
+      <span data-field="coverage_completeness">
+        partial
+      </span>
+    </p>
+
+    <p data-field="coverage_gaps">
+      The provided research offers strong coverage of lithium market dynamics and the broader energy transition's impact on critical metals. However, it lacks detailed regional specifics beyond global aggregates. There is limited exploration of potential geopolitical risks affecting supply chains, specific policy interventions (beyond general investment trends), or the competitive landscape from alternative technologies that might reduce reliance on lithium in the long term.
+    </p>
+
+    <p data-field="missing_thematic_research">
+      Geopolitical risks; detailed regional supply/demand dynamics; specific government policies or regulations impacting mining and processing; technological breakthroughs in alternative battery chemistries; environmental, social, and governance (ESG) factors specific to lithium mining operations.
+    </p>
+  </section>
+
+  <section class="coverage-stats">
+    <h2>Sources Used</h2>
+    <ul>
+      <li><strong>Documents provided:</strong>
+        <span data-field="documents_provided">2</span>
+      </li>
+      <li><strong>Documents used:</strong>
+        <span data-field="documents_used">2</span>
+      </li>
+      <li><strong>Sources used:</strong>
+        <ol>
+          <li id="ref-1">
+            <a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/">Benchmarking the Energy Transition: Insights from S&P DJI</a>
+          </li>
+          <li id="ref-2">
+            <a href="https://cdn-ceo-ca.s3.amazonaws.com/1kg4kkt-2510%20JPM%20Lithium%20Upgrade%20on%20Higher%20ESS%20Demand.pdf#:~:text=%E2%80%A2%20ESS%20comes%20through%20and,for%20lithium%20prices%2C%20Energy%20Storage">Lithium ESS demand to pull the market into deficit; upgrade short-term and long-term prices; Upgrade PLS to Overweight, MIN, IGO, LTR to Neutral</a>
+          </li>
+        </ol>
+      </li>
+      <li><strong>Date range:</strong>
+        <span data-field="earliest_publication_date">2025-10-29</span>
+        to
+        <span data-field="latest_publication_date">2025-12-01</span>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Lithium Signal Interpreter</div><div class="panel-body"><div class="market-report">
+<h3>Lithium Regime State — Deterministic Summary</h3>
+<table class="ia-table">
+  <thead>
+    <tr>
+      <th>Factor</th>
+      <th>Regime State</th>
+      <th>Directional Bias</th>
+      <th>Conflict Flag</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Overall Lithium Regime</strong></td>
+      <td>Expansionary</td>
+      <td>Bullish</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>Dominant Macro Signal</strong></td>
+      <td>Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>)</td>
+      <td>Bullish</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>Key Supporting Macro</strong></td>
+      <td>USD Index (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>)</td>
+      <td>Weakening (Bullish for Lithium)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>Key Headwinds / Risks</strong></td>
+      <td>Real Interest Rate Trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)</td>
+      <td>Bearish (Headwind)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>Lithium Specific Positioning</strong></td>
+      <td>Lithium Hydroxide Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>)</td>
+      <td>Bullish bias / High Tension</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>Stress Conditions</strong></td>
+      <td>Neutral (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">7</a>)</td>
+      <td>Neutral</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>1-Month Horizon</strong></td>
+      <td>Risk-On Bias with Tactical Tension</td>
+      <td>Bullish</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>3-Month Horizon</strong></td>
+      <td>Liquidity-Driven Expansion</td>
+      <td>Bullish</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 style="margin-top: 1.5rem;">Underlying Signal States:</h4>
+<table class="ia-table">
+  <thead>
+    <tr>
+      <th>Signal Category</th>
+      <th>Signal Name</th>
+      <th>State</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4"><strong>Liquidity & Financial Conditions</strong></td>
+      <td>Real Interest Rate Trend Signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <td>Federal Reserve Liquidity Composite Signal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>)</td>
+      <td>Expansion (Bullish)</td>
+    </tr>
+    <tr>
+      <td>M2 Money Supply Signal (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">8</a>)</td>
+      <td>Bullish</td>
+    </tr>
+    <tr>
+      <td>Explicit Neutral Rate (r*) Proxy Signal (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">9</a>)</td>
+      <td>Neutral (Near neutral, Stable drift)</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>USD / FX</strong></td>
+      <td>USD Index Signal (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>)</td>
+      <td>Bearish (Weakening)</td>
+    </tr>
+    <tr>
+      <td>USD Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">10</a>)</td>
+      <td>Neutral (Normal state)</td>
+    </tr>
+    <tr>
+      <td>Macro Theme Global Inflation & FX Dynamics (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">11</a>)</td>
+      <td>Transitional / Fragile Balance (Weakening Bias)</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>Inflation Context</strong></td>
+      <td>Inflation Term Structure Signal (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">12</a>)</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>Market Implied Inflation Signal (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">13</a>)</td>
+      <td>Stable (Neutral)</td>
+    </tr>
+    <tr>
+      <td>Policy Relevant Inflation (PCE) Signal (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">14</a>)</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td rowspan="5"><strong>Lithium Market, Flows & Positioning</strong></td>
+      <td>Lithium Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>)</td>
+      <td>Bullish Bias / High Tension (Specs Long, Hedgers Deep Short)</td>
+    </tr>
+    <tr>
+      <td>Cross Sector Positioning (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">15</a>)</td>
+      <td>Neutral (Absence of crowding/pressure)</td>
+    </tr>
+    <tr>
+      <td>Specs vs Hedgers Divergence Reversal Risk (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">16</a>)</td>
+      <td>Low Divergence (Neutral)</td>
+    </tr>
+    <tr>
+      <td>Hedger Pressure Indicator (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">17</a>)</td>
+      <td>Normal (Neutral)</td>
+    </tr>
+    <tr>
+      <td>Squeeze Exhaustion Risk Indicators (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">18</a>)</td>
+      <td>Normal (Neutral)</td>
+    </tr>
+    <tr>
+      <td rowspan="3"><strong>Risk / Stress</strong></td>
+      <td>Financial Stress Index Signal (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>)</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>Financial Stress Composite Signal (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">6</a>)</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>Market Volatility (VIX) Signal (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">7</a>)</td>
+      <td>Normal (Neutral)</td>
+    </tr>
+    <tr>
+      <td><strong>Market Expression (Confirmatory Only)</strong></td>
+      <td>Lithium Pricing (Cohorts: Miners/Producers, Projects/Developers) (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">19</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">20</a>)(<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">21</a>)</td>
+      <td>Mixed / Flat (Neutral)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>The prompt specified that "Prior_State (one or more historical observations)" would be included in the pricing signal summaries. This information was not present in the provided HTML inputs. Accurate assessment of "Directionality" (improving/deteriorating) and "Persistence" (emerging/established/fading) for each cohort requires historical context, which was inferred or generalized due to its absence. Providing explicit Prior_State for each pricing signal would significantly enhance the precision of these qualitative assessments.</li>
+</ul>
+--></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • Lithium Market Analyst • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

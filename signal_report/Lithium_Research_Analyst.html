@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Lithium · Research Analyst</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Lithium · Research Analyst</h1>
+      <p class="subtitle">Assessing Lithium Outlook Based on Current Research</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-18</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="asset-forward-view"
+     data-as-of-date="2026-01-18"
+     data-horizon-min-months="6"
+     data-horizon-max-months="12">
+
+  <section class="stance">
+    <h2>6–12 Month Stance</h2>
+    <p><strong>Stance:</strong>
+      <span data-field="stance">bullish</span>
+    </p>
+    <p><strong>Confidence:</strong>
+      <span data-field="confidence">high</span>
+    </p>
+  </section>
+
+  <section class="core-narrative">
+    <h2>Core Narrative</h2>
+    <p data-field="core_narrative">
+      The outlook for lithium over the next 6-12 months is bullish, primarily driven by a significant increase in demand from Energy Stationary Storage (ESS) batteries. This heightened demand is projected to pull the market into a deficit, leading to significantly upgraded short-term and long-term price forecasts for lithium (2). The broader global energy transition theme, marked by substantial investment in clean energy, underpins this demand, with critical energy transition metals already exhibiting strong performance (1).
+    </p>
+  </section>
+
+  <section class="key-drivers">
+    <h2>Key Drivers</h2>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Energy Stationary Storage (ESS) Demand</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Material upgrades to ESS battery production estimates are anticipated (+50%/+43% in 2025/26), causing the lithium market to shift from a projected surplus to a deficit. ESS is expected to account for 30% of lithium demand in 2026, rising to 36% by 2030 (2).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Global Energy Transition Investment</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Record-breaking global investment in clean energy, projected to reach "USD 2.2 trillion for 2025—double the level of fossil fuel spending", is driving demand for critical energy transition metals, including lithium (1).
+      </p>
+    </div>
+  </section>
+
+  <section class="key-risks">
+    <h2>Key Risks</h2>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Delayed Supply Response</h3>
+      <p data-field="why_it_matters">
+        Despite rising demand and prices, supply is expected to take time to respond. Several miners have indicated they would not look at restarting idle capacity unless the market consistently trades at $1200-1500/t. A slower-than-expected supply response could lead to prolonged market tightness but also potentially cap demand if prices surge too rapidly (2).
+      </p>
+    </div>
+  </section>
+
+  <section class="signposts">
+    <h2>Signposts to Watch</h2>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Consistent Lithium Price Levels</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">If the lithium market "consistently trades at $1200-1500/t", it would likely incentivize miners to restart idle capacity, confirming strong market demand and supporting higher price levels (2).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A failure to reach or sustain these price levels could suggest insufficient market demand or a more rapid supply response than currently anticipated, challenging the bullish outlook (2).</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">ESS Battery Production Growth</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued or accelerated upgrades to Energy Stationary Storage battery production estimates would reinforce the primary demand driver for lithium, solidifying the market's projected deficit (2).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A slowdown or downgrade in ESS battery production estimates would weaken the demand outlook, potentially alleviating market tightness and impacting price forecasts (2).</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="scenarios">
+    <h2>Scenarios</h2>
+
+    <div class="scenario" data-scenario="base">
+      <h3 data-field="scenario_name">base</h3>
+      <p data-field="scenario_description">
+        Driven by "Material upgrades to our Energy Stationary Storage battery production estimates (+50%/+43% in 2025/26)", the lithium market is pulled into a deficit, leading to "significantly upgraded" short-term and long-term price forecasts. ESS demand becomes a crucial factor, as "ESS comes through and saves the market from persistent surplus" (2). Global investment in clean energy continues to grow, supporting the overall demand for critical metals (1).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          ESS Demand; Global Energy Transition Investment
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="upside">
+      <h3 data-field="scenario_name">upside</h3>
+      <p data-field="scenario_description">
+        ESS demand grows even more rapidly than currently projected, or the supply response is significantly delayed beyond expectations. This would push lithium prices well above current upgraded forecasts, potentially quickly surpassing the "$1200-1500/t" threshold needed to incentivize capacity restarts (2). Such a scenario would lead to sustained higher profitability for lithium miners.
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          ESS Demand; Delayed Supply Response
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="downside">
+      <h3 data-field="scenario_name">downside</h3>
+      <p data-field="scenario_description">
+        The anticipated increase in ESS demand is tempered, or new supply comes online faster than currently projected, preventing prices from consistently reaching the "$1200-1500/t" threshold required for significant idle capacity restarts. This could lead to a less pronounced market deficit or even a return to surplus conditions, putting downward pressure on lithium prices compared to current forecasts (2).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          neutral
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          ESS Demand; Supply Response Lag
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <section class="disagreements">
+    <h2>Disagreements & Uncertainties</h2>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Timing and Magnitude of Supply Response</h3>
+      <p data-field="what_conflicts">
+        While the overall market outlook for lithium is bullish due to ESS demand, there is an inherent uncertainty regarding how quickly and effectively lithium supply can ramp up to meet this demand.
+      </p>
+      <ul>
+        <li data-field="side_a">The market is expected to move into deficit due to ESS demand, and upgraded prices are deemed appropriate, implying that demand will outpace immediate supply (2).</li>
+        <li data-field="side_b">"Supply is expected to take time to respond, as 'several miners have stated they won’t look at restarting idle capacity unless the market consistently trades at $1200-1500/t'", suggesting a potential lag or constraint in supply responsiveness (2).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="research-quality">
+    <h2>Research Quality & Coverage Assessment</h2>
+
+    <p><strong>Overall quality:</strong>
+      <span data-field="research_quality">
+        strong
+      </span>
+    </p>
+
+    <p data-field="quality_rationale">
+      The research provided is of strong quality, originating from highly reputable financial institutions (J.P. Morgan, S&P Dow Jones Indices). The J.P. Morgan report offers deep, quantitative analysis on lithium, including specific price forecast upgrades and demand estimates (2). The S&P report provides a broader, data-backed perspective on the global energy transition and the performance of related indices, lending credibility to the underlying thematic drivers (1). Both documents use clear, concise language and present well-supported conclusions.
+    </p>
+
+    <p><strong>Coverage completeness:</strong>
+      <span data-field="coverage_completeness">
+        partial
+      </span>
+    </p>
+
+    <p data-field="coverage_gaps">
+      The provided research offers strong coverage of lithium market dynamics and the broader energy transition's impact on critical metals. However, it lacks detailed regional specifics beyond global aggregates. There is limited exploration of potential geopolitical risks affecting supply chains, specific policy interventions (beyond general investment trends), or the competitive landscape from alternative technologies that might reduce reliance on lithium in the long term.
+    </p>
+
+    <p data-field="missing_thematic_research">
+      Geopolitical risks; detailed regional supply/demand dynamics; specific government policies or regulations impacting mining and processing; technological breakthroughs in alternative battery chemistries; environmental, social, and governance (ESG) factors specific to lithium mining operations.
+    </p>
+  </section>
+
+  <section class="coverage-stats">
+    <h2>Sources Used</h2>
+    <ul>
+      <li><strong>Documents provided:</strong>
+        <span data-field="documents_provided">2</span>
+      </li>
+      <li><strong>Documents used:</strong>
+        <span data-field="documents_used">2</span>
+      </li>
+      <li><strong>Sources used:</strong>
+        <ol>
+          <li id="ref-1">
+            <a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/">Benchmarking the Energy Transition: Insights from S&P DJI</a>
+          </li>
+          <li id="ref-2">
+            <a href="https://cdn-ceo-ca.s3.amazonaws.com/1kg4kkt-2510%20JPM%20Lithium%20Upgrade%20on%20Higher%20ESS%20Demand.pdf#:~:text=%E2%80%A2%20ESS%20comes%20through%20and,for%20lithium%20prices%2C%20Energy%20Storage">Lithium ESS demand to pull the market into deficit; upgrade short-term and long-term prices; Upgrade PLS to Overweight, MIN, IGO, LTR to Neutral</a>
+          </li>
+        </ol>
+      </li>
+      <li><strong>Date range:</strong>
+        <span data-field="earliest_publication_date">2025-10-29</span>
+        to
+        <span data-field="latest_publication_date">2025-12-01</span>
+      </li>
+    </ul>
+  </section>
+
+</div></div></section>
+</main>
+</body>
+</html>
