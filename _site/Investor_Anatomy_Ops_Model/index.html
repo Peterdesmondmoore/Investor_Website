@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Investor Anatomy | Operating Model</title>
+  <meta name="description" content="Strategy Revalidation Operating Model – Quarterly workflow with prompts and artefact tracking." />
+
+  <!-- Netlify-friendly static site: drop this file as /index.html and deploy. -->
+  <!-- Optional: add /strategies/<strategy_id>.json for strategy-specific configuration. -->
+
+  <!-- Tailwind CDN for rapid styling (static, no build step). -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100">
+  <div class="min-h-screen">
+    <!-- Top bar -->
+    <header class="sticky top-0 z-50 backdrop-blur bg-slate-950/75 border-b border-slate-800">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-xl bg-slate-800 flex items-center justify-center text-sm font-semibold">IA</div>
+          <div>
+            <div class="text-sm text-slate-400">Investor Anatomy</div>
+            <div class="text-base font-semibold">Operating Model</div>
+          </div>
+        </div>
+        <a class="text-sm font-semibold px-4 py-2 rounded-xl border border-slate-800 bg-slate-900/40 hover:bg-slate-900/70" href="https://investoranatomy.com">Home</a>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 py-6">
+      <!-- Left nav + main -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <aside class="lg:col-span-3">
+          <div class="rounded-2xl border border-slate-800 bg-slate-900/30 p-4">
+            <div class="text-xs text-slate-400">Navigation</div>
+            <nav class="mt-2 space-y-1">
+              <a class="navlink block px-3 py-2 rounded-xl hover:bg-slate-800/60 border border-transparent font-semibold" href="#/hub">Investor Anatomy Operating Model</a>
+              <div class="pl-2 space-y-1">
+                <a class="navlink block px-3 py-2 rounded-xl hover:bg-slate-800/60 border border-transparent" href="#/revalidation">1. Research</a>
+              </div>
+            </nav>
+          </div>
+        </aside>
+
+        <main class="lg:col-span-9">
+          <div id="view" class="space-y-6"></div>
+        </main>
+      </div>
+
+      <footer class="mt-10 pb-10 text-xs text-slate-500">
+        <div class="border-t border-slate-900 pt-6">
+          Investor Anatomy Operating Model and Prompt Registry.
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- App Data Model (generic + strategy-specific injection) -->
+  <script>
+    // --- Generic defaults (shared across all strategies) ---
+    const DEFAULT_STRATEGY = {
+      strategy_id: "example_smallcap",
+      strategy_name: "U.S. Small Cap Equities",
+      asset_theme: "Equities",
+      strategy_type: "Core + Tactical",
+      as_of_date: new Date().toISOString().slice(0,10),
+      version: "v1.0",
+      status: "Active",
+      last_review_date: null,
+      next_review_date: null,
+
+      // Strategy-specific parameters to inject into prompts
+      parameters: {
+        tickers: ["IWM"],
+        benchmark: "Russell 2000",
+        currency: "USD",
+        scenario_horizon: "12M",
+        watchpoints: [
+          "Earnings breadth / revisions",
+          "Financial conditions",
+          "Small-cap relative valuation",
+          "Credit spreads",
+          "USD / liquidity regime"
+        ]
+      },
+
+      // Prompt registry keys (generic). Keep actual prompt text below.
+      prompts: {
+        revalidation: "PROMPT_THEMATIC_OPPORTUNITY_ANALYSER",
+        strategy_creation: "PROMPT_INVESTMENT_STRATEGY_CREATION",
+        codex_export: "PROMPT_CODEX_COMPAT_STRATEGY_UPDATE",
+        podcast: "PROMPT_PODCAST_SCRIPT",
+        allocation: "PROMPT_ALLOCATION_RECONFIRM"
+      },
+
+      // History log (local-only in this static template)
+      history: []
+    };
+
+    // --- Prompt Registry (generic, reusable) ---
+    // Keep these prompts stable. Strategy-specific inputs are injected via .
+    const PROMPTS = {
+          PROMPT_ASYMETRIC_RISK_OPPORTUNITY: `# DEEP RESEARCH PROMPT ? ASYMMETRIC RISK & OPPORTUNITY IDENTIFICATION (REVISED)
+
+## ROLE
+
+You are a senior macro and cross-asset risk strategist operating within a regime-based investment framework.
+
+You specialize in:
+- Regime identification and transition risk
+- Policy reaction-function analysis
+- Asymmetric payoff detection
+- Positioning and flow-driven convexity
+
+You do **not** produce trade recommendations or sizing.
+
+---
+
+## OBJECTIVE
+
+Using the provided documents as **authoritative inputs**, identify emerging **asymmetric risks and opportunities** that arise from:
+
+- Macro regime tensions
+- Regime transition risk
+- Policy reaction-function asymmetry
+- Positioning and flow extremes
+
+The output must focus on **payoff asymmetry**, not directional forecasts.
+
+---
+
+## INPUTS (AUTHORITATIVE)
+
+You will be provided with:
+
+### Federal Reserve Watcher ? Consolidated View
+- Policy regime
+- Behavioural feasibility
+- Fed worldview
+- Decision probabilities
+- Reaction-function asymmetries
+
+### US Macro Regime State, Momentum & Transition Risk
+- Regime classification and phase
+- Stability and momentum
+- Structural tensions
+- Scenario balance
+- Regime change triggers
+
+You must treat these documents as **correct and complete**.  
+Do **not** introduce external data or reinterpret signals.
+
+---
+
+## CORE ANALYTICAL PRINCIPLES
+
+You MUST:
+- Start from the **macro regime**, not assets
+- Treat **tension and contradiction** as primary sources of asymmetry
+- Focus on **non-linear outcomes and tail risk**
+- Distinguish clearly between:
+  - Base case continuation
+  - Upside tail
+  - Downside tail
+- Explicitly identify **policy-amplified asymmetry**
+- Separate **probability from impact**
+
+You MUST NOT:
+- Average conflicting signals
+- Produce investment recommendations
+- Suggest trades or sizing
+- Introduce narrative storytelling
+
+---
+
+## TASKS
+
+### 1. Regime Context & Fragility Assessment
+- Restate the current macro regime, phase, stability, and momentum
+- Identify **why** this regime is asymmetry-prone
+
+---
+
+### 2. Structural Tension Mapping
+
+Enumerate key regime contradictions.  
+For each tension, classify:
+- Economic domain (growth, inflation, labor, credit, liquidity)
+- Directional bias if resolved
+- Speed of resolution (fast / slow / event-driven)
+
+---
+
+### 3. Policy Reaction-Function Asymmetry
+
+Assess how the Federal Reserve is likely to react to:
+- Downside growth / labor shocks
+- Upside inflation persistence
+
+Explicitly identify **asymmetries in speed, magnitude, and constraint**, separating:
+- Macro justification
+- Behavioural feasibility
+
+---
+
+### 4. Positioning & Flow Amplification
+
+Identify where positioning could:
+- Magnify regime resolution
+- Produce squeeze or air-pocket dynamics
+
+Focus on divergence between:
+- Speculators vs hedgers
+- Sentiment vs fundamentals
+
+---
+
+### 5. Scenario Skew Analysis
+
+For each major regime resolution path:
+- Describe probability change required
+- Impact magnitude
+- Convexity characteristics
+
+Identify which tails are **mispriced relative to the base case**.
+
+---
+
+### 6. Asymmetric Risk & Opportunity Register (**ENHANCED ? MANDATORY FORMAT**)
+
+For **each major asymmetric opportunity**, produce a **standalone section** using **exactly the structure below**.
+
+#### Required Structure (DO NOT DEVIATE)
+
+**[Opportunity Name]**
+
+**Conviction:** High / Medium / Low
+
+**Why**
+- Bullet-pointed causal drivers drawn directly from the regime and policy inputs
+- No narratives, no opinions
+
+**Asymmetry**
+- Skew: Upside / Downside / Asymmetric
+- Convexity: Low / Medium / High
+- Probability: Low / Moderate / High
+- Impact: Moderate / Large / Very Large
+
+**Why this is high conviction** *(only include if Conviction = High)*
+- Explicit alignment of:
+  - Multiple independent signals
+  - Policy reaction asymmetry
+  - Positioning or pricing mismatch
+- Clear explanation of **non-linear payoff mechanics**
+
+**Instruments (Explicit, Non-Prescriptive)**
+- List **instrument categories only**, e.g.:
+  - Long duration sovereign bonds
+  - Rates convexity
+  - Equity downside convexity
+  - Credit protection
+  - Commodity convexity
+  - FX safe-haven exposure
+- No sizing, no trade construction
+
+Each opportunity **must** include:
+- Source of asymmetry
+- Regime tension involved
+- Policy interaction
+- Clear skew + convexity
+- Explicit instruments
+
+---
+
+### 7. Key Monitoring & Invalidation Framework
+- Signals only
+- No recommendations
+- Clear invalidation conditions for each high-conviction opportunity
+
+---
+
+## OUTPUT FORMAT (MANDATORY)
+
+1. Regime Summary & Asymmetry Context  
+2. Structural Tensions Driving Asymmetry  
+3. Policy-Driven Asymmetries  
+4. Positioning-Amplified Asymmetries  
+5. Asymmetric Risk & Opportunity Register (Enhanced format above)  
+6. Key Monitoring & Invalidation Framework  
+
+---
+
+## STYLE & RULES
+
+- Objective, analytical language only
+- No emojis
+- No opinions
+- No trades
+- No storytelling
+- Explicit cause?effect logic
+- Use terms **fragile**, **transitional**, **convex**, **skewed**, **asymmetric**, **non-linear** precisely
+
+---
+
+## FINAL CHECK (STRICT)
+
+Before responding, verify that:
+- All asymmetries are **regime-derived**
+- No conclusions rely on external assumptions
+- **Probability ? impact** throughout
+- Every opportunity has:
+  - A trigger
+  - An invalidation condition
+  - A convexity explanation
+  - Explicit instrument categories
+`,
+      PROMPT_THEMATIC_OPPORTUNITY_ANALYSER: `# DEEP RESEARCH PROMPT ? 1?3 YEAR THEMATIC ANALYSIS (CYCLICAL?STRUCTURAL)
+
+## ROLE
+
+You are a senior **macro and thematic investment strategist** focused on **medium-term horizons (1?3 years)**.
+
+You specialize in:
+- Cyclical?structural theme formation
+- Regime transitions and late/early-cycle dynamics
+- Policy-driven and supply-side themes
+- Non-linear propagation across sectors and assets
+- Asymmetric payoff detection at the theme level
+
+You do **not** produce trades, allocations, or timing signals.
+
+---
+
+## OBJECTIVE
+
+Using the provided documents as **authoritative macro context**, identify **1?3 year thematic opportunities** that arise from:
+
+- Macro regime evolution (not full structural shifts)
+- Persistent cyclical imbalances
+- Policy settings with delayed effects
+- Supply?demand mismatches that take multiple years to resolve
+
+The output must focus on **theme durability over 1?3 years**, not short-term market moves or multi-decade narratives.
+
+---
+
+## TIME HORIZON DEFINITION
+
+- **1?3 years**
+- Spans multiple quarters and at least one policy or growth phase
+- Cyclical forces are relevant **only if they persist or compound**
+- Themes may fade after 3 years without invalidating the analysis
+
+---
+
+## INPUTS (AUTHORITATIVE CONTEXT)
+
+You may be provided with:
+- Macro regime and transition assessments
+- Policy reaction functions and constraints
+- Growth, inflation, labour, credit, and liquidity diagnostics
+- Global trade, FX, and demand conditions
+- Cross-asset positioning and sentiment (contextual, not tactical)
+
+You must treat these as **correct and complete**.  
+Do **not** introduce external data or reinterpret indicators.
+
+---
+
+## CORE ANALYTICAL PRINCIPLES
+
+You MUST:
+- Start from **regime conditions**, not assets
+- Identify themes that **persist across quarters**
+- Distinguish clearly between:
+  - Cyclical noise
+  - Persistent cyclical imbalance
+  - Transitional regime effects
+- Focus on **propagation and persistence**
+- Explicitly identify **what ends the theme**
+
+You MUST NOT:
+- Confuse short-term narratives with themes
+- Propose trades or allocations
+- Anchor themes to valuation or price levels
+- Use storytelling language
+
+---
+
+## TASKS
+
+### 1. Regime Backdrop for 1?3 Year Themes
+
+- Summarise the current macro and policy regime
+- Identify which regime features are:
+  - Stable
+  - Fragile
+  - Transitional
+- Explicitly state why this regime is fertile for **medium-term themes**
+
+---
+
+### 2. Identification of 1?3 Year Themes
+
+Identify **3?6 distinct themes** that:
+- Are expected to persist for **multiple quarters to several years**
+- Originate from regime tension, policy lag, or supply adjustment
+- Can express across multiple sectors or asset classes
+
+Themes may arise from:
+- Policy lag effects
+- Labour and wage dynamics
+- Credit cycle evolution
+- Inventory and supply-chain adjustment
+- Energy, commodity, or infrastructure constraints
+- Geopolitical or trade realignment (near-term phase)
+
+---
+
+### 3. Theme Deep-Dive (MANDATORY FOR EACH THEME)
+
+Use the following structure for **each theme**.
+
+#### **[Theme Name]**
+
+**Theme Horizon:** 1?3 years  
+
+**Theme Type:** Cyclical / Cyclical?Transitional  
+
+---
+
+**Regime Origin**
+- Macro or policy conditions enabling the theme
+- Why these conditions are expected to persist
+
+---
+
+**Core Drivers**
+- Bullet-pointed causal drivers
+- Must be persistent over multiple quarters
+
+---
+
+**Propagation Mechanism**
+- How the theme transmits through:
+  - Growth
+  - Inflation
+  - Policy
+  - Corporate behaviour
+  - Capital flows
+
+---
+
+**Asymmetry Profile**
+- Skew: Upside / Downside / Two-sided
+- Convexity: Low / Medium / High
+- Probability: Low / Moderate / High
+- Impact: Moderate / Large
+
+---
+
+**Why This Is a Theme (Not a Trade)**
+- Evidence of durability beyond short-term noise
+- Reinforcement mechanisms over time
+- Path dependency or delayed resolution
+
+---
+
+**Market Blind Spots / Mispricing**
+- What the consensus underestimates
+- Incorrect assumptions embedded in expectations
+
+---
+
+**Instruments / Expressions (Non-Prescriptive)**
+- Asset classes, sectors, or structures that naturally express the theme
+- No timing, sizing, or trade construction
+
+---
+
+**Invalidation Conditions**
+- Clear macro, policy, or structural signals that would end the theme
+
+---
+
+### 4. Theme Interaction & Sequencing
+
+- Identify how themes:
+  - Reinforce each other
+  - Compete
+  - Evolve sequentially
+- Highlight second-order effects over 1?3 years
+
+---
+
+### 5. Theme Maturity & Timing Risk
+
+For each theme, classify:
+- Early / Developing / Crowded / Late
+- Risks from early or late exposure
+
+---
+
+### 6. Theme Prioritisation Framework
+
+Rank themes by:
+- Expected persistence
+- Asymmetry quality
+- Policy interaction strength
+- Breadth of expression
+
+(No recommendations or allocations.)
+
+---
+
+## OUTPUT FORMAT (MANDATORY)
+
+1. Regime Backdrop for 1?3 Year Themes  
+2. Identified Themes (list)  
+3. Theme Deep-Dives (one section per theme)  
+4. Theme Interaction & Sequencing  
+5. Theme Maturity & Timing Risk  
+6. Theme Prioritisation Framework  
+
+---
+
+## STYLE & RULES
+
+- Objective, analytical language only
+- No emojis
+- No opinions
+- No trades
+- No storytelling
+- Explicit cause?effect logic
+- Use terms **cyclical**, **transitional**, **persistent**, **asymmetric**, **convex** precisely
+
+---
+
+## FINAL CHECK (STRICT)
+
+Before responding, verify that:
+- All themes are **regime-derived**
+- Each theme has explicit invalidation conditions
+- Themes are durable for **1?3 years**
+- Probability ? impact throughout
+- Themes remain valid even if near-term prices move against them
+`,
+
+    PROMPT_INVESTMENT_STRATEGY_CREATION: `### ROLE
+Act as a senior investment strategy analyst.
+
+### OBJECTIVE
+Conduct a deep research reassessment of an existing investment strategy, or produce a revised strategy where required, using a standards-based analytical framework.
+
+### INPUTS
+- Existing strategy specification or document (if provided)
+- Latest strategy metrics:
+  - Prices / valuations
+  - Demand indicators
+  - Supply indicators
+  - Scenario definitions and probabilities
+  - Return and volatility assumptions
+- As-of date (default: current date)
+
+### TASKS
+1. Assess whether the existing macro, demand, and supply assumptions remain valid.
+2. Evaluate recent price and valuation movements relative to original baseline assumptions.
+3. Re-evaluate the scenario framework (minimum: Bear / Neutral / Bull):
+   - Validate assumptions
+   - Adjust scenario probabilities where required
+   - Identify regime shifts or path dependency changes
+4. Reassess return expectations and performance modelling from current price or valuation levels.
+5. Determine the required level of strategy change:
+   - No change
+   - Minor revision
+   - Material revision
+   - Full strategy rebuild
+6. Identify implications for portfolio construction, deployment, and risk management.
+
+### OUTPUT FORMAT (MANDATORY)
+Use the following structure exactly:
+
+1. Strategy Metadata & Scope  
+2. Core Investment Thesis  
+3. Macro Environment Assessment  
+4. Demand & Supply Analysis  
+5. Scenario Framework & Probabilities  
+6. Price, Return & Risk Expectations  
+7. Portfolio Construction & Execution  
+8. Key Risks, Monitoring Inputs & Invalidation Signals  
+
+### RULES
+- Use objective, analytical language only.
+- No narrative storytelling.
+- No emojis.
+- No investment recommendations or prescriptive trade instructions.
+- Explicitly distinguish between:
+  - Unchanged assumptions
+  - Strengthened assumptions
+  - Weakened assumptions
+  - Revised assumptions
+- Anchor all modelling to current price or valuation levels.
+- Where possible, use numeric ranges and explicit metrics.
+`,
+
+
+    PROMPT_STRATEGY_CHANGE_LOG: `### ROLE
+Act as a strategy change-log generator for programmatic ingestion.
+
+### OBJECTIVE
+Produce a detailed, explicit statement of changes to an existing investment strategy using numeric metrics and declarative logic, aligned to the Investment Strategy Specification Standard.
+
+### INPUTS
+- Previous strategy specification (baseline assumptions and parameters)
+- Updated strategy metrics (prices, demand, supply, scenarios, returns, volatility)
+- Strategy metadata (name, asset/theme, type)
+- As-of date
+
+### OUTPUT FORMAT (MANDATORY)
+- Markdown
+- Deterministic, declarative language
+- Explicit metrics only
+- No narrative storytelling
+- No opinions or recommendations
+
+### REQUIRED SECTIONS
+- STRATEGY_METADATA
+- CHANGE_SET_ID
+- AS_OF_DATE
+- CORE_THESIS
+- MACRO_STATE
+- DEMAND_ASSUMPTIONS
+- SUPPLY_ASSUMPTIONS
+- PRICE_LEVEL_CONTEXT
+- SCENARIO_FRAMEWORK
+  - SCENARIO_PROBABILITIES
+  - SCENARIO_PRICE_PATHS
+- RETURN_EXPECTATIONS
+- VOLATILITY_AND_DRAWDOWNS
+- PORTFOLIO_STRUCTURE
+- STRATEGY_PHASE
+- RISK_EMPHASIS
+- MODEL_INSTRUCTIONS
+
+### CONTENT RULES
+- All changes must be expressed **relative to the prior strategy**.
+- Use explicit **Previous vs Updated** comparisons.
+- Include numeric values or ranges wherever possible.
+- Classify changes as:
+  - Unchanged
+  - Strengthened
+  - Weakened
+  - Reweighted
+  - Rebased
+- Short rationales allowed only where required for disambiguation.
+
+### STYLE RULES
+- No prose explanations beyond short rationales.
+- No conditional language unless tied to explicit metrics.
+- No references, citations, or footnotes.
+- No markdown outside the required sections.
+
+### MODEL SAFETY
+- Treat all assumptions as illustrative, not forecasts.
+- Preserve original strategy structure unless explicitly overridden.
+- Output must be suitable for direct Codex or agent ingestion without transformation.
+`,
+
+
+    PROMPT_STRATEGY_SPECIFICATION: `# MASTER PROMPT — INVESTMENT STRATEGY SPECIFICATION & WEBSITE GENERATION
+
+## ROLE
+Act as a **senior investment strategist and strategy documentation engine**.
+
+You are responsible for either:
+- **Validating and controlling an existing investment strategy webpage**, or  
+- **Producing a complete, website-ready investment strategy document from scratch**,  
+
+using the **Investment Strategy Specification Standard** as the single source of truth.
+
+---
+
+## OBJECTIVES
+1. Ensure **full compliance** with the Investment Strategy Specification Standard.  
+2. Produce **strategy content that is sufficiently detailed to be published directly to a website** without further clarification.  
+3. Generate outputs that are:
+   - Machine-readable  
+   - Human-reviewable  
+   - Suitable for Codex-driven webpage creation and updates  
+
+---
+
+## OPERATING MODES
+
+### MODE A — EXISTING WEBSITE / STRATEGY CONTROL
+If an existing strategy page or content is supplied:
+- Extract all relevant information
+- Map content **field-by-field** to the specification
+- Identify:
+  - Missing fields
+  - Partially met fields
+  - Fields requiring strengthening, reweighting, or rebasing
+- Populate a **Specification Tab** with:
+  - Status = \`Met\`, \`Part Met\`, \`Not Met\`
+- Do **not** invent data unless explicitly instructed
+
+---
+
+### MODE B — STRATEGY CAPTURE & WEBSITE CREATION
+If no strategy content is supplied, or if explicitly requested:
+- Generate a **fully populated investment strategy** from first principles
+- All assumptions must be **explicit**
+- Use **numeric ranges** wherever possible
+- Content must be adequate for:
+  - Strategy governance
+  - Portfolio construction
+  - Scenario stress testing
+  - Direct web publication
+
+---
+
+## OUTPUT RULES (STRICT)
+- Use the **exact section order and headings** defined below
+- Every field **must be populated**
+- No placeholders such as “TBD” or “To be confirmed”
+- No marketing language
+- No opinions or recommendations
+- Declarative, analytical language only
+- Anchor modelling assumptions to **current price or valuation levels**
+- Explicitly distinguish between:
+  - Unchanged assumptions
+  - Strengthened assumptions
+  - Weakened assumptions
+  - Reweighted probabilities
+  - Rebased anchors
+
+---
+
+## REQUIRED OUTPUT STRUCTURE
+
+You must output **three logical layers**, in order.
+
+---
+
+## LAYER 1 — STRATEGY CONTENT (WEBSITE-READY)
+
+Populate **all sections below in full detail**, using the exact structure.
+
+### 1. Strategy Metadata
+Provide definitive identifiers, scope, instruments, constraints, and review mechanics.
+
+### 2. Core Investment Thesis
+Include:
+- A single-sentence primary thesis
+- Explicit structural drivers
+- A clear mispricing mechanism
+- A rationale for persistence across cycles
+
+### 3. Strategy Structure
+Define:
+- Portfolio architecture
+- Sleeve logic (if applicable)
+- Allocation bands with hard limits
+- Explicit rebalancing mechanics
+- Instrument-level roles and risks
+
+### 4. Deployment & Execution Framework
+Specify:
+- Entry mechanics
+- Scaling logic
+- Exit and invalidation triggers
+
+### 5. Scenario Framework
+For **Bear / Base / Bull**:
+- Macro assumptions
+- Demand and supply dynamics
+- Explicit scenario probabilities
+- Price or valuation paths anchored to current levels
+
+### 6. Return & Risk Modeling Assumptions
+Include:
+- Probability-weighted return ranges
+- Expected volatility ranges
+- Drawdown assumptions
+- Correlation and regime behavior
+
+### 7. Risk Framework
+Identify:
+- Primary and secondary risks
+- Transmission mechanisms
+- Monitoring and mitigation
+- Explicit thesis invalidation criteria
+
+### 8. Strategy Monitoring Inputs
+List concrete:
+- Quantitative signals
+- Fundamental indicators
+- Event-driven triggers
+
+### 9. Strategy Update & Versioning
+Document:
+- What changed
+- Why it changed
+- Prior vs updated assumptions
+- Change classification:
+  - Unchanged
+  - Strengthened
+  - Weakened
+  - Reweighted
+  - Rebased
+
+### 10. Intended Use by Models & Agents
+Define:
+- Model consumption rules
+- Agent responsibilities
+- Integration into portfolio construction and risk aggregation
+
+---
+
+## LAYER 2 — STRATEGY UPDATES TABLE (DELTA VIEW)
+
+Produce a **Strategy Updates table** that:
+- Compares prior vs current assumptions
+- Includes dates in column headers
+- Uses explicit change classifications
+- Uses a single **Baseline (Month YYYY)** column if no prior version exists
+
+---
+
+## LAYER 3 — SPECIFICATION TAB (COMPLIANCE)
+
+Generate a **Specification Tab table** that:
+- Lists **every field** in the Investment Strategy Specification Standard
+- Assigns Status = \`Met\`, \`Part Met\`, or \`Not Met\`
+- Reflects actual completeness, not aspirational intent
+
+Include an HTML comment referencing:
+
+\`investment-strategy/Operating_Model/Investment_Strategy_Specification.md\`
+
+---
+
+## STYLE & PRESENTATION CONSTRAINTS
+- Assume the website uses the **Copper + Quantum layout system**
+- Do **not** embed CSS or styling code
+- Do **not** embed colors
+- Use semantic clarity so the renderer can apply:
+  - Tag color taxonomy
+  - Metadata chips
+  - Cards
+  - Tabs
+  - Tables
+
+---
+
+## FINAL VALIDATION (MANDATORY)
+Before completing:
+- Verify every specification field is populated
+- Confirm numeric assumptions exist where relevant
+- Confirm the output could be published **unchanged** as a strategy webpage
+
+`,
+
+
+    PROMPT_PODCAST_BRIEFING: `### ROLE  
+Act as a domain expert producing a spoken analytical briefing.
+
+### OBJECTIVE  
+Convert a structured analysis, assessment, or update into a reference-free podcast script suitable for direct text-to-speech playback.
+
+### INPUTS  
+- Final assessment, analysis, or update output  
+- Key metrics, assumptions, or scenario changes (if applicable)  
+- As-of date or context timestamp  
+
+### OUTPUT REQUIREMENTS  
+- Spoken-word only  
+- No headings  
+- No references  
+- No citations  
+- No section labels  
+- No bullet points  
+- No disclaimers  
+- No non-spoken text  
+
+### CONTENT REQUIREMENTS  
+The script must clearly explain, in spoken form:  
+- What has changed since the prior assessment or baseline  
+- Why those changes occurred  
+- What has remained stable or unchanged  
+- How risk, expectations, or outlook have shifted  
+- What the current posture or stance is (for example, continuation, adjustment, consolidation, or risk management)  
+
+### STYLE RULES  
+- Calm, analytical tone  
+- First-person plural ("we")  
+- Plain, professional language suitable for audio  
+- No rhetorical questions  
+- No hype, advocacy, or persuasion  
+- No forward-looking guarantees  
+
+### LENGTH  
+- Target length: 6-10 minutes of spoken content (approximately 900-1,400 words)  
+
+### HARD CONSTRAINTS  
+- If any text would not be spoken aloud, remove it  
+- Do not include formatting, markup, or metadata in the output  
+- Output must be directly copy-pasteable into Word for text-to-speech playback  
+`,
+
+
+    PROMPT_CODEX_COMPAT_STRATEGY_UPDATE: `ROLE: Change-log + codex export generator.\n\nOBJECTIVE:\nTransform the latest Strategy Revalidation JSON into a Codex-executable update package for Investor Anatomy website + history. No new analysis.\n\nINPUTS PROVIDED TO YOU:\n- Prior strategy specification (current published version)\n- Latest revalidation JSON output\n- Website page template expectations\n\nSTRICT RULES:\n- Do not add narrative.\n- Use explicit deltas and deterministic language.\n- Output must be machine-readable and directly actionable by Codex.\n\nCONTEXT:\n- Strategy:  ()\n- Current version: \n\nOUTPUT FORMAT (MANDATORY):\nReturn a single JSON object with keys:\n{\n  \'strategy_id\': \'...\',\n  \'new_version\': \'vX.Y\',\n  \'update_files\': [\n    { \'path\': \'/strategies//strategy.md\', \'mode\': \'replace\', \'content\': \'...\' },\n    { \'path\': \'/strategies//website.html\', \'mode\': \'replace\', \'content\': \'...\' },\n    { \'path\': \'/strategies//history.json\', \'mode\': \'append\', \'content\': { ... } }\n  ],\n  \'checks\': [\n    \'history_appended\',\n    \'version_incremented\',\n    \'strategy_page_updated\',\n    \'website_updated\'\n  ]\n}\n`,
+
+      PROMPT_PODCAST_SCRIPT: `ROLE: Podcast script writer for strategy updates.\n\nOBJECTIVE:\nProduce a reference-free podcast script summarising what changed, why it changed (only using supplied deltas), and what to watch next.\n\nINPUTS PROVIDED TO YOU:\n- Final approved updated strategy (new version)\n- Change log entry (deltas)\n\nCONTEXT:\n- Strategy: \n- Version:  → \n\nOUTPUT FORMAT:\nPlain text, spoken style. No headings, no bullet points, no citations.\n`,
+
+      PROMPT_ALLOCATION_RECONFIRM: `ROLE: Portfolio allocation confirmer.\n\nOBJECTIVE:\nReconfirm the allocation posture for this strategy given the updated strategy version.\n\nINPUTS PROVIDED TO YOU:\n- Updated strategy specification\n- Scenario probabilities\n- Portfolio constraints (if supplied)\n\nSTRICT RULES:\n- If portfolio constraints are missing, output a conditional decision.\n\nOUTPUT FORMAT (MANDATORY):\nReturn valid JSON:\n{\n  \'strategy_id\': \'...\',\n  \'as_of_date\': \'YYYY-MM-DD\',\n  \'allocation_posture\': \'Reconfirm|Adjust\',\n  \'target_band\': { \'min\': null, \'mid\': null, \'max\': null },\n  \'conditions\': [ ... ],\n  \'rationale_deltas_only\': [ ... ]\n}\n`
+    };
+
+    // --- Lightweight state store (localStorage) ---
+    const STORE_KEY = "ia_strategy_ops_state_v1";
+
+    function loadState() {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return { strategy: DEFAULT_STRATEGY };
+      try {
+        const parsed = JSON.parse(raw);
+        // Merge defaults for forward compatibility
+        return {
+          strategy: {
+            ...DEFAULT_STRATEGY,
+            ...(parsed.strategy || {}),
+            parameters: { ...DEFAULT_STRATEGY.parameters, ...((parsed.strategy||{}).parameters || {}) },
+            prompts: { ...DEFAULT_STRATEGY.prompts, ...((parsed.strategy||{}).prompts || {}) },
+            history: Array.isArray((parsed.strategy||{}).history) ? (parsed.strategy||{}).history : []
+          }
+        };
+      } catch {
+        return { strategy: DEFAULT_STRATEGY };
+      }
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    }
+
+    // --- Template helpers ---
+    function esc(s) {
+      return String(s).replace(/[&<>"]+/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c] || c));
+    }
+
+    function fmtDate(d) {
+      if (!d) return "—";
+      const dt = new Date(d);
+      if (Number.isNaN(dt.getTime())) return String(d);
+      return dt.toISOString().slice(0,10);
+    }
+
+    function computeNextQuarterDate(fromDateISO) {
+      const dt = fromDateISO ? new Date(fromDateISO) : new Date();
+      const m = dt.getUTCMonth();
+      const nextM = m + 3;
+      dt.setUTCMonth(nextM);
+      return dt.toISOString().slice(0,10);
+    }
+
+    function injectPrompt(promptText, strategy, extra = {}) {
+      const map = {
+        strategy_id: strategy.strategy_id,
+        strategy_name: strategy.strategy_name,
+        asset_theme: strategy.asset_theme,
+        strategy_type: strategy.strategy_type,
+        version: strategy.version,
+        tickers: (strategy.parameters?.tickers || []).join(", "),
+        benchmark: strategy.parameters?.benchmark || "",
+        scenario_horizon: strategy.parameters?.scenario_horizon || "",
+        ...extra
+      };
+      return promptText.replace(/\{\{(.*?)\}\}/g, (_, k) => esc(map[String(k).trim()] ?? ""));
+    }
+
+    function card(title, subtitle, innerHtml) {
+      return `
+        <section class="rounded-2xl border border-slate-800 bg-slate-900/30 p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-lg font-semibold">${esc(title)}</div>
+              ${subtitle ? `<div class="text-sm text-slate-400 mt-1">${esc(subtitle)}</div>` : ""}
+            </div>
+          </div>
+          <div class="mt-4">${innerHtml}</div>
+        </section>
+      `;
+    }
+
+    function promptBox(label, promptText) {
+      const id = "p_" + Math.random().toString(16).slice(2);
+      return `
+        <div class="rounded-2xl border border-slate-800 bg-slate-950/40">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+            <div class="text-sm font-semibold">${esc(label)}</div>
+            <div class="flex items-center gap-2">
+              <button data-copy="${id}" class="text-xs px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700">Copy</button>
+            </div>
+          </div>
+          <textarea id="${id}" class="w-full min-h-[240px] bg-transparent p-4 text-xs text-slate-200 outline-none" spellcheck="false">${esc(promptText)}</textarea>
+        </div>
+      `;
+    }
+
+    // --- Views ---
+    function viewHub(state) {
+      const s = state.strategy;
+      const body = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a href="#/revalidation" class="rounded-2xl border border-slate-800 bg-slate-900/30 p-5 hover:bg-slate-900/50">
+            <div class="text-xs text-slate-400">Continuous</div>
+            <div class="text-lg font-semibold mt-1">1. Research</div>
+            <div class="text-sm text-slate-400 mt-2">Identify emerging asymmetric risks and opportunities.</div>
+          </a>
+          <a href="#/strategy-creation" class="rounded-2xl border border-slate-800 bg-slate-900/30 p-5 hover:bg-slate-900/50">
+            <div class="text-xs text-slate-400">Reassessment</div>
+            <div class="text-lg font-semibold mt-1">3. Investment Strategy Creation</div>
+            <div class="text-sm text-slate-400 mt-2">Reassess and revise strategy assumptions, scenarios, and risk expectations.</div>
+          </a>
+          <a href="#/allocation" class="rounded-2xl border border-slate-800 bg-slate-900/30 p-5 hover:bg-slate-900/50">
+            <div class="text-xs text-slate-400">Decision</div>
+            <div class="text-lg font-semibold mt-1">4. Portfolio Design</div>
+            <div class="text-sm text-slate-400 mt-2">The balanced diversification of capital across assets.</div>
+          </a>
+        </div>
+      `;
+
+      return [
+        body
+      ].join("\n");
+    }
+
+    function viewRevalidation(state) {
+      const s = state.strategy;
+      const promptKey = s.prompts.revalidation;
+      const prompt = injectPrompt(PROMPTS[promptKey], s);
+
+      const body = `
+        <div class="grid grid-cols-1 gap-4">
+          ${card("Step 1 — Asymmetric Risk and Opportunity Evaluation", "Execute on an ad hoc basis to support evaluation asymmetric risks and opportunities. Execute during periods of uncertainty or capital market stress.", `
+            <div class="text-sm text-slate-300">
+              <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <div class="text-xs text-slate-400">Inputs you provide each run</div>
+                <ul class="mt-2 list-disc pl-5 space-y-1">
+                  <li>Investor Anatomy Macro Reports (10)</li>
+                  <li>Federal Reserve Watcher Consolidated Report (1)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mt-4">${promptBox("Asymmetric Risk & Opportunity Prompt", prompt)}</div>
+          `)}
+          ${card("Step 2 : Strategy (Re)evaluation", "On a monthly basis, identify strategies to reassess using standardized inputs and structure.", `
+            <div class="text-sm text-slate-300">
+              <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <div class="text-xs text-slate-400">Inputs you provide each run</div>
+                <ul class="mt-2 list-disc pl-5 space-y-1">
+                  <li>Federal Reserve Watcher Consolidated Report (1)</li>
+                  <li>Investor Anatomy US Macro Report (1)</li>
+                  <li>Asymmetric Risk and Opportunity Register (1)</li>
+                  <li>Strategy - for re-valuation only(1)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mt-4">${promptBox("Standard (Re)evaluation Prompt", injectPrompt(PROMPTS["PROMPT_INVESTMENT_STRATEGY_CREATION"], s))}</div>
+          `)}
+          ${card("Step 3A : Strategy Update Specification", "Generate a deterministic change log from Step 2 outputs. This change log is used to enhance the Strategy webpage.", `
+            <div class="text-sm text-slate-300">
+              <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <div class="text-xs text-slate-400">Inputs you provide each run</div>
+                <ul class="mt-2 list-disc pl-5 space-y-1">
+                  <li>Strategy (Re)evaluation (Step 2)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mt-4">${promptBox("Standard (Re)evaluation Prompt", injectPrompt(PROMPTS["PROMPT_STRATEGY_CHANGE_LOG"], s))}</div>
+          `)}
+          ${card("Step 3B : Create New Strategy", "Produce a website-ready strategy specification from Step 2 outputs. The specifiation is fed into Codex to generate a custom webpage", `
+            <div class="text-sm text-slate-300">
+              <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <div class="text-xs text-slate-400">Inputs you provide each run</div>
+                <ul class="mt-2 list-disc pl-5 space-y-1">
+                  <li>Strategy (Re)evaluation (Step 2)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mt-4">${promptBox("Standard Prompt: Strategy Specification", injectPrompt(PROMPTS["PROMPT_STRATEGY_SPECIFICATION"], s))}</div>
+          `)}
+          ${card("Step 4 : Podcast", "Generate a spoken analytical briefing from the latest outputs.", `
+            <div class="text-sm text-slate-300">
+              <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <div class="text-xs text-slate-400">Inputs you provide each run</div>
+                <ul class="mt-2 list-disc pl-5 space-y-1">
+                  <li>Analysis for evaluation</li>
+                </ul>
+              </div>
+            </div>
+            <div class="mt-4">${promptBox("Standard Prompt: Podcast Briefing", injectPrompt(PROMPTS["PROMPT_PODCAST_BRIEFING"], s))}</div>
+          `)}
+
+        </div>
+      `;
+
+      return body;
+    }
+
+    function viewUpdate(state) {
+      const s = state.strategy;
+      const promptKey = s.prompts.codex_export;
+      const prompt = injectPrompt(PROMPTS[promptKey], s);
+
+      const body = `
+        ${card("Step 2 — Strategy Update", "Two-step: ChatGPT emits Codex package → Codex updates website + history.", `
+          <div class="grid grid-cols-1 gap-4">
+            <div class="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+              <div class="text-sm font-semibold">2A — ChatGPT → Codex-compatible update package</div>
+              <div class="text-sm text-slate-400 mt-1">Paste the prior spec + revalidation JSON into ChatGPT, run this prompt, and use the resulting JSON as the Codex input.</div>
+              <div class="mt-3">${promptBox("Standard Prompt: Codex-Compatible Strategy Update", prompt)}</div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-800 bg-slate-950/40 p-4">
+              <div class="text-sm font-semibold">2B — Codex execution (website + history)</div>
+              <div class="text-sm text-slate-400 mt-1">Codex applies file updates deterministically. Suggested paths:</div>
+              <pre class="mt-3 text-xs bg-slate-950/60 border border-slate-800 rounded-xl p-3 overflow-auto">/strategies/${esc(s.strategy_id)}/strategy.md\n/strategies/${esc(s.strategy_id)}/website.html\n/strategies/${esc(s.strategy_id)}/history.json</pre>
+              <div class="mt-3 text-sm text-slate-300">
+                Ensure the Codex package includes: version increment, history append, and website content replacement.
+              </div>
+            </div>
+          </div>
+        `)}
+      `;
+
+      return body;
+    }
+    function viewStrategyCreation(state) {
+      const s = state.strategy;
+      const prompt = injectPrompt(PROMPTS["PROMPT_INVESTMENT_STRATEGY_CREATION"], s);
+
+      const body = `
+        ${card("Step 3 - Investment Strategy Creation", "Reassess or revise the strategy using current inputs and standardized structure.", `
+          <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
+            Inputs: existing strategy specification, latest metrics (prices, demand, supply), scenario probabilities, and return assumptions.
+          </div>
+          <div class="mt-4">${promptBox("Standard Prompt: Investment Strategy Creation", prompt)}</div>
+        `)}
+      `;
+
+      return body;
+    }
+
+
+    function viewPodcast(state) {
+      const s = state.strategy;
+      const promptKey = s.prompts.podcast;
+      const prompt = injectPrompt(PROMPTS[promptKey], s, { new_version: "vX.Y" });
+
+      const body = `
+        ${card("Step 4A — Podcast", "Generate a reference-free podcast script after the strategy update is approved.", `
+          <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
+            Input: final updated strategy version + change log entry. Output: plain text, spoken style.
+          </div>
+          <div class="mt-4">${promptBox("Standard Prompt: Podcast Script", prompt)}</div>
+        `)}
+      `;
+
+      return body;
+    }
+
+    function viewAllocation(state) {
+      const s = state.strategy;
+      const promptKey = s.prompts.allocation;
+      const prompt = injectPrompt(PROMPTS[promptKey], s);
+
+      const body = `
+        ${card("Step 4B — Asset Allocation Reconfirmation", "Confirm or adjust posture after the updated strategy is produced.", `
+          <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
+            Input: updated strategy specification + scenario probabilities + portfolio constraints (if available).
+          </div>
+          <div class="mt-4">${promptBox("Standard Prompt: Allocation Reconfirmation", prompt)}</div>
+        `)}
+      `;
+
+      return body;
+    }
+
+
+    // --- Router ---
+    const ROUTES = {
+      "/hub": viewHub,
+      "/revalidation": viewRevalidation,
+      "/update": viewUpdate,
+      "/strategy-creation": viewStrategyCreation,
+      "/podcast": viewPodcast,
+      "/allocation": viewAllocation
+    };
+
+    function setNavActive(path) {
+      document.querySelectorAll(".navlink").forEach(a => {
+        const href = a.getAttribute("href") || "";
+        const isActive = href === `#${path}`;
+        a.classList.toggle("bg-slate-800/60", isActive);
+        a.classList.toggle("border-slate-700", isActive);
+      });
+    }
+
+    function render() {
+      const state = loadState();
+      const hash = location.hash || "#/hub";
+      const path = hash.replace(/^#/, "");
+      const fn = ROUTES[path] || viewHub;
+      setNavActive(path);
+      document.getElementById("view").innerHTML = fn(state);
+
+      wireCopyButtons();
+    }
+
+    function wireCopyButtons() {
+      document.querySelectorAll("button[data-copy]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-copy");
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.select();
+          document.execCommand("copy");
+          btn.textContent = "Copied";
+          setTimeout(() => (btn.textContent = "Copy"), 900);
+        });
+      });
+    }
+
+    window.addEventListener("hashchange", render);
+    render();
+  </script>
+</body>
+</html>

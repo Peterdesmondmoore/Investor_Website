@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Capex Intent Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Capex Intent Signal</h1>
+      <p class="subtitle">Capex intent from durable goods order momentum.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Capex Intent signal is currently Neutral, indicating stable business investment momentum as of October 2025 (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>). The composite score is 0.137673, well within the neutral band (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The neutral state is driven by year-over-year growth (z-score 0.111786) and 3-month annualized growth (z-score 0.163560) of durable goods orders, both near zero (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+        <li>Momentum is stable, reflecting a baseline investment pace (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A composite score below -0.75 would signal a contraction in capex intent (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued stable capex momentum, with the signal remaining Neutral.</li>
+        <li>Upside secondary: Stronger durable goods orders could push the composite above 0.75, signaling expansion (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+        <li>Downside residual: A notable deceleration in durable goods orders could lead to a composite below -0.75, indicating contraction (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months). The signal aims to detect inflection points in investment cycles using monthly data (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium. This signal offers a direct read on business investment trends, making it a valuable input for broader growth composites.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Demand (business investment/capex) and growth.</li>
+        <li>Cycle position: Mid-cycle, consistent with stable investment trends.</li>
+        <li>Typical interaction with other macro signals: Correlates with industrial production, employment, and overall economic activity, often leading broader growth measures.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Manufacturers’ New Orders: Durable Goods (DGORDER) from FRED, latest observation 2025-10-31 (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+        <li>The Capex_Intent composite score (0.137673), Z_ALL_YoY (0.111786), and Z_ALL_3mAnn (0.163560) were most influential (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">1</a>).</li>
+        <li>Additional public datasets that would improve depth or reliability include Manufacturers’ New Orders: Durable Goods Ex-Transportation (ADXTNO) and New Orders for Nondefense Capital Goods Excluding Aircraft.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Capex Intent Chart</h2><div class="box chart-box"><img src="/images/US_Capex_Intent_signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Durable goods orders as a proxy for business investment intent.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Capex Intent Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DGORDER</th>
+      <th>DGORDER_YoY</th>
+      <th>DGORDER_3mAnn</th>
+      <th>Z_ALL_YoY</th>
+      <th>Z_ALL_3mAnn</th>
+      <th>Capex_Intent</th>
+      <th>Capex_Sources</th>
+      <th>Capex_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-11-30</th>
+      <td>279095.0</td>
+      <td>0.038880</td>
+      <td>-0.045565</td>
+      <td>-0.070176</td>
+      <td>-0.684060</td>
+      <td>-0.377118</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2022-12-31</th>
+      <td>293358.0</td>
+      <td>0.057195</td>
+      <td>0.163988</td>
+      <td>0.059933</td>
+      <td>0.920849</td>
+      <td>0.490391</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-01-31</th>
+      <td>288874.0</td>
+      <td>0.028296</td>
+      <td>0.025360</td>
+      <td>-0.251180</td>
+      <td>-0.182631</td>
+      <td>-0.216905</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-02-28</th>
+      <td>280693.0</td>
+      <td>0.013200</td>
+      <td>0.023100</td>
+      <td>-0.413685</td>
+      <td>-0.205735</td>
+      <td>-0.309710</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-03-31</th>
+      <td>289270.0</td>
+      <td>0.042212</td>
+      <td>-0.054586</td>
+      <td>-0.101373</td>
+      <td>-0.819010</td>
+      <td>-0.460191</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-04-30</th>
+      <td>290168.0</td>
+      <td>0.039444</td>
+      <td>0.018039</td>
+      <td>-0.131169</td>
+      <td>-0.240912</td>
+      <td>-0.186041</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-05-31</th>
+      <td>289707.0</td>
+      <td>0.039345</td>
+      <td>0.134775</td>
+      <td>-0.135719</td>
+      <td>0.618079</td>
+      <td>0.241180</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-06-30</th>
+      <td>303971.0</td>
+      <td>0.067453</td>
+      <td>0.219313</td>
+      <td>0.056935</td>
+      <td>1.248563</td>
+      <td>0.652749</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-07-31</th>
+      <td>293278.0</td>
+      <td>0.030999</td>
+      <td>0.043566</td>
+      <td>-0.347753</td>
+      <td>-0.186033</td>
+      <td>-0.266893</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-08-31</th>
+      <td>289128.0</td>
+      <td>0.023940</td>
+      <td>-0.007970</td>
+      <td>-0.439556</td>
+      <td>-0.556759</td>
+      <td>-0.498157</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-09-30</th>
+      <td>298229.0</td>
+      <td>0.055940</td>
+      <td>-0.073446</td>
+      <td>-0.078227</td>
+      <td>-1.081596</td>
+      <td>-0.579911</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-10-31</th>
+      <td>285976.0</td>
+      <td>-0.003814</td>
+      <td>-0.095933</td>
+      <td>-0.810365</td>
+      <td>-1.233724</td>
+      <td>-1.022045</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2023-11-30</th>
+      <td>298570.0</td>
+      <td>0.069779</td>
+      <td>0.137167</td>
+      <td>0.023594</td>
+      <td>0.578017</td>
+      <td>0.300805</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-12-31</th>
+      <td>304324.0</td>
+      <td>0.037381</td>
+      <td>0.084290</td>
+      <td>-0.397477</td>
+      <td>0.118001</td>
+      <td>-0.139738</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-01-31</th>
+      <td>280614.0</td>
+      <td>-0.028594</td>
+      <td>-0.072916</td>
+      <td>-1.233940</td>
+      <td>-1.156868</td>
+      <td>-1.195404</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2024-02-29</th>
+      <td>282623.0</td>
+      <td>0.006876</td>
+      <td>-0.197130</td>
+      <td>-0.748112</td>
+      <td>-2.128016</td>
+      <td>-1.438064</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2024-03-31</th>
+      <td>287423.0</td>
+      <td>-0.006385</td>
+      <td>-0.204315</td>
+      <td>-0.910592</td>
+      <td>-2.187699</td>
+      <td>-1.549145</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2024-04-30</th>
+      <td>286972.0</td>
+      <td>-0.011014</td>
+      <td>0.093757</td>
+      <td>-0.967312</td>
+      <td>0.236348</td>
+      <td>-0.365482</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-05-31</th>
+      <td>286829.0</td>
+      <td>-0.009934</td>
+      <td>0.060870</td>
+      <td>-0.954078</td>
+      <td>-0.050504</td>
+      <td>-0.502291</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-06-30</th>
+      <td>281128.0</td>
+      <td>-0.075149</td>
+      <td>-0.084770</td>
+      <td>-1.753121</td>
+      <td>-1.303551</td>
+      <td>-1.528336</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2024-07-31</th>
+      <td>293234.0</td>
+      <td>-0.000150</td>
+      <td>0.090182</td>
+      <td>-0.779668</td>
+      <td>0.219353</td>
+      <td>-0.280158</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-08-31</th>
+      <td>289926.0</td>
+      <td>0.002760</td>
+      <td>0.043894</td>
+      <td>-0.723521</td>
+      <td>-0.183046</td>
+      <td>-0.453284</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-09-30</th>
+      <td>292469.0</td>
+      <td>-0.019314</td>
+      <td>0.171394</td>
+      <td>-0.965554</td>
+      <td>1.041857</td>
+      <td>0.038152</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-10-31</th>
+      <td>293266.0</td>
+      <td>0.025492</td>
+      <td>0.000437</td>
+      <td>-0.469696</td>
+      <td>-0.556387</td>
+      <td>-0.513042</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-11-30</th>
+      <td>288340.0</td>
+      <td>-0.034263</td>
+      <td>-0.021703</td>
+      <td>-1.068917</td>
+      <td>-0.690716</td>
+      <td>-0.879816</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2024-12-31</th>
+      <td>290559.0</td>
+      <td>-0.045231</td>
+      <td>-0.025868</td>
+      <td>-1.126592</td>
+      <td>-0.684886</td>
+      <td>-0.905739</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2025-01-31</th>
+      <td>291195.0</td>
+      <td>0.037707</td>
+      <td>-0.027950</td>
+      <td>-0.147119</td>
+      <td>-0.703530</td>
+      <td>-0.425325</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-02-28</th>
+      <td>293985.0</td>
+      <td>0.040202</td>
+      <td>0.080640</td>
+      <td>-0.098203</td>
+      <td>0.372041</td>
+      <td>0.136919</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-03-31</th>
+      <td>316215.0</td>
+      <td>0.100173</td>
+      <td>0.402790</td>
+      <td>0.567256</td>
+      <td>3.602792</td>
+      <td>2.085024</td>
+      <td>DGORDER only</td>
+      <td>Expansion</td>
+    </tr>
+    <tr>
+      <th>2025-04-30</th>
+      <td>295229.0</td>
+      <td>0.028773</td>
+      <td>0.056575</td>
+      <td>-0.142389</td>
+      <td>0.128821</td>
+      <td>-0.006784</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-05-31</th>
+      <td>344069.0</td>
+      <td>0.199561</td>
+      <td>0.876210</td>
+      <td>1.813422</td>
+      <td>8.145291</td>
+      <td>4.979357</td>
+      <td>DGORDER only</td>
+      <td>Expansion</td>
+    </tr>
+    <tr>
+      <th>2025-06-30</th>
+      <td>311761.0</td>
+      <td>0.108965</td>
+      <td>-0.055162</td>
+      <td>0.775939</td>
+      <td>-0.958344</td>
+      <td>-0.091203</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-07-31</th>
+      <td>303032.0</td>
+      <td>0.033414</td>
+      <td>0.109987</td>
+      <td>-0.078837</td>
+      <td>0.652012</td>
+      <td>0.286588</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-08-31</th>
+      <td>312138.0</td>
+      <td>0.076613</td>
+      <td>-0.322664</td>
+      <td>0.478622</td>
+      <td>-3.572730</td>
+      <td>-1.547054</td>
+      <td>DGORDER only</td>
+      <td>Contraction</td>
+    </tr>
+    <tr>
+      <th>2025-09-30</th>
+      <td>314147.0</td>
+      <td>0.074121</td>
+      <td>0.030966</td>
+      <td>0.452539</td>
+      <td>-0.092782</td>
+      <td>0.179879</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-10-31</th>
+      <td>307262.0</td>
+      <td>0.047725</td>
+      <td>0.057016</td>
+      <td>0.111786</td>
+      <td>0.163560</td>
+      <td>0.137673</td>
+      <td>DGORDER only</td>
+      <td>Neutral</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/Durable_goods_capex_intent_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Capex Intent Signal</a></section>
+</main>
+</body>
+</html>

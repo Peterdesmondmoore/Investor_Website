@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gold · Outlook – Signal Report</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Gold · Outlook</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Gold · Outlook</h1>
+      <p class="subtitle">A framework for systematic gold allocation decisions.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-12-18</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><h3>Executive Summary</h3>
+Gold exhibits a moderately attractive investment profile, characterized by strong tactical tailwinds offsetting a more neutral strategic macro backdrop. Current macro conditions largely align with a supportive regime for gold, particularly from ongoing central bank demand, expanding liquidity, and emerging systemic risks, despite a disinflationary trend and potential for USD strength.
+
+<ul>
+  <li><strong>Strategic Attractiveness:</strong> Moderate-High.</li>
+  <li><strong>Tactical Attractiveness:</strong> High.</li>
+  <li><strong>Key Supportive Channels:</strong> Central bank demand; expanding Fed liquidity; underlying systemic credit stress; gold's technical uptrend; strong ETF inflows; neutral gold-specific positioning.</li>
+  <li><strong>Main Headwinds:</strong> Overall disinflationary trend; rising short-term real yields; potential for a strengthening USD; calm VIX volatility suppressing safe-haven demand.</li>
+</ul>
+
+<hr>
+
+<h3>Theme-by-Theme Evaluation</h3>
+<p>Map each macro theme to the Gold Thesis signal categories (real yields, USD trend, liquidity, inflation, positioning, risk, physical demand, central-bank behaviour, technical trend where applicable).</p>
+
+<h3>US Macro Themes</h3>
+<ul>
+  <li><strong>US Inflation & Price Dynamics:</strong> The overall US inflation regime is classified as <a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">COOL</a>, signaling a bias towards disinflation or deflation risk (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">24</a>). While policy-relevant PCE and CPI-PPI divergence are <a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE.html" target="_blank">NEUTRAL</a> (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE.html" target="_blank">26</a>)(<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence.html" target="_blank">25</a>), market-implied expectations are <a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">STABLE</a> but show negative momentum (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">27</a>), reinforcing disinflationary pressures. Wage growth also suggests moderate disinflationary pressure from labor costs (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal.html" target="_blank">10</a>). However, a re-emergence of upstream cost-push pressures is noted in the CPI-PPI divergence, creating some tension (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence.html" target="_blank">25</a>).</li>
+  <li><strong>US Labour Market:</strong> The US labor market is in a <a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal.html" target="_blank">NEUTRAL</a> regime with emerging slack. Employment composition components show negative trends, and underemployment risk indicates rising broad labor market slack (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal.html" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal.html" target="_blank">2</a>). Labor Market Turnover is <a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover.html" target="_blank">Bearish</a>, reflecting contracting worker confidence (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover.html" target="_blank">4</a>), while Weekly Hours indicate a slight contraction in momentum (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal.html" target="_blank">6</a>). The explicit slack gap is <a href="https://investoranatomy.com/signal_report/explicit_slack_gap_signal_methodology.html" target="_blank">NEUTRAL</a> with <a href="https://investoranatomy.com/signal_report/explicit_slack_gap_signal_methodology.html" target="_blank">STABLE</a> momentum (<a href="https://investoranatomy.com/signal_report/explicit_slack_gap_signal_methodology.html" target="_blank">9</a>). This softening implies moderating wage pressure.</li>
+  <li><strong>US Growth & Business Cycle:</strong> While a dedicated US growth report was not provided, implications from other themes suggest moderating economic activity. The Federal Reserve's "Real-Economy Confirmation" notes "moderating/bifurcated economic activity" and "downside growth risks" as justification for recent rate cuts (<a href="https://investoranatomy.com/signal_report/Predictor_Fed_Rate_Decision.html" target="_blank">17</a>). The softening US labor market, characterized by emerging slack and declining median sector momentum, also points to a slowing growth environment (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal.html" target="_blank">8</a>).</li>
+  <li><strong>US Credit Conditions:</strong> The US credit environment is predominantly <a href="https://investoranatomy.com/methodology/credit_conditions_methodology.html" target="_blank">Neutral to Moderately Supportive</a>, with Credit Spreads classified as <a href="https://investoranatomy.com/Methodology/credit_spreads_methodology.html" target="_blank">NORMAL</a> and near historical lows (<a href="https://investoranatomy.com/Methodology/credit_spreads_methodology.html" target="_blank">12</a>). However, both High Yield and Investment Grade spreads show positive 3-month momentum, indicating a tendency to widen (<a href="https://investoranatomy.com/Methodology/credit_spreads_methodology.html" target="_blank">12</a>). Crucially, the standalone Financial Stress Index (STLFSI4) signals a <a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">Bearish</a> regime due to an elevated z-score, highlighting pockets of underlying systemic stress (<a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">13</a>). Private Credit Impulse remains <a href="https://investoranatomy.com/methodology/private_credit_impulse_methodology.html" target="_blank">Stable</a> (<a href="https://investoranatomy.com/methodology/private_credit_impulse_methodology.html" target="_blank">15</a>).</li>
+  <li><strong>US Liquidity & Monetary Conditions:</strong> The monetary regime is "Transitioning to Neutral-to-Accommodative." The Federal Reserve Liquidity Composite is in an <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">Expansion</a> regime, driven by a robust unwind of the ON RRP facility and cessation of quantitative tightening (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">16</a>). The M2 Money Supply signal was <a href="https://investoranatomy.com/signal_report/M2_Money_Supply.html" target="_blank">Bullish</a> as of October 2025, though later classified as <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">Neutral</a> without data for November/December 2025 (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply.html" target="_blank">18</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">16</a>). Real interest rates are <a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">Neutral</a>, but short-term real yields have shown an increase due to decreased inflation compensation (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">19</a>)(<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcminutes20251029.pdf" target="_blank">20</a>). The policy stance is assessed as <a href="https://www.federalreserve.gov/monetarypolicy/files/fomcpresconf20251210.pdf" target="_blank">NEAR NEUTRAL</a> after three rate cuts (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcpresconf20251210.pdf" target="_blank">21</a>). SOFR futures positioning is <a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals.html" target="_blank">Neutral</a> for both 3M and 5Y tenors, with some unwinding of long positions in the 5Y (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals.html" target="_blank">22</a>)(<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals.html" target="_blank">23</a>).</li>
+  <li><strong>Cross-Asset Positioning & Sentiment:</strong> The environment is broadly stable yet internally tense. The VIX volatility signal is <a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility.html" target="_blank">CALM</a> (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility.html" target="_blank">29</a>). Cross-sector positioning shows broad speculative long crowding in Metals (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">30</a>). There is <a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">Moderate Divergence Risk</a> between speculators and hedgers globally (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">31</a>), with <a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals.html" target="_blank">High Tension</a> in Nasdaq 100 futures and <a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals.html" target="_blank">Elevated_Risk</a> in Fed Funds futures due to extreme opposing positioning (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals.html" target="_blank">32</a>)(<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals.html" target="_blank">35</a>). Squeeze and exhaustion risks are <a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">Normal</a> (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">38</a>). The "Supply Stress" macro theme is <a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">ACTIVE</a>, driven by deeply long hedger positioning in the Agricultural sector (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">37</a>).</li>
+</ul>
+
+<h3>Global Macro Themes</h3>
+<ul>
+  <li><strong>Global Growth:</strong> The global growth environment is characterized as a "Resilient Mid-Cycle with Industrial Tailwinds and Moderating Speculative Enthusiasm." Industrial metals, particularly copper, show robust underlying demand, with hedgers in an extreme net short position (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals.html" target="_blank">41</a>), and the <a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind.html" target="_blank">Energy-Adjusted Metals Tailwind</a> is in a "Demand_Tailwind" regime (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind.html" target="_blank">46</a>). However, broader speculative interest, as indicated by 'Other' sector flow momentum, is positive but decelerating, and 'Rates' flows are deeply negative but stabilizing (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum.html" target="_blank">47</a>). Gold and Silver CoT signals suggest neutral to defensive positioning (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">39</a>)(<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals.html" target="_blank">40</a>).</li>
+  <li><strong>Global Trade & Demand:</strong> This theme reflects a "Complex interplay of moderate US Dollar strength, persistent supply-side pressures, and generally neutral global risk sentiment." The USD Index is reported as <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">Bullish</a> (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">48</a>), though internal technicals suggest a <a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">Weakening</a> trend (<a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">49</a>). The "Supply_Stress" macro theme is <a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">ACTIVE</a> due to deeply long hedgers in agricultural commodities (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">37</a>), while the <a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone.html" target="_blank">Global Risk Positioning Tone</a> is <a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone.html" target="_blank">Neutral</a> (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone.html" target="_blank">51</a>).</li>
+  <li><strong>Global Inflation & FX Dynamics:</strong> The regime is one of "Conflicted Dollar Strength with Selective G10 FX Fragility." The USD Index is officially <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">Bullish</a> (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">48</a>) but technically <a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">Weakening</a> (<a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">49</a>), while USD futures show <a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">Bullish Reversal Risk</a> driven by deeply long hedgers (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">53</a>). G10 FX exhibits vulnerability, with <a href="https://investoranatomy.com/signal_report/GBP_CoT_Signals.html" target="_blank">Elevated_Risk</a> for a short squeeze in GBP (<a href="https://investoranatomy.com/signal_report/GBP_CoT_Signals.html" target="_blank">54</a>) and <a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals.html" target="_blank">Bullish_Reversal_Risk</a> in CAD (<a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals.html" target="_blank">55</a>). The JPY also shows <a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals.html" target="_blank">High_Tension_Low_Flags</a> with deeply long hedgers (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals.html" target="_blank">58</a>). This implies a mixed global price pressure, with potential imported disinflation from a strengthening USD offset by local currency weakness.</li>
+</ul>
+
+<hr>
+
+<h3>Alignment With Gold Thesis Signal Map</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Gold Thesis Signal Category</th>
+      <th>Macro Alignment</th>
+      <th>Interpretation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Real Yields & Policy Rates</td>
+      <td>Neutral</td>
+      <td>Policy easing has occurred with recent Fed rate cuts (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcpresconf20251210.pdf" target="_blank">21</a>) and dovish forward guidance anticipated (<a href="https://investoranatomy.com/signal_report/Predictor_Fed_Rate_Decision.html" target="_blank">17</a>). However, 10-year real yields are <a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">Neutral</a> at 1.85% (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">19</a>), and short-term real yields are rising due to decreased inflation compensation (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcminutes20251029.pdf" target="_blank">20</a>), presenting conflicting signals.</td>
+    </tr>
+    <tr>
+      <td>USD Trend</td>
+      <td>Headwind</td>
+      <td>The Broad U.S. Dollar Index is reported as <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">Bullish</a> (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">48</a>), and USD futures indicate a <a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">Bullish_Reversal_Risk</a> with deeply long hedgers (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">53</a>). This outlook for potential USD strength acts as a headwind for gold, despite some internal technical indicators suggesting underlying weakness (<a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">49</a>).</td>
+    </tr>
+    <tr>
+      <td>Inflation Dynamics</td>
+      <td>Neutral</td>
+      <td>The overall US inflation regime is <a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">COOL</a>, pointing to disinflationary pressures (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">24</a>). Market-implied expectations are <a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">STABLE</a> but show negative momentum (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">27</a>). However, the CPI-PPI divergence shows a re-emergence of upstream cost-push pressures (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence.html" target="_blank">25</a>). This potential for sticky inflation alongside policy easing (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcpresconf20251210.pdf" target="_blank">21</a>) creates a mixed picture, preventing a clear "credible disinflation" headwind.</td>
+    </tr>
+    <tr>
+      <td>Liquidity & Monetary Conditions</td>
+      <td>Supportive</td>
+      <td>The Federal Reserve Liquidity Composite is in an <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">Expansion</a> regime, driven by the significant unwind of the ON RRP and cessation of quantitative tightening, injecting systemic liquidity (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">16</a>). This operational easing provides strong support for gold.</td>
+    </tr>
+    <tr>
+      <td>Credit Conditions</td>
+      <td>Supportive</td>
+      <td>While aggregate credit spreads are <a href="https://investoranatomy.com/Methodology/credit_spreads_methodology.html" target="_blank">NORMAL</a> (<a href="https://investoranatomy.com/Methodology/credit_spreads_methodology.html" target="_blank">12</a>), the Financial Stress Index (STLFSI4) is <a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">Bearish</a>, indicating elevated systemic stress (<a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">13</a>). This underlying financial system tension is supportive for gold as a safe-haven asset.</td>
+    </tr>
+    <tr>
+      <td>Cross-Asset Positioning</td>
+      <td>Neutral</td>
+      <td>The VIX is <a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility.html" target="_blank">CALM</a>, which typically disfavors safe-haven assets (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility.html" target="_blank">29</a>). However, significant <a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">Moderate Divergence Risk</a> globally (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">31</a>) and <a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals.html" target="_blank">Elevated_Risk</a> positioning in Fed Funds futures (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals.html" target="_blank">35</a>) suggest underlying market tensions and potential for dislocation, which could be supportive. Gold-specific positioning is <a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">Neutral</a> with a <a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">Long_Build</a> but not yet crowded (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">39</a>).</td>
+    </tr>
+    <tr>
+      <td>Global Macro Backdrop</td>
+      <td>Neutral</td>
+      <td>Global growth shows "Resilient Mid-Cycle with Industrial Tailwinds" (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind.html" target="_blank">46</a>), with strong industrial metals demand generally being a headwind for safe-haven gold. However, a <a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">Supply_Stress</a> macro theme is <a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">ACTIVE</a> due to deeply long agricultural hedgers (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">37</a>), implying commodity-led price pressures or geopolitical risk that could be supportive. Global risk positioning tone is <a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone.html" target="_blank">Neutral</a> (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone.html" target="_blank">51</a>).</td>
+    </tr>
+    <tr>
+      <td>Tactical Signals (e.g., Gold COT)</td>
+      <td>Supportive</td>
+      <td>Gold is in a strong <a href="https://investoranatomy.com/signal_report/Gold_Pricing.html" target="_blank">Uptrend</a>, trading near 52-week highs, and its daily signal is "Add" (<a href="https://investoranatomy.com/signal_report/Gold_Pricing.html" target="_blank">59</a>). Gold ETF flows show the sixth consecutive monthly inflow, reaching record AUM and holdings, and are on track for their strongest year ever (<a href="https://www.gold.org/goldhub/research/gold-etf-commentary/november-2025" target="_blank">60</a>). Gold COT positioning is <a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">Stable</a> and not crowded long (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">39</a>). Central bank buying continues strongly (<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">61</a>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Consolidated Gold Attractiveness Score</h3>
+
+<ul>
+  <li><strong>Strategic Score:</strong> ⭐⭐⭐⭐ (Moderate-High)</li>
+  <li><strong>Tactical Score:</strong> ⭐⭐⭐⭐⭐ (High)</li>
+  <li><strong>Most influential channels:</strong>
+    <ul>
+      <li>Central Bank Demand: Continues to be strong and structurally supportive (<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">61</a>).</li>
+      <li>Fed Liquidity: Significant operational expansion from the RRP unwind provides a strong easing impulse (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">16</a>).</li>
+      <li>ETF Flows: Robust and sustained inflows indicate strong investor interest, with record AUM and holdings (<a href="https://www.gold.org/goldhub/research/gold-etf-commentary/november-2025" target="_blank">60</a>).</li>
+      <li>Technical Trend: Gold is in a clear uptrend, trading near 52-week highs with an "Add" signal (<a href="https://investoranatomy.com/signal_report/Gold_Pricing.html" target="_blank">59</a>).</li>
+      <li>Systemic Risk: Elevated financial stress (STLFSI4 <a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">Bearish</a>) and high tension in Fed Funds futures (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals.html" target="_blank">35</a>) suggest underlying instability.</li>
+    </ul>
+  </li>
+  <li><strong>Key risks to thesis:</strong>
+    <ul>
+      <li>Persistent Credible Disinflation: The overall <a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">COOL</a> inflation regime and negative momentum in market expectations (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">24</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">27</a>) could reduce gold's appeal if not counteracted by sticky upstream costs or aggressive easing.</li>
+      <li>Sustained USD Strength: The reported <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">Bullish</a> USD Index and <a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">Bullish_Reversal_Risk</a> in futures (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals.html" target="_blank">53</a>) could create a significant headwind if realized consistently.</li>
+      <li>Rising Short-Term Real Yields: Despite policy cuts, the increase in short-term real yields due to decreased inflation compensation is a negative for gold (<a href="https://www.federalreserve.gov/monetarypolicy/files/fomcminutes20251029.pdf" target="_blank">20</a>).</li>
+      <li>Rapid De-escalation of Geopolitical/Systemic Risks: While currently elevated, a rapid reduction in global and domestic risks could diminish safe-haven demand for gold, particularly if accompanied by a broad risk-on rotation, as outlined in the "Reflation return" scenario (<a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">61</a>).</li>
+    </ul>
+  </li>
+</ul>
+
+<p><em>Interpretation must remain informational, not prescriptive. No recommendations.</em></p>
+
+<hr>
+
+<h3>References</h3>
+<ol>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal.html" target="_blank">[Source: employment_composition]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal.html" target="_blank">[Source: underemployment_risk]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal.html" target="_blank">[Source: labor_market_tightness]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover.html" target="_blank">[Source: Labor_Market_Turnover]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Job_Flows_Signal.html" target="_blank">[Source: job_flows_labor]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal.html" target="_blank">[Source: weekly_hours]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum.html" target="_blank">[Source: labour_market_momentum]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal.html" target="_blank">[Source: sectoral_employment]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/explicit_slack_gap_signal_methodology.html" target="_blank">[Source: explicit_slack_gap_signal]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal.html" target="_blank">[Source: wage_growth_and_inflation]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Consumer_Sentiment.html" target="_blank">[Source: Consumer_Sentiment]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/credit_spreads_methodology.html" target="_blank">[Source: credit_spreads_methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Financial_Stress.html" target="_blank">[Source: Methodology/Financial_Stress.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/methodology/credit_conditions_methodology.html" target="_blank">[Source: credit_conditions]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/methodology/private_credit_impulse_methodology.html" target="_blank">[Source: private_credit_impulse]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite.html" target="_blank">[Source: Federal_Reserve_Liquidity_Composite.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Predictor_Fed_Rate_Decision.html" target="_blank">[Source: predictor_fed_rate_decision]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/M2_Money_Supply.html" target="_blank">[Source: m_2_money_supply]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend.html" target="_blank">[Source: Real_Interest_Rate_Trend_Signal]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.federalreserve.gov/monetarypolicy/files/fomcminutes20251029.pdf" target="_blank">[Source: fomcminutes20251029]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.federalreserve.gov/monetarypolicy/files/fomcpresconf20251210.pdf" target="_blank">[Source: powell_pc_20251210]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals.html" target="_blank">[Source: SOF_3M_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals.html" target="_blank">[Source: SOF_5Y_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/US_Inflation_Signal.html" target="_blank">[Source: fed_inflation_signal]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence.html" target="_blank">[Source: cpi_ppi_divergence]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE.html" target="_blank">[Source: policy_relevant_inflation_pce]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation.html" target="_blank">[Source: market_implied_inflation_signal]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure.html" target="_blank">[Source: inflation_term_structure]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility.html" target="_blank">[Source: vix_signal.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning.html" target="_blank">[Source: Cross_Sector_Positioning.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk.html" target="_blank">[Source: Specs_vs_Hedgers_Divergence_Reversal_Risk.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals.html" target="_blank">[Source: NASDAQ_100_Consolidated_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals.html" target="_blank">[Source: EMINI_SP500_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals.html" target="_blank">[Source: Russell_EMini_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals.html" target="_blank">[Source: FedFund_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator.html" target="_blank">[Source: Hedger_Pressure_Indicator.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous.html" target="_blank">[Source: Regimes_specific_Macro_Themes_Continuous.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk.html" target="_blank">[Source: Squeeze_Exhaustion_Risk.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals.html" target="_blank">[Source: Gold_CoT_Signals]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals.html" target="_blank">[Source: Silver_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals.html" target="_blank">[Source: Copper_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals.html" target="_blank">[Source: Lithium_Hydroxide_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals.html" target="_blank">[Source: Palladium_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Platinum_CoT_Signals.html" target="_blank">[Source: Platinum_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals.html" target="_blank">[Source: Crude_Oil_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind.html" target="_blank">[Source: energy_adjusted_metals_tailwind]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum.html" target="_blank">[Source: Economic_Cycle_Proxies_Flow_Momentum]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/USD_Index_Signal.html" target="_blank">[Source: USD_Index_Signal.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/usd_index_signal.html" target="_blank">[Source: usd_methodology]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Regime_Specific_Macro_Themes.html" target="_blank">[Source: Macro_Themes.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone.html" target="_blank">[Source: Global_Positioning_Tone.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/Methodology/Global_Risk_OnOff_Positioning_Tone.html" target="_blank">[Source: CoT_Market_Tone.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/GBP_CoT_Signals.html" target="_blank">[Source: GBP_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals.html" target="_blank">[Source: CAD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals.html" target="_blank">[Source: AUD_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals.html" target="_blank">[Source: EURO_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals.html" target="_blank">[Source: YEN_CoT_Signals.html]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://investoranatomy.com/signal_report/Gold_Pricing.html" target="_blank">[Source: Gold_Pricing]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-etf-commentary/november-2025" target="_blank">[Source: gold_etf_commentary_november_2025]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">[Source: gold_outlook_2026]</a>
+    </em>
+  </li>
+  <li>
+    <em>
+      <a href="https://www.gold.org/goldhub/research/gold-demand-trends/us-gold-demand-trends-q3-2025" target="_blank">[Source: us_gold_demand_trends_q3_2025]</a>
+    </em>
+  </li>
+</ol>
+
+<h3>Self-Healing</h3>
+<ul>
+  <li><strong>RSS Documents Needed:</strong>
+    <ul>
+      <li><em>RSS Feed Documents (multiple)</em> — <a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">Source</a>: Numerous RSS feed documents related to central bank gold statistics were referenced in the prompt (e.g. October, September, August, July, June, Q2, Q3 2025 Gold Demand Trends) but were not provided as explicit input documents or mapped in `NODE_URL_MAP`. These are critical for a comprehensive assessment of central bank behavior and physical demand.</li>
+    </ul>
+  </li>
+  <li><strong>Weaknesses in Provided Inputs:</strong>
+    <ul>
+      <li><strong>Mislabeled US Growth Report:</strong> The document identified as `Macro Theme : US Growth & Business Cycle` contains content discussing US monetary conditions and Fed policy (e.g., balance sheet, neutral rate) rather than specific US economic growth indicators. This prevents direct analysis of US growth.</li>
+      <li><strong>Inconsistent M2 Data & Regime:</strong> The `M2_Money_Supply` signal report indicates "Bullish" as of 2025-10-01, but the `Federal_Reserve_Liquidity_Composite.html` report shows M2 as "Neutral" for 2025-11-30 and 2025-12-31 with blank data. This discrepancy and missing recent data for M2 introduce ambiguity.</li>
+      <li><strong>USD Index Signal Contradiction:</strong> The `USD_Index_Signal.html` reports the USD regime as "Bullish" but its `Value_Monthly` is below its `USD_12Month_MA`. According to the documented methodology, this condition should classify the signal as "Weakening," indicating a direct contradiction between the stated regime and its underlying logic.</li>
+      <li><strong>Insufficient CoT Historical Data:</strong> Multiple CoT signal reports (e.g., Gold, Silver, Copper, USD, G10 FX) provide only 15 rows of data, which is insufficient for the 52-week lookback stated in their methodologies for robust z-score calculation and regime identification. This impacts the reliability of "extreme" or "deep" positioning classifications.</li>
+      <li><strong>Inconsistent CoT Flags:</strong> The `hedger_deep_long` flag for Platinum (in `Platinum_CoT_Signals.html`) conflicts with its reported `Hedger_Net_%OI` and `Hedger_zscore`, which appear to indicate a net short position. Similar issues of flag/z-score misalignment exist across other CoT reports.</li>
+    </ul>
+  </li>
+  <li><strong>Data Behaviour Anomalies:</strong>
+    <ul>
+      <li><strong>Flatlined Diffusion Index:</strong> The `Diffusion_Index` in the `Sectoral_Employment_Diffusion_Signal.html` is consistently 50.0 across the entire historical window, which limits dynamic analysis of sectoral employment breadth and momentum.</li>
+    </ul>
+  </li>
+</ul></div></section>
+
+<section class="section"><a href="/thesis/gold_thesis.html" class="methodology-button" target="_blank" rel="noopener">Gold · Investment Thesis</a></section>
+</main>
+</body>
+</html>

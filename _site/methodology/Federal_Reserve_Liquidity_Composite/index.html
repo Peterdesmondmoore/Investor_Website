@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Federal Reserve Liquidity Composite — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Federal Reserve Liquidity Composite</h1>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification blending M2, Fed balance‑sheet channels, and ON RRP into a monthly liquidity regime indicator.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This document formalises a Fed liquidity composite built from four inputs: money supply (<code>M2SL</code>), Federal Reserve total assets (<code>WALCL</code>), reserve balances (<code>WRESBAL</code>), and overnight reverse repo usage (<code>RRPONTSYD</code>). Each series is aligned to month‑end, transformed into year‑over‑year and 3‑month percentage changes, and classified via symmetric thresholds. A z‑score blend across inputs yields a continuous composite that is discretised into <em>Expansion</em>, <em>Neutral</em>, or <em>Contraction</em> regimes. ON RRP is treated as a tightening gauge (falls are easing).</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>M2SL</strong> — M2 Money Stock (monthly, FRED).</li>
+        <li><strong>WALCL</strong> — Total Assets of the Federal Reserve (weekly; aggregated to month‑end).</li>
+        <li><strong>WRESBAL</strong> — Reserve Balances with Federal Reserve Banks (weekly; aggregated to month‑end).</li>
+        <li><strong>RRPONTSYD</strong> — ON Reverse Repo usage, Treasury collateral (daily; aggregated to month‑end).</li>
+      </ul>
+      <p class="leading-7 mt-3">All inputs are trimmed to a rolling window of the most recent <strong>N</strong> years (<span class="eq">N = 3</span> by default) using the latest available date per series to ensure focus on current regime dynamics.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Alignment & Transformations</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Month‑end alignment:</strong> resample each series to month‑end and select the last observation for that month.</li>
+        <li><strong>Rate of change:</strong> compute percentage changes for YoY and 3‑month windows:
+          <div class="box mt-2 text-sm">
+            <div class="eq">X_{YoY,t} = 100 × (X_t − X_{t-12}) / X_{t-12}</div>
+            <div class="eq">X_{3M,t}  = 100 × (X_t − X_{t-3}) / X_{t-3}</div>
+          </div>
+        </li>
+        <li><strong>Sign convention for ON RRP:</strong> interpret declines as easing; when forming signals and the composite, use <span class="eq">−RRP_{YoY}</span> and <span class="eq">−RRP_{3M}</span>.</li>
+      </ol>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Signal Classification</h2>
+      <p class="leading-7">Each input is mapped to categorical <em>Bullish/Neutral/Bearish</em> using symmetric thresholds on level (YoY) and impulse (3M):</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><strong>M2:</strong> high_yoy=6.0, low_yoy=2.0, accel_3m=1.0, decel_3m=−1.0</li>
+          <li><strong>Fed Assets (WALCL):</strong> high_yoy=5.0, low_yoy=0.0, accel_3m=0.8, decel_3m=−0.5</li>
+          <li><strong>Reserves (WRESBAL):</strong> high_yoy=8.0, low_yoy=1.0, accel_3m=1.5, decel_3m=−0.8</li>
+          <li><strong>ON RRP (inverted):</strong> high_yoy=−5.0, low_yoy=0.0, accel_3m=−1.0, decel_3m=0.5</li>
+        </ul>
+      </div>
+      <p class="leading-7 mt-3">Rule: if <span class="eq">YoY &gt; high_yoy</span> or <span class="eq">3M &gt; accel_3m</span> ⇒ <strong>Bullish</strong>; if <span class="eq">YoY &lt; low_yoy</span> or <span class="eq">3M &lt; decel_3m</span> ⇒ <strong>Bearish</strong>; else <strong>Neutral</strong>. Missing inputs default to <em>Neutral</em>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Composite Construction</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Standardise:</strong> form z‑scores of YoY and 3M for each input (population standard deviation):
+          <div class="box mt-2 text-sm">
+            <div class="eq">z(s) = (s − μ(s)) / σ(s)</div>
+          </div>
+        </li>
+        <li><strong>Per‑input score:</strong> sum level and impulse components (e.g., <span class="eq">z(M2_{YoY}) + z(M2_{3M})</span>).</li>
+        <li><strong>Liquidity Composite:</strong> arithmetic mean of the four per‑input scores:
+          <div class="box mt-2 text-sm">
+            <div class="eq">LC_t = mean( z(M2_{YoY})+z(M2_{3M}), z(FED_{YoY})+z(FED_{3M}), z(RES_{YoY})+z(RES_{3M}), z(−RRP_{YoY})+z(−RRP_{3M}) )</div>
+          </div>
+        </li>
+        <li><strong>Regime mapping:</strong> discretise using fixed cut‑offs:
+          <div class="box mt-2 text-sm">
+            <div class="eq">LC ≤ −0.75 ⇒ <em>Contraction</em>; |LC| &lt; 0.75 ⇒ <em>Neutral</em>; LC ≥ 0.75 ⇒ <em>Expansion</em></div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Window: last N years
+years_back = 3
+
+def _keep_last_n_years(df, years):
+    if df is None or df.empty: return df
+    df = df.copy(); df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    max_date = df['Date'].max()
+    if pd.isna(max_date): return df
+    cutoff = max_date - pd.DateOffset(years=years)
+    return df.loc[df['Date'] >= cutoff].reset_index(drop=True)
+
+# Align to month-end and compute changes
+def align_to_month_end(df, date_col='Date', value_cols=['Value']):
+    dfa = df.copy(); dfa[date_col] = pd.to_datetime(dfa[date_col])
+    dfa = dfa.set_index(date_col).sort_index()
+    dfa = dfa[value_cols].resample('M').last().reset_index().rename(columns={'index':'Date'})
+    return dfa
+
+import numpy as np
+
+def pct_change(s, periods):
+    out = s.pct_change(periods=periods) * 100
+    return out.replace([np.inf, -np.inf], np.nan)
+
+def add_change_columns(df, value_col='Value', prefix='X'):
+    df = df.copy()
+    df[f'{prefix}_YoY'] = pct_change(df[value_col], 12)
+    df[f'{prefix}_3M']  = pct_change(df[value_col], 3)
+    return df
+
+def classify_signal(yoy, m3, high_yoy, low_yoy, accel_3m, decel_3m):
+    if pd.isna(yoy) or pd.isna(m3): return 'Neutral'
+    if (yoy > high_yoy) or (m3 > accel_3m): return 'Bullish'
+    if (yoy < low_yoy) or (m3 < decel_3m): return 'Bearish'
+    return 'Neutral'
+
+def zscore(s):
+    return (s - s.mean()) / s.std(ddof=0)
+
+# After fetching: m2sl_df, fed_assets_df (WALCL), reserves_df (WRESBAL), on_rrp_df (RRPONTSYD)
+m2_aligned    = align_to_month_end(m2sl_df, 'Date', ['Value'])
+fed_assets_al = align_to_month_end(fed_assets_df, 'Date', ['Value'])
+reserves_al   = align_to_month_end(reserves_df, 'Date', ['Value'])
+on_rrp_al     = align_to_month_end(on_rrp_df, 'Date', ['Value'])
+
+m2_aligned    = add_change_columns(m2_aligned,    'Value', 'M2')
+fed_assets_al = add_change_columns(fed_assets_al, 'Value', 'FED')
+reserves_al   = add_change_columns(reserves_al,   'Value', 'RES')
+on_rrp_al     = add_change_columns(on_rrp_al,     'Value', 'RRP')
+
+# Merge panel (last years_back years)
+base = m2_aligned[['Date','Value','M2_YoY','M2_3M']].rename(columns={'Value':'M2_Value'})
+base = base.merge(fed_assets_al.rename(columns={'Value':'FED_Value'}), on='Date', how='outer')
+base = base.merge(reserves_al.rename(columns={'Value':'RES_Value'}),   on='Date', how='outer')
+base = base.merge(on_rrp_al.rename(columns={'Value':'RRP_Value'}),     on='Date', how='outer')
+base = base.sort_values('Date').reset_index(drop=True)
+cutoff = pd.to_datetime(base['Date'].max()) - pd.DateOffset(years=years_back)
+base = base.loc[base['Date'] >= cutoff].reset_index(drop=True)
+
+# Classify each input (note inverted RRP)
+M2_THR  = dict(high_yoy=6.0,  low_yoy=2.0,  accel_3m=1.0,  decel_3m=-1.0)
+FED_THR = dict(high_yoy=5.0,  low_yoy=0.0,  accel_3m=0.8,  decel_3m=-0.5)
+RES_THR = dict(high_yoy=8.0,  low_yoy=1.0,  accel_3m=1.5,  decel_3m=-0.8)
+RRP_THR = dict(high_yoy=-5.0, low_yoy=0.0,  accel_3m=-1.0, decel_3m=0.5)
+
+base['M2_Signal'] = base.apply(lambda r: classify_signal(r['M2_YoY'],  r['M2_3M'],  **M2_THR), axis=1)
+base['FED_Signal']= base.apply(lambda r: classify_signal(r['FED_YoY'], r['FED_3M'], **FED_THR), axis=1)
+base['RES_Signal']= base.apply(lambda r: classify_signal(r['RES_YoY'], r['RES_3M'], **RES_THR), axis=1)
+base['RRP_Signal']= base.apply(lambda r: classify_signal(-r['RRP_YoY'] if pd.notna(r['RRP_YoY']) else np.nan,
+                                                        -r['RRP_3M']  if pd.notna(r['RRP_3M'])  else np.nan,
+                                                        **RRP_THR), axis=1)
+
+# Composite (z-score blend) and regime
+comp_cols = {
+    'M2':  zscore(base['M2_YoY']) + zscore(base['M2_3M']),
+    'FED': zscore(base['FED_YoY']) + zscore(base['FED_3M']),
+    'RES': zscore(base['RES_YoY']) + zscore(base['RES_3M']),
+    'RRP': zscore(-base['RRP_YoY']) + zscore(-base['RRP_3M']),
+}
+base['Liquidity_Composite'] = pd.DataFrame(comp_cols).mean(axis=1)
+base['Liquidity_Regime'] = pd.cut(base['Liquidity_Composite'],
+                                  bins=[-np.inf,-0.75,0.75,np.inf],
+                                  labels=['Contraction','Neutral','Expansion'])
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Assumptions & Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Weekly/daily series reduced to month‑end can suppress intra‑month swings; use weekly views for trading signals if needed.</li>
+        <li>YoY changes are revision‑sensitive around structural breaks (e.g., QE/QT episodes); thresholds may need recalibration.</li>
+        <li>Equal weighting assumes similar information value across inputs; alternative weights can be back‑tested.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Reproducibility</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist source IDs (M2SL, WALCL, WRESBAL, RRPONTSYD), download timestamps, and code commit hash.</li>
+        <li>Record <span class="eq">years_back</span>, month‑end alignment policy, and threshold dictionaries.</li>
+        <li>Store the panel (<code>base</code>) and outputs (<code>Liquidity_Composite</code>, <code>Liquidity_Regime</code>) with dates for audit.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">8. Applications</h2>
+      <p class="leading-7">Suitable for macro dashboards, conditioning variables in cross‑asset models, and overlay rules for risk‑on/off tilts. Pairs naturally with price‑based signals (e.g., real‑yield or CPI–PPI divergence) for triangulation.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the Federal Reserve Liquidity Composite.</footer>
+  </main>
+</body>
+</html>

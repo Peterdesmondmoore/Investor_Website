@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hedger Pressure — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Hedger Pressure</h1>
+      <div class="mt-2 text-slate-600 text-sm">Cross‑market commercial hedger pressure indicator, capturing supply expansion stress and physical shortage signals using hedger z‑scores and hedger net open interest.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This signal measures commercial hedger sentiment across the futures markets by aggregating deep‑short and deep‑long hedger positioning. Using hedger z‑scores, it identifies when producers or commercial entities are heavily short (indicating supply expansion or bearish forward pricing) or heavily long (indicating physical shortage or inventory stress). These breadth measures are normalised with robust z‑scores and mapped into intuitive supply/shortage pressure regimes.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Inputs</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>df_cot_signals</strong> — unified enriched CoT dataset.</li>
+        <li><strong>Hedger_zscore</strong> — z‑score of hedger net positioning.</li>
+        <li><strong>Hedger_Net_%OI</strong> — optional mean hedger net % of open interest.</li>
+        <li><strong>Market_and_Exchange_Names</strong> — used for market counts.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Per‑Market Hedger Pressure Flags</h2>
+      <p class="leading-7">Hedger pressure is defined using hedger z‑scores:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z ≤ −1.0 → hedger_deep_short (supply expansion / bearish pricing)</div>
+        <div class="eq">z ≥ +1.0 → hedger_deep_long (physical shortage / supply stress)</div>
+      </div>
+      <p class="leading-7 mt-3">A generic <em>hedger_pressure</em> flag is created if missing, defaulting to deep‑short classification.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Daily Aggregation</h2>
+      <p class="leading-7">For each CoT reporting date, the model aggregates hedger pressure metrics:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><strong>hedger_deep_short_count</strong> — number of markets where hedgers are heavily short.</li>
+        <li><strong>hedger_deep_long_count</strong> — number of markets where hedgers are heavily long.</li>
+        <li><strong>avg_hedger_net_oi</strong> — mean hedger net share of open interest.</li>
+        <li><strong>avg_hedger_zscore</strong> — average hedger z‑score across all markets.</li>
+      </ul>
+      <p class="leading-7 mt-3">Shares are derived to make the signal comparable across time:</p>
+      <div class="box text-sm">
+        <div class="eq">deep\_short\_share = hedger\_deep\_short\_count / n\_markets</div>
+        <div class="eq">deep\_long\_share = hedger\_deep\_long\_count / n\_markets</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Normalisation (Robust Z‑Scores)</h2>
+      <p class="leading-7">To minimise sensitivity to outliers and structural shifts, robust z‑scores are applied to hedger pressure shares:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z\_{rob}(X) = \dfrac{X - median(X)}{1.4826 \cdot MAD(X)}</div>
+      </div>
+      <p class="leading-7 mt-3">This method strengthens signal stability when market composition or liquidity changes over time.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Regime Labels</h2>
+      <p class="leading-7">Each robust z‑score is mapped into intuitive hedger regimes:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z ≥ 1.0 → High Supply Expansion Pressure</div>
+        <div class="eq">0.5 ≤ z < 1.0 → Moderate Supply Expansion</div>
+        <div class="eq">z < 0.5 → Normal</div>
+      </div>
+      <p class="leading-7 mt-3">The same thresholds are used for shortage pressure, replacing the labels with <em>High Shortage / Stress</em> and <em>Moderate Shortage / Stress</em>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>df_hp = df_cot_signals.copy()
+df_hp["Report_Date"] = pd.to_datetime(df_hp["Report_Date"], errors="coerce")
+
+# Per‑market hedger flags
+HEDGER_DEEP_SHORT_Z = -1.0
+HEDGER_DEEP_LONG_Z  =  1.0
+
+hz = pd.to_numeric(df_hp["Hedger_zscore"], errors="coerce")
+
+df_hp["hedger_deep_short"] = hz <= HEDGER_DEEP_SHORT_Z
+df_hp["hedger_deep_long"]  = hz >= HEDGER_DEEP_LONG_Z
+
+if "hedger_pressure" not in df_hp.columns:
+    df_hp["hedger_pressure"] = df_hp["hedger_deep_short"]
+
+# Daily aggregation
+df_hedger_pressure_daily = (
+    df_hp.groupby("Report_Date").agg(
+        n_markets=("Market_and_Exchange_Names", "nunique"),
+        hedger_deep_short_count=("hedger_deep_short", "sum"),
+        hedger_deep_long_count=("hedger_deep_long", "sum"),
+        avg_hedger_net_oi=("Hedger_Net_%OI", "mean"),
+        avg_hedger_zscore=("Hedger_zscore", "mean"),
+    ).reset_index()
+)
+
+df_hedger_pressure_daily["n_markets"] = df_hedger_pressure_daily["n_markets"].replace(0, np.nan)
+
+df_hedger_pressure_daily["hedger_deep_short_share"] = (
+    df_hedger_pressure_daily["hedger_deep_short_count"] / df_hedger_pressure_daily["n_markets"]
+)
+
+df_hedger_pressure_daily["hedger_deep_long_share"] = (
+    df_hedger_pressure_daily["hedger_deep_long_count"] / df_hedger_pressure_daily["n_markets"]
+)
+
+# Robust z‑score helper
+def _robust_z(series: pd.Series) -> pd.Series:
+    x = pd.to_numeric(series, errors="coerce").
+
+    </code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Supply Expansion Pressure</strong> — hedgers heavily short, signalling expectations of increased production or weaker forward prices.</li>
+        <li><strong>Shortage / Stress Pressure</strong> — hedgers heavily long, indicating tightening physical supply or inventory stress.</li>
+        <li><strong>Normal</strong> — commercial positioning is within typical historical bounds.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Hedger behaviour varies across asset classes, making cross-sector comparison imperfect.</li>
+        <li>Static thresholds may require periodic recalibration.</li>
+        <li>Missing or sparse Hedger_Net_%OI values reduce signal precision.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Practical Use Cases</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Identifying early warnings of physical market tightness or oversupply.</li>
+        <li>Enhancing allocation models with a fundamental commercial-positioning overlay.</li>
+        <li>Cross-checking speculative crowding signals for confirmation or divergence.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Hedger Pressure signal.</footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Squeeze &amp; Exhaustion Risk Indicators</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Squeeze &amp; Exhaustion Risk Indicators</h1>
+      <p class="subtitle">CoT tactical squeeze and exhaustion risk signals.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-20</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Squeeze & Exhaustion Breadth signal currently shows Moderate Squeeze Risk and Normal Exhaustion Risk as of 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>). This indicates a transition towards heightened vulnerability to short-covering while trend fatigue remains typical.</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The "Squeeze_z" component rose to 0.535634, crossing the 0.5 threshold for Moderate Squeeze Risk (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Conversely, "Exhaustion_z" is at -0.002458, keeping it within the Normal range below 0.5 (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A significant concentration of stress in a single, macro-critical sector could be underrepresented by the breadth measure (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Moderate Squeeze Risk persists with Normal Exhaustion, driven by current z-scores near the moderate threshold (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Upside secondary: Squeeze Risk recedes to Normal if fewer markets show squeeze flags.</li>
+        <li>Downside residual: Squeeze Risk elevates to High, or Exhaustion Risk rises to Moderate/High, if more markets become vulnerable.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks) | Rationale: The signal aggregates market-level tactical flags for short-term risk assessment (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium | Justification: Provides a valuable tactical overlay, but is not a primary driver for structural macro views.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Market Sentiment, Pricing Dynamics, and Liquidity.</li>
+        <li>Cycle position: Primarily relevant for identifying tactical vulnerabilities within any economic cycle phase.</li>
+        <li>Typical interaction with other macro signals: Supplements broader risk gauges like the VIX (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">2</a>) or Global Risk-On/Risk-Off Positioning Tone (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">3</a>) to assess market fragility.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>df_cot_signals: Latest observation date 2026-01-20.</li>
+        <li>The Squeeze_z (0.535634) and Exhaustion_z (-0.002458) values for 2026-01-20 are most influential (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Additional public datasets: Sector-specific CoT data to gauge concentrated risk, and the VIX (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">2</a>) for broader market volatility context.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Squeeze &amp; Exhaustion Risk Chart</h2><div class="box chart-box"><img src="/images/CoT_Squeeze_Exhaustion_Risk.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Market breadth of squeeze and exhaustion risk signals.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Squeeze &amp; Exhaustion Risk Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>n_markets</th>
+      <th>squeeze_count</th>
+      <th>exhaustion_count</th>
+      <th>crowded_long_count</th>
+      <th>crowded_short_count</th>
+      <th>squeeze_share</th>
+      <th>exhaustion_share</th>
+      <th>Squeeze_z</th>
+      <th>Exhaustion_z</th>
+      <th>Squeeze_Regime</th>
+      <th>Exhaustion_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>197</th>
+      <td>2025-10-14</td>
+      <td>351</td>
+      <td>14</td>
+      <td>16</td>
+      <td>99</td>
+      <td>84</td>
+      <td>0.039886</td>
+      <td>0.045584</td>
+      <td>-0.694320</td>
+      <td>-0.036331</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>2025-10-21</td>
+      <td>358</td>
+      <td>17</td>
+      <td>18</td>
+      <td>93</td>
+      <td>85</td>
+      <td>0.047486</td>
+      <td>0.050279</td>
+      <td>-0.363241</td>
+      <td>0.179327</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>361</td>
+      <td>12</td>
+      <td>23</td>
+      <td>97</td>
+      <td>80</td>
+      <td>0.033241</td>
+      <td>0.063712</td>
+      <td>-0.983799</td>
+      <td>0.796297</td>
+      <td>Normal</td>
+      <td>Moderate Exhaustion Risk</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>362</td>
+      <td>21</td>
+      <td>25</td>
+      <td>101</td>
+      <td>87</td>
+      <td>0.058011</td>
+      <td>0.069061</td>
+      <td>0.095261</td>
+      <td>1.041975</td>
+      <td>Normal</td>
+      <td>High Exhaustion Risk</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>358</td>
+      <td>21</td>
+      <td>24</td>
+      <td>100</td>
+      <td>91</td>
+      <td>0.058659</td>
+      <td>0.067039</td>
+      <td>0.123498</td>
+      <td>0.949118</td>
+      <td>Normal</td>
+      <td>Moderate Exhaustion Risk</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>366</td>
+      <td>19</td>
+      <td>22</td>
+      <td>95</td>
+      <td>86</td>
+      <td>0.051913</td>
+      <td>0.060109</td>
+      <td>-0.170407</td>
+      <td>0.630826</td>
+      <td>Normal</td>
+      <td>Moderate Exhaustion Risk</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>367</td>
+      <td>20</td>
+      <td>21</td>
+      <td>89</td>
+      <td>88</td>
+      <td>0.054496</td>
+      <td>0.057221</td>
+      <td>-0.057869</td>
+      <td>0.498151</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>364</td>
+      <td>17</td>
+      <td>25</td>
+      <td>88</td>
+      <td>87</td>
+      <td>0.046703</td>
+      <td>0.068681</td>
+      <td>-0.397339</td>
+      <td>1.024547</td>
+      <td>Normal</td>
+      <td>High Exhaustion Risk</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>366</td>
+      <td>23</td>
+      <td>21</td>
+      <td>85</td>
+      <td>84</td>
+      <td>0.062842</td>
+      <td>0.057377</td>
+      <td>0.305692</td>
+      <td>0.505332</td>
+      <td>Normal</td>
+      <td>Moderate Exhaustion Risk</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>365</td>
+      <td>22</td>
+      <td>16</td>
+      <td>86</td>
+      <td>84</td>
+      <td>0.060274</td>
+      <td>0.043836</td>
+      <td>0.193841</td>
+      <td>-0.116638</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>364</td>
+      <td>16</td>
+      <td>14</td>
+      <td>83</td>
+      <td>85</td>
+      <td>0.043956</td>
+      <td>0.038462</td>
+      <td>-0.517018</td>
+      <td>-0.363474</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>362</td>
+      <td>15</td>
+      <td>15</td>
+      <td>84</td>
+      <td>81</td>
+      <td>0.041436</td>
+      <td>0.041436</td>
+      <td>-0.626779</td>
+      <td>-0.226834</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>346</td>
+      <td>14</td>
+      <td>17</td>
+      <td>76</td>
+      <td>77</td>
+      <td>0.040462</td>
+      <td>0.049133</td>
+      <td>-0.669211</td>
+      <td>0.126673</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>368</td>
+      <td>19</td>
+      <td>15</td>
+      <td>84</td>
+      <td>84</td>
+      <td>0.051630</td>
+      <td>0.040761</td>
+      <td>-0.182698</td>
+      <td>-0.257864</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>367</td>
+      <td>25</td>
+      <td>17</td>
+      <td>88</td>
+      <td>81</td>
+      <td>0.068120</td>
+      <td>0.046322</td>
+      <td>0.535634</td>
+      <td>-0.002458</td>
+      <td>Moderate Squeeze Risk</td>
+      <td>Normal</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/Squeeze_Exhaustion_Targets.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Squeeze &amp; Exhaustion Risk</a></section>
+</main>
+</body>
+</html>

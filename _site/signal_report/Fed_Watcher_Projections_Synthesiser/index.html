@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Federal Reserve Projections Synthesiser</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Federal Reserve Projections Synthesiser</h1>
+      <p class="subtitle">Synthesising key US macro themes for Federal Reserve policy justification.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-25</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Fed Projections Synthesiser Summary</h2><div class="box summary-box market-report"><p><em>
+Inference of the Federal Reserve’s internally prepared future economic state,
+based exclusively on Fed-authored projections and communications.
+</em></p>
+
+<h3>1. Fed-Implied Growth Outlook</h3>
+<p>
+The Federal Reserve appears to be preparing for a future economic state characterized by <strong style="text-transform: uppercase;">STABLE to ACCELERATING</strong> growth. For the <strong style="text-transform: uppercase;">NEAR-TERM</strong> (2025), economic activity is expected to expand at a moderate pace, with the September 2025 Summary of Economic Projections (SEP) indicating a median real GDP growth of 1.6%, revised slightly up to 1.7% in the December 2025 SEP (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">1</a>)(<a href="December 10, 2025: FOMC Projections materials, accessible version" target="_blank">2</a>). Looking towards the <strong style="text-transform: uppercase;">MEDIUM-TERM</strong> (2026-2027), projections indicate an acceleration, with the December 2025 SEP raising the median real GDP growth forecast for 2026 significantly to 2.3% from 1.8% in September (<a href="December 10, 2025: FOMC Projections materials, accessible version" target="_blank">2</a>). This anticipated strength is attributed to resilient consumer spending, continued robust business fixed investment (especially in AI and data centers), and supportive fiscal policy (<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>)(<a href="Outlook for the Economy and Monetary Policy — Remarks by Michelle W. Bowman — January 16, 2026" target="_blank">4</a>)(<a href="Economic Outlook and Monetary Policy Implementation — Remarks by Philip N. Jefferson — January 16, 2026" target="_blank">5</a>).
+</p>
+<p>
+Despite this generally positive outlook, there is <strong style="text-transform: uppercase;">MEDIUM</strong> confidence, as Fed communications acknowledge considerable uncertainty. The Beige Books for October and November 2025 (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">6</a>) reported mixed regional activity, often "little changed" or "slight softening," and noted elevated uncertainty weighing on activity, including from a prolonged government shutdown. Chair Powell himself has stated that forecasting is "very difficult" and that forecasters would "honestly say 'no'" to having great confidence in their forecasts (<a href="September 17, 2025" target="_blank">7</a>).
+</p>
+
+<h3>2. Fed-Implied Inflation Trajectory</h3>
+<p>
+The Fed appears to be preparing for an inflation <strong style="text-transform: uppercase;">DISINFLATION</strong> path, with a gradual return to the 2% target, but acknowledges near-term <strong style="text-transform: uppercase;">STICKY</strong> elements. The December 2025 SEP (<a href="December 10, 2025: FOMC Projections materials, accessible version" target="_blank">2</a>) projects PCE inflation to be 2.9% in 2025 and 2.4% in 2026, eventually reaching 2.0% by 2028. Core PCE inflation follows a similar path, projected at 3.0% for 2025 and 2.5% for 2026 (<a href="December 10, 2025: FOMC Projections materials, accessible version" target="_blank">2</a>).
+</p>
+<p>
+The prevailing <strong class="text-uppercase">persistence vs transitory framing</strong> views the impact of tariffs on goods prices as primarily a "one-time shift in the price level" rather than an "ongoing inflation problem" (<a href="September 17, 2025" target="_blank">7</a>)(<a href="October 29, 2025" target="_blank">8</a>)(<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>). These tariff effects are expected to peak in Q1 2026 and subside in H2 2026 (<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>). Excluding tariff effects, core PCE inflation is assessed to be "much closer to 2 percent" (<a href="Outlook for the Economy and Monetary Policy — Remarks by Michelle W. Bowman — January 16, 2026" target="_blank">4</a>). While shelter inflation is expected to decline, core nonhousing services inflation has moved sideways (<a href="The Inflation Outlook — Remarks by Stephen I. Miran — December 15, 2025" target="_blank">9</a>).
+</p>
+<p>
+The Fed maintains a <strong class="text-uppercase">sensitivity to upside risks</strong> for inflation, citing the uncertain magnitude and persistence of tariff effects and the possibility of longer-term inflation expectations becoming unanchored (<a href="Minutes of the Federal Open Market Committee, September 16–17, 2025" target="_blank">10</a>). However, most measures of longer-term inflation expectations remain "well anchored" around 2% (<a href="September 17, 2025" target="_blank">7</a>)(<a href="October 29, 2025" target="_blank">8</a>)(<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>).
+</p>
+
+<h3>3. Fed-Implied Labour Market Trajectory</h3>
+<p>
+The Fed appears to be preparing for a <strong style="text-transform: uppercase;">LOOSENING</strong> labor market. Official data and various indicators suggest job gains have "slowed significantly" and the unemployment rate has "edged up," reaching 4.4% by September 2025 and 4.5% by December 2025 (<a href="Federal Reserve issues FOMC statement — September 17, 2025" target="_blank">11</a>)(<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>)(<a href="Economic Outlook and Monetary Policy Implementation — Remarks by Philip N. Jefferson — January 16, 2026" target="_blank">5</a>). The SEP projects the unemployment rate to stabilize at 4.5% for 2025 and 4.4% for 2026 (<a href="December 10, 2025: FOMC Projections materials, accessible version" target="_blank">2</a>).
+</p>
+<p>
+The <strong class="text-uppercase">speed of adjustment</strong> is described as "gradual cooling" (<a href="October 29, 2025" target="_blank">8</a>), reflecting both declining labor force participation and lower immigration, alongside a softening in labor demand (<a href="October 29, 2025" target="_blank">8</a>)(<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>). The adoption of artificial intelligence (AI) is noted as a factor in reducing labor needs and replacing entry-level positions (<a href="September 17, 2025" target="_blank">7</a>)(<a href="October 29, 2025" target="_blank">8</a>)(<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>). While layoffs remain low, hiring is also low, indicating a less dynamic labor market (<a href="Economic Outlook and Monetary Policy Implementation — Remarks by Philip N. Jefferson — January 16, 2026" target="_blank">5</a>).
+</p>
+<p>
+There is a <strong style="text-transform: uppercase;">HIGH degree of concern expressed</strong> regarding the labor market's fragility. Vice Chair Bowman explicitly stated that the labor market has "become more fragile" and poses "the greater risk" (<a href="Outlook for the Economy and Monetary Policy — Remarks by Michelle W. Bowman — January 16, 2026" target="_blank">4</a>). The Beige Books consistently report "muted" labor demand and increased employer caution (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">6</a>). Wage growth remains modest overall, though some sectors face upward pressure due to specific skill shortages or health insurance costs (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">6</a>).
+</p>
+
+<h3>4. Dominant Risk Narrative</h3>
+<p>
+The dominant risk narrative has shifted to emphasize <strong style="text-transform: uppercase;">DOWNSIDE GROWTH/LABOUR RISK</strong>, while acknowledging ongoing <strong style="text-transform: uppercase;">UPSIDE INFLATION RISK</strong>. Since September 2025, FOMC statements have consistently highlighted that "downside risks to employment have risen" (<a href="Federal Reserve issues FOMC statement — September 17, 2025" target="_blank">11</a>)(<a href="Federal Reserve issues FOMC statement — October 29, 2025" target="_blank">12</a>)(<a href="Federal Reserve issues FOMC statement — December 10, 2025" target="_blank">14</a>). Chair Powell articulated this as a shift in the "balance of risks" that warrants a move to a more neutral policy stance (<a href="September 17, 2025" target="_blank">7</a>)(<a href="October 29, 2025" target="_blank">8</a>). Vice Chair Bowman explicitly identified the labor market's fragility as the "greater risk" (<a href="Outlook for the Economy and Monetary Policy — Remarks by Michelle W. Bowman — January 16, 2026" target="_blank">4</a>).
+</p>
+<p>
+Evidence of <strong class="text-uppercase">asymmetric preparation</strong> is clear in the Fed's proactive policy adjustments. The Committee has undertaken a sequence of interest rate cuts (75 basis points since September 2025) and decided to conclude balance sheet runoff, initiating Treasury bill purchases to maintain ample reserves (<a href="Federal Reserve issues FOMC statement — December 10, 2025" target="_blank">14</a>)(<a href="Economic Outlook and Monetary Policy Implementation — Remarks by Philip N. Jefferson — January 16, 2026" target="_blank">5</a>). These actions are framed as "risk-management cuts" designed to "preemptively limit the risk of greater and more persistent damage to the labor market" (<a href="September 17, 2025" target="_blank">7</a>)(<a href="Outlook for the Economy and Monetary Policy — Remarks by Michelle W. Bowman — January 16, 2026" target="_blank">4</a>). While upside risks to inflation persist, the Fed views them as "less likely to materialize in a sustained way," expecting tariff effects to be transitory (<a href="Outlook for the Economy and Monetary Policy — Remarks by Michelle W. Bowman — January 16, 2026" target="_blank">4</a>). The coexistence of strong equity markets and struggling lower-income households (a "K-shaped" economy) is also a recognized risk (<a href="October 29, 2025" target="_blank">8</a>)(<a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a>).
+</p>
+
+<h3>5. Evidence Map (Concise)</h3>
+<ul>
+  <li>Key SEP signals
+    <ul>
+      <li><a href="December 10, 2025: FOMC Projections materials, accessible version" target="_blank">2</a> December 2025 SEP: Upward revisions to 2026 real GDP growth (2.3% from 1.8%). Unemployment rate stable for 2025-2026 (4.5%, 4.4%). PCE inflation outlook slightly lowered for 2025-2026 (2.9%, 2.4%). Federal Funds Rate median stable at 3.6% for 2025 and 3.4% for 2026.</li>
+      <li><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20250917b.htm" target="_blank">1</a> September 2025 SEP: Diffusion index shows strong weighting towards downside risks for unemployment and upside risks for PCE inflation.</li>
+    </ul>
+  </li>
+  <li>Key Beige Book themes
+    <ul>
+      <li><a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">6</a> October & November 2025 Beige Books: Report "little changed" to "slight softening" in overall economic activity, with varied regional performance. Consumer spending declined, particularly for lower-income households. Labor markets described as "gradually cooling" with muted demand, increased layoffs/attrition, and persistent shortages for skilled/immigrant labor. Prices continue moderate increases due to tariffs and services costs, with mixed pass-through. Elevated uncertainty from government shutdown and policy changes.</li>
+    </ul>
+  </li>
+  <li>Key language or framing from statements or speeches
+    <ul>
+      <li><a href="Federal Reserve issues FOMC statement — September 17, 2025" target="_blank">11</a> September 17, 2025 FOMC Statement: "Downside risks to employment have risen."</li>
+      <li><a href="October 29, 2025" target="_blank">8</a> October 29, 2025 Chair Powell Press Conference: Framed policy cuts as "risk management" due to labor market fragility, tariff-induced inflation as "one-time shift." Noted "K-shaped" economy.</li>
+      <li><a href="Federal Reserve issues FOMC statement — October 29, 2025" target="_blank">12</a> October 29, 2025 FOMC Statement: Concluded balance sheet reduction by December 1.</li>
+      <li><a href="Transcript of Chair Powell's Press Conference (PRELIMINARY) — December 10, 2025" target="_blank">3</a> December 10, 2025 Chair Powell Press Conference: Confirmed upward revision to 2026 GDP due to consumer spending, AI investment, and productivity. Stated policy rate is now in "broad range of plausible estimates of neutral."</li>
+      <li><a href="Economic Outlook and Monetary Policy Implementation — Remarks by Philip N. Jefferson — January 16, 2026" target="_blank">5</a> January 16, 2026 Vice Chair Jefferson Speech: Expressed "cautious optimism," emphasizing labor market stabilization and inflation returning to target, with current policy in "neutral range."</li>
+      <li><a href="Outlook for the Economy and Monetary Policy — Remarks by Michelle W. Bowman — January 16, 2026" target="_blank">4</a> January 16, 2026 Vice Chair Bowman Speech: Highlighted labor market "fragility" as "the greater risk," justifying policy rate cuts to limit labor market damage.</li>
+      <li><a href="Statement on Longer-Run Goals and Monetary Policy Strategy" target="_blank">13</a> August 22, 2025 Statement on Longer-Run Goals: Reaffirmed "balanced approach" when dual mandate goals are in tension.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+
+<h3>6. Missing or Incomplete Inputs</h3>
+<p>
+No material Fed projection inputs are missing.
+</p>
+
+<hr>
+
+<p><em>
+This module provides projection conditioning only.
+It does not determine policy, timing, or behavioural feasibility.
+</em></p></div></section>
+</main>
+</body>
+</html>

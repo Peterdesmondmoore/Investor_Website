@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Market Implied Inflation Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Market Implied Inflation Signal</h1>
+      <p class="subtitle">Market-implied inflation signal: tracking investor expectations for future inflation.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>Market-Implied Inflation Expectations (MIIE) currently remain in a STABLE regime as of 2026-01-31.</li>
+        <li>This indicates market expectations for medium-term inflation are neither strongly rising nor falling.</li>
+        <li>Conviction Band: Medium, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The MIIE composite z-score is 0.27 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>), well within the STABLE regime's -0.5 to 1.0 threshold (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Both 5-year forward and 10-year breakeven inflation rates show subdued momentum, with their 3-month annualized z-scores near zero (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A sustained move of the MIIE composite z-score below -0.5 (FALLING) or above 1.0 (RISING) (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Market-implied inflation expectations will likely continue in a STABLE regime, supported by current levels and momentum.</li>
+        <li>Upside secondary: Expectations could shift to RISING if economic activity significantly outperforms, pushing breakevens higher.</li>
+        <li>Downside residual: A notable economic slowdown or disinflationary event could cause expectations to enter a FALLING regime.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Structural (quarters+), reflecting longer-term market views inherent in 5-year and 10-year breakevens (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, given the high confidence in the current stability but a lack of strong directional conviction.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs the Pricing dimension, specifically market-based inflation expectations.</li>
+        <li>It provides a forward-looking perspective relevant across economic cycles, especially when assessing policy implications.</li>
+        <li>The signal complements realised inflation measures (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">3</a>) and producer price dynamics (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">4</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>5-Year Forward Inflation Expectation Rate (T5YIE), latest 2.46% as of 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>10-Year Breakeven Inflation Rate (T10YIE), latest 2.32% as of 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Additional public datasets: Federal Reserve's Survey of Professional Forecasters and commodity price indices.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Market Implied Inflation Chart</h2><div class="box chart-box"><img src="/images/US_Market_Implied_Inflation_MIIE_signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Market-implied inflation: investor expectations for future price changes.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Market Implied Inflation Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>T5YIE</th>
+      <th>T10YIE</th>
+      <th>t5yie_level_z</th>
+      <th>t5yie_yoy_z</th>
+      <th>t5yie_ann3m_z</th>
+      <th>t10yie_level_z</th>
+      <th>t10yie_yoy_z</th>
+      <th>t10yie_ann3m_z</th>
+      <th>MIIE_z</th>
+      <th>MIIE_score</th>
+      <th>MIIE_regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2023-02-28</th>
+      <td>2.58</td>
+      <td>2.43</td>
+      <td>1.547084</td>
+      <td>-1.139837</td>
+      <td>0.622607</td>
+      <td>0.929298</td>
+      <td>-0.445944</td>
+      <td>0.331717</td>
+      <td>0.690289</td>
+      <td>70.036925</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-03-31</th>
+      <td>2.40</td>
+      <td>2.32</td>
+      <td>1.174623</td>
+      <td>-1.961212</td>
+      <td>0.276714</td>
+      <td>0.704248</td>
+      <td>-1.055252</td>
+      <td>0.022114</td>
+      <td>0.282678</td>
+      <td>62.896561</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-04-30</th>
+      <td>2.20</td>
+      <td>2.18</td>
+      <td>0.791402</td>
+      <td>-2.255168</td>
+      <td>-0.215837</td>
+      <td>0.426516</td>
+      <td>-1.283708</td>
+      <td>-0.337245</td>
+      <td>-0.054890</td>
+      <td>56.983186</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-05-31</th>
+      <td>2.07</td>
+      <td>2.18</td>
+      <td>0.557579</td>
+      <td>-1.778203</td>
+      <td>-1.798642</td>
+      <td>0.426516</td>
+      <td>-0.685197</td>
+      <td>-1.191600</td>
+      <td>-0.207199</td>
+      <td>54.315104</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-06-30</th>
+      <td>2.18</td>
+      <td>2.22</td>
+      <td>0.741493</td>
+      <td>-0.739442</td>
+      <td>-0.755430</td>
+      <td>0.509615</td>
+      <td>0.032119</td>
+      <td>-0.517110</td>
+      <td>0.212683</td>
+      <td>61.670418</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-07-31</th>
+      <td>2.27</td>
+      <td>2.37</td>
+      <td>0.896363</td>
+      <td>-0.805507</td>
+      <td>0.291672</td>
+      <td>0.803438</td>
+      <td>-0.042825</td>
+      <td>0.764423</td>
+      <td>0.483034</td>
+      <td>66.406319</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-08-31</th>
+      <td>2.15</td>
+      <td>2.24</td>
+      <td>0.678899</td>
+      <td>-0.741940</td>
+      <td>0.291672</td>
+      <td>0.545544</td>
+      <td>-0.214124</td>
+      <td>0.186066</td>
+      <td>0.309747</td>
+      <td>63.370752</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-09-30</th>
+      <td>2.22</td>
+      <td>2.35</td>
+      <td>0.783280</td>
+      <td>0.213508</td>
+      <td>0.109377</td>
+      <td>0.747278</td>
+      <td>0.685030</td>
+      <td>0.529957</td>
+      <td>0.605146</td>
+      <td>68.545416</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-10-31</th>
+      <td>2.40</td>
+      <td>2.42</td>
+      <td>1.089562</td>
+      <td>-0.479638</td>
+      <td>0.388063</td>
+      <td>0.864488</td>
+      <td>0.010706</td>
+      <td>0.144534</td>
+      <td>0.612639</td>
+      <td>68.676684</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-11-30</th>
+      <td>2.15</td>
+      <td>2.23</td>
+      <td>0.652733</td>
+      <td>-0.459653</td>
+      <td>-0.092396</td>
+      <td>0.503493</td>
+      <td>-0.010706</td>
+      <td>-0.144534</td>
+      <td>0.296231</td>
+      <td>63.133986</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2023-12-31</th>
+      <td>2.12</td>
+      <td>2.16</td>
+      <td>0.590730</td>
+      <td>-0.370712</td>
+      <td>-0.461980</td>
+      <td>0.370495</td>
+      <td>-0.074943</td>
+      <td>-0.976849</td>
+      <td>0.181548</td>
+      <td>61.125005</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-01-31</th>
+      <td>2.24</td>
+      <td>2.26</td>
+      <td>0.793519</td>
+      <td>-0.010377</td>
+      <td>-0.674491</td>
+      <td>0.560492</td>
+      <td>0.239335</td>
+      <td>-0.809389</td>
+      <td>0.369345</td>
+      <td>64.414765</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-02-29</th>
+      <td>2.40</td>
+      <td>2.33</td>
+      <td>1.044373</td>
+      <td>-0.324174</td>
+      <td>0.809389</td>
+      <td>0.688641</td>
+      <td>-0.021758</td>
+      <td>0.359728</td>
+      <td>0.613704</td>
+      <td>68.695342</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-03-31</th>
+      <td>2.38</td>
+      <td>2.32</td>
+      <td>0.966045</td>
+      <td>0.000000</td>
+      <td>0.760964</td>
+      <td>0.669774</td>
+      <td>0.089189</td>
+      <td>0.629525</td>
+      <td>0.640273</td>
+      <td>69.160765</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-04-30</th>
+      <td>2.43</td>
+      <td>2.41</td>
+      <td>1.026583</td>
+      <td>0.531095</td>
+      <td>0.539593</td>
+      <td>0.827996</td>
+      <td>0.501687</td>
+      <td>0.584559</td>
+      <td>0.793981</td>
+      <td>71.853357</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-05-31</th>
+      <td>2.34</td>
+      <td>2.35</td>
+      <td>0.852424</td>
+      <td>0.616070</td>
+      <td>-0.305769</td>
+      <td>0.711449</td>
+      <td>0.367904</td>
+      <td>0.000000</td>
+      <td>0.599370</td>
+      <td>68.444239</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-06-30</th>
+      <td>2.24</td>
+      <td>2.28</td>
+      <td>0.682716</td>
+      <td>0.169950</td>
+      <td>-0.528655</td>
+      <td>0.582095</td>
+      <td>0.122635</td>
+      <td>-0.269796</td>
+      <td>0.386697</td>
+      <td>64.718718</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-07-31</th>
+      <td>2.13</td>
+      <td>2.24</td>
+      <td>0.501755</td>
+      <td>-0.254926</td>
+      <td>-1.061199</td>
+      <td>0.508178</td>
+      <td>-0.200675</td>
+      <td>-0.818235</td>
+      <td>0.145115</td>
+      <td>60.486786</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-08-31</th>
+      <td>2.01</td>
+      <td>2.15</td>
+      <td>0.279667</td>
+      <td>-0.244304</td>
+      <td>-1.169117</td>
+      <td>0.341865</td>
+      <td>-0.011149</td>
+      <td>-0.920733</td>
+      <td>0.018483</td>
+      <td>58.268509</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-09-30</th>
+      <td>2.07</td>
+      <td>2.18</td>
+      <td>0.372418</td>
+      <td>-0.265548</td>
+      <td>-0.601573</td>
+      <td>0.397303</td>
+      <td>-0.189526</td>
+      <td>-0.508632</td>
+      <td>0.121022</td>
+      <td>60.064739</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-10-31</th>
+      <td>2.38</td>
+      <td>2.33</td>
+      <td>0.868976</td>
+      <td>0.000000</td>
+      <td>0.838556</td>
+      <td>0.669839</td>
+      <td>-0.011149</td>
+      <td>0.314762</td>
+      <td>0.597611</td>
+      <td>68.413431</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-11-30</th>
+      <td>2.33</td>
+      <td>2.26</td>
+      <td>0.753112</td>
+      <td>0.424876</td>
+      <td>1.020851</td>
+      <td>0.524604</td>
+      <td>0.160049</td>
+      <td>0.418649</td>
+      <td>0.610550</td>
+      <td>68.640083</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2024-12-31</th>
+      <td>2.38</td>
+      <td>2.34</td>
+      <td>0.802768</td>
+      <td>0.571968</td>
+      <td>0.984392</td>
+      <td>0.632040</td>
+      <td>0.400122</td>
+      <td>0.674491</td>
+      <td>0.703059</td>
+      <td>70.260612</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-01-31</th>
+      <td>2.54</td>
+      <td>2.42</td>
+      <td>1.042771</td>
+      <td>0.625138</td>
+      <td>0.425022</td>
+      <td>0.726375</td>
+      <td>0.345893</td>
+      <td>0.313156</td>
+      <td>0.752762</td>
+      <td>71.131300</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-02-28</th>
+      <td>2.58</td>
+      <td>2.38</td>
+      <td>1.075875</td>
+      <td>0.329020</td>
+      <td>0.747409</td>
+      <td>0.626991</td>
+      <td>0.093033</td>
+      <td>0.457690</td>
+      <td>0.708990</td>
+      <td>70.364524</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-03-31</th>
+      <td>2.61</td>
+      <td>2.38</td>
+      <td>1.100703</td>
+      <td>0.416759</td>
+      <td>0.674491</td>
+      <td>0.626991</td>
+      <td>0.106499</td>
+      <td>0.072267</td>
+      <td>0.712929</td>
+      <td>70.433520</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-04-30</th>
+      <td>2.29</td>
+      <td>2.23</td>
+      <td>0.537937</td>
+      <td>-0.394824</td>
+      <td>-1.057310</td>
+      <td>0.322996</td>
+      <td>-0.461494</td>
+      <td>-1.011736</td>
+      <td>0.057566</td>
+      <td>58.953136</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-05-31</th>
+      <td>2.39</td>
+      <td>2.34</td>
+      <td>0.674491</td>
+      <td>0.021935</td>
+      <td>-0.838556</td>
+      <td>0.514360</td>
+      <td>-0.060222</td>
+      <td>-0.289067</td>
+      <td>0.296927</td>
+      <td>63.146165</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-06-30</th>
+      <td>2.31</td>
+      <td>2.29</td>
+      <td>0.526432</td>
+      <td>0.054837</td>
+      <td>-1.151131</td>
+      <td>0.386840</td>
+      <td>-0.012376</td>
+      <td>-0.529957</td>
+      <td>0.176651</td>
+      <td>61.039218</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-07-31</th>
+      <td>2.46</td>
+      <td>2.39</td>
+      <td>0.748520</td>
+      <td>0.613173</td>
+      <td>0.473966</td>
+      <td>0.559578</td>
+      <td>0.312264</td>
+      <td>0.674491</td>
+      <td>0.611321</td>
+      <td>68.653595</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-08-31</th>
+      <td>2.47</td>
+      <td>2.41</td>
+      <td>0.740295</td>
+      <td>0.880740</td>
+      <td>0.145836</td>
+      <td>0.593955</td>
+      <td>0.559955</td>
+      <td>0.220742</td>
+      <td>0.629803</td>
+      <td>68.977355</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-09-30</th>
+      <td>2.42</td>
+      <td>2.36</td>
+      <td>0.645525</td>
+      <td>0.623479</td>
+      <td>0.240230</td>
+      <td>0.483217</td>
+      <td>0.324274</td>
+      <td>0.178167</td>
+      <td>0.516488</td>
+      <td>66.992345</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-10-31</th>
+      <td>2.40</td>
+      <td>2.30</td>
+      <td>0.619344</td>
+      <td>-0.124696</td>
+      <td>-0.388063</td>
+      <td>0.354995</td>
+      <td>-0.231643</td>
+      <td>-0.648549</td>
+      <td>0.230087</td>
+      <td>61.975289</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-11-30</th>
+      <td>2.29</td>
+      <td>2.23</td>
+      <td>0.417749</td>
+      <td>-0.260728</td>
+      <td>-0.820327</td>
+      <td>0.194172</td>
+      <td>-0.231643</td>
+      <td>-1.094457</td>
+      <td>0.034273</td>
+      <td>58.545110</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2025-12-31</th>
+      <td>2.26</td>
+      <td>2.25</td>
+      <td>0.343858</td>
+      <td>-0.442103</td>
+      <td>-0.729179</td>
+      <td>0.219602</td>
+      <td>-0.395156</td>
+      <td>-0.674491</td>
+      <td>-0.000898</td>
+      <td>57.928992</td>
+      <td>STABLE</td>
+    </tr>
+    <tr>
+      <th>2026-01-31</th>
+      <td>2.46</td>
+      <td>2.32</td>
+      <td>0.687716</td>
+      <td>-0.351415</td>
+      <td>0.054688</td>
+      <td>0.366923</td>
+      <td>-0.422408</td>
+      <td>-0.024981</td>
+      <td>0.273216</td>
+      <td>62.730811</td>
+      <td>STABLE</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/market_implied_inflation_signal.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Market Implied Inflation Signal</a></section>
+</main>
+</body>
+</html>

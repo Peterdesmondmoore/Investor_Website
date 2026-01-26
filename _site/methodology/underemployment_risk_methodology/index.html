@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Underemployment Risk — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Underemployment Risk (CPS)</h1>
+      <p class="mt-2 text-slate-600 text-sm">Composite stress indicator based on <strong>U‑6 underutilization</strong> and <strong>median weeks unemployed</strong>. Outputs include robust z‑scores, optional percentile ranks, EMA smoothing, 0–100 scaling, and categorical regimes.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: Elevated U‑6 and longer unemployment durations reflect slack and scarring in the labor market that often precede demand weakness.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We build a monthly underemployment risk signal from CPS series capturing broad slack (U‑6) and job‑loss persistence (median unemployment duration). Each series is standardized using robust rolling z‑scores; the composite is their average. We also report full‑sample percentile ranks for interpretability, apply EMA smoothing, scale to 0–100, and classify regimes.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (BLS CPS Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>LNS13327709</b> — U‑6: Alternative measure of labor underutilization (%)</li>
+        <li><b>LNS13008276</b> — Median weeks unemployed</li>
+      </ul>
+      <p class="leading-7 mt-3">Inputs are monthly. We enforce presence of <code>date</code>, <code>series_id</code>, and <code>value</code>, and align data to a month‑start grid with bounded forward‑fill (<code>ffill(limit=2)</code>).</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Data Handling & Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Types & dates:</b> Coerce numeric values; normalize dates to month‑start timestamps.</li>
+          <li><b>Pivot & grid:</b> Wide pivot by <code>series_id</code>, align to <code>asfreq('MS')</code>.</li>
+          <li><b>Fail‑fast:</b> raise if either series is fully missing after pivot.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Measures & Diagnostics</h2>
+      <div class="box text-sm">
+        <div class="italic">U‑6 underutilization rate (higher = more slack)</div>
+        <div class="italic">Median weeks unemployed (higher = longer job‑finding frictions)</div>
+        <p class="mt-2">Diagnostics: 3‑month momentum for both inputs (<code>diff(3)</code>).</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Robust Rolling z‑scores)</h2>
+      <p class="leading-7">Each series is scaled with a median/MAD z‑score using an adaptive window.</p>
+      <div class="box text-sm">
+        <div class="italic">z<sub>t</sub>(x) = (x<sub>t</sub> − median<sub>W</sub>(x)) / (1.4826·MAD<sub>W</sub>(x)),\ W = min(36, max(8, ⌊0.8·N<sub>valid</sub>⌋))</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Composite Construction</h2>
+      <p class="leading-7">We take an equal‑weight average of the two z‑scores (both are <em>bad when high</em>):</p>
+      <div class="box text-sm">
+        <div class="italic">Underemployment<sub>z</sub> = 0.5·z(U‑6) + 0.5·z(Median Weeks)</div>
+      </div>
+      <p class="text-sm mt-2">For interpretability, we also compute full‑sample percentile ranks for each input and average them: <span class="italic">Underemployment_Composite_pctRank</span>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Smoothing, Scaling & Regimes</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Headline smoothing:</b> 3‑period EMA on the composite z‑score.</li>
+        <li><b>Score (0–100):</b> min–max scaling over observed history; NaN if the series is flat.</li>
+        <li><b>Regimes:</b> thresholds on the unsmoothed composite z‑score.</li>
+      </ul>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>HOT (stress ↑):</b> &gt; +0.75</li>
+          <li><b>NEUTRAL:</b> −0.75 to +0.75</li>
+          <li><b>COOL (stress ↓):</b> &lt; −0.75</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Output Panel</h2>
+      <div class="box text-xs">
+<pre><code>[
+  "u6_underutilization_rate","median_weeks_unemployed",
+  "u6_pct_rank_fullsample","weeks_pct_rank_fullsample",
+  "Underemployment_Composite_pctRank",
+  "u6_z","weeks_z","Underemployment_z",
+  "Underemployment_0_100","Underemployment_Smoothed","Underemployment_Regime",
+  "u6_mom_3m","weeks_mom_3m"
+]</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Expect columns: date, series_id, value (monthly)
+# Align to MS grid; ffill(limit=2); pivot to wide; compute z-scores, pct-ranks,
+# composite, EMA smoothing, 0–100 scaling, regime classification as detailed above.
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">9. Interpretation & Use</h2>
+      <p class="leading-7">A <em>HOT</em> underemployment regime indicates broad slack and elongated job‑finding, often consistent with cooling demand and softer wage pressure. A <em>COOL</em> regime reflects easing stress and faster re‑employment dynamics.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Underemployment Risk signal specification.</footer>
+  </main>
+</body>
+</html>

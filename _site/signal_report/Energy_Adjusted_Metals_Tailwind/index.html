@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Energy-Adjusted Metals Tailwind Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Energy-Adjusted Metals Tailwind Signal</h1>
+      <p class="subtitle">Energy- and FX-adjusted copper residual as a metals demand tailwind indicator.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Energy-Adjusted Metals Tailwind signal indicates a strong Demand_Tailwind regime for copper, with a z-score of 2.883388 as of 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>). This reflects significant copper-specific demand expansion.</li>
+        <li>Conviction Band: Extreme, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Copper prices (5.9370 USD/LB on 2026-01-31) are strongly outperforming expectations based on oil prices (60.30 USD/BBL) and USD strength (120.4478 on 2026-01-31).</li>
+        <li>The Copper_Residual stands at 2.490457, showing robust copper-specific demand not explained by general energy or currency movements (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A significant and sustained rise in oil prices or USD strength without a commensurate increase in copper prices, leading to a `Metals_Tailwind` z-score below -0.75.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Copper-specific demand remains strong, supporting the current Demand_Tailwind regime.</li>
+        <li>Upside secondary: Further acceleration in copper-specific demand could drive the z-score even higher.</li>
+        <li>Downside residual: An uncaptured macro shock or reversal in underlying demand dynamics could weaken the copper residual.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), as it reflects sustained shifts in copper-specific demand regimes.</li>
+        <li>Aggregation Weight Hint: High, due to the extreme conviction and high confidence in the signal's indication of strong demand for copper.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs the demand and pricing dimensions within the commodity sector.</li>
+        <li>It suggests a mid-cycle position for demand-driven industrial commodities.</li>
+        <li>Strong demand tailwinds for metals often correlate with positive global growth (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">2</a>) and could interact with inflation signals (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">3</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>COPPER_YF_USD_LB (latest: 2026-01-31).</li>
+        <li>DCOILWTICO (latest: 2026-01-31).</li>
+        <li>DTWEXBGS (latest: 2026-01-31).</li>
+        <li>The `Metals_Tailwind` z-score (2.883388) and `Metals_Regime` (Demand_Tailwind) on 2026-01-31 are most influential for the current state (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+        <li>Additional public datasets that would improve depth or reliability include global industrial production indices (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">4</a>) and manufacturing Purchasing Managers' Index (PMI) data.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Energy-Adjusted Metals Tailwind Chart</h2><div class="box chart-box"><img src="/images/US_Metals_Tailwind_signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Copper residual after controlling for WTI and the broad USD, scaled as a metals tailwind index.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Energy-Adjusted Metals Tailwind Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>COPPER_YF_USD_LB</th>
+      <th>DCOILWTICO</th>
+      <th>DTWEXBGS</th>
+      <th>Copper_Fitted</th>
+      <th>Copper_Residual</th>
+      <th>Metals_Tailwind</th>
+      <th>Metals_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2023-02-28</th>
+      <td>4.0975</td>
+      <td>76.88</td>
+      <td>121.4062</td>
+      <td>3.940082</td>
+      <td>0.157418</td>
+      <td>0.710599</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-03-31</th>
+      <td>4.1045</td>
+      <td>75.68</td>
+      <td>119.4611</td>
+      <td>3.845032</td>
+      <td>0.259468</td>
+      <td>0.863339</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2023-04-30</th>
+      <td>3.8700</td>
+      <td>76.78</td>
+      <td>119.3760</td>
+      <td>3.873073</td>
+      <td>-0.003073</td>
+      <td>0.391584</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-05-31</th>
+      <td>3.6310</td>
+      <td>68.11</td>
+      <td>121.1527</td>
+      <td>3.687040</td>
+      <td>-0.056040</td>
+      <td>0.277743</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-06-30</th>
+      <td>3.7410</td>
+      <td>70.66</td>
+      <td>119.7118</td>
+      <td>3.712709</td>
+      <td>0.028291</td>
+      <td>0.364546</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-07-31</th>
+      <td>3.9945</td>
+      <td>81.80</td>
+      <td>118.1738</td>
+      <td>3.975301</td>
+      <td>0.019199</td>
+      <td>0.293053</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-08-31</th>
+      <td>3.7725</td>
+      <td>83.55</td>
+      <td>120.5882</td>
+      <td>4.100560</td>
+      <td>-0.328060</td>
+      <td>-0.304283</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-09-30</th>
+      <td>3.7260</td>
+      <td>90.77</td>
+      <td>122.6332</td>
+      <td>4.366961</td>
+      <td>-0.640961</td>
+      <td>-0.850263</td>
+      <td>Headwind</td>
+    </tr>
+    <tr>
+      <th>2023-10-31</th>
+      <td>3.6415</td>
+      <td>81.64</td>
+      <td>124.1229</td>
+      <td>4.158999</td>
+      <td>-0.517499</td>
+      <td>-0.654799</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-11-30</th>
+      <td>3.8290</td>
+      <td>75.66</td>
+      <td>120.5421</td>
+      <td>3.878665</td>
+      <td>-0.049665</td>
+      <td>0.092731</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-12-31</th>
+      <td>3.8805</td>
+      <td>71.89</td>
+      <td>118.7686</td>
+      <td>3.717241</td>
+      <td>0.163260</td>
+      <td>0.388953</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-01-31</th>
+      <td>3.9025</td>
+      <td>76.28</td>
+      <td>120.7727</td>
+      <td>3.903281</td>
+      <td>-0.000781</td>
+      <td>0.047667</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-02-29</th>
+      <td>3.8345</td>
+      <td>79.22</td>
+      <td>121.5385</td>
+      <td>4.009643</td>
+      <td>-0.175143</td>
+      <td>-0.266145</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-03-31</th>
+      <td>4.0035</td>
+      <td>83.96</td>
+      <td>121.4062</td>
+      <td>4.137888</td>
+      <td>-0.134389</td>
+      <td>-0.192796</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-04-30</th>
+      <td>4.5645</td>
+      <td>83.49</td>
+      <td>123.3446</td>
+      <td>4.186068</td>
+      <td>0.378431</td>
+      <td>0.672587</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-05-31</th>
+      <td>4.6100</td>
+      <td>77.97</td>
+      <td>122.4845</td>
+      <td>4.004641</td>
+      <td>0.605359</td>
+      <td>1.059651</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2024-06-30</th>
+      <td>4.3905</td>
+      <td>82.83</td>
+      <td>124.5172</td>
+      <td>4.204718</td>
+      <td>0.185782</td>
+      <td>0.308102</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-07-31</th>
+      <td>4.1600</td>
+      <td>79.36</td>
+      <td>123.9223</td>
+      <td>4.088954</td>
+      <td>0.071046</td>
+      <td>0.082535</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-08-31</th>
+      <td>4.1450</td>
+      <td>74.52</td>
+      <td>122.5582</td>
+      <td>3.910584</td>
+      <td>0.234416</td>
+      <td>0.322366</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-09-30</th>
+      <td>4.4960</td>
+      <td>68.75</td>
+      <td>121.5298</td>
+      <td>3.716849</td>
+      <td>0.779151</td>
+      <td>1.193709</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2024-10-31</th>
+      <td>4.3135</td>
+      <td>69.58</td>
+      <td>125.0247</td>
+      <td>3.850581</td>
+      <td>0.462919</td>
+      <td>0.584435</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-11-30</th>
+      <td>4.0805</td>
+      <td>68.26</td>
+      <td>126.8114</td>
+      <td>3.870215</td>
+      <td>0.210286</td>
+      <td>0.085825</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-12-31</th>
+      <td>3.9860</td>
+      <td>72.44</td>
+      <td>129.4880</td>
+      <td>4.071659</td>
+      <td>-0.085659</td>
+      <td>-0.415851</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-01-31</th>
+      <td>4.2620</td>
+      <td>72.84</td>
+      <td>128.6686</td>
+      <td>4.056917</td>
+      <td>0.205083</td>
+      <td>0.072055</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-02-28</th>
+      <td>4.5145</td>
+      <td>69.97</td>
+      <td>128.4646</td>
+      <td>3.970280</td>
+      <td>0.544220</td>
+      <td>0.626702</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-03-31</th>
+      <td>5.0200</td>
+      <td>71.87</td>
+      <td>126.9402</td>
+      <td>3.975148</td>
+      <td>1.044852</td>
+      <td>1.302790</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-04-30</th>
+      <td>4.5600</td>
+      <td>59.55</td>
+      <td>122.9440</td>
+      <td>3.504543</td>
+      <td>1.055457</td>
+      <td>1.191805</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-05-31</th>
+      <td>4.6525</td>
+      <td>61.46</td>
+      <td>122.1112</td>
+      <td>3.531565</td>
+      <td>1.120936</td>
+      <td>1.226569</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-06-30</th>
+      <td>5.0300</td>
+      <td>66.30</td>
+      <td>119.8269</td>
+      <td>3.594536</td>
+      <td>1.435464</td>
+      <td>1.553316</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-07-31</th>
+      <td>4.3305</td>
+      <td>70.36</td>
+      <td>122.1088</td>
+      <td>3.780144</td>
+      <td>0.550356</td>
+      <td>0.404647</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-08-31</th>
+      <td>4.5185</td>
+      <td>64.36</td>
+      <td>120.6028</td>
+      <td>3.564877</td>
+      <td>0.953623</td>
+      <td>0.909092</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-09-30</th>
+      <td>4.8050</td>
+      <td>63.17</td>
+      <td>120.5624</td>
+      <td>3.530352</td>
+      <td>1.274648</td>
+      <td>1.320818</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-10-31</th>
+      <td>5.0655</td>
+      <td>61.75</td>
+      <td>121.7715</td>
+      <td>3.528922</td>
+      <td>1.536578</td>
+      <td>1.657453</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-11-30</th>
+      <td>5.1855</td>
+      <td>58.58</td>
+      <td>121.4288</td>
+      <td>3.429517</td>
+      <td>1.755984</td>
+      <td>1.939435</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2025-12-31</th>
+      <td>5.6300</td>
+      <td>57.26</td>
+      <td>120.1166</td>
+      <td>3.351133</td>
+      <td>2.278867</td>
+      <td>2.611451</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+    <tr>
+      <th>2026-01-31</th>
+      <td>5.9370</td>
+      <td>60.30</td>
+      <td>120.4478</td>
+      <td>3.446543</td>
+      <td>2.490457</td>
+      <td>2.883388</td>
+      <td>Demand_Tailwind</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/energy_adjusted_metals_tailwind_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Energy-Adjusted Metals Tailwind Signal</a></section>
+</main>
+</body>
+</html>

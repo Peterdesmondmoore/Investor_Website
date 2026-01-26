@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Market Volatility (VIX) Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Market Volatility (VIX) Signal</h1>
+      <p class="subtitle">VIX market volatility signal: tracking investor fear and uncertainty.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-24</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Market Volatility Signal is currently in a "NORMAL" regime, with the VIX at 15.64 on 2026-01-22, following a brief "STRESSED" period (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>). The composite z-score (MVS_z) is near zero at 0.009689, indicating a de-escalation of market risk sentiment (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>This state reflects a transition towards stability after recent heightened volatility.</li>
+        <li>Conviction Band: Medium, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary drivers are the VIX level at 15.64, a stabilizing short-term momentum (d5_z: -0.004331), and medium-term momentum (d20_z: 0.748175) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>). The percentile rank is 0.376984, indicating VIX is below its historical median for the last two years (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>There is observable momentum towards de-escalation, as the regime shifted from "STRESSED" (VIX 20.09 on 2026-01-20) to "NORMAL" (VIX 15.64 on 2026-01-22) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>No internal offsets are present; all components are coherently signaling reduced, but not absent, market risk.</li>
+        <li>Conditional Invalidation: A sustained return of the VIX above 20.0 or its composite z-score (MVS_z) exceeding +0.5 would invalidate the "NORMAL" regime (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Market volatility continues to settle in the "NORMAL" range (VIX 16-20 or MVS z in [0, +0.5)), as recent stresses ease (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Upside secondary: A return to "CALM" conditions (VIX &lt; 16 and MVS z &lt; 0), driven by sustained positive risk sentiment.</li>
+        <li>Downside plausible: A swift re-escalation to "ELEVATED" or "STRESSED" conditions, triggered by unexpected macro or geopolitical events.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks). The VIX is a prompt indicator of short-term implied volatility and market sentiment (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium. It provides timely risk assessment but should be integrated with other signals for broader macro and longer-term perspectives.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs on market sentiment, risk-on/risk-off dynamics, and indirectly on liquidity and credit conditions.</li>
+        <li>It is relevant across all cycle positions as a real-time gauge of market stress.</li>
+        <li>High VIX readings typically correlate with tightening credit conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">2</a>), reduced liquidity (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>), and a strengthening USD (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>), signaling risk aversion (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>CBOE VIX Index (VIXCLS), latest observation 2026-01-22 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>The MVS_regime, MVS_z, and the VIX level were the most influential datapoints for the current assessment.</li>
+        <li>The Real Interest Rate Trend Signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">5</a>) and the Financial Stress Index Signal (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">6</a>) would provide additional depth on financial conditions.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">VIX Volatility Chart</h2><div class="box chart-box"><img src="/images/US_Market_Volatility_MVS_signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">VIX index: market volatility and investor sentiment.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>VIX Volatility Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>VIX</th>
+      <th>level_z</th>
+      <th>pct_rank</th>
+      <th>gap20_z</th>
+      <th>gap30_z</th>
+      <th>d5_z</th>
+      <th>d20_z</th>
+      <th>MVS_z</th>
+      <th>MVS_score</th>
+      <th>MVS_regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2025-12-04</th>
+      <td>15.78</td>
+      <td>-0.112415</td>
+      <td>0.425595</td>
+      <td>-0.112415</td>
+      <td>-0.112415</td>
+      <td>-0.502802</td>
+      <td>-1.092100</td>
+      <td>-0.065935</td>
+      <td>13.154998</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-05</th>
+      <td>15.41</td>
+      <td>-0.192406</td>
+      <td>0.387897</td>
+      <td>-0.192406</td>
+      <td>-0.192406</td>
+      <td>-0.304343</td>
+      <td>-1.073851</td>
+      <td>-0.102596</td>
+      <td>12.549501</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-08</th>
+      <td>16.66</td>
+      <td>0.072190</td>
+      <td>0.569444</td>
+      <td>0.072190</td>
+      <td>0.072190</td>
+      <td>-0.154937</td>
+      <td>-0.297716</td>
+      <td>0.155296</td>
+      <td>16.808873</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2025-12-09</th>
+      <td>16.93</td>
+      <td>0.127855</td>
+      <td>0.595238</td>
+      <td>0.127855</td>
+      <td>0.127855</td>
+      <td>0.225866</td>
+      <td>-0.116669</td>
+      <td>0.242276</td>
+      <td>18.245449</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2025-12-10</th>
+      <td>15.77</td>
+      <td>-0.124019</td>
+      <td>0.417659</td>
+      <td>-0.124019</td>
+      <td>-0.124019</td>
+      <td>-0.041635</td>
+      <td>-0.516259</td>
+      <td>0.000027</td>
+      <td>14.244435</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2025-12-11</th>
+      <td>14.85</td>
+      <td>-0.327626</td>
+      <td>0.301587</td>
+      <td>-0.327626</td>
+      <td>-0.327626</td>
+      <td>-0.303047</td>
+      <td>-1.471487</td>
+      <td>-0.225058</td>
+      <td>10.526921</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-12</th>
+      <td>15.74</td>
+      <td>-0.133233</td>
+      <td>0.414683</td>
+      <td>-0.133233</td>
+      <td>-0.133233</td>
+      <td>0.228750</td>
+      <td>-1.139826</td>
+      <td>-0.010385</td>
+      <td>14.072469</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-15</th>
+      <td>16.50</td>
+      <td>0.033418</td>
+      <td>0.532738</td>
+      <td>0.033418</td>
+      <td>0.033418</td>
+      <td>0.017184</td>
+      <td>-1.619056</td>
+      <td>0.074001</td>
+      <td>15.466204</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2025-12-16</th>
+      <td>16.48</td>
+      <td>0.029083</td>
+      <td>0.529762</td>
+      <td>0.029083</td>
+      <td>0.029083</td>
+      <td>-0.107746</td>
+      <td>-2.213748</td>
+      <td>0.028428</td>
+      <td>14.713514</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2025-12-17</th>
+      <td>17.62</td>
+      <td>0.285534</td>
+      <td>0.668651</td>
+      <td>0.285534</td>
+      <td>0.285534</td>
+      <td>0.880704</td>
+      <td>-1.612231</td>
+      <td>0.345942</td>
+      <td>18.914680</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2025-12-18</th>
+      <td>16.87</td>
+      <td>0.116078</td>
+      <td>0.586310</td>
+      <td>0.116078</td>
+      <td>0.116078</td>
+      <td>0.953739</td>
+      <td>-2.554745</td>
+      <td>0.183861</td>
+      <td>16.202843</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2025-12-19</th>
+      <td>14.91</td>
+      <td>-0.326786</td>
+      <td>0.295635</td>
+      <td>-0.326786</td>
+      <td>-0.326786</td>
+      <td>-0.269365</td>
+      <td>-2.260124</td>
+      <td>-0.262106</td>
+      <td>8.741245</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-22</th>
+      <td>14.08</td>
+      <td>-0.522817</td>
+      <td>0.196429</td>
+      <td>-0.522817</td>
+      <td>-0.522817</td>
+      <td>-0.952476</td>
+      <td>-1.687250</td>
+      <td>-0.444193</td>
+      <td>5.694688</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-23</th>
+      <td>14.00</td>
+      <td>-0.550581</td>
+      <td>0.192460</td>
+      <td>-0.550581</td>
+      <td>-0.550581</td>
+      <td>-0.966627</td>
+      <td>-1.162116</td>
+      <td>-0.437002</td>
+      <td>5.815001</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-24</th>
+      <td>13.47</td>
+      <td>-0.675662</td>
+      <td>0.148810</td>
+      <td>-0.675662</td>
+      <td>-0.675662</td>
+      <td>-1.676072</td>
+      <td>-0.906451</td>
+      <td>-0.581124</td>
+      <td>3.403643</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-25</th>
+      <td>13.47</td>
+      <td>-0.675662</td>
+      <td>0.147817</td>
+      <td>-0.675662</td>
+      <td>-0.675662</td>
+      <td>-1.313205</td>
+      <td>-0.909125</td>
+      <td>-0.545219</td>
+      <td>4.004380</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-26</th>
+      <td>13.60</td>
+      <td>-0.648594</td>
+      <td>0.162698</td>
+      <td>-0.648594</td>
+      <td>-0.648594</td>
+      <td>-0.414586</td>
+      <td>-0.645165</td>
+      <td>-0.422199</td>
+      <td>6.062679</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-29</th>
+      <td>14.20</td>
+      <td>-0.509116</td>
+      <td>0.208333</td>
+      <td>-0.509116</td>
+      <td>-0.509116</td>
+      <td>0.187300</td>
+      <td>-0.714728</td>
+      <td>-0.270393</td>
+      <td>7.781526</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-30</th>
+      <td>14.33</td>
+      <td>-0.480086</td>
+      <td>0.222222</td>
+      <td>-0.480086</td>
+      <td>-0.480086</td>
+      <td>0.280058</td>
+      <td>-0.509522</td>
+      <td>-0.229966</td>
+      <td>8.463995</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2025-12-31</th>
+      <td>14.95</td>
+      <td>-0.336646</td>
+      <td>0.301587</td>
+      <td>-0.336646</td>
+      <td>-0.336646</td>
+      <td>0.771763</td>
+      <td>-0.185292</td>
+      <td>-0.058679</td>
+      <td>11.355593</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-01</th>
+      <td>14.95</td>
+      <td>-0.341499</td>
+      <td>0.300595</td>
+      <td>-0.341499</td>
+      <td>-0.341499</td>
+      <td>0.759723</td>
+      <td>-0.077935</td>
+      <td>-0.057675</td>
+      <td>11.372548</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-02</th>
+      <td>14.51</td>
+      <td>-0.452522</td>
+      <td>0.242063</td>
+      <td>-0.452522</td>
+      <td>-0.452522</td>
+      <td>0.508808</td>
+      <td>-0.098916</td>
+      <td>-0.165062</td>
+      <td>9.559676</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-05</th>
+      <td>14.90</td>
+      <td>-0.358496</td>
+      <td>0.287698</td>
+      <td>-0.358496</td>
+      <td>-0.358496</td>
+      <td>0.397640</td>
+      <td>-0.355306</td>
+      <td>-0.121175</td>
+      <td>10.300572</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-06</th>
+      <td>14.75</td>
+      <td>-0.396905</td>
+      <td>0.269841</td>
+      <td>-0.396905</td>
+      <td>-0.396905</td>
+      <td>0.270656</td>
+      <td>-0.493160</td>
+      <td>-0.168275</td>
+      <td>9.505442</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-07</th>
+      <td>15.38</td>
+      <td>-0.241998</td>
+      <td>0.363095</td>
+      <td>-0.241998</td>
+      <td>-0.241998</td>
+      <td>0.273675</td>
+      <td>0.024279</td>
+      <td>-0.025843</td>
+      <td>11.909918</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-08</th>
+      <td>15.45</td>
+      <td>-0.226289</td>
+      <td>0.377976</td>
+      <td>-0.226289</td>
+      <td>-0.226289</td>
+      <td>0.303142</td>
+      <td>0.324727</td>
+      <td>0.005271</td>
+      <td>12.435182</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2026-01-09</th>
+      <td>14.49</td>
+      <td>-0.473349</td>
+      <td>0.229167</td>
+      <td>-0.473349</td>
+      <td>-0.473349</td>
+      <td>0.077951</td>
+      <td>-0.210921</td>
+      <td>-0.229469</td>
+      <td>8.472393</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-12</th>
+      <td>15.12</td>
+      <td>-0.317030</td>
+      <td>0.323413</td>
+      <td>-0.317030</td>
+      <td>-0.317030</td>
+      <td>0.178414</td>
+      <td>-0.230647</td>
+      <td>-0.103056</td>
+      <td>10.606448</td>
+      <td>CALM</td>
+    </tr>
+    <tr>
+      <th>2026-01-13</th>
+      <td>15.98</td>
+      <td>-0.097096</td>
+      <td>0.447421</td>
+      <td>-0.097096</td>
+      <td>-0.097096</td>
+      <td>0.609217</td>
+      <td>0.016692</td>
+      <td>0.115354</td>
+      <td>14.164532</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2026-01-14</th>
+      <td>16.75</td>
+      <td>0.101859</td>
+      <td>0.571429</td>
+      <td>0.101859</td>
+      <td>0.101859</td>
+      <td>0.671222</td>
+      <td>-0.075871</td>
+      <td>0.267301</td>
+      <td>16.733507</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2026-01-15</th>
+      <td>15.84</td>
+      <td>-0.136606</td>
+      <td>0.419643</td>
+      <td>-0.136606</td>
+      <td>-0.136606</td>
+      <td>0.244081</td>
+      <td>-0.124428</td>
+      <td>0.041134</td>
+      <td>12.909690</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2026-01-16</th>
+      <td>15.86</td>
+      <td>-0.132124</td>
+      <td>0.423611</td>
+      <td>-0.132124</td>
+      <td>-0.132124</td>
+      <td>0.671222</td>
+      <td>0.456742</td>
+      <td>0.116588</td>
+      <td>14.185392</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2026-01-19</th>
+      <td>18.84</td>
+      <td>0.664424</td>
+      <td>0.753968</td>
+      <td>0.664424</td>
+      <td>0.664424</td>
+      <td>1.692754</td>
+      <td>1.550960</td>
+      <td>0.833970</td>
+      <td>26.314184</td>
+      <td>ELEVATED</td>
+    </tr>
+    <tr>
+      <th>2026-01-20</th>
+      <td>20.09</td>
+      <td>0.998649</td>
+      <td>0.821429</td>
+      <td>0.998649</td>
+      <td>0.998649</td>
+      <td>1.853496</td>
+      <td>1.889434</td>
+      <td>1.084368</td>
+      <td>30.547672</td>
+      <td>STRESSED</td>
+    </tr>
+    <tr>
+      <th>2026-01-21</th>
+      <td>16.90</td>
+      <td>0.143363</td>
+      <td>0.583333</td>
+      <td>0.143363</td>
+      <td>0.143363</td>
+      <td>0.138579</td>
+      <td>1.126779</td>
+      <td>0.302048</td>
+      <td>17.320975</td>
+      <td>NORMAL</td>
+    </tr>
+    <tr>
+      <th>2026-01-22</th>
+      <td>15.64</td>
+      <td>-0.202554</td>
+      <td>0.376984</td>
+      <td>-0.202554</td>
+      <td>-0.202554</td>
+      <td>-0.004331</td>
+      <td>0.748175</td>
+      <td>0.009689</td>
+      <td>12.378056</td>
+      <td>NORMAL</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/vix_signal_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: VIX Market Volatility Signal</a></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Macro Theme : US Growth &amp; Business Cycle</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Macro Theme : US Growth &amp; Business Cycle</h1>
+      <p class="subtitle">US Growth &amp; Business Cycle: synthesising capex, production, durables, housing and yield-curve signals.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2025-12-20</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><p><em>Synthesising Fed liquidity, money supply, SOFR positioning and real-rate signals.</em></p>
+
+<h3>Executive Summary</h3>
+Current macroeconomic conditions are characterized by a gradual moderation in economic activity and a softening labor market, which is pushing the Federal Reserve towards an easing stance. Monetary policy, as reflected by the explicit neutral rate proxy, is currently near neutral, following recent policy rate reductions. This environment is further shaped by persistent, tariff-driven inflation and a bifurcated consumer spending pattern, with strong growth from higher-income households contrasted by increasing price sensitivity among lower-income groups (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>). The FOMC has initiated steps to ease liquidity conditions, aiming to ensure ample reserves in the financial system (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>). However, a comprehensive assessment is constrained by the absence of explicit M2 money supply and SOFR positioning signals.
+
+<ul>
+  <li>Fed liquidity condition: Easing (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>)</li>
+  <li>M2 regime: Not Provided</li>
+  <li>Real-rate regime: Inferred positive and declining (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>)</li>
+  <li>Neutral Rate (r*) stance: <strong>NEAR NEUTRAL</strong> (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>)</li>
+  <li>Neutral Rate (r*) drift: <strong>STABLE</strong> (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>)</li>
+  <li>SOFR positioning tone: Not Provided</li>
+  <li>Overall monetary tone: Net Easing</li>
+</ul>
+
+<h3>1. Federal Reserve Liquidity Dynamics</h3>
+Money market conditions have recently shown signs of tightening, with the effective federal funds rate rising within its target range and an increase in the usage of the Standing Repo Facility (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>). In response to these dynamics, the Federal Open Market Committee (FOMC) has decided to initiate purchases of shorter-term Treasury securities. This action is explicitly aimed at maintaining ample reserves within the financial system and signaling an intention to ease liquidity tightness (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>). This represents an "Easing" liquidity impulse, shifting from a previously tighter environment and suggesting a move towards a net injecting posture in the Fed's liquidity management (<a href="https://investor-anatomy.com/signals/federal_reserve_liquidity_composite" target="_blank">3</a>).
+
+<h3>2. Money Supply (M2)</h3>
+Explicit signal reports or detailed data regarding the M2 Money Supply's current regime (e.g., contractionary, stabilising, or re-accelerating) were not provided in the available inputs. This constitutes a material gap in the assessment of broader monetary aggregates and their influence on liquidity and economic activity.
+
+<h3>3. Real Interest Rates, Neutral Rate (r*) &amp; Policy Expectations</h3>
+The real interest rate regime is not explicitly provided in the available inputs. However, it is inferred as currently positive and declining, a condition driven by recent nominal policy rate cuts in an environment of still-elevated inflation (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>). This inferred trend suggests a gradual reduction in the restrictiveness of monetary policy from a real rate perspective (<a href="https://investor-anatomy.com/signals/real_interest_rate_trend" target="_blank">4</a>).
+
+The Explicit Neutral Rate (r*) Proxy indicates that the monetary policy stance is currently "Near neutral" as of December 19, 2025 (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>). This classification is supported by a `stance_gap` of 0.04850, where the `policy_real_proxy` of 1.64 slightly exceeds the `rstar_proxy` of 1.59150 (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>). The 3-month directional drift of the neutral rate is categorized as "Stable," following a period of rising trends, and the confidence level for this assessment is "Medium" (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>).
+
+Information on SOFR CoT positioning signals (both 3-month and 5-year maturities) was not provided within the input documents. Therefore, an assessment of near-term and medium-term policy expectations, including insights into speculative versus hedger positioning and their implications for the future policy path, cannot be furnished.
+
+<h3>4. Synthesised Monetary Regime</h3>
+The synthesised monetary regime is characterized by a deliberate shift towards easing, underpinned by active liquidity injections and a policy stance that is rapidly converging to a near-neutral real rate. The FOMC's decision to initiate purchases of shorter-term Treasury securities signals a proactive effort to maintain ample reserves and mitigate recent tightening in money market conditions (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>). This, coupled with the Explicit Neutral Rate (r*) Proxy indicating a "Near neutral" stance, signifies a predominantly supportive monetary tone (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>). This easing is occurring amidst a complex backdrop of persistent inflation and softening labor market conditions, with signals presenting some contradictions (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>).
+
+<table>
+  <thead>
+    <tr>
+      <th>Pillar</th>
+      <th>Current Regime</th>
+      <th>Interpretation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Fed Liquidity</td>
+      <td>Easing (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>)</td>
+      <td>FOMC initiating purchases of shorter-term Treasury securities to maintain ample reserves (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>).</td>
+    </tr>
+    <tr>
+      <td>M2 Money Supply</td>
+      <td>Not Provided</td>
+      <td>Critical data for broad monetary aggregates assessment is missing.</td>
+    </tr>
+    <tr>
+      <td>Real Rates</td>
+      <td>Inferred positive and declining (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>)</td>
+      <td>Nominal rate cuts and elevated inflation are reducing policy restrictiveness.</td>
+    </tr>
+    <tr>
+      <td>Neutral Rate (r*) Context</td>
+      <td>NEAR NEUTRAL; drift STABLE (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>)</td>
+      <td>Policy rate is closely aligned with the estimated neutral real rate.</td>
+    </tr>
+    <tr>
+      <td>SOFR Policy Expectations</td>
+      <td>Not Provided</td>
+      <td>Critical data for derivatives-based policy expectations is missing.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>5. Forward Risks</h3>
+
+<h4>Easing / Supportive Risks</h4>
+<ul>
+  <li>Persistently positive liquidity impulse, such as continued Treasury purchases or a sustained decline in Standing Repo Facility usage (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>).</li>
+  <li>Further stabilization or outright fall in real yields from their currently inferred declining levels (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>).</li>
+  <li>Policy stance drifting fully into an accommodative territory relative to the neutral rate (r*) (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>).</li>
+</ul>
+
+<h4>Tightening / Reversal Risks</h4>
+<ul>
+  <li>Renewed increase in real yields above trend, potentially driven by unexpected nominal rate hikes or accelerated disinflation (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>).</li>
+  <li>Reversal in FOMC liquidity policy, leading to renewed draining of reserves or increased money market stress (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>).</li>
+  <li>Policy stance remaining or becoming more restrictive versus neutral (r*) if the neutral rate unexpectedly rises or nominal rates are held higher than anticipated (<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>).</li>
+</ul>
+
+<h3>6. Investment Interpretation (Informational)</h3>
+The current monetary regime, characterized by an easing liquidity impulse and a policy stance nearing the estimated neutral real rate, typically suggests a supportive environment for financial markets (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>). This implies that funding conditions are becoming more accommodative, potentially leading to a reduction in liquidity premia across various asset classes and improved market access for borrowers.
+
+For fixed income markets, the inferred positive but declining real yields, alongside a stable and near-neutral policy rate, generally indicates reduced pressure on duration-sensitive assets (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>)(<a href="https://investor_anatomy.com/signals/neutral_rate_proxy" target="_blank">2</a>). In credit and broader risk asset markets, this regime is broadly constructive. However, the identified contradictory signals—specifically, elevated and sticky inflation conflicting with a softening labor market and bifurcated growth—may introduce a nuanced risk premium, necessitating selective exposure rather than a broad-based risk-on approach (<a href="/signals/federal_reserve_projections_synthesiser.html" target="_blank">1</a>).
+
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>A dedicated <strong>Federal Reserve Liquidity Composite</strong> signal document with explicit regime classifications and quantitative metrics to fully support the 'Easing' interpretation from the Synthesizer.</li>
+  <li>A <strong>M2 Money Supply Signal</strong> document to provide explicit regime classifications (e.g., contraction, stabilisation, re-acceleration) and related money-aggregate diagnostics, which is critical for a comprehensive liquidity assessment.</li>
+  <li>A standalone <strong>Real Interest Rate Trend</strong> signal document to provide explicit regime classifications (e.g., restrictive, neutral, accommodative) based on DFII10 against its trend, rather than relying on inference.</li>
+  <li><strong>SOFR CoT Positioning signals (3m and 5y)</strong>, including data on speculative versus hedger positioning, to gauge front-end and medium-term policy expectations and assess market consensus or disagreement on the policy path.</li>
+  <li>A <strong>US Credit Conditions</strong> signal report (identified as `us_credit_group` in the Synthesizer) with explicit regime classifications (e.g., "Tightening" or "Easing"), as it was cited within the 'Federal Reserve Projections Synthesiser' document.</li>
+</ul></div></section>
+</main>
+</body>
+</html>

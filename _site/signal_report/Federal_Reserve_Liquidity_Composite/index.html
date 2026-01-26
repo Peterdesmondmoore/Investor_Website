@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Federal Reserve Liquidity Composite Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Federal Reserve Liquidity Composite Signal</h1>
+      <p class="subtitle">Federal Reserve balance sheet, RRP, and reserves as a composite liquidity signal.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-24</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>) indicates a strong Expansion regime as of 2026-01-31, with a composite score of 2.297.</li>
+        <li>This reflects a substantial easing of liquidity conditions, despite some underlying tensions.</li>
+        <li>Conviction Band: Low | Interpretation Confidence: Mixed Signals | Internal Conflict Flag: Yes.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The composite's strong expansion is primarily driven by bullish signals from reserve balances and significantly declining Overnight Reverse Repo (ON RRP) usage (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Federal Reserve total assets continue to show bearish contraction, providing a material offset to the other components (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>M2 money supply currently registers as Neutral due to missing data, contributing neutrally to the composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>The signal transitioned from Neutral in December 2025 to a strong Expansion in January 2026, indicating a notable positive inflection.</li>
+        <li>Conditional Invalidation: A significant and sustained rise in Overnight Reverse Repo (ON RRP) facility usage would invalidate this easing liquidity interpretation.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Liquidity conditions continue to expand, supported by ongoing declines in ON RRP usage and stable reserve balances.</li>
+        <li>Upside secondary: Further strong inflows into reserves or an acceleration in M2 growth beyond current levels, amplifying the expansionary trend.</li>
+        <li>Downside residual: A reversal in the decline of Fed assets, or a resurgence in ON RRP usage, could quickly tighten liquidity.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the monthly aggregation of underlying monetary components.</li>
+        <li>Aggregation Weight Hint: Medium, as despite mixed internal signals, the overall expansionary regime represents a significant shift in macro liquidity conditions.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Liquidity.</li>
+        <li>Cycle position: This strong liquidity expansion often supports early-to-mid cycle activity, potentially easing financial conditions and fostering risk-on sentiment.</li>
+        <li>Typical interaction with other macro signals: Strong liquidity expansion typically correlates positively with demand signals and risk asset performance, and can precede shifts in credit conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">2</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>M2 Money Stock (FRED), latest value 2025-11-30 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Total Assets of the Federal Reserve (FRED), latest value 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Reserve Balances with Federal Reserve Banks (FRED), latest value 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>ON Reverse Repo usage (FRED), latest value 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>The most influential datapoints are the significantly negative (inverted positive) YoY and 3M changes in ON RRP usage.</li>
+        <li>Additional public datasets that would improve depth or reliability include the SOFR 3M (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">3</a>) and 5Y (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">4</a>) CoT signals to capture market-implied liquidity, and the Credit Spreads signal (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">5</a>) for financial conditions impact.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Federal Reserve Liquidity Composite Chart</h2><div class="box chart-box"><img src="/images/US_Liquidity_Composite_with_signals_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Federal Reserve liquidity composite and signal regimes.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Federal Reserve Liquidity Composite Tables</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><h3>Part 1</h3><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Date</th>
+      <th>M2_Signal2</th>
+      <th>FED_Signal</th>
+      <th>RES_Signal</th>
+      <th>RRP_Signal</th>
+      <th>Liquidity_Composite</th>
+      <th>Liquidity_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2025-01-31</td>
+      <td>Neutral</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>-0.171528</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2025-02-28</td>
+      <td>Neutral</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>Bullish</td>
+      <td>-0.223391</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2025-03-31</td>
+      <td>Neutral</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>Bullish</td>
+      <td>0.156371</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2025-04-30</td>
+      <td>Bullish</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>0.034387</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2025-05-31</td>
+      <td>Bullish</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>-0.309377</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2025-06-30</td>
+      <td>Bullish</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>0.169793</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2025-07-31</td>
+      <td>Bullish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>Bullish</td>
+      <td>0.882249</td>
+      <td>Expansion</td>
+    </tr>
+    <tr>
+      <td>2025-08-31</td>
+      <td>Bullish</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>1.341864</td>
+      <td>Expansion</td>
+    </tr>
+    <tr>
+      <td>2025-09-30</td>
+      <td>Bullish</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>1.091819</td>
+      <td>Expansion</td>
+    </tr>
+    <tr>
+      <td>2025-10-31</td>
+      <td>Bullish</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>0.443609</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2025-11-30</td>
+      <td>Neutral</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>1.098935</td>
+      <td>Expansion</td>
+    </tr>
+    <tr>
+      <td>2025-12-31</td>
+      <td>Neutral</td>
+      <td>Bearish</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>-0.058522</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <td>2026-01-31</td>
+      <td>Neutral</td>
+      <td>Bearish</td>
+      <td>Bullish</td>
+      <td>Bullish</td>
+      <td>2.297197</td>
+      <td>Expansion</td>
+    </tr>
+  </tbody>
+</table><hr><h3>Part 2</h3><table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Date</th>
+      <th>M2_Value</th>
+      <th>M2_YoY</th>
+      <th>M2_3M</th>
+      <th>FED_YoY</th>
+      <th>FED_3M</th>
+      <th>RES_YoY</th>
+      <th>RES_3M</th>
+      <th>RRP_YoY</th>
+      <th>RRP_3M</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2025-01-31</td>
+      <td>21492.4</td>
+      <td>3.462153</td>
+      <td>0.864929</td>
+      <td>-10.641216</td>
+      <td>-2.784691</td>
+      <td>-8.548648</td>
+      <td>-0.376063</td>
+      <td>-69.463859</td>
+      <td>-6.640070</td>
+    </tr>
+    <tr>
+      <td>2025-02-28</td>
+      <td>21564.6</td>
+      <td>3.371810</td>
+      <td>0.731502</td>
+      <td>-10.593637</td>
+      <td>-2.013558</td>
+      <td>-6.735795</td>
+      <td>3.085039</td>
+      <td>-53.309273</td>
+      <td>18.618407</td>
+    </tr>
+    <tr>
+      <td>2025-03-31</td>
+      <td>21636.7</td>
+      <td>3.520423</td>
+      <td>0.990455</td>
+      <td>-9.946720</td>
+      <td>-2.116044</td>
+      <td>-1.292518</td>
+      <td>6.268157</td>
+      <td>-32.848554</td>
+      <td>-15.691505</td>
+    </tr>
+    <tr>
+      <td>2025-04-30</td>
+      <td>21770.6</td>
+      <td>4.021215</td>
+      <td>1.294411</td>
+      <td>-9.363907</td>
+      <td>-1.597331</td>
+      <td>-3.162982</td>
+      <td>-0.172756</td>
+      <td>-53.091529</td>
+      <td>33.360119</td>
+    </tr>
+    <tr>
+      <td>2025-05-31</td>
+      <td>21827.5</td>
+      <td>3.992472</td>
+      <td>1.219128</td>
+      <td>-8.388910</td>
+      <td>-1.372386</td>
+      <td>-4.067676</td>
+      <td>-1.700744</td>
+      <td>-28.228128</td>
+      <td>34.653318</td>
+    </tr>
+    <tr>
+      <td>2025-06-30</td>
+      <td>21942.5</td>
+      <td>4.225051</td>
+      <td>1.413339</td>
+      <td>-7.868209</td>
+      <td>-1.158013</td>
+      <td>2.019017</td>
+      <td>-2.364723</td>
+      <td>-30.672314</td>
+      <td>15.423119</td>
+    </tr>
+    <tr>
+      <td>2025-07-31</td>
+      <td>22028.7</td>
+      <td>4.480153</td>
+      <td>1.185544</td>
+      <td>-7.464249</td>
+      <td>-0.994131</td>
+      <td>1.636396</td>
+      <td>3.982339</td>
+      <td>-48.101404</td>
+      <td>-14.427716</td>
+    </tr>
+    <tr>
+      <td>2025-08-31</td>
+      <td>22108.3</td>
+      <td>4.427283</td>
+      <td>1.286451</td>
+      <td>-7.298001</td>
+      <td>-1.046867</td>
+      <td>-2.673826</td>
+      <td>-1.397088</td>
+      <td>-82.015099</td>
+      <td>-75.321948</td>
+    </tr>
+    <tr>
+      <td>2025-09-30</td>
+      <td>22212.4</td>
+      <td>4.492553</td>
+      <td>1.230033</td>
+      <td>-6.661865</td>
+      <td>-0.807616</td>
+      <td>-5.267376</td>
+      <td>-10.895644</td>
+      <td>-89.461556</td>
+      <td>-89.349317</td>
+    </tr>
+    <tr>
+      <td>2025-10-31</td>
+      <td>22298.0</td>
+      <td>4.645651</td>
+      <td>1.222496</td>
+      <td>-6.080511</td>
+      <td>-0.836181</td>
+      <td>-12.015510</td>
+      <td>-14.918770</td>
+      <td>-74.263457</td>
+      <td>-75.843690</td>
+    </tr>
+    <tr>
+      <td>2025-11-30</td>
+      <td>22322.4</td>
+      <td>4.271300</td>
+      <td>0.968415</td>
+      <td>-5.108093</td>
+      <td>-0.771801</td>
+      <td>-10.257789</td>
+      <td>-10.182461</td>
+      <td>-96.174106</td>
+      <td>-90.293717</td>
+    </tr>
+    <tr>
+      <td>2025-12-31</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>-3.562973</td>
+      <td>0.487607</td>
+      <td>-8.929408</td>
+      <td>-1.492497</td>
+      <td>-77.613104</td>
+      <td>115.999266</td>
+    </tr>
+    <tr>
+      <td>2026-01-31</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>-3.426219</td>
+      <td>-0.037255</td>
+      <td>-8.368992</td>
+      <td>3.752852</td>
+      <td>-99.506687</td>
+      <td>-98.210494</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/Federal_Reserve_Liquidity_Composite.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Federal Reserve Liquidity Composite Signal</a></section>
+</main>
+</body>
+</html>

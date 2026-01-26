@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Lithium Hydroxide - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Lithium Hydroxide - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Lithium Hydroxide futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Lithium Hydroxide positioning signal currently indicates a stable, neutral market as of 2026-01-20. It reflects balanced speculative and hedger activity. The synthetic state is Normal, transitioning from a previous "High Tension" period. Conviction Band: Medium, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculators are net short (-32.8% OI, z-score 0.16) and hedgers net long (34.2% OI, z-score -0.19) as of 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>). This indicates a balanced market with a slight short bias.</li>
+        <li>The 4-week flow shows a Long_Reduction of -2.0, reflecting mild unwinding (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>No extreme positioning, crowding, or reversal risks are flagged; the reversal score is 0 (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: The signal interpretation would reverse if extreme positioning or significant risk flags emerge.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued neutrality, with balanced positioning and absent risk flags.</li>
+        <li>Upside secondary: Increased speculative long positioning, evidenced by "Long_Build" flow and rising positive speculative z-scores.</li>
+        <li>Downside residual: Emergence of bearish reversal risks or crowded short conditions, triggered by negative news or weak demand.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks), as CoT data provides weekly insights into positioning shifts and short-term reversals (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, due to high confidence in identifying current tactical positioning and reversal risk.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Sentiment, demand (via hedger activity), and liquidity (via speculative flows).</li>
+        <li>Cycle position: Mid-cycle, indicating consolidation without strong directional forces.</li>
+        <li>Typical interaction with other macro signals: This signal can confirm industrial demand trends when correlated with commodity cycle signals (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">3</a>). It also provides early warnings on supply/demand imbalances.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Commitment of Traders (CoT) data for Lithium Hydroxide, latest 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Influential datapoints: Spec_Net_%OI (-32.8), Hedger_Net_%OI (34.2), Flow_4w (-2.0), and synthetic_state (Normal).</li>
+        <li>Additional public datasets: Price data for Lithium Hydroxide futures/spot. Global EV sales data would contextualize demand.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Lithium Hydroxide CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_LITHIUM_HYDROXIDE_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Lithium Hydroxide futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Lithium Hydroxide CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>113</th>
+      <td>2025-10-14</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-35.1</td>
+      <td>36.8</td>
+      <td>0.235583</td>
+      <td>-0.250370</td>
+      <td>-2.3</td>
+      <td>Balanced</td>
+      <td>-1.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.485954</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>66.477273</td>
+      <td>-10573</td>
+      <td>11076</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>114</th>
+      <td>2025-10-21</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-35.3</td>
+      <td>36.5</td>
+      <td>0.167580</td>
+      <td>-0.267701</td>
+      <td>-3.1</td>
+      <td>Balanced</td>
+      <td>-1.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-3.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.435280</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>63.473054</td>
+      <td>-10775</td>
+      <td>11152</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>115</th>
+      <td>2025-10-28</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-35.6</td>
+      <td>36.6</td>
+      <td>0.080322</td>
+      <td>-0.219493</td>
+      <td>-2.2</td>
+      <td>Balanced</td>
+      <td>-1.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.299815</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>60.248447</td>
+      <td>-10783</td>
+      <td>11082</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>116</th>
+      <td>2025-11-04</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-34.9</td>
+      <td>35.8</td>
+      <td>0.179594</td>
+      <td>-0.328909</td>
+      <td>0.1</td>
+      <td>Balanced</td>
+      <td>-0.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.508503</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>64.596273</td>
+      <td>-9621</td>
+      <td>9870</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>117</th>
+      <td>2025-11-10</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-34.4</td>
+      <td>35.5</td>
+      <td>0.245675</td>
+      <td>-0.354256</td>
+      <td>0.7</td>
+      <td>Balanced</td>
+      <td>-1.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.599931</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>67.701863</td>
+      <td>-9671</td>
+      <td>9980</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>118</th>
+      <td>2025-11-18</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-34.9</td>
+      <td>35.9</td>
+      <td>0.121143</td>
+      <td>-0.254969</td>
+      <td>0.4</td>
+      <td>Balanced</td>
+      <td>-1.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.376112</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>64.596273</td>
+      <td>-9815</td>
+      <td>10088</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>119</th>
+      <td>2025-11-25</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-35.3</td>
+      <td>36.5</td>
+      <td>0.014415</td>
+      <td>-0.117298</td>
+      <td>0.3</td>
+      <td>Balanced</td>
+      <td>-1.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.131713</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>62.111801</td>
+      <td>-9899</td>
+      <td>10228</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>120</th>
+      <td>2025-12-02</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-31.2</td>
+      <td>31.6</td>
+      <td>0.815172</td>
+      <td>-1.006380</td>
+      <td>3.7</td>
+      <td>Balanced</td>
+      <td>-0.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.821551</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>87.577640</td>
+      <td>-8695</td>
+      <td>8812</td>
+      <td>True</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>121</th>
+      <td>2025-12-09</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-34.8</td>
+      <td>35.3</td>
+      <td>0.030650</td>
+      <td>-0.260669</td>
+      <td>-0.4</td>
+      <td>Balanced</td>
+      <td>-0.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-0.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.291319</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>65.217391</td>
+      <td>-8640</td>
+      <td>8755</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>122</th>
+      <td>2025-12-16</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-33.0</td>
+      <td>33.7</td>
+      <td>0.386169</td>
+      <td>-0.553182</td>
+      <td>1.9</td>
+      <td>Balanced</td>
+      <td>-0.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.939350</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>75.641026</td>
+      <td>-8189</td>
+      <td>8372</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>123</th>
+      <td>2025-12-23</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-30.8</td>
+      <td>32.1</td>
+      <td>0.862099</td>
+      <td>-0.869955</td>
+      <td>4.5</td>
+      <td>Balanced</td>
+      <td>-1.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>4.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.732053</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>89.743590</td>
+      <td>-7584</td>
+      <td>7901</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>124</th>
+      <td>2025-12-30</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-31.7</td>
+      <td>33.3</td>
+      <td>0.624676</td>
+      <td>-0.579741</td>
+      <td>-0.5</td>
+      <td>Balanced</td>
+      <td>-1.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-0.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.204417</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>83.974359</td>
+      <td>-7957</td>
+      <td>8337</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>125</th>
+      <td>2026-01-06</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-25.6</td>
+      <td>26.9</td>
+      <td>2.123203</td>
+      <td>-2.059264</td>
+      <td>9.2</td>
+      <td>Balanced</td>
+      <td>-1.3</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Spec_Extreme_Long</td>
+      <td>Long_Build</td>
+      <td>9.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>4.182467</td>
+      <td>1</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>-5842</td>
+      <td>6131</td>
+      <td>True</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>126</th>
+      <td>2026-01-13</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-29.6</td>
+      <td>31.1</td>
+      <td>1.078416</td>
+      <td>-1.025644</td>
+      <td>3.4</td>
+      <td>Balanced</td>
+      <td>-1.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>2.104059</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>76.744186</td>
+      <td>-6894</td>
+      <td>7252</td>
+      <td>True</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>127</th>
+      <td>2026-01-20</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>-32.8</td>
+      <td>34.2</td>
+      <td>0.162735</td>
+      <td>-0.188687</td>
+      <td>-2.0</td>
+      <td>Balanced</td>
+      <td>-1.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.351422</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>55.555556</td>
+      <td>-7849</td>
+      <td>8156</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>LITHIUM HYDROXIDE - COMMODITY EXCHANGE INC.</td>
+      <td>189691</td>
+      <td>1.0</td>
+      <td>189.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Lithium Hydroxide CoT Signals</a></section>
+</main>
+</body>
+</html>

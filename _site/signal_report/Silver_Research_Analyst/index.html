@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Silver · Research Analyst</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Silver · Research Analyst</h1>
+      <p class="subtitle">Assessing Silver Outlook Based on Current Research</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-18</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="asset-forward-view"
+     data-as-of-date="2026-01-18"
+     data-horizon-min-months="6"
+     data-horizon-max-months="12">
+
+  <section class="stance">
+    <h2>6–12 Month Stance</h2>
+    <p><strong>Stance:</strong>
+      <span data-field="stance">bullish</span>
+    </p>
+    <p><strong>Confidence:</strong>
+      <span data-field="confidence">high</span>
+    </p>
+  </section>
+
+  <section class="core-narrative">
+    <h2>Core Narrative</h2>
+    <p data-field="core_narrative">
+      Precious metals, particularly Gold and Silver, are widely expected to extend their significant gains into 2026, building on a strong performance in 2025 (2)(5). Gold is anticipated to remain strong, potentially reaching new highs, with various forecasts placing it around $4,200-$4,530/oz (3)(4)(5)(6). Silver is projected to demonstrate even greater upside potential, potentially outperforming gold, with forecasts generally ranging from $50-$65/oz (3)(4)(5)(6). This constructive outlook is primarily supported by anticipated Fed rate cuts, a weaker US dollar, sustained central bank gold purchases, and persistent global geopolitical uncertainties (2)(4)(5). For silver, additional strength is derived from structural supply deficits and growing industrial demand, especially from green energy and AI-related applications (4)(5)(6)(7)(9).
+    </p>
+  </section>
+
+  <section class="key-drivers">
+    <h2>Key Drivers</h2>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Anticipated Fed Rate Cuts</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Expectations of lower rates from the Federal Reserve and an easing cycle are seen as a key macro factor supporting precious metals (2)(4)(5). A potential 25bps Fed rate cut this week and dovish guidance could influence yields, the dollar, and gold (1). Lower rates will sustain investor enthusiasm for gold, even if real rates remain static due to sticky inflation (5).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Weaker US Dollar</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        A weaker or depreciating US dollar is identified as a supportive driver for gold (1)(4)(5)(6). The US Dollar (DXY) appears to be turning lower, contributing to the bullish outlook for gold (1).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Sustained Central Bank Gold Purchases</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Robust central bank demand for gold, with purchases averaging "almost 260 tonnes per quarter since Q1 2022", is a significant factor in gold's strength (2)(4)(5). Central bank diversification is a broader theme contributing to gold's role as a store of value (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Geopolitical Uncertainty and Unease</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Ongoing geopolitical uncertainties, such as tensions in Russia and Venezuela, showed no signs of easing and act as a hedge against geopolitical stress (1)(2)(4). A "fraught global geopolitical environment" adds support for a bullish gold case (5).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Industrial Demand for Silver</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Silver's "dynamic bull case" is powered by its dual role as a monetary hedge and an industrial metal (8). Strong industrial demand from solar (photovoltaics), automotive (especially EVs), and data centers/AI is expected to continue (4)(5)(7)(9). Electric vehicles consume significantly more silver than internal combustion engines, and the build-out of EV charging infrastructure further drives demand (7).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Tight Supply and Deficits for Silver</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        A persistent supply deficit in the silver market, which has seen "a deficit for four consecutive years," leads to "physical tightness" (4)(6). Structural supply deficits are anticipated (8), with another significant deficit of 117.6Moz forecast for 2025 (9).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Fiscal Dominance and Currency Debasement</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Concerns over the fiscal sustainability of G20 economies focus investors' attention on gold as a haven (5). Government spending dictating monetary policy, termed "Fiscal Dominance and the Debasement Trade," leads to a "secular shift toward hard assets as fiat currencies rapidly lose purchasing power" (8).
+      </p>
+    </div>
+
+  </section>
+
+  <section class="key-risks">
+    <h2>Key Risks</h2>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Rising US Real Yields</h3>
+      <p data-field="why_it_matters">
+        10-year US Real Yields continuing to edge higher could act as a "headwind for Gold" if they break significant resistance levels (1).
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Technological Thrifting in Solar PV</h3>
+      <p data-field="why_it_matters">
+        Innovation in photovoltaic technologies could "reduce silver consumption per watt by 15–20% in 2025" (6). Industrial fabrication for silver is forecast to "flat-line due to thrifting in PV" (9).
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Impact of US Subsidy Cuts and Trade Tariffs</h3>
+      <p data-field="why_it_matters">
+        US subsidy cuts and trade tariffs pose risks to solar photovoltaic growth (7). Additionally, mixed government incentives and rising tariffs impacting affordability could affect automotive silver demand (7), and fears of potential US tariffs have led to silver outflows from London vaults (7). US trade and foreign policy is a general uncertainty (9).
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Sizable Silver Stockpiles</h3>
+      <p data-field="why_it_matters">
+        Despite a forecast deficit for 2025, the price impact for silver is expected to be limited by "still sizable stockpiles of silver" (9). This could mitigate immediate price surges driven by supply tightness.
+      </p>
+    </div>
+
+  </section>
+
+  <section class="signposts">
+    <h2>Signposts to Watch</h2>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Federal Reserve Monetary Policy</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">A 25bps Fed rate cut this week or more dovish guidance from the Fed (1).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Delayed or fewer-than-expected rate cuts, or hawkish Federal Reserve guidance (1).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">US Dollar (DXY) Movement</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">The US Dollar (DXY) continuing to turn lower, indicating sustained depreciation (1).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">The US Dollar (DXY) reversing its downtrend and strengthening against major currencies (1).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Gold's Technical Resistance Levels</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">A sustained move by gold above resistance at US$4,245/oz, indicating the completion of a "triangle" continuation pattern (1).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Gold's failure to break significant resistance levels or a sustained move below key support (1).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Silver's Industrial Demand Metrics</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued strong growth in solar PV installations, electric vehicle production, and data center build-out, along with increased silver consumption in AI-related hardware (7)(9).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Slower growth in key industrial sectors or accelerated adoption of silver-thrifting technologies without new applications to offset the reduction (7)(9).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Central Bank Gold Purchase Trends</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued central bank gold purchases averaging "almost 260 tonnes per quarter" or higher (5).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A significant slowdown or reversal in central bank gold buying patterns (5).
+        </span>
+      </p>
+    </div>
+
+  </section>
+
+  <section class="scenarios">
+    <h2>Scenarios</h2>
+
+    <div class="scenario" data-scenario="base">
+      <h3 data-field="scenario_name">base</h3>
+      <p data-field="scenario_description">
+        Precious metals maintain their bullish momentum into 2026. Gold continues to appreciate, driven by anticipated Fed rate cuts, a weaker US dollar, and sustained central bank demand (2)(4)(5). Silver outperforms gold, benefiting from persistent supply deficits and robust industrial demand from green energy and AI (4)(5)(6)(7). Gold prices are expected to average between $4,200/oz and $4,325/oz, while silver averages $50-$55/oz (3)(4).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Anticipated Fed Rate Cuts; Weaker US Dollar; Sustained Central Bank Gold Purchases; Industrial Demand (Silver); Tight Supply / Deficits (Silver)
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="upside">
+      <h3 data-field="scenario_name">upside</h3>
+      <p data-field="scenario_description">
+        Gold and silver experience even stronger gains, reaching higher price targets such as gold at $4,500/troy oz in Q4 2026 and silver at $65.00/troy oz in Q4 2026 (5). This scenario is fueled by a more aggressive Fed easing cycle or a more pronounced US dollar depreciation (1). Heightened global geopolitical tensions further boost gold's safe-haven appeal, while industrial silver demand accelerates beyond expectations due to rapid AI infrastructure build-out (4)(5)(7). The increasing role of hard assets amidst "Fiscal Dominance and the Debasement Trade" also provides strong support (8).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Anticipated Fed Rate Cuts (more aggressive); Weaker US Dollar (more pronounced); Geopolitical Uncertainty/Unease (heightened); Industrial Demand (Silver, stronger than expected); Fiscal Dominance and Currency Debasement
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="downside">
+      <h3 data-field="scenario_name">downside</h3>
+      <p data-field="scenario_description">
+        Gold could remain rangebound if current macro conditions persist without significant changes, or if the anticipated Fed easing is slower than expected (1). For silver, even with a deficit, price impact might be limited by "still sizable stockpiles" (9). A stronger-than-expected US dollar or an unexpected de-escalation of geopolitical tensions could dampen overall precious metals enthusiasm (1)(9). Furthermore, technological "thrifting" in solar photovoltaics could curb silver demand if not sufficiently offset by new applications (7)(9). Rising US real yields could also act as a headwind for gold (1).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          neutral
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Rising US Real Yields; Still Sizable Stockpiles (Silver); Technological Thrifting in PV; Slower-than-expected Fed easing; Stronger US Dollar
+        </span>
+      </p>
+    </div>
+
+  </section>
+
+  <section class="disagreements">
+    <h2>Disagreements & Uncertainties</h2>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Impact of Silver Stockpiles on Price</h3>
+      <p data-field="what_conflicts">
+        There is a divergence on whether current silver stockpiles will limit the impact of anticipated deficits on price.
+      </p>
+      <ul>
+        <li data-field="side_a">The silver market's "fourth consecutive deficit" in 2024 and an anticipated significant deficit in 2025 imply strong fundamentals and justify a "record-breaking rally" (6)(9).</li>
+        <li data-field="side_b">While "Another significant deficit of 117.6Moz is forecast for 2025," its price impact is expected to be "limited by 'still sizable stockpiles of silver'" (9).</li>
+      </ul>
+    </div>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Gold ETF Inflow Trends</h3>
+      <p data-field="what_conflicts">
+        Reports offer conflicting signals on gold ETF inflows, either indicating slowing interest or room for further participation.
+      </p>
+      <ul>
+        <li data-field="side_a">Gold's strength was partially offset by "slowing gold ETF inflows (-0.1%)" (1).</li>
+        <li data-field="side_b">"ETF holdings across all precious metals are still well below their highest levels," suggesting "room for further investor participation" (5).</li>
+      </ul>
+    </div>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Effectiveness of Silver Thrifting in Solar PV</h3>
+      <p data-field="what_conflicts">
+        While technological advancements reduce silver per solar cell, their net impact on demand is subject to debate due to new cell technologies.
+      </p>
+      <ul>
+        <li data-field="side_a">Technological "thrifting" is expected to "reduce silver consumption per watt by 15–20% in 2025," and industrial fabrication is forecast to "flat-line due to thrifting in PV" (6)(9).</li>
+        <li data-field="side_b">However, "new next-gen solar cells (TOPCon, SHJ) require more silver, potentially offsetting reductions" from thrifting technologies (7).</li>
+      </ul>
+    </div>
+
+  </section>
+
+  <section class="research-quality">
+    <h2>Research Quality & Coverage Assessment</h2>
+
+    <p><strong>Overall quality:</strong>
+      <span data-field="research_quality">
+        strong
+      </span>
+    </p>
+
+    <p data-field="quality_rationale">
+      The research set exhibits strong overall quality, characterized by consistent bullish outlooks for precious metals (Gold and Silver) across multiple reputable sources (2)(4)(5)(6)(8). Documents provide detailed price forecasts for 2026 (3)(4)(5)(6) and offer in-depth analysis of macroeconomic factors, geopolitical influences, and specific industrial demand drivers for silver (1)(4)(7). The depth of analysis, especially concerning silver's role in green energy and AI, enhances credibility (7).
+    </p>
+
+    <p><strong>Coverage completeness:</strong>
+      <span data-field="coverage_completeness">
+        comprehensive
+      </span>
+    </p>
+
+    <p data-field="coverage_gaps">
+      none identified
+    </p>
+
+    <p data-field="missing_thematic_research">
+      none identified
+    </p>
+  </section>
+
+  <section class="coverage-stats">
+    <h2>Sources Used</h2>
+    <ul>
+      <li><strong>Documents provided:</strong>
+        <span data-field="documents_provided">10</span>
+      </li>
+      <li><strong>Documents used:</strong>
+        <span data-field="documents_used">9</span>
+      </li>
+      <li><strong>Sources used:</strong>
+        <ol>
+          <li id="ref-1">
+            <a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook">The 2026 Gold Outlook</a>
+          </li>
+          <li id="ref-2">
+            <a href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf">1H2026 Commodities Outlook</a>
+          </li>
+          <li id="ref-3">
+            <a href="https://economics.bmo.com/media/filer_public/fc/3d/fc3d0b80-ae57-475d-9f07-c1e83a029fb5/commoditiesoutlook.pdf">Commodities Outlook: Our Key Commodities Forecasts for December 2025</a>
+          </li>
+          <li id="ref-4">
+            <a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf">Commodities Outlook 2026</a>
+          </li>
+          <li id="ref-5">
+            <a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf">Precious metals to extend gains in 2026</a>
+          </li>
+          <li id="ref-6">
+            <a href="https://www.wisdomtree.eu/api/sitecore/pdf/getblogpdf?id=dc416e42-3489-46ef-9145-7731911683ef">Silver outlook to Q3 2026 - Silver’s second act: the metal’s rally has room to run</a>
+          </li>
+          <li id="ref-7">
+            <a href="https://silverinstitute.org/wp-content/uploads/2025/12/Silver_The-Next-Generation-Metal_DECEMBER-Release.pdf">Silver, The Next Generation Metal</a>
+          </li>
+          <li id="ref-8">
+            <a href="https://sprott.com/insights/top-10-themes-for-2026/">Top 10 Themes for 2026</a>
+          </li>
+          <li id="ref-9">
+            <a href="https://silverinstitute.org/wp-content/uploads/2025/04/World_Silver_Survey-2025.pdf">World Silver Survey 2025</a>
+          </li>
+        </ol>
+      </li>
+      <li><strong>Date range:</strong>
+        <span data-field="earliest_publication_date">2025-04-01</span>
+        to
+        <span data-field="latest_publication_date">2026-01-13</span>
+      </li>
+    </ul>
+  </section>
+
+</div></div></section>
+</main>
+</body>
+</html>

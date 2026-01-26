@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US 10-Year Real Yield (DFII10) — Regime Signal Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{
+      nav, .screen-only{display:none!important}
+      body{color:#000}
+    }
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">US 10-Year Real Yield (DFII10) Regime Signal Methodology</h1>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification for regime classification based on real yield levels and trend analysis (2003–present).</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This paper describes the methodology for deriving market regime signals from the US 10‑year real yield (<code>DFII10</code>), using a trend‑based framework. The approach computes the 6‑month moving average of the real yield and applies a categorical regime classification—<em>Bullish</em>, <em>Bearish</em>, or <em>Neutral</em>—based on the relationship between the yield and its trend. This framework aligns monetary conditions and real‑rate dynamics for macro interpretation.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>DFII10:</strong> 10‑Year Treasury Inflation‑Indexed Security, constant maturity (Real Yield), monthly.</li>
+        <li>Data sourced from <strong>FRED</strong> and begins in <strong>2003‑01‑01</strong>.</li>
+        <li>Additional contextual data (optional): market regimes or policy events for cross‑validation.</li>
+      </ul>
+      <p class="leading-7 mt-3">The dataset is sorted by <code>Date</code> and filtered to post‑2003 observations. All analysis is performed in percentage yield space.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Methodology</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li>Compute a 6‑month moving average to capture medium‑term trend behaviour:
+          <div class="box mt-2 text-sm">
+            <div class="eq">Trend<sub>t</sub> = Mean(Value<sub>t−5:t</sub>)</div>
+          </div>
+        </li>
+        <li>Classify the signal based on yield position relative to trend:
+          <div class="box mt-2 text-sm">
+            <ul class="list-disc pl-6">
+              <li><strong>Bullish:</strong> Real yield <span class="eq">Value<sub>t</sub></span> below its trend (<span class="eq">Value<sub>t</sub> &lt; Trend<sub>t</sub></span>), implying accommodative conditions.</li>
+              <li><strong>Bearish:</strong> Real yield above its trend (<span class="eq">Value<sub>t</sub> &gt; Trend<sub>t</sub></span>), indicating tightening or restrictive conditions.</li>
+              <li><strong>Neutral:</strong> Real yield within ±0.05 % of its trend.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+      <p class="leading-7 mt-3">This framework highlights medium‑term turning points in real interest‑rate regimes and serves as a diagnostic tool for assessing the stance of monetary conditions.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Implementation Notes</h2>
+      <div class="box text-sm">
+<pre><code>chart_df = merged_df.copy()
+chart_df = chart_df.sort_values('Date')
+chart_df = chart_df[chart_df['Date'] >= pd.Timestamp('2003-01-01')]
+
+chart_df['DFII10_Trend'] = chart_df['Value_DFII10'].rolling(6, min_periods=1).mean()
+
+def classify_signal(row):
+    if pd.isna(row['Value_DFII10']) or pd.isna(row['DFII10_Trend']):
+        return 'Neutral'
+    diff = row['Value_DFII10'] - row['DFII10_Trend']
+    if diff > 0.05:
+        return 'Bearish'
+    elif diff < -0.05:
+        return 'Bullish'
+    return 'Neutral'
+
+chart_df['Signal'] = chart_df.apply(classify_signal, axis=1)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Sensitivity and Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Shorter windows (e.g., 3 m) capture tactical movements but add noise.</li>
+        <li>Real yields are subject to breakeven inflation distortions; interpret the signal directionally.</li>
+        <li>Neutral bounds (±0.05 %) can be tuned to reflect investor tolerance for noise.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Reproducibility</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Record source (<code>DFII10</code> from FRED), retrieval date, and version control of scripts.</li>
+        <li>Ensure consistent rolling‑window definitions and tolerance levels.</li>
+        <li>Save both the chart image (<code>US_Real_Yield_Signal_chart_mpl.png</code>) and DataFrame output for auditability.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">6. Applications</h2>
+      <p class="leading-7">The real‑yield regime signal assists in assessing market expectations for real rates and inflation compensation. It provides macro context for equity‑bond correlation shifts and can be integrated into multi‑asset regime frameworks.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Prepared for internal research and investment analytics. Print‑friendly academic specification for the DFII10 regime signal.</footer>
+  </main>
+</body>
+</html>

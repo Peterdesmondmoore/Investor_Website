@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>YEN - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>YEN - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for YEN futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>Japanese Yen futures currently exhibit extreme speculative short positioning and crowded shorts, as of 2026-01-20 (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">1</a>). Hedgers simultaneously hold deeply long positions, creating a state of "Elevated_Risk" in the market (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">1</a>). This reflects a high-tension condition despite a lack of clear reversal signals.</li>
+        <li>Conviction Band: Medium, Interpretation Confidence: Mixed Signals, Internal Conflict Flag: Yes.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative net positioning is significantly short at -15.3% of Open Interest, registering an extreme z-score of -2.38 (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">1</a>). Commercial hedgers are deeply long at 14.1% of Open Interest, with a z-score of 2.24 (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Recent 4-week flow indicates "Long_Reduction" (-15.7), implying continued JPY weakening momentum, which contradicts the classic expectation of a reversal from extreme speculative shorts (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Extreme speculative short positioning and deep hedger long positioning (typically bullish for JPY) are offset by a "No_Clear_Reversal" regime and "Balanced_Short_Bias" market structure (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A significant shift in speculative net positioning, bringing the `Spec_zscore` back above -1.0.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued JPY weakening (USD/JPY strength), supported by the ongoing "Long_Reduction" flow and "Balanced_Short_Bias" market structure.</li>
+        <li>Upside secondary: A sharp JPY strengthening (USD/JPY decline) due to a speculative short squeeze, triggered by an unexpected shift in fundamentals or policy.</li>
+        <li>Downside residual: Further JPY weakening without a significant squeeze, leading to even more stretched speculative short positions.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks). The signal's weekly data and focus on positioning dynamics are most relevant for short-term trading opportunities and risk management.</li>
+        <li>Aggregation Weight Hint: Medium. The presence of strong but internally conflicting signals suggests a moderate weighting in broader composite analyses.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension: Primarily informs FX dynamics (<a href="https://investoranatomy.com/signal_report/ia_global_inflation_and_fx_dynamics/" target="_blank">2</a>), cross-asset positioning & sentiment (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">3</a>), and global trade & demand (<a href="https://investoranatomy.com/signal_report/ia_global_trade_demand/" target="_blank">4</a>) through JPY movements.</li>
+        <li>Cycle position: This signal reflects tactical positioning, often indicative of potential turning points or sustained trends within a broader macro cycle.</li>
+        <li>Typical interaction with other macro signals: Interacts with interest rate differentials (e.g., US vs. Japan policy expectations), global risk sentiment (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">5</a>), and broader USD regime shifts (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">6</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Commitment of Traders (CoT) data for "JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE", latest observation 2026-01-20 (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Datapoints most influential for the current state: `Spec_Net_%OI`, `Hedger_Net_%OI`, `Spec_zscore`, `Hedger_zscore`, `crowded_short`, `flow_4w`, `hedger_pressure_regime`, and `reversal_regime`.</li>
+        <li>1–2 additional public datasets that would improve depth or reliability: Japanese CPI/PPI data for domestic inflation pressures, and JGB yields to assess interest rate differentials.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">YEN CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_YEN_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">YEN futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>YEN CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>197</th>
+      <td>2025-10-14</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>12.2</td>
+      <td>-12.0</td>
+      <td>-0.438813</td>
+      <td>0.505351</td>
+      <td>-8.3</td>
+      <td>Balanced</td>
+      <td>0.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-8.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.944165</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>49.208443</td>
+      <td>37166</td>
+      <td>-36620</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>152.434006</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>2025-10-21</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>22.9</td>
+      <td>-22.1</td>
+      <td>0.058188</td>
+      <td>0.084520</td>
+      <td>-2.7</td>
+      <td>Balanced</td>
+      <td>0.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.026332</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>63.324538</td>
+      <td>70414</td>
+      <td>-67894</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>150.774002</td>
+    </tr>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>21.1</td>
+      <td>-21.4</td>
+      <td>-0.059556</td>
+      <td>0.146704</td>
+      <td>1.0</td>
+      <td>Balanced</td>
+      <td>-0.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.206259</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>60.949868</td>
+      <td>68115</td>
+      <td>-68613</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>152.692001</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>16.4</td>
+      <td>-15.3</td>
+      <td>-0.338090</td>
+      <td>0.465871</td>
+      <td>1.2</td>
+      <td>Balanced</td>
+      <td>1.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.803961</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>54.749340</td>
+      <td>51265</td>
+      <td>-47851</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>154.203995</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>15.5</td>
+      <td>-15.4</td>
+      <td>-0.451416</td>
+      <td>0.531150</td>
+      <td>3.3</td>
+      <td>Balanced</td>
+      <td>0.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.982566</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>49.059334</td>
+      <td>48476</td>
+      <td>-48023</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>153.817001</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>9.5</td>
+      <td>-9.3</td>
+      <td>-0.848094</td>
+      <td>0.896361</td>
+      <td>-13.4</td>
+      <td>Balanced</td>
+      <td>0.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-13.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.744454</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>35.524257</td>
+      <td>31157</td>
+      <td>-30527</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>155.272995</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>7.7</td>
+      <td>-8.0</td>
+      <td>-0.996388</td>
+      <td>1.004443</td>
+      <td>-13.4</td>
+      <td>Balanced</td>
+      <td>-0.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-13.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.000831</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>32.707355</td>
+      <td>26517</td>
+      <td>-27484</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>156.938995</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>9.2</td>
+      <td>-9.7</td>
+      <td>-0.927339</td>
+      <td>0.935687</td>
+      <td>-7.2</td>
+      <td>Balanced</td>
+      <td>-0.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-7.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.863026</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>35.054773</td>
+      <td>36418</td>
+      <td>-38123</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>155.557007</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>3.7</td>
+      <td>-3.9</td>
+      <td>-1.239727</td>
+      <td>1.232254</td>
+      <td>-11.8</td>
+      <td>Balanced</td>
+      <td>-0.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-11.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.471981</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>26.447574</td>
+      <td>17448</td>
+      <td>-18059</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>155.843994</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>-0.8</td>
+      <td>-1.3</td>
+      <td>-1.491509</td>
+      <td>1.368674</td>
+      <td>-10.3</td>
+      <td>Balanced</td>
+      <td>-0.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-10.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.860183</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>19.405321</td>
+      <td>-2942</td>
+      <td>-4744</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>155.014999</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>0.4</td>
+      <td>-2.0</td>
+      <td>-1.418662</td>
+      <td>1.342982</td>
+      <td>-7.3</td>
+      <td>Balanced</td>
+      <td>-1.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-7.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.761644</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>21.283255</td>
+      <td>1223</td>
+      <td>-5904</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>156.876999</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>4.9</td>
+      <td>-6.7</td>
+      <td>-1.182001</td>
+      <td>1.122885</td>
+      <td>-4.3</td>
+      <td>Balanced</td>
+      <td>-1.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-4.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.304886</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>28.325509</td>
+      <td>14068</td>
+      <td>-19076</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>156.013000</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>3.1</td>
+      <td>-4.2</td>
+      <td>-1.336223</td>
+      <td>1.303009</td>
+      <td>-0.6</td>
+      <td>Balanced</td>
+      <td>-1.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-0.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.639232</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>25.508607</td>
+      <td>8815</td>
+      <td>-12168</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>156.626007</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>-15.3</td>
+      <td>15.5</td>
+      <td>-2.442357</td>
+      <td>2.381898</td>
+      <td>-14.5</td>
+      <td>Balanced</td>
+      <td>-0.2</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Spec_Extreme_Short</td>
+      <td>Long_Reduction</td>
+      <td>-14.5</td>
+      <td>False</td>
+      <td>True</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>4.824255</td>
+      <td>2</td>
+      <td>Elevated_Risk</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>0.000000</td>
+      <td>-45164</td>
+      <td>45819</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>157.985992</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>-15.3</td>
+      <td>14.1</td>
+      <td>-2.382130</td>
+      <td>2.246407</td>
+      <td>-15.7</td>
+      <td>Balanced</td>
+      <td>1.2</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Spec_Extreme_Short</td>
+      <td>Long_Reduction</td>
+      <td>-15.7</td>
+      <td>False</td>
+      <td>True</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>4.628537</td>
+      <td>2</td>
+      <td>Elevated_Risk</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>0.000000</td>
+      <td>-44829</td>
+      <td>41140</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>097741</td>
+      <td>0.0</td>
+      <td>97.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>158.177002</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: YEN CoT Signals</a></section>
+</main>
+</body>
+</html>

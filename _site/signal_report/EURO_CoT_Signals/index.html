@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>EURO - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>EURO - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for EURO futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The EURO FX market is experiencing a contraction in speculative net long positioning while hedgers maintain or marginally increase their short exposure, placing it in a "Normal" state with no clear reversal risk as of 2026-01-20 (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Low | Interpretation Confidence: High Confidence | Internal Conflict Flag: No</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative net long positioning stands at 12.6% of open interest (z-score 0.33), while hedger net short positioning is -17.7% (z-score -0.22) (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Over the last four weeks, there has been a -5.8% reduction in speculative net longs, indicating "Long_Reduction" flow (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Hedgers are currently categorized as the "controller" with a "Hedger_Adding_Short" market structure regime (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>No extreme positioning, crowding, squeeze, or exhaustion risks are currently flagged (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A significant and sustained shift to speculative net long building (positive 4-week flow) or a broad unwinding of hedger short positions would reverse the current interpretation (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: EURO FX consolidation or slight downward pressure as speculative net long positions continue to reduce and hedgers maintain or add to short positions (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Upside secondary: A significant reversal in speculative flow to long accumulation or a broad unwinding of hedger short positions (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Downside residual: Accelerated speculative long reduction or more aggressive hedger short accumulation could drive further price declines (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks), reflecting the nature of weekly CoT data updates and short-term positioning shifts (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Low, given the absence of extreme positioning or clear reversal signals, suggesting limited immediate directional conviction (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs on FX dynamics and market sentiment (<a href="https://investoranatomy.com/signal_report/ia_us_macro_regime/" target="_blank">2</a>).</li>
+        <li>It is more indicative of tactical positioning rather than a specific broad economic cycle position.</li>
+        <li>It typically interacts with broader global macro overview (<a href="https://investoranatomy.com/signal_report/Composite_Global_Macro_Overview/" target="_blank">3</a>), cross-asset positioning (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">4</a>), and global inflation and FX dynamics signals (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">5</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Commitment of Traders (CoT) data for EURO FX - CHICAGO MERCANTILE EXCHANGE, last observed 2026-01-20 (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The most influential datapoints are `Spec_Net_%OI`, `Hedger_Net_%OI`, `Flow_4w`, and `market_structure_regime` (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Incorporating real interest rate differentials (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">6</a>) and GDP growth differentials (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">7</a>) would enhance the fundamental context and reliability.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">EURO CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_EURO_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">EURO futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>EURO CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>197</th>
+      <td>2025-10-14</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>12.9</td>
+      <td>-17.7</td>
+      <td>0.838993</td>
+      <td>-0.703189</td>
+      <td>-0.9</td>
+      <td>Balanced</td>
+      <td>-4.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-0.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.542182</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>90.000000</td>
+      <td>108325</td>
+      <td>-149130</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.86454</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>2025-10-21</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>13.4</td>
+      <td>-18.7</td>
+      <td>0.854482</td>
+      <td>-0.758784</td>
+      <td>0.1</td>
+      <td>Hedgers</td>
+      <td>-5.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>1.613266</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>91.851852</td>
+      <td>111752</td>
+      <td>-156233</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.85878</td>
+    </tr>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>12.7</td>
+      <td>-18.0</td>
+      <td>0.754216</td>
+      <td>-0.668631</td>
+      <td>-1.2</td>
+      <td>Hedgers</td>
+      <td>-5.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Adding_Short</td>
+      <td>1.422847</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>89.259259</td>
+      <td>107333</td>
+      <td>-151596</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.85824</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>11.0</td>
+      <td>-15.2</td>
+      <td>0.560967</td>
+      <td>-0.402603</td>
+      <td>-2.8</td>
+      <td>Balanced</td>
+      <td>-4.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.963570</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>82.962963</td>
+      <td>91795</td>
+      <td>-126612</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.86812</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>8.9</td>
+      <td>-13.4</td>
+      <td>0.334281</td>
+      <td>-0.228439</td>
+      <td>-4.0</td>
+      <td>Balanced</td>
+      <td>-4.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-4.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.562720</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>75.185185</td>
+      <td>73589</td>
+      <td>-111373</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.86626</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>12.0</td>
+      <td>-16.9</td>
+      <td>0.613952</td>
+      <td>-0.507880</td>
+      <td>-1.4</td>
+      <td>Balanced</td>
+      <td>-4.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.121832</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>86.666667</td>
+      <td>99007</td>
+      <td>-140150</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.86277</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>11.3</td>
+      <td>-16.5</td>
+      <td>0.514639</td>
+      <td>-0.443921</td>
+      <td>-1.4</td>
+      <td>Hedgers</td>
+      <td>-5.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Adding_Short</td>
+      <td>0.958559</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>84.074074</td>
+      <td>94071</td>
+      <td>-136976</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.86805</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>12.7</td>
+      <td>-18.3</td>
+      <td>0.628195</td>
+      <td>-0.577292</td>
+      <td>1.7</td>
+      <td>Hedgers</td>
+      <td>-5.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>1.205488</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>89.259259</td>
+      <td>108453</td>
+      <td>-155752</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.86150</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>14.7</td>
+      <td>-20.1</td>
+      <td>0.807281</td>
+      <td>-0.714087</td>
+      <td>5.8</td>
+      <td>Hedgers</td>
+      <td>-5.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>5.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>1.521367</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>96.666667</td>
+      <td>138788</td>
+      <td>-189597</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.85900</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>14.7</td>
+      <td>-19.8</td>
+      <td>0.779740</td>
+      <td>-0.657444</td>
+      <td>2.7</td>
+      <td>Hedgers</td>
+      <td>-5.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>2.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>1.437184</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>96.666667</td>
+      <td>144903</td>
+      <td>-196057</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.85073</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>18.4</td>
+      <td>-24.1</td>
+      <td>1.163668</td>
+      <td>-1.057624</td>
+      <td>7.1</td>
+      <td>Hedgers</td>
+      <td>-5.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>7.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.221293</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>159891</td>
+      <td>-209478</td>
+      <td>True</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.84991</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>18.1</td>
+      <td>-24.4</td>
+      <td>1.107859</td>
+      <td>-1.067454</td>
+      <td>5.4</td>
+      <td>Hedgers</td>
+      <td>-6.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>5.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.175313</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>98.972603</td>
+      <td>157465</td>
+      <td>-211626</td>
+      <td>True</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.84941</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>18.4</td>
+      <td>-24.4</td>
+      <td>1.124388</td>
+      <td>-1.048764</td>
+      <td>3.7</td>
+      <td>Hedgers</td>
+      <td>-6.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.173151</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>162812</td>
+      <td>-215819</td>
+      <td>True</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.85361</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>15.0</td>
+      <td>-20.3</td>
+      <td>0.678227</td>
+      <td>-0.566697</td>
+      <td>0.3</td>
+      <td>Hedgers</td>
+      <td>-5.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>1.244924</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>88.356164</td>
+      <td>132656</td>
+      <td>-179767</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.85712</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>12.6</td>
+      <td>-17.7</td>
+      <td>0.327403</td>
+      <td>-0.215651</td>
+      <td>-5.8</td>
+      <td>Hedgers</td>
+      <td>-5.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-5.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Adding_Short</td>
+      <td>0.543054</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>80.136986</td>
+      <td>111695</td>
+      <td>-155596</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>EURO FX - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>099741</td>
+      <td>0.0</td>
+      <td>99.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.85917</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: EURO CoT Signals</a></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>M2 Money Supply — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">M2 Money Supply Signal</h1>
+      <div class="mt-2 text-slate-600 text-sm">A reproducible specification for an M2‑based macro liquidity signal (FRED <strong>M2SL</strong>).</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This document formalises a rule‑based signal derived from the growth and short‑term momentum of the US M2 money stock (<code>M2SL</code>). We compute 12‑month and 3‑month percentage changes, then map observations to <em>Bullish</em>, <em>Neutral</em>, or <em>Bearish</em> regimes using transparent thresholds intended for macro‑risk applications (e.g., precious metals, cyclicals).</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Series:</strong> <code>M2SL</code> — M2 Money Stock (monthly, FRED).</li>
+      </ul>
+      <p class="leading-7 mt-3">The series is fetched from FRED with title metadata. Values are coerced to numeric and the date index is normalised to calendar month.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Preparation</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Fetch & typing:</strong> parse <code>Date</code> to datetime; coerce <code>Value</code> to numeric.</li>
+        <li><strong>Missing data policy:</strong> apply linear interpolation, then <code>bfill</code>/<code>ffill</code> to cover any edge NaNs.</li>
+        <li><strong>Sanity checks:</strong> confirm no residual nulls after preparation.</li>
+      </ol>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Transformations</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Year‑over‑Year growth:</strong>
+          <div class="box mt-2 text-sm"><div class="eq">M2_{YoY,t} = 100 \times \frac{M2_t - M2_{t-12}}{M2_{t-12}}</div></div>
+        </li>
+        <li><strong>3‑month momentum:</strong>
+          <div class="box mt-2 text-sm"><div class="eq">M2_{3M,t} = 100 \times \frac{M2_t - M2_{t-3}}{M2_{t-3}}</div></div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Signal Classification</h2>
+      <p class="leading-7">Classify each timestamp using level (YoY) and impulse (3M) thresholds:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><strong>High growth threshold:</strong> <code>high_yoy = 6.0</code></li>
+          <li><strong>Low growth threshold:</strong> <code>low_yoy = 2.0</code></li>
+          <li><strong>Acceleration threshold (3M):</strong> <code>accelerating_3m = 1.0</code></li>
+          <li><strong>Deceleration threshold (3M):</strong> <code>decelerating_3m = -1.0</code></li>
+        </ul>
+      </div>
+      <p class="leading-7 mt-3"><strong>Rules:</strong> if <span class="eq">M2_{YoY} &gt; 6.0</span> or <span class="eq">M2_{3M} &gt; 1.0</span> ⇒ <strong>Bullish</strong>; if <span class="eq">M2_{YoY} &lt; 2.0</span> or <span class="eq">M2_{3M} &lt; -1.0</span> ⇒ <strong>Bearish</strong>; else <strong>Neutral</strong>. Missing inputs default to <em>Neutral</em>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code>def fetch_fred_series_df(series_id):
+    try:
+        s = fred.get_series(series_id)
+        if s is None or s.empty:
+            return pd.DataFrame(columns=['Series_ID','title','Date','Value'])
+        s.index = pd.to_datetime(s.index)
+        df = s.reset_index(); df.columns = ['Date','Value']
+        df['Series_ID'] = series_id
+        try:
+            meta = fred.get_series_info(series_id)
+            df['title'] = getattr(meta, 'title', None)
+        except Exception:
+            df['title'] = None
+        df['Value'] = pd.to_numeric(df['Value'], errors='coerce')
+        return df[['Series_ID','title','Date','Value']].sort_values(['Date','Series_ID']).reset_index(drop=True)
+    except Exception:
+        return pd.DataFrame(columns=['Series_ID','title','Date','Value'])
+
+# Fetch & prepare
+m2sl_df = fetch_fred_series_df('M2SL')
+m2sl_df['Date']  = pd.to_datetime(m2sl_df['Date'])
+m2sl_df['Value'] = pd.to_numeric(m2sl_df['Value'], errors='coerce')
+
+# Handle missing values
+a = m2sl_df.copy()
+a.interpolate(method='linear', inplace=True)
+a.fillna(method='bfill', inplace=True)
+a.fillna(method='ffill', inplace=True)
+
+# Transforms (YoY and 3M)
+a['M2SL_YoY']            = a['Value'].pct_change(12) * 100
+
+a['M2SL_3Month_Change']  = a['Value'].pct_change(3)  * 100
+
+# Signal rules
+HIGH_YOY = 6.0; LOW_YOY = 2.0; ACC3M = 1.0; DEC3M = -1.0
+
+def generate_m2_signal(row):
+    yoy, m3 = row['M2SL_YoY'], row['M2SL_3Month_Change']
+    if pd.isna(yoy) or pd.isna(m3):
+        return 'Neutral'
+    if (yoy > HIGH_YOY) or (m3 > ACC3M):
+        return 'Bullish'
+    if (yoy < LOW_YOY) or (m3 < DEC3M):
+        return 'Bearish'
+    return 'Neutral'
+
+a['M2_Signal'] = a.apply(generate_m2_signal, axis=1)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Assumptions & Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Interpolation and edge fills assume smooth intra‑month behaviour; results may differ during sharp breaks.</li>
+        <li>Fixed thresholds (6/2/±1) are heuristic; calibrate to target asset classes via backtests.</li>
+        <li>YoY growth can be influenced by base effects; consider alternative horizons when base effects are extreme.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Reproducibility</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist source ID (<code>M2SL</code>), retrieval timestamps, and library versions.</li>
+        <li>Log missing‑data treatment (interpolation, fills) and any threshold overrides.</li>
+        <li>Store the output panel with <code>M2SL_YoY</code>, <code>M2SL_3Month_Change</code>, and <code>M2_Signal</code> columns for audit.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">8. Applications</h2>
+      <p class="leading-7">Use as a standalone macro‑liquidity indicator or as an input to broader composites (e.g., the Federal Reserve Liquidity Composite). Helpful for conditioning risk‑on/off tilts in metals and cyclical assets.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the M2 Money Supply Signal.</footer>
+  </main>
+</body>
+</html>

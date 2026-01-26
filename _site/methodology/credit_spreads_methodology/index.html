@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Credit Spreads — Methodology (BAMLH0A0HYM2, BAMLC0A0CM)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Credit Spreads</h1>
+      <p class="mt-2 text-slate-600 text-sm">A composite signal measuring corporate funding stress from ICE BofA option‑adjusted spreads.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: Show corporate funding stress. Add: US High Yield OAS (<code>BAMLH0A0HYM2</code>) and US Corporate Master OAS (<code>BAMLC0A0CM</code>). Source: FRED. Integrate with the Financial Stress Index.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">Abstract</h2>
+      <p class="leading-7 mt-2">We build a monthly <em>Credit Spreads Composite (CSC)</em> from ICE BofA US High Yield OAS and US Corporate Master OAS. Level and momentum features are robust‑standardised and combined into a composite that maps to regimes—<span class="font-semibold">EASY</span>, <span class="font-semibold">NORMAL</span>, <span class="font-semibold">TIGHTENING</span>, <span class="font-semibold">STRESSED</span>. The CSC feeds into the broader <em>Financial Stress Index (FSI)</em> as a key sub‑pillar alongside Liquidity, VIX, and Funding indicators.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">1) Data (FRED Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7 mt-2">
+        <li><b>BAMLH0A0HYM2</b> — ICE BofA US High Yield Index Option‑Adjusted Spread (pct points).</li>
+        <li><b>BAMLC0A0CM</b> — ICE BofA US Corporate Master Option‑Adjusted Spread (pct points).</li>
+      </ul>
+      <p class="leading-7 mt-3">Frequency: daily; we aggregate to month‑end or week‑end snapshots. Units are percentage points (bps/100). Titles and last‑obs dates are logged.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">2) Data Quality &amp; Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Staleness:</b> flag if last observation &gt; 7 days old (daily series).</li>
+          <li><b>Forward‑fill:</b> bounded alignment fill ≤ 5 business days for calendar snaps.</li>
+          <li><b>Winsorisation:</b> 0.5–99.5th percentiles to reduce crisis‑era leverage in z‑scores.</li>
+          <li><b>Minimum history:</b> ≥ 120 months preferred; adaptive ≥ 60 months allowed.</li>
+        </ul>
+      </div>
+      <p class="text-sm mt-2"><code>data_quality_flag</code> records staleness, ffill count, and window adaptations.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">3) Component Transforms</h2>
+      <p class="leading-7">For spread series <span class="eq">s_t</span> (pct points):</p>
+      <div class="box text-sm">
+        <div class="eq">Level_t = s_t</div>
+        <div class="eq">Δ3m\_ann_t = 4 \times (s_t - s_{t-3})</div>
+        <div class="eq">Δ12m_t = s_t - s_{t-12}</div>
+        <div class="eq">PctRank_{10y}(t) = \text{percentile rank in last 120 months}</div>
+      </div>
+      <p class="leading-7 mt-3">Constructed components for HY and Corp Master: <i>hy_level</i>, <i>hy_d3m_ann</i>, <i>hy_d12m</i>, <i>hy_pct_rank</i>, and analogues for <i>ig_*</i>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">4) Standardisation (Rolling z-scores)</h2>
+      <p class="leading-7">Compute rolling z‑scores using robust median/MAD; fallback to mean/std if MAD=0 or short history.</p>
+      <div class="box text-sm">
+        <div class="eq">z_t = \dfrac{x_t - \text{median}_{W}(x)}{1.4826\,\text{MAD}_{W}(x)}</div>
+        <p class="mt-2">Suggested windows: W=120 months for levels; W=60 months for momentum.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">5) Composite &amp; Weighting</h2>
+      <p class="leading-7">We emphasise the High Yield level and percentile, as HY is more sensitive to stress, with supporting weight from changes and IG spreads. Missing inputs are renormalised out.</p>
+      <div class="box text-xs mt-3">
+<pre><code>{
+  "hy_level_z": 0.30, "hy_pct_rank": 0.20, "hy_d3m_ann_z": 0.15, "hy_d12m_z": 0.10,
+  "ig_level_z": 0.15, "ig_pct_rank": 0.05, "ig_d3m_ann_z": 0.03, "ig_d12m_z": 0.02
+}</code></pre>
+      </div>
+      <div class="box text-sm mt-3">
+        <div class="eq">CSC_t = \sum_k w_k\, z^k_t,\quad \sum_k w_k = 1</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">6) Scaling &amp; Regime Mapping</h2>
+      <p class="leading-7">Regimes communicate stress levels using composite z‑scores and absolute spread bands:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>EASY:</b> HY &lt; 3.5% and CSC z &lt; −0.5</li>
+          <li><b>NORMAL:</b> 3.5% ≤ HY &lt; 5% and CSC z in [−0.5, +0.5)</li>
+          <li><b>TIGHTENING:</b> HY rising &gt; 50 bps in 3 months or CSC z ≥ +0.5</li>
+          <li><b>STRESSED:</b> HY ≥ 6.5% or CSC z ≥ +1.0</li>
+        </ul>
+      </div>
+      <p class="text-sm mt-2">We also publish a 0–100 score via rolling min–max over 10 years.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">7) Integration with Financial Stress Index (FSI)</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li>CSC enters the FSI as the <i>Credit</i> pillar alongside Liquidity, Volatility (VIX), and Funding/TED measures.</li>
+          <li>When VIX is ELEVATED/STRESSED and CSC is TIGHTENING/STRESSED, the FSI upgrades to higher stress regimes.</li>
+          <li>Divergences (e.g., calm VIX but widening spreads) are flagged in “Risk Checks &amp; Contradictions.”</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">8) Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># FRED series (daily)
+hy = fred.get_series("BAMLH0A0HYM2")   # HY OAS (pct points)
+ig = fred.get_series("BAMLC0A0CM")     # Corp Master OAS (pct points)
+
+# Resample to month-end with bounded ffill (<=5b)
+hy_m = hy.resample("M").last().ffill(limit=5)
+ig_m = ig.resample("M").last().ffill(limit=5)
+
+def ann_3m(s): return 4*(s - s.shift(3))
+components = {
+  "hy_level": hy_m, "hy_d3m_ann": ann_3m(hy_m), "hy_d12m": hy_m - hy_m.shift(12),
+  "ig_level": ig_m, "ig_d3m_ann": ann_3m(ig_m), "ig_d12m": ig_m - ig_m.shift(12),
+}
+
+# Percentile ranks over 120 months; robust rolling z-scores; weights -> CSC; map regimes.
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">9) Reproducibility &amp; Monitoring</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Persist FRED IDs, retrieval timestamps, resampling policy, and windows.</li>
+        <li>Log winsorisation bounds, staleness flags, and window adaptations.</li>
+        <li>Store panels: raw, transforms, z-scores, contributions, composite, regimes.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">10) Interpretation &amp; Applications</h2>
+      <p class="leading-7">Credit spreads price default and liquidity premia. Rising HY spreads typically precede equity drawdowns and slower capex. Use CSC in concert with VIX and Liquidity to calibrate risk appetite and stress testing.</p>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold">11) Governance &amp; Change Control</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Quarterly review of components, thresholds, and weights vs backtests.</li>
+        <li>Document methodology updates; maintain semantic versioning.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly specification for the Credit Spreads signal.</footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Financial Stress Composite Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Financial Stress Composite Signal</h1>
+      <p class="subtitle">Systemic stress from credit spreads, curve inversion, and financial conditions.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of Unknown</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Financial Stress Composite signal (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>) indicates a persistent Neutral regime for financial stress, with the composite z-score at -0.539072 as of 2026-01-31.</li>
+        <li>This represents stable and normal functioning of credit and funding markets, showing a continued easing trend from prior periods.</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The St. Louis Fed Financial Stress Index (STLFSI4) z-score is -0.240368 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>), indicating subdued systemic stress.</li>
+        <li>High-yield option-adjusted spreads (HY_OAS) z-score is -0.731127 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>), reflecting tight credit conditions.</li>
+        <li>The inverted 10-year minus 2-year Treasury yield spread (T10Y2Y) z-score is -0.645721 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>), pointing to a less inverted or steeper yield curve.</li>
+        <li>All three components consistently signal low or neutral financial stress, maintaining the overall Neutral regime.</li>
+        <li>Conditional Invalidation: The signal would reverse to High_Stress if the composite z-score rises above 0.75 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>), particularly driven by widening high-yield spreads or a significant increase in the STLFSI4.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued Neutral financial stress, supported by stable to improving credit conditions and a normalized yield curve.</li>
+        <li>Upside secondary: A transition to Low_Stress, should HY_OAS and STLFSI4 z-scores decline further, indicating ample liquidity.</li>
+        <li>Downside residual: A shift to High_Stress, triggered by a material widening of credit spreads or a sharp increase in systemic stress indicators.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the monthly frequency of inputs and the rolling window robust standardization (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, due to its consistent assessment of financial conditions, though acknowledging methodological overlaps (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs on liquidity and risk sentiment (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>), reflecting the prevailing credit conditions.</li>
+        <li>It indicates a mid-cycle or stable phase where financial stress is not a primary concern.</li>
+        <li>Typically interacts with other macro signals by confirming or contradicting assessments of credit availability, investment climate, and overall economic stability.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>St. Louis Fed Financial Stress Index (STLFSI4) as of 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>ICE BofA U.S. High-Yield Option-Adjusted Spread (HY_OAS) as of 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>10-Year minus 2-Year Treasury Yield Spread (T10Y2Y) as of 2026-01-31 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Additional public datasets that would improve depth or reliability include the Federal Reserve's Senior Loan Officer Opinion Survey (SLOOS) and broader market volatility indices.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Financial Stress Composite Chart</h2><div class="box chart-box"><img src="/images/US_Financial_Stress_Composite_signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Composite of STLFSI, HY spreads, and yield-curve inversion.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Financial Stress Composite Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>STLFSI4</th>
+      <th>HY_OAS</th>
+      <th>T10Y2Y</th>
+      <th>Z_STL</th>
+      <th>Z_HY</th>
+      <th>Z_INV</th>
+      <th>Fin_Stress</th>
+      <th>Fin_Stress_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2023-02-28</th>
+      <td>-0.2332</td>
+      <td>4.22</td>
+      <td>-0.89</td>
+      <td>-0.052943</td>
+      <td>0.216704</td>
+      <td>1.131251</td>
+      <td>0.431671</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-03-31</th>
+      <td>-0.2755</td>
+      <td>4.58</td>
+      <td>-0.58</td>
+      <td>-0.132369</td>
+      <td>0.621315</td>
+      <td>0.818855</td>
+      <td>0.435934</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-04-30</th>
+      <td>-0.2948</td>
+      <td>4.53</td>
+      <td>-0.60</td>
+      <td>-0.167407</td>
+      <td>0.572295</td>
+      <td>0.828322</td>
+      <td>0.411070</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-05-31</th>
+      <td>-0.3240</td>
+      <td>4.69</td>
+      <td>-0.76</td>
+      <td>-0.246313</td>
+      <td>0.735808</td>
+      <td>0.965587</td>
+      <td>0.485027</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-06-30</th>
+      <td>-0.6979</td>
+      <td>4.05</td>
+      <td>-1.06</td>
+      <td>-1.212246</td>
+      <td>-0.011991</td>
+      <td>1.235383</td>
+      <td>0.003715</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-07-31</th>
+      <td>-0.7603</td>
+      <td>3.79</td>
+      <td>-0.91</td>
+      <td>-1.313759</td>
+      <td>-0.337245</td>
+      <td>1.088652</td>
+      <td>-0.187451</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-08-31</th>
+      <td>-0.6810</td>
+      <td>3.85</td>
+      <td>-0.76</td>
+      <td>-1.109882</td>
+      <td>-0.276377</td>
+      <td>0.946654</td>
+      <td>-0.146535</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-09-30</th>
+      <td>-0.4983</td>
+      <td>4.03</td>
+      <td>-0.44</td>
+      <td>-0.671122</td>
+      <td>-0.040878</td>
+      <td>0.633974</td>
+      <td>-0.026009</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-10-31</th>
+      <td>-0.3488</td>
+      <td>4.42</td>
+      <td>-0.19</td>
+      <td>-0.222899</td>
+      <td>0.436034</td>
+      <td>0.391009</td>
+      <td>0.201382</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-11-30</th>
+      <td>-0.7361</td>
+      <td>3.84</td>
+      <td>-0.36</td>
+      <td>-1.195367</td>
+      <td>-0.299774</td>
+      <td>0.571687</td>
+      <td>-0.307818</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2023-12-31</th>
+      <td>-0.4198</td>
+      <td>3.39</td>
+      <td>-0.35</td>
+      <td>-0.362918</td>
+      <td>-0.899321</td>
+      <td>0.555760</td>
+      <td>-0.235493</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-01-31</th>
+      <td>-0.8338</td>
+      <td>3.59</td>
+      <td>-0.28</td>
+      <td>-1.381890</td>
+      <td>-0.613173</td>
+      <td>0.486850</td>
+      <td>-0.502738</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-02-29</th>
+      <td>-0.6735</td>
+      <td>3.29</td>
+      <td>-0.39</td>
+      <td>-0.969765</td>
+      <td>-0.987060</td>
+      <td>0.613654</td>
+      <td>-0.447724</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-03-31</th>
+      <td>-0.9346</td>
+      <td>3.15</td>
+      <td>-0.39</td>
+      <td>-1.498921</td>
+      <td>-1.099170</td>
+      <td>0.657487</td>
+      <td>-0.646868</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-04-30</th>
+      <td>-0.8420</td>
+      <td>3.18</td>
+      <td>-0.35</td>
+      <td>-1.281468</td>
+      <td>-1.019230</td>
+      <td>0.622160</td>
+      <td>-0.559513</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-05-31</th>
+      <td>-0.8503</td>
+      <td>3.20</td>
+      <td>-0.38</td>
+      <td>-1.206401</td>
+      <td>-0.963558</td>
+      <td>0.651030</td>
+      <td>-0.506310</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-06-30</th>
+      <td>-0.8362</td>
+      <td>3.21</td>
+      <td>-0.35</td>
+      <td>-1.116992</td>
+      <td>-0.903037</td>
+      <td>0.618036</td>
+      <td>-0.467331</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-07-31</th>
+      <td>-0.6225</td>
+      <td>3.25</td>
+      <td>-0.20</td>
+      <td>-0.652605</td>
+      <td>-0.827662</td>
+      <td>0.445646</td>
+      <td>-0.344874</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-08-31</th>
+      <td>-0.6508</td>
+      <td>3.17</td>
+      <td>0.00</td>
+      <td>-0.655619</td>
+      <td>-0.872870</td>
+      <td>0.207536</td>
+      <td>-0.440318</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-09-30</th>
+      <td>-0.2712</td>
+      <td>3.03</td>
+      <td>0.15</td>
+      <td>0.135962</td>
+      <td>-0.921891</td>
+      <td>0.024866</td>
+      <td>-0.253688</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-10-31</th>
+      <td>-0.3853</td>
+      <td>2.88</td>
+      <td>0.12</td>
+      <td>-0.038057</td>
+      <td>-1.004013</td>
+      <td>0.050429</td>
+      <td>-0.330547</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-11-30</th>
+      <td>-0.6209</td>
+      <td>2.74</td>
+      <td>0.05</td>
+      <td>-0.479202</td>
+      <td>-1.116573</td>
+      <td>0.108686</td>
+      <td>-0.495696</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2024-12-31</th>
+      <td>-0.6243</td>
+      <td>2.92</td>
+      <td>0.33</td>
+      <td>-0.453762</td>
+      <td>-0.917506</td>
+      <td>-0.249338</td>
+      <td>-0.540202</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-01-31</th>
+      <td>-0.7639</td>
+      <td>2.68</td>
+      <td>0.36</td>
+      <td>-0.687667</td>
+      <td>-1.138050</td>
+      <td>-0.293257</td>
+      <td>-0.706325</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-02-28</th>
+      <td>-0.4571</td>
+      <td>2.87</td>
+      <td>0.25</td>
+      <td>-0.054635</td>
+      <td>-0.927118</td>
+      <td>-0.149887</td>
+      <td>-0.377213</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-03-31</th>
+      <td>-0.6240</td>
+      <td>3.55</td>
+      <td>0.34</td>
+      <td>-0.375926</td>
+      <td>-0.228137</td>
+      <td>-0.267190</td>
+      <td>-0.290417</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-04-30</th>
+      <td>-0.2691</td>
+      <td>3.94</td>
+      <td>0.57</td>
+      <td>0.397200</td>
+      <td>0.161676</td>
+      <td>-0.566963</td>
+      <td>-0.002696</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-05-31</th>
+      <td>-0.5391</td>
+      <td>3.32</td>
+      <td>0.52</td>
+      <td>-0.161561</td>
+      <td>-0.411903</td>
+      <td>-0.501795</td>
+      <td>-0.358419</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-06-30</th>
+      <td>-0.7068</td>
+      <td>2.96</td>
+      <td>0.52</td>
+      <td>-0.574901</td>
+      <td>-0.710532</td>
+      <td>-0.501795</td>
+      <td>-0.595743</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-07-31</th>
+      <td>-0.8029</td>
+      <td>2.86</td>
+      <td>0.43</td>
+      <td>-0.730499</td>
+      <td>-0.772318</td>
+      <td>-0.384492</td>
+      <td>-0.629103</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-08-31</th>
+      <td>-0.6109</td>
+      <td>2.84</td>
+      <td>0.64</td>
+      <td>-0.208169</td>
+      <td>-0.762020</td>
+      <td>-0.658199</td>
+      <td>-0.542796</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-09-30</th>
+      <td>-0.5406</td>
+      <td>2.80</td>
+      <td>0.56</td>
+      <td>-0.002021</td>
+      <td>-0.782615</td>
+      <td>-0.553930</td>
+      <td>-0.446189</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-10-31</th>
+      <td>-0.4632</td>
+      <td>2.94</td>
+      <td>0.51</td>
+      <td>0.208173</td>
+      <td>-0.572927</td>
+      <td>-0.488761</td>
+      <td>-0.284505</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-11-30</th>
+      <td>-0.3985</td>
+      <td>2.92</td>
+      <td>0.55</td>
+      <td>0.385872</td>
+      <td>-0.510425</td>
+      <td>-0.540896</td>
+      <td>-0.221817</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2025-12-31</th>
+      <td>-0.5819</td>
+      <td>2.81</td>
+      <td>0.71</td>
+      <td>-0.108104</td>
+      <td>-0.588552</td>
+      <td>-0.735227</td>
+      <td>-0.477294</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>2026-01-31</th>
+      <td>-0.6510</td>
+      <td>2.64</td>
+      <td>0.64</td>
+      <td>-0.240368</td>
+      <td>-0.731127</td>
+      <td>-0.645721</td>
+      <td>-0.539072</td>
+      <td>Neutral</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/financial_stress_composite_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Financial Stress Composite Signal</a></section>
+</main>
+</body>
+</html>

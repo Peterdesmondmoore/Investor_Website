@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>GOLD - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>GOLD - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Gold futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-20</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>Gold positioning shows underlying support from extreme hedger long positions, despite recent speculative long reduction (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>). The current state is one of expansion with high tension but no clear reversal signals.</li>
+        <li>Conviction Band: Medium, Interpretation Confidence: Mixed Signals, Internal Conflict Flag: Yes.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Hedgers are at a 1-year extreme long position (z-score 2.27), indicating deep underlying demand or anticipation of higher prices (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conversely, speculative traders have been reducing long exposure over the past four weeks (flow -1.66%), suggesting some short-term unwinding (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The market structure regime is "Spec_Long_Unwind," yet the overall reversal score indicates "No_Clear_Reversal," with no explicit bullish or bearish reversal risks flagged (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A significant shift in hedger positioning, specifically if the hedger z-score falls below 1.0 or turns negative, would weaken the signal of underlying demand.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Gold maintains current levels or experiences modest appreciation, supported by strong physical/hedger demand offsetting speculative unwinding.</li>
+        <li>Upside secondary: Renewed speculative buying could amplify hedger-led demand, pushing prices higher.</li>
+        <li>Downside residual: A sustained, aggressive speculative liquidation could overcome hedger support, leading to a price correction.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months). The build-up of extreme hedger positioning often reflects longer-term supply/demand dynamics.</li>
+        <li>Aggregation Weight Hint: Medium. The signal offers strong insight into hedger behavior, but the conflicting speculative flows and lack of explicit reversal signals warrant a balanced weighting.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Pricing and sentiment.</li>
+        <li>Cycle position: Mid-cycle, reflecting sustained demand amidst evolving speculative sentiment.</li>
+        <li>Typical interaction with other macro signals: Strong hedger positioning often aligns with inflation expectations (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">2</a>) or real interest rate trends (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>), while speculative flows can be influenced by broader risk-on/risk-off sentiment (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">4</a>) and USD dynamics (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Commitment of Traders (COT) data for GOLD - COMMODITY EXCHANGE INC., latest observation 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Key influential data points include `Hedger_zscore` (2.27), `hedger_extreme_1y` (True), and `Flow_4w` (-1.66%).</li>
+        <li>Additional public datasets that would improve depth: Gold pricing data (e.g., from yfinance for price context) and Gold ETF flows.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Gold CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_GOLD_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Gold futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Gold CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>197</th>
+      <td>2025-10-14</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>22.295734</td>
+      <td>-12.650992</td>
+      <td>-1.968901</td>
+      <td>-0.768961</td>
+      <td>-8.499410</td>
+      <td>Specs</td>
+      <td>9.644742</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-8.499410</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>1.199940</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>0.000000</td>
+      <td>108310</td>
+      <td>-61457</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4138.700195</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>2025-10-21</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>19.522206</td>
+      <td>-12.230193</td>
+      <td>-2.389779</td>
+      <td>-0.494146</td>
+      <td>-10.839432</td>
+      <td>Specs</td>
+      <td>7.292013</td>
+      <td>True</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Spec_Extreme_Short</td>
+      <td>Long_Reduction</td>
+      <td>-10.839432</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>1.895633</td>
+      <td>1</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>0.000000</td>
+      <td>92227</td>
+      <td>-57778</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4087.699951</td>
+    </tr>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>22.785821</td>
+      <td>-12.730518</td>
+      <td>-1.612527</td>
+      <td>-0.799212</td>
+      <td>-6.627362</td>
+      <td>Specs</td>
+      <td>10.055303</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-6.627362</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>0.813315</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>17.054190</td>
+      <td>104159</td>
+      <td>-58194</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>3966.199951</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>22.323540</td>
+      <td>-13.199630</td>
+      <td>-1.637314</td>
+      <td>-1.073900</td>
+      <td>-4.400092</td>
+      <td>Specs</td>
+      <td>9.123910</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-4.400092</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>True</td>
+      <td>Bearish_Reversal_Risk</td>
+      <td>Spec_Long_Unwind</td>
+      <td>0.563415</td>
+      <td>1</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>14.638517</td>
+      <td>100545</td>
+      <td>-59451</td>
+      <td>True</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>-1</td>
+      <td>3947.699951</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>22.627756</td>
+      <td>-12.770953</td>
+      <td>-1.515455</td>
+      <td>-0.784078</td>
+      <td>0.332022</td>
+      <td>Specs</td>
+      <td>9.856803</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.332022</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>0.731378</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>16.228216</td>
+      <td>104087</td>
+      <td>-58746</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4111.799805</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>20.808216</td>
+      <td>-12.479421</td>
+      <td>-1.798112</td>
+      <td>-0.587244</td>
+      <td>1.286010</td>
+      <td>Specs</td>
+      <td>8.328795</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.286010</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>1.210868</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>6.720114</td>
+      <td>98205</td>
+      <td>-58897</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4061.300049</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>25.247721</td>
+      <td>-10.784717</td>
+      <td>-0.897274</td>
+      <td>0.506865</td>
+      <td>2.461901</td>
+      <td>Specs</td>
+      <td>14.463005</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>2.461901</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>1.404139</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>29.918980</td>
+      <td>109309</td>
+      <td>-46692</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4139.200195</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>28.751942</td>
+      <td>-11.638749</td>
+      <td>-0.196717</td>
+      <td>-0.051868</td>
+      <td>6.428402</td>
+      <td>Specs</td>
+      <td>17.113193</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>6.428402</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>0.144849</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>48.230464</td>
+      <td>120324</td>
+      <td>-48707</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4186.600098</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>28.561455</td>
+      <td>-11.418525</td>
+      <td>-0.232525</td>
+      <td>0.092902</td>
+      <td>5.933699</td>
+      <td>Specs</td>
+      <td>17.142930</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>5.933699</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>0.325427</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>47.235067</td>
+      <td>123548</td>
+      <td>-49393</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4206.700195</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>28.146459</td>
+      <td>-9.392838</td>
+      <td>-0.313393</td>
+      <td>1.403599</td>
+      <td>7.338243</td>
+      <td>Specs</td>
+      <td>18.753622</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>7.338243</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>1.716992</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>45.066486</td>
+      <td>132596</td>
+      <td>-44249</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>4304.500000</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>27.691357</td>
+      <td>-10.421396</td>
+      <td>-0.402101</td>
+      <td>0.712284</td>
+      <td>2.443636</td>
+      <td>Specs</td>
+      <td>17.269962</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>2.443636</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>1.114385</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>42.688326</td>
+      <td>136270</td>
+      <td>-51284</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4482.799805</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>26.156649</td>
+      <td>-11.306255</td>
+      <td>-0.709101</td>
+      <td>0.122779</td>
+      <td>-2.595292</td>
+      <td>Specs</td>
+      <td>14.850394</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.595292</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>0.831879</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>34.668630</td>
+      <td>126040</td>
+      <td>-54481</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4370.100098</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>25.242565</td>
+      <td>-10.354506</td>
+      <td>-0.866723</td>
+      <td>0.737878</td>
+      <td>-3.318890</td>
+      <td>Specs</td>
+      <td>14.888059</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-3.318890</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>1.604601</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>29.892036</td>
+      <td>123213</td>
+      <td>-50542</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>4482.200195</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>25.546255</td>
+      <td>-9.700354</td>
+      <td>-0.771776</td>
+      <td>1.164886</td>
+      <td>-2.600204</td>
+      <td>Specs</td>
+      <td>15.845902</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.600204</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>1.936663</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>31.478983</td>
+      <td>134745</td>
+      <td>-51165</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>4589.200195</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>GOLD - COMMODITY EXCHANGE INC.</td>
+      <td>26.030863</td>
+      <td>-8.009220</td>
+      <td>-0.637978</td>
+      <td>2.270237</td>
+      <td>-1.660494</td>
+      <td>Specs</td>
+      <td>18.021644</td>
+      <td>False</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Hedger_Extreme_Long</td>
+      <td>Long_Reduction</td>
+      <td>-1.660494</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>2.908214</td>
+      <td>1</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>088691</td>
+      <td>CMX</td>
+      <td>1.0</td>
+      <td>88.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>34.011329</td>
+      <td>137444</td>
+      <td>-42289</td>
+      <td>False</td>
+      <td>False</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>4759.600098</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Gold CoT Signals</a></section>
+</main>
+</body>
+</html>

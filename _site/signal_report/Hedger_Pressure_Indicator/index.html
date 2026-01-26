@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Hedger Pressure Indicator</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Hedger Pressure Indicator</h1>
+      <p class="subtitle">CoT hedger pressure: supply expansion &amp; shortage stress.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-20</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Hedger Pressure signal currently indicates a Normal regime for both supply expansion and physical shortage pressures as of 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>). This reflects commercial positioning within typical historical bounds.</li>
+        <li>Conviction Band: Low | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The robust z-scores for Hedger Supply Pressure (-0.16) and Hedger Shortage Pressure (-0.09) remain well within the "Normal" range (below 0.5) (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
+        <li>Momentum is stable, with both z-scores oscillating around zero without indicating a strong directional shift.</li>
+        <li>Conditional Invalidation: If either the Hedger Supply Pressure z-score or Hedger Shortage Pressure z-score rises to 0.5 or above, indicating a shift to 'Moderate' pressure (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Hedger positioning remains normal, with no significant signs of impending supply expansion or physical shortage. This is supported by current z-scores close to zero.</li>
+        <li>Upside secondary: Increased Hedger Supply Pressure (z-score >= 1.0), signaling potential future supply expansion. Trigger: A sustained increase in the share of markets with deep short hedger positioning.</li>
+        <li>Downside secondary: Increased Hedger Shortage/Stress Pressure (z-score >= 1.0), indicating tightening physical supply. Trigger: A sustained increase in the share of markets with deep long hedger positioning.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks), as it is based on weekly Commitment of Traders (CoT) data reflecting short-to-medium term positioning dynamics (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Low, due to the current neutral regime and corresponding low conviction.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Supply, pricing, and underlying physical market conditions.</li>
+        <li>Cycle position: Not a primary cycle indicator, but can reflect supply-side pressures within an ongoing cycle.</li>
+        <li>Typical interaction with other macro signals: Provides a micro-level commercial perspective that can cross-check broader demand signals (e.g., Copper Tailwinds (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">2</a>)) and overall market sentiment (e.g., Global Risk-On / Risk-Off Positioning Tone (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">3</a>)).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>`df_cot_signals` (latest observation date: 2026-01-20).</li>
+        <li>The most influential datapoints are `Hedger_SupplyPressure_z` (-0.16) and `Hedger_ShortagePressure_z` (-0.09) from the 2026-01-20 report.</li>
+        <li>Additional public datasets that would improve depth or reliability: Sector-specific inventory levels and demand surveys could offer granular insights into physical market balances.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Hedger Pressure Chart</h2><div class="box chart-box"><img src="/images/CoT_Hedger_Pressure_Indicators.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Supply expansion and shortage stress by hedger positioning.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Hedger Pressure Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>n_markets</th>
+      <th>hedger_deep_short_count</th>
+      <th>hedger_deep_long_count</th>
+      <th>avg_hedger_net_oi</th>
+      <th>avg_hedger_zscore</th>
+      <th>hedger_deep_short_share</th>
+      <th>hedger_deep_long_share</th>
+      <th>Hedger_SupplyPressure_z</th>
+      <th>Hedger_ShortagePressure_z</th>
+      <th>Hedger_SupplyPressure_Regime</th>
+      <th>Hedger_ShortagePressure_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>197</th>
+      <td>2025-10-14</td>
+      <td>351</td>
+      <td>86</td>
+      <td>75</td>
+      <td>1.031638</td>
+      <td>-0.048083</td>
+      <td>0.245014</td>
+      <td>0.213675</td>
+      <td>0.693707</td>
+      <td>-0.125783</td>
+      <td>Moderate Supply Expansion</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>2025-10-21</td>
+      <td>358</td>
+      <td>77</td>
+      <td>67</td>
+      <td>1.441416</td>
+      <td>-0.032619</td>
+      <td>0.215084</td>
+      <td>0.187151</td>
+      <td>0.168255</td>
+      <td>-0.697076</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>361</td>
+      <td>67</td>
+      <td>67</td>
+      <td>1.551727</td>
+      <td>-0.044375</td>
+      <td>0.185596</td>
+      <td>0.185596</td>
+      <td>-0.349433</td>
+      <td>-0.730574</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>362</td>
+      <td>79</td>
+      <td>72</td>
+      <td>1.346909</td>
+      <td>-0.030054</td>
+      <td>0.218232</td>
+      <td>0.198895</td>
+      <td>0.223525</td>
+      <td>-0.444125</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>358</td>
+      <td>77</td>
+      <td>76</td>
+      <td>1.557036</td>
+      <td>-0.001101</td>
+      <td>0.215084</td>
+      <td>0.212291</td>
+      <td>0.168255</td>
+      <td>-0.155608</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>366</td>
+      <td>82</td>
+      <td>71</td>
+      <td>1.546212</td>
+      <td>-0.010212</td>
+      <td>0.224044</td>
+      <td>0.193989</td>
+      <td>0.325553</td>
+      <td>-0.549791</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>367</td>
+      <td>84</td>
+      <td>73</td>
+      <td>1.581150</td>
+      <td>0.002477</td>
+      <td>0.228883</td>
+      <td>0.198910</td>
+      <td>0.410508</td>
+      <td>-0.443801</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>364</td>
+      <td>81</td>
+      <td>76</td>
+      <td>1.394169</td>
+      <td>-0.003091</td>
+      <td>0.222527</td>
+      <td>0.208791</td>
+      <td>0.298935</td>
+      <td>-0.230977</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>366</td>
+      <td>73</td>
+      <td>83</td>
+      <td>1.253456</td>
+      <td>0.009586</td>
+      <td>0.199454</td>
+      <td>0.226776</td>
+      <td>-0.106146</td>
+      <td>0.156386</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>365</td>
+      <td>73</td>
+      <td>78</td>
+      <td>1.379532</td>
+      <td>0.010781</td>
+      <td>0.200000</td>
+      <td>0.213699</td>
+      <td>-0.096552</td>
+      <td>-0.125279</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>364</td>
+      <td>73</td>
+      <td>81</td>
+      <td>1.400305</td>
+      <td>0.033662</td>
+      <td>0.200549</td>
+      <td>0.222527</td>
+      <td>-0.086906</td>
+      <td>0.064880</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>362</td>
+      <td>76</td>
+      <td>76</td>
+      <td>1.333375</td>
+      <td>0.025536</td>
+      <td>0.209945</td>
+      <td>0.209945</td>
+      <td>0.078035</td>
+      <td>-0.206131</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>346</td>
+      <td>81</td>
+      <td>75</td>
+      <td>1.413367</td>
+      <td>-0.007632</td>
+      <td>0.234104</td>
+      <td>0.216763</td>
+      <td>0.502170</td>
+      <td>-0.059277</td>
+      <td>Moderate Supply Expansion</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>368</td>
+      <td>75</td>
+      <td>78</td>
+      <td>1.182244</td>
+      <td>-0.021041</td>
+      <td>0.203804</td>
+      <td>0.211957</td>
+      <td>-0.029764</td>
+      <td>-0.162801</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>367</td>
+      <td>72</td>
+      <td>79</td>
+      <td>1.385294</td>
+      <td>-0.020075</td>
+      <td>0.196185</td>
+      <td>0.215259</td>
+      <td>-0.163523</td>
+      <td>-0.091674</td>
+      <td>Normal</td>
+      <td>Normal</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/Hedger_Pressure_Indicator.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Hedger Pressure Indicator</a></section>
+</main>
+</body>
+</html>

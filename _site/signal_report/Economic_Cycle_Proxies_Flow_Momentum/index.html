@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Forward Indicators of Economic Cycles (Momentum of Flows)</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Forward Indicators of Economic Cycles (Momentum of Flows)</h1>
+      <p class="subtitle">CoT sector flow &amp; momentum: economic cycle proxies.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-20</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Rates sector shows mildly positive average 4-week speculative flows, with more markets experiencing positive flows than negative as of 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">1</a>). Flow momentum is currently positive, indicating an improving trend.</li>
+        <li>Conviction Band: Medium</li>
+        <li>Interpretation Confidence: High Confidence</li>
+        <li>Internal Conflict Flag: No</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Average 4-week flow for the Rates sector is positive at 0.37 on 2026-01-20, up from -2.10 on 2025-11-04 (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">1</a>).</li>
+        <li>A majority of markets (63.6%) within the Rates sector experienced positive flows, while 36.4% saw negative flows (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">1</a>).</li>
+        <li>Flow momentum (avg_flow_4w_mom) is positive at 0.25, continuing an upward trend since 2025-11-25 (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">1</a>).</li>
+        <li>Contrarian flow share remains low at 9.1%, suggesting limited immediate pressure from flows opposing existing crowding (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A significant and sustained increase in the contrarian_flow_share (e.g., above 20%) or a reversal of average 4-week flow momentum to consistently negative values.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Moderate positive flows in Rates are likely to continue, supported by recent improving momentum and low contrarian interest.</li>
+        <li>Upside secondary: Stronger trend-confirming flows could emerge if market conviction in the central bank policy path or economic outlook becomes more solidified.</li>
+        <li>Downside residual: Deterioration in average flows and momentum could occur if macro data introduces fresh uncertainty or shifts interest rate expectations.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), given the 4-week flow aggregation period and 3-week smoothing, which captures near-to-medium term dynamics.</li>
+        <li>Aggregation Weight Hint: Medium, reflecting the coherent positive momentum and the absence of material internal conflicts, making it a reliable cyclical indicator.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Liquidity, Sentiment.</li>
+        <li>Cycle position: Mid-cycle, as stable-to-improving flows in interest rate futures often align with periods of economic stability and clearer policy outlook.</li>
+        <li>Typical interaction with other macro signals: Positive flow momentum in Rates can precede shifts in credit conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">2</a>) or influence overall financial stress (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">3</a>), by reflecting evolving market expectations for monetary policy.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Sector Flow & Momentum (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">1</a>) - Latest observation: 2026-01-20 for the Rates sector.</li>
+        <li>Datapoints most influential for the current state: avg_flow_4w (0.37), pos_flow_share (0.64), neg_flow_share (0.36), avg_flow_4w_mom (0.25), and contrarian_flow_share (0.09).</li>
+        <li>1–2 additional public datasets that would improve depth or reliability: Treasury International Capital (TIC) data for broader bond capital flows, and Federal Reserve communications for policy context (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Tone_Decoder/" target="_blank">4</a>).</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Sector Flow &amp; Momentum Chart</h2><div class="box chart-box"><img src="/images/CoT_Sector_Flow_Momentum.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Sector-level flow and momentum as proxies for economic cycles.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Sector Flow &amp; Momentum Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Sector</th>
+      <th>n_markets</th>
+      <th>avg_flow_4w</th>
+      <th>pos_flow_share</th>
+      <th>neg_flow_share</th>
+      <th>trend_confirm_share</th>
+      <th>contrarian_flow_share</th>
+      <th>crowded_long_share</th>
+      <th>crowded_short_share</th>
+      <th>avg_flow_4w_mom</th>
+      <th>avg_flow_4w_3w_ma</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1257</th>
+      <td>2025-10-14</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>2.900000</td>
+      <td>0.700000</td>
+      <td>0.300000</td>
+      <td>0.200000</td>
+      <td>0.100000</td>
+      <td>0.200000</td>
+      <td>0.100000</td>
+      <td>0.390000</td>
+      <td>2.833333</td>
+    </tr>
+    <tr>
+      <th>1258</th>
+      <td>2025-10-21</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>2.580000</td>
+      <td>0.700000</td>
+      <td>0.200000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>-0.320000</td>
+      <td>2.663333</td>
+    </tr>
+    <tr>
+      <th>1259</th>
+      <td>2025-10-28</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>0.740000</td>
+      <td>0.500000</td>
+      <td>0.500000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>-1.840000</td>
+      <td>2.073333</td>
+    </tr>
+    <tr>
+      <th>1260</th>
+      <td>2025-11-04</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>-2.100000</td>
+      <td>0.300000</td>
+      <td>0.700000</td>
+      <td>0.100000</td>
+      <td>0.200000</td>
+      <td>0.100000</td>
+      <td>0.200000</td>
+      <td>-2.840000</td>
+      <td>0.406667</td>
+    </tr>
+    <tr>
+      <th>1261</th>
+      <td>2025-11-10</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>-3.470000</td>
+      <td>0.300000</td>
+      <td>0.700000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>0.000000</td>
+      <td>0.200000</td>
+      <td>-1.370000</td>
+      <td>-1.610000</td>
+    </tr>
+    <tr>
+      <th>1262</th>
+      <td>2025-11-18</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>-4.340000</td>
+      <td>0.300000</td>
+      <td>0.600000</td>
+      <td>0.200000</td>
+      <td>0.100000</td>
+      <td>0.100000</td>
+      <td>0.200000</td>
+      <td>-0.870000</td>
+      <td>-3.303333</td>
+    </tr>
+    <tr>
+      <th>1263</th>
+      <td>2025-11-25</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>-4.290000</td>
+      <td>0.400000</td>
+      <td>0.600000</td>
+      <td>0.400000</td>
+      <td>0.000000</td>
+      <td>0.100000</td>
+      <td>0.300000</td>
+      <td>0.050000</td>
+      <td>-4.033333</td>
+    </tr>
+    <tr>
+      <th>1264</th>
+      <td>2025-12-02</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>-0.130000</td>
+      <td>0.600000</td>
+      <td>0.400000</td>
+      <td>0.500000</td>
+      <td>0.000000</td>
+      <td>0.200000</td>
+      <td>0.300000</td>
+      <td>4.160000</td>
+      <td>-2.920000</td>
+    </tr>
+    <tr>
+      <th>1265</th>
+      <td>2025-12-09</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>1.200000</td>
+      <td>0.600000</td>
+      <td>0.400000</td>
+      <td>0.500000</td>
+      <td>0.000000</td>
+      <td>0.200000</td>
+      <td>0.300000</td>
+      <td>1.330000</td>
+      <td>-1.073333</td>
+    </tr>
+    <tr>
+      <th>1266</th>
+      <td>2025-12-16</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>1.430000</td>
+      <td>0.600000</td>
+      <td>0.400000</td>
+      <td>0.500000</td>
+      <td>0.000000</td>
+      <td>0.300000</td>
+      <td>0.200000</td>
+      <td>0.230000</td>
+      <td>0.833333</td>
+    </tr>
+    <tr>
+      <th>1267</th>
+      <td>2025-12-23</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>1.720000</td>
+      <td>0.500000</td>
+      <td>0.500000</td>
+      <td>0.400000</td>
+      <td>0.100000</td>
+      <td>0.300000</td>
+      <td>0.200000</td>
+      <td>0.290000</td>
+      <td>1.450000</td>
+    </tr>
+    <tr>
+      <th>1268</th>
+      <td>2025-12-30</td>
+      <td>Rates</td>
+      <td>10</td>
+      <td>2.810000</td>
+      <td>0.800000</td>
+      <td>0.200000</td>
+      <td>0.400000</td>
+      <td>0.200000</td>
+      <td>0.300000</td>
+      <td>0.300000</td>
+      <td>1.090000</td>
+      <td>1.986667</td>
+    </tr>
+    <tr>
+      <th>1269</th>
+      <td>2026-01-06</td>
+      <td>Rates</td>
+      <td>11</td>
+      <td>0.181818</td>
+      <td>0.636364</td>
+      <td>0.363636</td>
+      <td>0.090909</td>
+      <td>0.181818</td>
+      <td>0.090909</td>
+      <td>0.181818</td>
+      <td>-2.628182</td>
+      <td>1.570606</td>
+    </tr>
+    <tr>
+      <th>1270</th>
+      <td>2026-01-13</td>
+      <td>Rates</td>
+      <td>11</td>
+      <td>0.118182</td>
+      <td>0.727273</td>
+      <td>0.272727</td>
+      <td>0.181818</td>
+      <td>0.181818</td>
+      <td>0.181818</td>
+      <td>0.181818</td>
+      <td>-0.063636</td>
+      <td>1.036667</td>
+    </tr>
+    <tr>
+      <th>1271</th>
+      <td>2026-01-20</td>
+      <td>Rates</td>
+      <td>11</td>
+      <td>0.372727</td>
+      <td>0.636364</td>
+      <td>0.363636</td>
+      <td>0.272727</td>
+      <td>0.090909</td>
+      <td>0.272727</td>
+      <td>0.090909</td>
+      <td>0.254545</td>
+      <td>0.224242</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/Forward_Indicators_Economic_Cycles.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Forward Indicators of Economic Cycles</a></section>
+</main>
+</body>
+</html>

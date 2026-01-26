@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Labor Market Turnover Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Labor Market Turnover Signal</h1>
+      <p class="subtitle">Hiring, quits, and separations as a labor market tightness signal.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-24</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Labor Market Turnover Differential signal is currently in a Bearish regime as of November 2025 (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>). This indicates a softening in labor market conditions.</li>
+        <li>Conviction Band: Low, Interpretation Confidence: Mixed Signals, Internal Conflict Flag: Yes.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The quits rate (2.0%) still exceeds the layoff rate (1.1%), yielding a positive raw differential of 0.9 percentage points for 2025-11-01.</li>
+        <li>However, the robust z-score of this differential has fallen to -0.67, crossing the -0.50 threshold that triggers a Bearish classification.</li>
+        <li>This suggests weakening worker confidence and declining labor market dynamism, despite quits still outpacing layoffs on an absolute basis.</li>
+        <li>Conditional Invalidation: The robust z-score of the turnover differential rises above -0.50, which would transition the signal to a Neutral regime.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued labor market softening with the z-score remaining below -0.50, reflecting ongoing declines in worker confidence.</li>
+        <li>Downside secondary: The raw turnover differential turns negative, or the z-score drops further below -1.0, signaling significant labor market deterioration.</li>
+        <li>Upside residual: The robust z-score rebounds above -0.50 due to an unexpected surge in quits or a further fall in layoffs, shifting the signal to Neutral.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), as it tracks shifts in labor market dynamics that evolve over several months and are relevant to business cycle phases.</li>
+        <li>Aggregation Weight Hint: Medium, given its importance as a labor market barometer; however, the internal conflict between the raw level and z-score suggests careful weighting.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs the US Labour Market dimension, indicating shifts in tightness or slack and reflecting worker sentiment.</li>
+        <li>A Bearish reading often signifies a mid-to-late cycle phase, preceding broader economic slowdowns or increased recession risk.</li>
+        <li>It typically interacts with other labor market indicators (e.g., job openings, unemployment rate) and consumption data, potentially confirming a broader easing trend.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>JTSQUR: Quits Rate (2.0%, 2025-11-01).</li>
+        <li>JTSLDR: Layoffs & Discharges Rate (1.1%, 2025-11-01).</li>
+        <li>The `Turnover_Diff_z` (-0.67) is the most influential datapoint for the current Bearish regime, with `Turnover_Diff_pp` (0.9) providing important context.</li>
+        <li>Additional public datasets that would improve depth: Employment Composition Signal (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">2</a>) and Labor Market Tightness Signal (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">3</a>).</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Labor Market Turnover Chart</h2><div class="box chart-box"><img src="/images/US_Labor_Turnover_Signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Labor turnover and labor market fluidity.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Labor Turnover Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>QuitsRate</th>
+      <th>LayoffRate</th>
+      <th>Turnover_Diff_pp</th>
+      <th>Turnover_Diff_z</th>
+      <th>Turnover_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>299</th>
+      <td>2025-11-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>298</th>
+      <td>2025-10-01</td>
+      <td>1.9</td>
+      <td>1.2</td>
+      <td>0.7</td>
+      <td>-1.011736</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>297</th>
+      <td>2025-09-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>296</th>
+      <td>2025-08-01</td>
+      <td>1.9</td>
+      <td>1.1</td>
+      <td>0.8</td>
+      <td>-0.843113</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>295</th>
+      <td>2025-07-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>294</th>
+      <td>2025-06-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>293</th>
+      <td>2025-05-01</td>
+      <td>2.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>-0.505868</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>292</th>
+      <td>2025-04-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>291</th>
+      <td>2025-03-01</td>
+      <td>2.1</td>
+      <td>1.0</td>
+      <td>1.1</td>
+      <td>-0.337245</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>290</th>
+      <td>2025-02-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>289</th>
+      <td>2025-01-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>288</th>
+      <td>2024-12-01</td>
+      <td>1.9</td>
+      <td>1.1</td>
+      <td>0.8</td>
+      <td>-0.843113</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>287</th>
+      <td>2024-11-01</td>
+      <td>1.9</td>
+      <td>1.1</td>
+      <td>0.8</td>
+      <td>-0.843113</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>286</th>
+      <td>2024-10-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>285</th>
+      <td>2024-09-01</td>
+      <td>1.9</td>
+      <td>1.2</td>
+      <td>0.7</td>
+      <td>-1.156270</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>284</th>
+      <td>2024-08-01</td>
+      <td>2.0</td>
+      <td>1.1</td>
+      <td>0.9</td>
+      <td>-0.899321</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>283</th>
+      <td>2024-07-01</td>
+      <td>2.1</td>
+      <td>1.1</td>
+      <td>1.0</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>282</th>
+      <td>2024-06-01</td>
+      <td>2.1</td>
+      <td>0.9</td>
+      <td>1.2</td>
+      <td>-0.224830</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>281</th>
+      <td>2024-05-01</td>
+      <td>2.1</td>
+      <td>1.1</td>
+      <td>1.0</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>280</th>
+      <td>2024-04-01</td>
+      <td>2.2</td>
+      <td>1.0</td>
+      <td>1.2</td>
+      <td>-0.224830</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>279</th>
+      <td>2024-03-01</td>
+      <td>2.1</td>
+      <td>1.0</td>
+      <td>1.1</td>
+      <td>-0.449661</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>278</th>
+      <td>2024-02-01</td>
+      <td>2.2</td>
+      <td>1.1</td>
+      <td>1.1</td>
+      <td>-0.449661</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>277</th>
+      <td>2024-01-01</td>
+      <td>2.1</td>
+      <td>1.1</td>
+      <td>1.0</td>
+      <td>-0.674491</td>
+      <td>Bearish</td>
+    </tr>
+    <tr>
+      <th>276</th>
+      <td>2023-12-01</td>
+      <td>2.1</td>
+      <td>1.0</td>
+      <td>1.1</td>
+      <td>-0.415071</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>275</th>
+      <td>2023-11-01</td>
+      <td>2.3</td>
+      <td>1.0</td>
+      <td>1.3</td>
+      <td>0.000000</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>274</th>
+      <td>2023-10-01</td>
+      <td>2.3</td>
+      <td>1.0</td>
+      <td>1.3</td>
+      <td>0.103768</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>273</th>
+      <td>2023-09-01</td>
+      <td>2.3</td>
+      <td>1.0</td>
+      <td>1.3</td>
+      <td>0.207536</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>272</th>
+      <td>2023-08-01</td>
+      <td>2.3</td>
+      <td>1.1</td>
+      <td>1.2</td>
+      <td>0.000000</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>271</th>
+      <td>2023-07-01</td>
+      <td>2.3</td>
+      <td>1.1</td>
+      <td>1.2</td>
+      <td>0.000000</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>270</th>
+      <td>2023-06-01</td>
+      <td>2.4</td>
+      <td>1.1</td>
+      <td>1.3</td>
+      <td>0.207536</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>269</th>
+      <td>2023-05-01</td>
+      <td>2.6</td>
+      <td>1.0</td>
+      <td>1.6</td>
+      <td>0.830142</td>
+      <td>Bullish</td>
+    </tr>
+    <tr>
+      <th>268</th>
+      <td>2023-04-01</td>
+      <td>2.3</td>
+      <td>1.1</td>
+      <td>1.2</td>
+      <td>0.000000</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>267</th>
+      <td>2023-03-01</td>
+      <td>2.5</td>
+      <td>1.2</td>
+      <td>1.3</td>
+      <td>0.289067</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>266</th>
+      <td>2023-02-01</td>
+      <td>2.5</td>
+      <td>1.0</td>
+      <td>1.5</td>
+      <td>0.770847</td>
+      <td>Bullish</td>
+    </tr>
+    <tr>
+      <th>265</th>
+      <td>2023-01-01</td>
+      <td>2.5</td>
+      <td>1.2</td>
+      <td>1.3</td>
+      <td>0.415071</td>
+      <td>Neutral</td>
+    </tr>
+    <tr>
+      <th>264</th>
+      <td>2022-12-01</td>
+      <td>2.7</td>
+      <td>1.0</td>
+      <td>1.7</td>
+      <td>1.245214</td>
+      <td>Bullish</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/Labor_Market_Turnover.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Labor Market Turnover Signal</a></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Portfolio-Level Early Warning System</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Portfolio-Level Early Warning System</h1>
+      <p class="subtitle">CoT portfolio-level early warning: extremes, crowding, squeeze/exhaustion, composite stress index.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-20</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The CoT Early Warning Index is currently in a "Normal" regime, with a composite value of 0.205901 as of 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>). This indicates stability, reflecting typical market functioning.</li>
+        <li>Conviction Band: Medium | Interpretation Confidence: High Confidence | Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The signal has stabilised within the normal range after recently being "Elevated" (0.643468 on 2025-11-04) (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+        <li>Current positive contributors to the index include the z-score of any extreme positioning share (0.684428) and squeeze risk share (0.535634) (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: The index rising to 0.5 or above would shift the regime to "Elevated", signalling increasing risk of volatility or unwinds (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: The index remains in the "Normal" regime, supported by its current value well within the -0.5 to 0.5 range (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+        <li>Upside secondary: A decline below -0.5 (Subdued regime), triggered by a broad unwinding of speculative extremes and tactical reversal risks (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+        <li>Downside residual: An increase to 0.5 or higher (Elevated/High Alert regime), prompted by a surge in speculative crowding or squeeze/exhaustion pressures (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks). Rationale: It uses weekly CoT data to identify short-term instability and potential reversals (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: High. Justification: This signal provides critical cross-asset instability insights for tactical risk management and portfolio adjustments (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs macro dimensions of sentiment and risk, indirectly impacting liquidity through potential forced unwinds (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>).</li>
+        <li>It is relevant across all cycle positions, particularly as an early warning for potential inflection points.</li>
+        <li>It often precedes VAR spikes and deleveraging cycles, complementing other macro signals like credit conditions (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">2</a>) or financial stress (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">3</a>) by providing critical positioning context.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Enriched unified CoT dataset (`df_cot_signals`) (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>), latest observation: 2026-01-20.</li>
+        <li>Datapoints most influential for current state: `any_extreme_share_z` (0.684428) and `squeeze_share_z` (0.535634).</li>
+        <li>Additional public datasets that would improve depth or reliability: Market Volatility (VIX) Signal (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">4</a>) and Credit Spreads Signal (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">5</a>).</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Early Warning System Chart</h2><div class="box chart-box"><img src="/images/CoT_Early_Warning_System.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Portfolio-level stress indicators: extremes, crowding, squeeze/exhaustion, composite index.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Early Warning System Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>n_markets</th>
+      <th>spec_extreme_count</th>
+      <th>hedger_extreme_count</th>
+      <th>any_extreme_count</th>
+      <th>crowded_long_count</th>
+      <th>crowded_short_count</th>
+      <th>squeeze_count</th>
+      <th>exhaustion_count</th>
+      <th>spec_extreme_share</th>
+      <th>hedger_extreme_share</th>
+      <th>any_extreme_share</th>
+      <th>crowded_long_share</th>
+      <th>crowded_short_share</th>
+      <th>squeeze_share</th>
+      <th>exhaustion_share</th>
+      <th>spec_extreme_share_z</th>
+      <th>hedger_extreme_share_z</th>
+      <th>any_extreme_share_z</th>
+      <th>crowded_long_share_z</th>
+      <th>crowded_short_share_z</th>
+      <th>squeeze_share_z</th>
+      <th>exhaustion_share_z</th>
+      <th>Early_Warning_Index</th>
+      <th>Early_Warning_Regime</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>197</th>
+      <td>2025-10-14</td>
+      <td>351</td>
+      <td>36</td>
+      <td>32</td>
+      <td>57</td>
+      <td>99</td>
+      <td>84</td>
+      <td>14</td>
+      <td>16</td>
+      <td>0.102564</td>
+      <td>0.091168</td>
+      <td>0.162393</td>
+      <td>0.282051</td>
+      <td>0.239316</td>
+      <td>0.039886</td>
+      <td>0.045584</td>
+      <td>0.207268</td>
+      <td>-0.079008</td>
+      <td>0.851595</td>
+      <td>1.185806</td>
+      <td>-0.120179</td>
+      <td>-0.694320</td>
+      <td>-0.036331</td>
+      <td>0.237314</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>2025-10-21</td>
+      <td>358</td>
+      <td>32</td>
+      <td>24</td>
+      <td>47</td>
+      <td>93</td>
+      <td>85</td>
+      <td>17</td>
+      <td>18</td>
+      <td>0.089385</td>
+      <td>0.067039</td>
+      <td>0.131285</td>
+      <td>0.259777</td>
+      <td>0.237430</td>
+      <td>0.047486</td>
+      <td>0.050279</td>
+      <td>-0.039241</td>
+      <td>-0.628534</td>
+      <td>0.117072</td>
+      <td>0.706601</td>
+      <td>-0.155084</td>
+      <td>-0.363241</td>
+      <td>0.179327</td>
+      <td>0.096935</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>361</td>
+      <td>30</td>
+      <td>25</td>
+      <td>48</td>
+      <td>97</td>
+      <td>80</td>
+      <td>12</td>
+      <td>23</td>
+      <td>0.083102</td>
+      <td>0.069252</td>
+      <td>0.132964</td>
+      <td>0.268698</td>
+      <td>0.221607</td>
+      <td>0.033241</td>
+      <td>0.063712</td>
+      <td>-0.156766</td>
+      <td>-0.578134</td>
+      <td>0.156718</td>
+      <td>0.898533</td>
+      <td>-0.447925</td>
+      <td>-0.983799</td>
+      <td>0.796297</td>
+      <td>0.083965</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>362</td>
+      <td>33</td>
+      <td>37</td>
+      <td>62</td>
+      <td>101</td>
+      <td>87</td>
+      <td>21</td>
+      <td>25</td>
+      <td>0.091160</td>
+      <td>0.102210</td>
+      <td>0.171271</td>
+      <td>0.279006</td>
+      <td>0.240331</td>
+      <td>0.058011</td>
+      <td>0.069061</td>
+      <td>-0.006044</td>
+      <td>0.172465</td>
+      <td>1.061211</td>
+      <td>1.120281</td>
+      <td>-0.101390</td>
+      <td>0.095261</td>
+      <td>1.041975</td>
+      <td>0.643468</td>
+      <td>Elevated</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>358</td>
+      <td>35</td>
+      <td>24</td>
+      <td>51</td>
+      <td>100</td>
+      <td>91</td>
+      <td>21</td>
+      <td>24</td>
+      <td>0.097765</td>
+      <td>0.067039</td>
+      <td>0.142458</td>
+      <td>0.279330</td>
+      <td>0.254190</td>
+      <td>0.058659</td>
+      <td>0.067039</td>
+      <td>0.117507</td>
+      <td>-0.628534</td>
+      <td>0.380891</td>
+      <td>1.127254</td>
+      <td>0.155084</td>
+      <td>0.123498</td>
+      <td>0.949118</td>
+      <td>0.547169</td>
+      <td>Elevated</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>366</td>
+      <td>33</td>
+      <td>30</td>
+      <td>50</td>
+      <td>95</td>
+      <td>86</td>
+      <td>19</td>
+      <td>22</td>
+      <td>0.090164</td>
+      <td>0.081967</td>
+      <td>0.136612</td>
+      <td>0.259563</td>
+      <td>0.234973</td>
+      <td>0.051913</td>
+      <td>0.060109</td>
+      <td>-0.024680</td>
+      <td>-0.288553</td>
+      <td>0.242854</td>
+      <td>0.702004</td>
+      <td>-0.200564</td>
+      <td>-0.170407</td>
+      <td>0.630826</td>
+      <td>0.240943</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>367</td>
+      <td>34</td>
+      <td>32</td>
+      <td>53</td>
+      <td>89</td>
+      <td>88</td>
+      <td>20</td>
+      <td>21</td>
+      <td>0.092643</td>
+      <td>0.087193</td>
+      <td>0.144414</td>
+      <td>0.242507</td>
+      <td>0.239782</td>
+      <td>0.054496</td>
+      <td>0.057221</td>
+      <td>0.021693</td>
+      <td>-0.169528</td>
+      <td>0.427078</td>
+      <td>0.335071</td>
+      <td>-0.111559</td>
+      <td>-0.057869</td>
+      <td>0.498151</td>
+      <td>0.218174</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>364</td>
+      <td>33</td>
+      <td>32</td>
+      <td>50</td>
+      <td>88</td>
+      <td>87</td>
+      <td>17</td>
+      <td>25</td>
+      <td>0.090659</td>
+      <td>0.087912</td>
+      <td>0.137363</td>
+      <td>0.241758</td>
+      <td>0.239011</td>
+      <td>0.046703</td>
+      <td>0.068681</td>
+      <td>-0.015413</td>
+      <td>-0.153162</td>
+      <td>0.260578</td>
+      <td>0.318967</td>
+      <td>-0.125828</td>
+      <td>-0.397339</td>
+      <td>1.024547</td>
+      <td>0.216185</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>366</td>
+      <td>29</td>
+      <td>34</td>
+      <td>50</td>
+      <td>85</td>
+      <td>84</td>
+      <td>23</td>
+      <td>21</td>
+      <td>0.079235</td>
+      <td>0.092896</td>
+      <td>0.136612</td>
+      <td>0.232240</td>
+      <td>0.229508</td>
+      <td>0.062842</td>
+      <td>0.057377</td>
+      <td>-0.229108</td>
+      <td>-0.039652</td>
+      <td>0.242854</td>
+      <td>0.114207</td>
+      <td>-0.301694</td>
+      <td>0.305692</td>
+      <td>0.505332</td>
+      <td>0.173278</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>365</td>
+      <td>29</td>
+      <td>36</td>
+      <td>54</td>
+      <td>86</td>
+      <td>84</td>
+      <td>22</td>
+      <td>16</td>
+      <td>0.079452</td>
+      <td>0.098630</td>
+      <td>0.147945</td>
+      <td>0.235616</td>
+      <td>0.230137</td>
+      <td>0.060274</td>
+      <td>0.043836</td>
+      <td>-0.225048</td>
+      <td>0.090937</td>
+      <td>0.510452</td>
+      <td>0.186836</td>
+      <td>-0.290057</td>
+      <td>0.193841</td>
+      <td>-0.116638</td>
+      <td>0.096887</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>364</td>
+      <td>24</td>
+      <td>32</td>
+      <td>46</td>
+      <td>83</td>
+      <td>85</td>
+      <td>16</td>
+      <td>14</td>
+      <td>0.065934</td>
+      <td>0.087912</td>
+      <td>0.126374</td>
+      <td>0.228022</td>
+      <td>0.233516</td>
+      <td>0.043956</td>
+      <td>0.038462</td>
+      <td>-0.477905</td>
+      <td>-0.153162</td>
+      <td>0.001107</td>
+      <td>0.023454</td>
+      <td>-0.227514</td>
+      <td>-0.517018</td>
+      <td>-0.363474</td>
+      <td>-0.216689</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>362</td>
+      <td>21</td>
+      <td>24</td>
+      <td>37</td>
+      <td>84</td>
+      <td>81</td>
+      <td>15</td>
+      <td>15</td>
+      <td>0.058011</td>
+      <td>0.066298</td>
+      <td>0.102210</td>
+      <td>0.232044</td>
+      <td>0.223757</td>
+      <td>0.041436</td>
+      <td>0.041436</td>
+      <td>-0.626106</td>
+      <td>-0.645404</td>
+      <td>-0.569442</td>
+      <td>0.109985</td>
+      <td>-0.408131</td>
+      <td>-0.626779</td>
+      <td>-0.226834</td>
+      <td>-0.344240</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>346</td>
+      <td>26</td>
+      <td>26</td>
+      <td>44</td>
+      <td>76</td>
+      <td>77</td>
+      <td>14</td>
+      <td>17</td>
+      <td>0.075145</td>
+      <td>0.075145</td>
+      <td>0.127168</td>
+      <td>0.219653</td>
+      <td>0.222543</td>
+      <td>0.040462</td>
+      <td>0.049133</td>
+      <td>-0.305621</td>
+      <td>-0.443937</td>
+      <td>0.019855</td>
+      <td>-0.156587</td>
+      <td>-0.430590</td>
+      <td>-0.669211</td>
+      <td>0.126673</td>
+      <td>-0.221972</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>368</td>
+      <td>33</td>
+      <td>32</td>
+      <td>55</td>
+      <td>84</td>
+      <td>84</td>
+      <td>19</td>
+      <td>15</td>
+      <td>0.089674</td>
+      <td>0.086957</td>
+      <td>0.149457</td>
+      <td>0.228261</td>
+      <td>0.228261</td>
+      <td>0.051630</td>
+      <td>0.040761</td>
+      <td>-0.033846</td>
+      <td>-0.174924</td>
+      <td>0.546137</td>
+      <td>0.028593</td>
+      <td>-0.324778</td>
+      <td>-0.182698</td>
+      <td>-0.257864</td>
+      <td>-0.038122</td>
+      <td>Normal</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>367</td>
+      <td>30</td>
+      <td>37</td>
+      <td>57</td>
+      <td>88</td>
+      <td>81</td>
+      <td>25</td>
+      <td>17</td>
+      <td>0.081744</td>
+      <td>0.100817</td>
+      <td>0.155313</td>
+      <td>0.239782</td>
+      <td>0.220708</td>
+      <td>0.068120</td>
+      <td>0.046322</td>
+      <td>-0.182179</td>
+      <td>0.140751</td>
+      <td>0.684428</td>
+      <td>0.276452</td>
+      <td>-0.464548</td>
+      <td>0.535634</td>
+      <td>-0.002458</td>
+      <td>0.205901</td>
+      <td>Normal</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/Portfolio_Level_Early_Warning_System.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Portfolio-Level Early Warning System</a></section>
+</main>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labour Market Momentum — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Labour Market Momentum</h1>
+      <div class="mt-2 text-slate-600 text-sm">Composite signal tracking labour market strength via jobless claims and payroll momentum.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">The Labour Market Momentum signal measures shifts in employment strength by combining jobless claims trends with nonfarm payroll growth. Weekly claims are inverted (higher claims = weaker momentum), while payroll growth is directly positive. The composite reveals cycles of <em>Tightening</em>, <em>Neutral</em>, and <em>Softening</em> labour dynamics.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>ICSA</strong> — Initial Claims, Seasonally Adjusted (FRED: <code>ICSA</code>), weekly.</li>
+        <li><strong>CCSA</strong> — Continuing Claims, Seasonally Adjusted (FRED: <code>CCSA</code>), weekly.</li>
+        <li><strong>PAYEMS</strong> — Total Nonfarm Payrolls, Seasonally Adjusted (FRED: <code>PAYEMS</code>), monthly.</li>
+      </ul>
+      <p class="leading-7 mt-3">ICSA and CCSA are resampled to monthly frequency to align with PAYEMS.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Transformations</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li>Compute year‑on‑year (YoY) percent change for all three series.</li>
+        <li>For PAYEMS, also compute the 3‑month difference to capture short‑term hiring momentum:</li>
+      </ol>
+      <div class="box text-sm">
+        <div class="eq">PAYEMS\_{3mDiff,t} = PAYEMS_t − PAYEMS_{t−3}</div>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">This highlights inflection points in employment growth.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Normalisation</h2>
+      <div class="box text-sm">
+        <div class="eq">z\_{rob}(X)_t = \dfrac{X_t − \mathrm{median}(X)_{t,w}}{1.4826·\mathrm{MAD}(X)_{t,w}}</div>
+        <div class="text-xs mt-2">Rolling window <span class="eq">w = 36</span> months, minimum 18. Median‑based z‑scaling mitigates noise from data revisions.</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Composite Construction</h2>
+      <p class="leading-7">Jobless claims are inverted (rising claims = negative signal) before combining with payroll momentum:</p>
+      <div class="box text-sm mt-2">
+        <div class="eq">Labor\_{Momentum,t} = \tfrac{1}{3}\big(z(-ICSA\_{YoY,t}) + z(-CCSA\_{YoY,t}) + z(PAYEMS\_{3mDiff,t})\big)</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Regime Mapping</h2>
+      <div class="box text-sm">
+        <div class="eq">If\ C_t > 0.75 → \textit{Tightening};\quad |C_t| ≤ 0.75 → \textit{Neutral};\quad C_t < −0.75 → \textit{Softening}</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>import pandas as pd
+import numpy as np
+
+def robust_z(s, win=36, min_win=18):
+    x = pd.to_numeric(s, errors="coerce").astype(float)
+    w = max(min_win, min(win, x.dropna().size))
+    med = x.rolling(w, min_periods=min_win).median()
+    mad = (x - med).abs().rolling(w, min_periods=min_win).median()
+    return (x - med) / (1.4826 * mad.replace(0, np.nan))
+
+d = df_labor.copy()
+
+for col in ["ICSA","CCSA","PAYEMS"]:
+    d[f"{col}_YoY"] = d[col].pct_change(12)
+
+d["PAYEMS_3mDiff"] = d["PAYEMS"].diff(3)
+
+d["Z_ICSA"]  = robust_z(-d["ICSA_YoY"])
+d["Z_CCSA"]  = robust_z(-d["CCSA_YoY"])
+d["Z_PAYEMS"] = robust_z(d["PAYEMS_3mDiff"])
+
+d["Labor_Momentum"] = d[["Z_ICSA","Z_CCSA","Z_PAYEMS"]].mean(axis=1)
+
+hi, lo = 0.75, -0.75
+
+def _regime(v):
+    if pd.isna(v): return np.nan
+    return "Tightening" if v > hi else ("Softening" if v < lo else "Neutral")
+
+d["Labor_Regime"] = d["Labor_Momentum"].apply(_regime)
+
+df_sig_labor = d
+display(df_sig_labor.tail())
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Tightening:</strong> declining claims and accelerating payrolls — late‑cycle strength.</li>
+        <li><strong>Neutral:</strong> steady labour market consistent with trend growth.</li>
+        <li><strong>Softening:</strong> rising claims and flattening payroll growth — potential early sign of slowdown.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Weekly claims data are volatile; month‑end averaging helps but may still produce noise.</li>
+        <li>PAYEMS subject to periodic revisions; re‑benchmarking can alter short‑term momentum.</li>
+        <li>Fixed thresholds (±0.75) may require calibration for different employment cycles.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Labour Market Momentum signal.</footer>
+  </main>
+</body>
+</html>

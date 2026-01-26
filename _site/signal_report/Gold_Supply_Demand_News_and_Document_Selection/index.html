@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Gold · Sentiment Analysis and Document Selection</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Gold · Sentiment Analysis and Document Selection</h1>
+      <p class="subtitle">Assessing Gold Supply &amp; Demand Sentiment and Selecting Key Documents</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-01</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="ia-report-block" id="supply-demand-sentiment-news-selection">
+  <h2>Supply &amp; Demand — Sentiment, Weekly News &amp; Evidence Selection (Gold)</h2>
+
+  <!-- (A) Weekly Sentiment -->
+  <div class="ia-panel">
+    <h3>Weekly Supply &amp; Demand Sentiment (Contextual)</h3>
+    <p>Sentiment over the past week for gold supply and demand narratives appears mixed, leaning slightly positive for demand drivers while supply factors present a varied picture. Geopolitical tensions continue to underpin safe-haven demand, coupled with persistent central bank buying and sustained interest from fund managers. On the supply side, news includes reports of potential disruptions from mining camp attacks, alongside instances of production exceeding targets and ongoing efforts to formalize artisanal and small-scale mining. Overall, the narratives suggest robust, albeit volatile, demand-side support, with supply dynamics presenting a complex and evolving landscape.</p>
+    <ul class="ia-list">
+      <li><strong>Positive:</strong> 4</li>
+      <li><strong>Neutral:</strong> 3</li>
+      <li><strong>Negative:</strong> 2</li>
+    </ul>
+    <p class="ia-footnote">
+      Sentiment reflects supply–demand narratives only and is non-decisional.
+    </p>
+  </div>
+
+  <!-- (B) Weekly Key News -->
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Key Gold Supply &amp; Demand News (Last 7 Days)</h3>
+    <ul class="ia-list">
+      <li>
+        <strong>Gold futures reached record highs, driven by central bank buying and ongoing fiscal stress.</strong>
+        <span class="ia-meta">(CME Group • Fri, 26 Dec 2025)</span>
+        — This highlights strong institutional investment demand for gold amid broader economic uncertainties, serving as a key demand driver.
+        <a href="https://www.cmegroup.com/videos/2025/12/26/february-gold-futures-reached-a-record-high-12-26-25.html?utm_source=cmegroup&amp;utm_medium=rss&amp;utm_campaign=distribution" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Sudan's gold output exceeded its 2025 target despite ongoing conflict.</strong>
+        <span class="ia-meta">(EIN News • Wed, 31 Dec 2025)</span>
+        — This indicates resilient or increasing mine production in a conflict-affected region, contributing to overall global supply.
+        <a href="https://mining.einnews.com/article/879528302/99gRZqNYJIL3E8nU?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Attacks on gold-mining camps on the Tajik-Afghan border raise concerns over regional supply stability.</strong>
+        <span class="ia-meta">(EIN News • Wed, 31 Dec 2025)</span>
+        — This points to potential disruptions or risks to mine production, which could tighten regional or global supply.
+        <a href="https://mining.einnews.com/article/879490018/pxHzKxdKzODp4Iiu?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Egypt and Afreximbank launched a Pan-African Gold Bank initiative to formalize trade and manage strategic mineral resources.</strong>
+        <span class="ia-meta">(EIN News • Wed, 31 Dec 2025)</span>
+        — This represents a structural policy shift to streamline and enhance institutional engagement with gold, potentially impacting both official sector supply transparency and regional demand.
+        <a href="https://mining.einnews.com/article/879465033/ALPQdbknm1OPZ_fn?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Allied Gold commenced expansion at its Sadiola mine, aiming for higher grades and multi-year growth.</strong>
+        <span class="ia-meta">(Mining.com • Mon, 22 Dec 2025)</span>
+        — This signifies a planned increase in mine production capacity, positively impacting future gold supply.
+        <a href="https://www.mining.com/allied-gold-starts-sadiola-expansion-boosts-output-outlook/" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Ghana's gold sector is under scrutiny for unaccounted gold, with efforts underway to formalize small-scale mining exports.</strong>
+        <span class="ia-meta">(EIN News • Wed, 31 Dec 2025)</span>
+        — This addresses existing supply leakage and regulatory actions to bring more gold into official market channels, affecting supply transparency and accountability.
+        <a href="https://mining.einnews.com/article/879508142/MZq7-qJ1SlFeKdGx?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>Fund managers adjusted risk exposure and provided a steady bid for gold as equity markets showed year-end shakiness.</strong>
+        <span class="ia-meta">(CME Group • Tue, 30 Dec 2025)</span>
+        — This indicates ongoing investment demand for gold as a safe haven or risk diversification asset, particularly during periods of market uncertainty.
+        <a href="https://www.cmegroup.com/videos/2025/12/30/gold-futures-rebounded-as-investors-sought-safe-havens-12-30-25.html?utm_source=cmegroup&amp;utm_medium=rss&amp;utm_campaign=distribution" target="_blank">Source</a>
+      </li>
+      <li>
+        <strong>China's Xinjiang prefecture reported substantial gold output of 6.5 tons and 7.7 million tons of gold ore mined in 2025.</strong>
+        <span class="ia-meta">(EIN News • Wed, 31 Dec 2025)</span>
+        — This provides quantitative evidence of regional mine production contributing to global gold supply.
+        <a href="https://mining.einnews.com/article/879481044/mB2Z1sGHw2SUKmS2?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">Source</a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- (C) Evidence Selection -->
+  <div class="ia-panel" style="margin-top: 12px;">
+    <h3>Documents to Download — Supply &amp; Demand Evidence</h3>
+
+    <table class="ia-table ia-table-compact">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Title</th>
+          <th>Primary Dimension</th>
+          <th>Subcategory</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-outlook-2026" target="_blank">Gold Outlook 2026: Push ahead or pull back</a></td>
+          <td>Demand</td>
+          <td>Investment Demand</td>
+          <td>Provides a forward-looking structural assessment of gold demand drivers for the next year.</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/central-bank-considerations-when-pricing-asgm-purchases" target="_blank">Central bank considerations when pricing ASGM purchases</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Official Sector</td>
+          <td>Examines official sector behavior and policy around Artisanal and Small-Scale Gold Mining (ASGM) purchases, affecting formal supply.</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2025/12" target="_blank">Asia takes the helm</a></td>
+          <td>Demand</td>
+          <td>ETF Flows</td>
+          <td>Offers quantitative data on regional gold ETF flows and holdings, indicating structural investment demand shifts.</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/gold-focus/2025/12/central-bank-gold-statistics-central-banks-ramp-gold-buying-october" target="_blank">Central Bank Gold Statistics: Central banks ramp up gold buying in October</a></td>
+          <td>Demand</td>
+          <td>Central Bank Purchases</td>
+          <td>Provides quantitative evidence of institutional demand from central banks, a non-price-sensitive demand driver.</td>
+        </tr>
+        <tr>
+          <td>World Gold Council</td>
+          <td><a href="https://www.gold.org/goldhub/research/gold-demand-trends/gold-demand-trends-q3-2025" target="_blank">Gold Demand Trends: Q3 2025</a></td>
+          <td>Both</td>
+          <td>Quarterly Report</td>
+          <td>Comprehensive quarterly report with quantitative data across all major gold supply and demand components.</td>
+        </tr>
+        <tr>
+          <td>EIN News</td>
+          <td><a href="https://mining.einnews.com/article/879465033/ALPQdbknm1OPZ_fn?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">Egypt and Afreximbank Launch Pan African Gold Bank Initiative</a></td>
+          <td>Both</td>
+          <td>Policy / Regulation, Institutional Behavior</td>
+          <td>Describes a new institutional initiative aimed at formalizing and streamlining gold trade and resource management in Africa, with structural implications for supply and demand.</td>
+        </tr>
+        <tr>
+          <td>EIN News</td>
+          <td><a href="https://mining.einnews.com/article/879528302/99gRZqNYJIL3E8nU?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">Sudan Gold Output Exceeds 2025 Target Despite Conflict</a></td>
+          <td>Supply</td>
+          <td>Mine Production</td>
+          <td>Provides specific, quantitative evidence of mine production exceeding targets, indicating a material change in supply dynamics from a key region.</td>
+        </tr>
+        <tr>
+          <td>EIN News</td>
+          <td><a href="https://mining.einnews.com/article/879508142/MZq7-qJ1SlFeKdGx?ref=rss&amp;ecode=RTz1oPsRZsCpdz10" target="_blank">One-third of Ghana’s gold was leaving unaccounted – Senyo Hosi</a></td>
+          <td>Supply</td>
+          <td>Smuggling / Formalization</td>
+          <td>Highlights a significant structural issue in gold supply chains, with quantitative context, and implications for policy and legitimate supply.</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/b2golds-johnson-channels-global-experience/" target="_blank">B2Gold’s Johnson channels global experience</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Expansion/Disruption</td>
+          <td>Reports on the launch of a new Arctic gold mine, representing new production capacity.</td>
+        </tr>
+        <tr>
+          <td>Mining.com</td>
+          <td><a href="https://www.mining.com/allied-gold-starts-sadiola-expansion-boosts-output-outlook/" target="_blank">Allied Gold starts Sadiola expansion, boosts output outlook</a></td>
+          <td>Supply</td>
+          <td>Mine Production, Expansion/Disruption</td>
+          <td>Details an expansion project at an existing mine, indicating future growth in production.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ul class="ia-list" style="margin-top: 10px;">
+      <li><strong>Excluded Documents Count:</strong> 40</li>
+      <li><strong>Selection Confidence:</strong> 4.5/5</li>
+    </ul>
+  </div>
+</div></div></section>
+</main>
+</body>
+</html>

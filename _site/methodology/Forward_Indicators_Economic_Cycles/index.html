@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sector Flow & Momentum — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Sector Flow &amp; Momentum</h1>
+      <div class="mt-2 text-slate-600 text-sm">Flow-based sector signal that combines 4-week speculative flows, crowding alignment, and flow momentum to proxy economic cycle dynamics across Energy, Metals, Ags, FX, and Rates.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This signal aggregates 4-week speculative flows across futures markets into sector-level flow and momentum metrics. By combining sign and magnitude of flows with crowding information, it distinguishes between trend-confirming flows, contrarian flows, and the evolution of flow momentum over time. The output provides an economic-cycle proxy for sectors such as industrial metals, energy, and agriculture, highlighting phases of expansion, slowdown, and potential turning points.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Inputs</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>df_cot_signals</strong> — unified enriched CoT dataset (market-level).</li>
+        <li><strong>Flow_4w</strong> — 4-week net speculative flow per market.</li>
+        <li><strong>crowded_long / crowded_short</strong> — crowding flags indicating extreme positioning.</li>
+        <li><strong>Commodity_Class, Classification, Sub-Classification, Commodity_SubClass</strong> — used for sector mapping where available.</li>
+        <li><strong>Market_and_Exchange_Names</strong> — fallback for heuristic sector classification.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Sector Classification</h2>
+      <p class="leading-7">Markets are first mapped into macro sectors, preferring explicit metadata fields and falling back to name-based heuristics when necessary. The sectors are:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li>Energy</li>
+        <li>Metals (Precious &amp; Base)</li>
+        <li>Ags (Grains, Softs, Livestock)</li>
+        <li>FX</li>
+        <li>Rates</li>
+        <li>Other (uncategorised or mixed)</li>
+      </ul>
+      <p class="leading-7 mt-3">This mirrors the sector logic used in other CoT sector signals, ensuring consistency across positioning and flow overlays.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Per-Market Flow-Based Flags</h2>
+      <p class="leading-7">Two key tactical flags are defined at the market level based on how flows interact with crowding:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">trend\_confirm\_flow = (crowded\_long \wedge Flow\_4w &gt; 0) \vee (crowded\_short \wedge Flow\_4w &lt; 0)</div>
+        <div class="eq">contrarian\_flow = (crowded\_long \wedge Flow\_4w &lt; 0) \vee (crowded\_short \wedge Flow\_4w &gt; 0)</div>
+      </div>
+      <p class="leading-7 mt-3">Trend-confirming flows reinforce existing crowded positions, while contrarian flows point to potential position unwinds or regime shifts.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Sector-Level Flow &amp; Momentum</h2>
+      <p class="leading-7">For each sector and report date, the model aggregates flow and positioning metrics:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><strong>avg_flow_4w</strong> — average 4-week flow across markets in the sector.</li>
+        <li><strong>pos_flow_share</strong> — fraction of markets with positive flows.</li>
+        <li><strong>neg_flow_share</strong> — fraction of markets with negative flows.</li>
+        <li><strong>trend_confirm_share</strong> — share of markets with trend-confirming flows.</li>
+        <li><strong>contrarian_flow_share</strong> — share of markets with contrarian flows.</li>
+        <li><strong>crowded_long_share / crowded_short_share</strong> — positioning context.</li>
+      </ul>
+      <p class="leading-7 mt-3">Two additional derived metrics capture flow momentum and smoothing:</p>
+      <div class="box text-sm">
+        <div class="eq">avg\_flow\_4w\_mom = \Delta\,avg\_flow\_4w \text{ (first difference by sector)}</div>
+        <div class="eq">avg\_flow\_4w\_3w\_ma = 3\text{-period rolling mean of } avg\_flow\_4w</div>
+      </div>
+      <p class="leading-7 mt-3">Together, these form a sector-level view of whether flows are broadly supportive, deteriorating, or reversing.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>df_flow = df_cot_signals.copy()
+df_flow["Report_Date"] = pd.to_datetime(df_flow["Report_Date"], errors="coerce")
+
+# Ensure core columns
+if "Flow_4w" not in df_flow.columns:
+    raise KeyError("Expected column 'Flow_4w' not found in df_cot_signals.")
+
+for flag in ["crowded_long", "crowded_short"]:
+    if flag not in df_flow.columns:
+        df_flow[flag] = False
+
+# Numeric flow
+df_flow["Flow_4w"] = pd.to_numeric(df_flow["Flow_4w"], errors="coerce")
+
+# Sector classification
+if "Sector" not in df_flow.columns:
+    df_flow["Sector"] = df_flow.apply(_classify_sector_for_flow, axis=1)
+
+# Per-market flow flags
+flow = df_flow["Flow_4w"]
+
+df_flow["trend_confirm_flow"] = (
+    (df_flow["crowded_long"] &amp; (flow &gt; 0)) |
+    (df_flow["crowded_short"] &amp; (flow &lt; 0))
+)
+
+
+df_flow["contrarian_flow"] = (
+    (df_flow["crowded_long"] &amp; (flow &lt; 0)) |
+    (df_flow["crowded_short"] &amp; (flow &gt; 0))
+)
+
+# Sector-level aggregation
+group_cols = ["Report_Date", "Sector"]
+
+df_sector_flow = (
+    df_flow
+    .groupby(group_cols)
+    .agg(
+        n_markets=("Market_and_Exchange_Names", "nunique"),
+        avg_flow_4w=("Flow_4w", "mean"),
+        pos_flow_share=("Flow_4w", lambda x: (x &gt; 0).mean()),
+        neg_flow_share=("Flow_4w", lambda x: (x &lt; 0).mean()),
+        trend_confirm_share=("trend_confirm_flow", "mean"),
+        contrarian_flow_share=("contrarian_flow", "mean"),
+        crowded_long_share=("crowded_long", "mean"),
+        crowded_short_share=("crowded_short", "mean"),
+    )
+    .reset_index()
+)
+
+for col in [
+    "pos_flow_share",
+    "neg_flow_share",
+    "trend_confirm_share",
+    "contrarian_flow_share",
+    "crowded_long_share",
+    "crowded_short_share",
+]:
+    df_sector_flow[col] = df_sector_flow[col].astype(float)
+
+# Sort and momentum
+df_sector_flow = df_sector_flow.sort_values(["Sector", "Report_Date"]).reset_index(drop=True)
+
+
+df_sector_flow["avg_flow_4w_mom"] = (
+    df_sector_flow
+    .groupby("Sector")["avg_flow_4w"]
+    .diff()
+)
+
+
+df_sector_flow["avg_flow_4w_3w_ma"] = (
+    df_sector_flow
+    .groupby("Sector")["avg_flow_4w"]
+    .transform(lambda s: s.rolling(3, min_periods=1).mean())
+)
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>High pos_flow_share with high trend_confirm_share</strong> — flows are reinforcing existing sector trends (pro-cyclical regime).</li>
+        <li><strong>Rising contrarian_flow_share</strong> — flows increasingly oppose existing crowding, signalling risk of reversals or de-risking.</li>
+        <li><strong>Positive avg_flow_4w_mom</strong> — flow momentum is improving, often consistent with early-cycle or acceleration phases.</li>
+        <li><strong>Negative avg_flow_4w_mom</strong> — deteriorating flows that may precede slowdowns or topping patterns.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Flow measures depend on upstream construction of Flow_4w and may embed noise from roll activity or contract changes.</li>
+        <li>Sector classification via heuristics can mislabel niche contracts.</li>
+        <li>No explicit z-score normalisation is applied here; optional normalisation may be added for cross-signal comparability.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Practical Use Cases</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Track industrial Metals and Energy flow momentum as proxies for global manufacturing and transport demand.</li>
+        <li>Combine with Sector Positioning and Hedger Pressure signals to distinguish between flow-driven and fundamentally-driven moves.</li>
+        <li>Use contrarian_flow_share spikes as alerts for potential tactical turning points in crowded sectors.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Sector Flow &amp; Momentum signal.</footer>
+  </main>
+</body>
+</html>

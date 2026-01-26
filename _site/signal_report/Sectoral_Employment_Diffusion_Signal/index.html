@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Sectoral Employment Diffusion Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Sectoral Employment Diffusion Signal</h1>
+      <p class="subtitle">Sectoral employment diffusion: assessing breadth and dispersion in labour market conditions.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-24</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>The Sectoral Employment Diffusion Signal (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">1</a>) currently indicates a NEUTRAL regime for U.S. payroll growth breadth as of 2025-12-01.</li>
+        <li>The diffusion index remains flat at 50%, signaling a stable state with an equal number of expanding and contracting sectors.</li>
+        <li>This state is interpreted with Medium Conviction and High Confidence, with no internal conflicts observed.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary quantitative driver is the diffusion z-score, which is precisely 0.0, placing it within the defined NEUTRAL range of -0.75 to +0.75 (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">1</a>).</li>
+        <li>While overall diffusion is stable, median sector year-over-year growth is slightly negative (-0.001300), with negative 3-month momentum (-0.002580).</li>
+        <li>Conditional Invalidation: A sustained move of the diffusion z-score above +0.75 (HOT) or below -0.75 (COOL) would invalidate this neutral interpretation.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: The prevailing NEUTRAL regime in sectoral employment diffusion is expected to continue, supported by the stable diffusion index and z-score.</li>
+        <li>Upside secondary: Broad-based acceleration in employment growth across a majority of sectors, leading to a diffusion z-score above +0.75.</li>
+        <li>Most plausible downside risk: A clear narrowing of employment breadth, with more sectors contracting than expanding, causing the diffusion z-score to fall below -0.75.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>This signal operates on a Cyclical (months) time horizon, as it tracks year-over-year growth and 3-month momentum in employment.</li>
+        <li>It warrants a Medium Aggregation Weight hint due to its clear, confident reading and its importance as a breadth indicator for the labor market.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal primarily informs the Slack and Demand dimensions of the macro economy.</li>
+        <li>It helps identify the cycle position by indicating whether the labor market is in a broad expansion (Hot), narrow/weak (Cool), or stable (Neutral) phase (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">1</a>).</li>
+        <li>A stable or broadening diffusion typically interacts positively with broader growth and consumption signals, while a narrowing diffusion often foreshadows slowdowns (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>CES3000000001 (Manufacturing), CES2000000001 (Construction), CES6000000001 (Professional & Business Services), CES7000000001 (Leisure & Hospitality) employment levels and year-over-year growth, latest observation 2025-12-01.</li>
+        <li>The `Diffusion_Index`, `Diffusion_z`, `Diffusion_Regime`, `Median_Sector_YoY`, and `Median_Sector_YoY_mom_3m` were most influential for the current state.</li>
+        <li>Additional public datasets that would improve depth or reliability include the full BLS CES database for a broader diffusion index, and the Job Openings and Labor Turnover Survey (JOLTS) for labor demand insights.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Sectoral Employment Diffusion Chart</h2><div class="box chart-box"><img src="/images/Sectoral_Employment_Diffusion_Signal_chart_mpl.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Sectoral employment diffusion across major industries.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Sectoral Employment Diffusion Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>CES3000000001_level</th>
+      <th>CES2000000001_level</th>
+      <th>CES6000000001_level</th>
+      <th>CES7000000001_level</th>
+      <th>CES3000000001_yoy</th>
+      <th>CES2000000001_yoy</th>
+      <th>CES6000000001_yoy</th>
+      <th>CES7000000001_yoy</th>
+      <th>Diffusion_Index</th>
+      <th>Diffusion_z</th>
+      <th>Diffusion_0_100</th>
+      <th>Diffusion_Smoothed</th>
+      <th>Diffusion_Regime</th>
+      <th>Median_Sector_YoY</th>
+      <th>Median_Sector_YoY_mom_3m</th>
+      <th>Diffusion_mom_3m</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2024-10-01</th>
+      <td>12750.0</td>
+      <td>8268.0</td>
+      <td>22541.0</td>
+      <td>16878.0</td>
+      <td>-0.006700</td>
+      <td>0.023774</td>
+      <td>-0.007267</td>
+      <td>0.011567</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-6.245422e+09</td>
+      <td>NEUTRAL</td>
+      <td>0.002434</td>
+      <td>-0.002151</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2024-11-01</th>
+      <td>12770.0</td>
+      <td>8274.0</td>
+      <td>22578.0</td>
+      <td>16932.0</td>
+      <td>-0.006844</td>
+      <td>0.023377</td>
+      <td>-0.003575</td>
+      <td>0.012437</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-3.122711e+09</td>
+      <td>NEUTRAL</td>
+      <td>0.004431</td>
+      <td>0.001109</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2024-12-01</th>
+      <td>12760.0</td>
+      <td>8289.0</td>
+      <td>22614.0</td>
+      <td>16979.0</td>
+      <td>-0.008162</td>
+      <td>0.023460</td>
+      <td>-0.002206</td>
+      <td>0.015005</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-1.561356e+09</td>
+      <td>NEUTRAL</td>
+      <td>0.006399</td>
+      <td>0.002077</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-01-01</th>
+      <td>12755.0</td>
+      <td>8286.0</td>
+      <td>22579.0</td>
+      <td>16965.0</td>
+      <td>-0.008627</td>
+      <td>0.021324</td>
+      <td>-0.003882</td>
+      <td>0.014653</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-7.806778e+08</td>
+      <td>NEUTRAL</td>
+      <td>0.005385</td>
+      <td>0.002952</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-02-01</th>
+      <td>12763.0</td>
+      <td>8298.0</td>
+      <td>22594.0</td>
+      <td>16931.0</td>
+      <td>-0.007002</td>
+      <td>0.019912</td>
+      <td>-0.002957</td>
+      <td>0.011712</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-3.903389e+08</td>
+      <td>NEUTRAL</td>
+      <td>0.004378</td>
+      <td>-0.000054</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-03-01</th>
+      <td>12764.0</td>
+      <td>8303.0</td>
+      <td>22583.0</td>
+      <td>16976.0</td>
+      <td>-0.005764</td>
+      <td>0.016279</td>
+      <td>-0.002385</td>
+      <td>0.012163</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-1.951694e+08</td>
+      <td>NEUTRAL</td>
+      <td>0.004889</td>
+      <td>-0.001510</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-04-01</th>
+      <td>12764.0</td>
+      <td>8303.0</td>
+      <td>22610.0</td>
+      <td>16994.0</td>
+      <td>-0.006461</td>
+      <td>0.015906</td>
+      <td>-0.001546</td>
+      <td>0.013478</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-9.758472e+07</td>
+      <td>NEUTRAL</td>
+      <td>0.005966</td>
+      <td>0.000581</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-05-01</th>
+      <td>12753.0</td>
+      <td>8305.0</td>
+      <td>22587.0</td>
+      <td>17021.0</td>
+      <td>-0.007471</td>
+      <td>0.014289</td>
+      <td>-0.003046</td>
+      <td>0.013698</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-4.879236e+07</td>
+      <td>NEUTRAL</td>
+      <td>0.005326</td>
+      <td>0.000948</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-06-01</th>
+      <td>12736.0</td>
+      <td>8303.0</td>
+      <td>22563.0</td>
+      <td>17016.0</td>
+      <td>-0.008022</td>
+      <td>0.012191</td>
+      <td>-0.003357</td>
+      <td>0.013883</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-2.439618e+07</td>
+      <td>NEUTRAL</td>
+      <td>0.004417</td>
+      <td>-0.000472</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-07-01</th>
+      <td>12727.0</td>
+      <td>8300.0</td>
+      <td>22550.0</td>
+      <td>17025.0</td>
+      <td>-0.008801</td>
+      <td>0.010470</td>
+      <td>-0.003227</td>
+      <td>0.013876</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-1.219809e+07</td>
+      <td>NEUTRAL</td>
+      <td>0.003622</td>
+      <td>-0.002345</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-08-01</th>
+      <td>12716.0</td>
+      <td>8280.0</td>
+      <td>22537.0</td>
+      <td>17048.0</td>
+      <td>-0.006563</td>
+      <td>0.005220</td>
+      <td>-0.002390</td>
+      <td>0.013676</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-6.099045e+06</td>
+      <td>NEUTRAL</td>
+      <td>0.001415</td>
+      <td>-0.003911</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-09-01</th>
+      <td>12711.0</td>
+      <td>8305.0</td>
+      <td>22529.0</td>
+      <td>17090.0</td>
+      <td>-0.006953</td>
+      <td>0.004597</td>
+      <td>-0.002038</td>
+      <td>0.013101</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-3.049523e+06</td>
+      <td>NEUTRAL</td>
+      <td>0.001279</td>
+      <td>-0.003137</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-10-01</th>
+      <td>12702.0</td>
+      <td>8292.0</td>
+      <td>22513.0</td>
+      <td>17123.0</td>
+      <td>-0.003765</td>
+      <td>0.002903</td>
+      <td>-0.001242</td>
+      <td>0.014516</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-1.524761e+06</td>
+      <td>NEUTRAL</td>
+      <td>0.000830</td>
+      <td>-0.002791</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-11-01</th>
+      <td>12700.0</td>
+      <td>8314.0</td>
+      <td>22526.0</td>
+      <td>17120.0</td>
+      <td>-0.005482</td>
+      <td>0.004834</td>
+      <td>-0.002303</td>
+      <td>0.011103</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-7.623807e+05</td>
+      <td>NEUTRAL</td>
+      <td>0.001266</td>
+      <td>-0.000149</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2025-12-01</th>
+      <td>12692.0</td>
+      <td>8303.0</td>
+      <td>22517.0</td>
+      <td>17167.0</td>
+      <td>-0.005329</td>
+      <td>0.001689</td>
+      <td>-0.004289</td>
+      <td>0.011073</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>50.0</td>
+      <td>-3.811903e+05</td>
+      <td>NEUTRAL</td>
+      <td>-0.001300</td>
+      <td>-0.002580</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/sectoral_employment_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Sectoral Employment Diffusion Signal</a></section>
+</main>
+</body>
+</html>

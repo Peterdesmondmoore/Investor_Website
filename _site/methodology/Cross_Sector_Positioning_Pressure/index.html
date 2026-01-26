@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sector Positioning Signal — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Sector Positioning Signal</h1>
+      <div class="mt-2 text-slate-600 text-sm">Composite sector‑level signal measuring speculative crowding, hedger pressure, and unwind risk across major futures sectors (Energy, Metals, Ags, FX, Rates). Derived from enriched CoT positioning.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This signal aggregates market‑level Commitments of Traders (CoT) positioning into macro sectors. It identifies whether a sector is experiencing broad speculative crowding, systemic hedger pressure, or heightened unwind risk. Using market‑level flags (crowded_long, crowded_short, hedger_pressure) and 4‑week flow dynamics, the model classifies sector‑wide stress and positioning imbalance.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Inputs</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>df_cot_signals</strong> — unified enriched CoT dataset with market‑level signals.</li>
+        <li><strong>Market classifications:</strong> Commodity_Class, Classification, Sub‑Classification, Commodity_SubClass.</li>
+        <li><strong>Market flags:</strong> crowded_long, crowded_short, hedger_pressure.</li>
+        <li><strong>Flow_4w:</strong> 4‑week speculative flow (directionally used to assess unwind risk).</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Sector Classification Logic</h2>
+      <p class="leading-7">Markets are mapped into macro sectors using metadata first and name‑based heuristics second. The sectors include:</p>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Energy</li>
+        <li>Metals (Precious & Base)</li>
+        <li>Ags (Grains, Softs, Livestock)</li>
+        <li>FX</li>
+        <li>Rates</li>
+        <li>Other</li>
+      </ul>
+      <p class="leading-7 mt-3">Classification uses string‑matching on both metadata and exchange‑provided market names when metadata is missing or inconsistent.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Preparation & Flag Construction</h2>
+      <p class="leading-7">The base dataset is cleaned, sectors assigned, and missing flags defaulted to <em>False</em>. Unwind risk is defined as:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">UnwindRisk = (crowded_long ∧ Flow_4w < 0) ∨ (crowded_short ∧ Flow_4w > 0)</div>
+      </div>
+      <p class="leading-7 mt-3">This captures conditions where positioning is both extreme and moving against traders, signalling elevated squeeze or unwind probability.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Sector Aggregation</h2>
+      <p class="leading-7">For each sector and report date, the following aggregates are computed:</p>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>n_markets:</strong> number of unique markets.</li>
+        <li><strong>spec_crowded_long_share:</strong> share of markets flagged crowded long.</li>
+        <li><strong>spec_crowded_short_share:</strong> share of markets flagged crowded short.</li>
+        <li><strong>hedger_pressure_share:</strong> share of markets with hedger pressure.</li>
+        <li><strong>unwind_risk_share:</strong> share of markets with unwind risk.</li>
+        <li><strong>avg_spec_zscore:</strong> mean speculative z‑score across markets.</li>
+        <li><strong>avg_hedger_zscore:</strong> mean hedger z‑score across markets.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Broad Macro Flags</h2>
+      <p class="leading-7">Sector‑wide stress conditions are triggered using static thresholds:</p>
+      <div class="box text-sm mt-3">
+        <ul class="list-disc pl-6">
+          <li><span class="eq">broad_spec_crowding</span>: spec_crowded_long_share ≥ 0.40</li>
+          <li><span class="eq">broad_hedger_pressure</span>: hedger_pressure_share ≥ 0.40</li>
+          <li><span class="eq">broad_unwind_risk</span>: unwind_risk_share ≥ 0.30</li>
+        </ul>
+      </div>
+      <p class="leading-7 mt-3">These thresholds identify when positioning stress is not isolated but systemic within a sector.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Latest Snapshot</h2>
+      <p class="leading-7">The most recent reporting date is extracted, and sector aggregates for that date form the latest positioning table.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>df_sector = df_cot_signals.copy()
+df_sector["Report_Date"] = pd.to_datetime(df_sector["Report_Date"], errors="coerce")
+
+# Classification and flags
+df_sector["Sector"] = df_sector.apply(_classify_sector, axis=1)
+flow = pd.to_numeric(df_sector.get("Flow_4w", np.nan), errors="coerce")
+df_sector["unwind_risk"] = (
+    (df_sector["crowded_long"] & (flow < 0)) |
+    (df_sector["crowded_short"] & (flow > 0))
+)
+
+# Aggregation
+group_cols = ["Report_Date", "Sector"]
+df_sector_positioning = (
+    df_sector.groupby(group_cols).agg(
+        n_markets=("Market_and_Exchange_Names", "nunique"),
+        spec_crowded_long_share=("crowded_long", "mean"),
+        spec_crowded_short_share=("crowded_short", "mean"),
+        hedger_pressure_share=("hedger_pressure", "mean"),
+        unwind_risk_share=("unwind_risk", "mean"),
+        avg_spec_zscore=("Spec_zscore", "mean"),
+        avg_hedger_zscore=("Hedger_zscore", "mean")
+    ).reset_index()
+)
+
+# Threshold flags
+BLS, BH, BU = 0.40, 0.40, 0.30
+df_sector_positioning["broad_spec_crowding"] = df_sector_positioning["spec_crowded_long_share"] >= BLS
+df_sector_positioning["broad_hedger_pressure"] = df_sector_positioning["hedger_pressure_share"] >= BH
+df_sector_positioning["broad_unwind_risk"] = df_sector_positioning["unwind_risk_share"] >= BU
+
+# Latest snapshot
+latest_date = df_sector_positioning["Report_Date"].max()
+df_sector_positioning_latest = df_sector_positioning[
+
+
+    </code></pre>
+    </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Broad Spec Crowding:</strong> reveals directional consensus that can reverse sharply when flows shift.</li>
+        <li><strong>Hedger Pressure:</strong> highlights defensive commercial positioning, often preceding volatility.</li>
+        <li><strong>Unwind Risk:</strong> identifies when stretched positioning meets adverse flow, increasing squeeze probability.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Sector mapping depends on exchange naming conventions, which may contain inconsistencies.</li>
+        <li>Static thresholds may require periodic recalibration to reflect structural regime changes.</li>
+        <li>Flow metrics can be noisy for low-liquidity contracts, reducing signal reliability.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">10. Practical Use Cases</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Detect sectors at risk of rapid position unwinds or squeezes.</li>
+        <li>Monitor systemic crowding across futures markets to inform macro-level risk management.</li>
+        <li>Combine with trend, volatility, or macro composites for tactical allocation timing.</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

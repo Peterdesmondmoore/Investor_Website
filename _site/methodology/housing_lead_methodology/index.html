@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Housing Lead — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Housing Lead</h1>
+      <div class="mt-2 text-slate-600 text-sm">Composite leading indicator for the housing cycle using permits, housing starts momentum, and mortgage‑rate headwinds.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">The Housing Lead signal blends forward indicators of residential activity (building permits and housing starts) with the financing constraint captured by the 30‑year mortgage rate. Momentum in permits (6‑month annualised) and starts (3‑month annualised) are positively related to future construction, while higher mortgage rates are a drag. Robust z‑scores and fixed weights produce a stable, interpretable composite with regimes: <em>Expanding</em>, <em>Neutral</em>, and <em>Contracting</em>.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>PERMIT</strong> — Building Permits: New Private Housing Units (FRED: <code>PERMIT</code>), monthly, SAAR.</li>
+        <li><strong>HOUST</strong> — Housing Starts: Total: New Privately Owned (FRED: <code>HOUST</code>), monthly, SAAR.</li>
+        <li><strong>MORTGAGE30US</strong> — 30‑Year Fixed Rate Mortgage Average (FRED: <code>MORTGAGE30US</code>), weekly average; resampled to month‑end.</li>
+      </ul>
+      <p class="leading-7 mt-3">Ensure consistent frequency (month‑end) before constructing the composite.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Transformations</h2>
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Permits momentum:</strong> six‑month annualised growth
+          <div class="box mt-2 text-sm">
+            <div class="eq">PERMIT\_{6mAnn,t} = (PERMIT_t / PERMIT_{t−6})^2 − 1</div>
+          </div>
+        </li>
+        <li><strong>Starts momentum:</strong> three‑month annualised growth
+          <div class="box mt-2 text-sm">
+            <div class="eq">HOUST\_{3mAnn,t} = (HOUST_t / HOUST_{t−3})^4 − 1</div>
+          </div>
+        </li>
+        <li><strong>Mortgage headwind:</strong> use the level of <span class="eq">MORTGAGE30US</span>; higher rates are negative for activity.</li>
+      </ol>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Normalisation</h2>
+      <div class="box text-sm">
+        <div class="eq">z\_{rob}(X)_t = \dfrac{X_t − \mathrm{median}(X)_{t,w}}{1.4826·\mathrm{MAD}(X)_{t,w}}</div>
+        <div class="text-xs mt-2">with rolling window <span class="eq">w = 48</span> months (minimum 18). Robust to outliers and structural level shifts.</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Composite Construction</h2>
+      <p class="leading-7">Weighting emphasises forward permit signals, then starts, with a smaller penalty from mortgage rates:</p>
+      <div class="box text-sm">
+        <div class="eq">Housing\_{Lead,t} = 0.45·z(PERMIT\_{6mAnn,t}) + 0.35·z(HOUST\_{3mAnn,t}) + 0.20·z(−MORTGAGE30US_t)</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Regime Mapping</h2>
+      <div class="box text-sm">
+        <div class="eq">If\ C_t > 0.75 → \textit{Expanding};\quad |C_t| ≤ 0.75 → \textit{Neutral};\quad C_t < −0.75 → \textit{Contracting}</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>import pandas as pd
+import numpy as np
+
+def robust_z(s, win=48, min_win=18):
+    x = pd.to_numeric(s, errors="coerce").astype(float)
+    w = max(min_win, min(win, x.dropna().size))
+    med = x.rolling(w, min_periods=min_win).median()
+    mad = (x - med).abs().rolling(w, min_periods=min_win).median()
+    return (x - med) / (1.4826 * mad.replace(0, np.nan))
+
+d = df_housing.copy()
+
+d["PERMIT_6mAnn"] = (d["PERMIT"] / d["PERMIT"].shift(6))**2 - 1.0
+
+d["HOUST_3mAnn"]  = (d["HOUST"] / d["HOUST"].shift(3))**4 - 1.0
+
+d["Z_PERMIT"] = robust_z(d["PERMIT_6mAnn"]) 
+
+d["Z_HOUST"]  = robust_z(d["HOUST_3mAnn"]) 
+
+d["Z_MORT"]   = robust_z(-d["MORTGAGE30US"]) 
+
+d["Housing_Lead"] = (0.45*d["Z_PERMIT"] + 0.35*d["Z_HOUST"] + 0.20*d["Z_MORT"]) 
+
+hi, lo = 0.75, -0.75
+
+def _regime(v):
+    if pd.isna(v): return np.nan
+    return "Expanding" if v > hi else ("Contracting" if v < lo else "Neutral")
+
+d["Housing_Regime"] = d["Housing_Lead"].apply(_regime)
+
+df_sig_housing = d
+
+display(df_sig_housing.tail())
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Expanding:</strong> permitting and starts momentum outweigh mortgage headwinds; pipeline growth likely.</li>
+        <li><strong>Neutral:</strong> mixed signals; housing activity near trend.</li>
+        <li><strong>Contracting:</strong> weak permits/starts and/or high mortgage rates point to housing slowdown.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>PERMIT and HOUST are volatile and subject to revisions; use multi‑month windows to reduce noise.</li>
+        <li>MORTGAGE30US is weekly and may require careful resampling (e.g., month‑end last).</li>
+        <li>Fixed thresholds (±0.75) are heuristic; calibration may be warranted for portfolio applications.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Housing Lead signal.</footer>
+  </main>
+</body>
+</html>

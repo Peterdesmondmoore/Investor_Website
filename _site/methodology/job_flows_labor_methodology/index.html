@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Flows & Labor Dynamism — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Job Flows & Labor Dynamism (BDS)</h1>
+      <p class="mt-2 text-slate-600 text-sm">Quarterly composite derived from <strong>Gross Job Gains</strong> and <strong>Gross Job Losses</strong> (Business Employment Dynamics). Produces level, YoY, balance ratio, a composite z‑score, EMA‑smoothed headline, 0–100 scaling, and regime classification.</p>
+      <p class="mt-2 text-xs text-slate-500">Why: Rising gains relative to losses and positive net creation indicate firm dynamism and hiring appetite; the opposite signals deterioration.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">Using BDS series for private sector gross job gains and losses, we construct net job creation, a 4‑quarter moving average of dynamism, and YoY growth. A robust, history‑adaptive z‑score combines gains, net creation, and (negated) losses into a composite. We smooth the headline, scale to 0–100, and map regimes.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (BLS BDS Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>BDS0000000000000000110001LQ5</b> — Gross Job Gains, Private, SA</li>
+        <li><b>BDS0000000000000000110004LQ5</b> — Gross Job Losses, Private, SA</li>
+      </ul>
+      <p class="leading-7 mt-3">Inputs are <strong>quarterly</strong> levels. We preserve BLS revisions by deduplicating within (date, series_id) and retaining the latest observation.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Data Handling & Validation</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Types & dates:</b> Coerce numeric values. Parse <code>date</code>; if missing, build quarter‑end timestamps from <code>year</code> and <code>period</code> (e.g., <code>Q1</code>) via <code>PeriodIndex(freq='Q-DEC')</code>.</li>
+          <li><b>Pivot:</b> Wide pivot by <code>series_id</code>; <em>no forced</em> <code>asfreq</code> to avoid sparse‑grid artifacts.</li>
+          <li><b>Intersection:</b> Keep only quarters where <em>both</em> gains and losses exist (drop rows with NaN in either).</li>
+          <li><b>Fail‑fast:</b> raise if any required BDS series is absent post‑pivot.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Core Transforms</h2>
+      <div class="box text-sm">
+        <div class="italic">Net_Job_Creation = Gross_Job_Gains − Gross_Job_Losses</div>
+        <div class="italic mt-1">Labor_Dynamism_4Q_MA = MA<sub>4Q</sub>(Net_Job_Creation)</div>
+        <div class="italic mt-1">YoY(s) = s<sub>t</sub>/s<sub>t−4</sub> − 1</div>
+        <div class="italic mt-1">Gains_to_Losses_Ratio = Gains / (Losses + ε)</div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Robust z‑scores)</h2>
+      <p class="leading-7">We compute robust rolling z‑scores (median/MAD) with an adaptive window (default target 12 quarters, min 4).</p>
+      <div class="box text-sm">
+        <div class="italic">z<sub>t</sub>(x) = (x<sub>t</sub> − median<sub>W</sub>(x)) / (1.4826·MAD<sub>W</sub>(x)),\ W = min(12, max(4, ⌊0.8·N<sub>valid</sub>⌋))</div>
+        <p class="mt-2">Losses enter negatively: <code>Losses_z_neg = −z(Losses)</code>.</p>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Composite, Smoothing & Regimes</h2>
+      <p class="leading-7">Weights emphasise gains and net creation while penalising losses.</p>
+      <div class="box text-xs mt-3">
+<pre><code>{
+  "Gains_z": 0.40,
+  "Net_z": 0.40,
+  "Losses_z_neg": 0.20
+}</code></pre>
+      </div>
+      <div class="box text-sm mt-3">
+        <div class="italic">Job_Flows_Composite<sub>z</sub> = 0.40·Gains<sub>z</sub> + 0.40·Net<sub>z</sub> + 0.20·Losses<sub>z_neg</sub></div>
+      </div>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li>3‑period EMA for the headline.</li>
+        <li>Min–max 0–100 scaling over observed history.</li>
+        <li>Regimes on the <em>unsmoothed</em> composite z‑score: HOT &gt; +0.75, COOL &lt; −0.75.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Output Panel</h2>
+      <div class="box text-xs">
+<pre><code>[
+  # Levels & growth
+  "Gross_Job_Gains","Gross_Job_Losses","Net_Job_Creation","Labor_Dynamism_4Q_MA",
+  "Gross_Job_Gains_YoY","Gross_Job_Losses_YoY","Net_Job_Creation_YoY","Gains_to_Losses_Ratio",
+
+  # Standardisation & composite
+  "Gains_z","Losses_z_neg","Net_z",
+  "Job_Flows_Composite_z","Job_Flows_Composite_Smoothed","Job_Flows_Composite_0_100","Job_Flows_Regime"
+]</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Expect: quarterly BDS series with columns date/series_id/value (or year/period fallback)
+# Steps: parse/construct quarter-end dates; dedupe (keep last) to respect revisions; pivot; intersect quarters; 
+# compute net, YoY, 4Q MA; robust_z(); composite weighting; EMA smoothing; 0–100 scaling; regimes.
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">8. Interpretation & Use</h2>
+      <p class="leading-7">A <em>HOT</em> reading signals broad firm‑level hiring dynamism and resilience of the expansion; <em>COOL</em> indicates waning churn and rising risk of slowdown. Use with payroll breadth and unemployment duration for a fuller labor cycle view.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Job Flows & Labor Dynamism signal specification.</footer>
+  </main>
+</body>
+</html>

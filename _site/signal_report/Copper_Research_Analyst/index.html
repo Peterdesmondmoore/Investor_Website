@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Copper · Research Analyst</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Copper · Research Analyst</h1>
+      <p class="subtitle">Assessing Copper Outlook Based on Current Research</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-18</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="asset-forward-view"
+     data-as-of-date="2026-01-18"
+     data-horizon-min-months="6"
+     data-horizon-max-months="12">
+
+  <section class="stance">
+    <h2>6–12 Month Stance</h2>
+    <p><strong>Stance:</strong>
+      <span data-field="stance">bullish</span>
+    </p>
+    <p><strong>Confidence:</strong>
+      <span data-field="confidence">high</span>
+    </p>
+  </section>
+
+  <section class="core-narrative">
+    <h2>Core Narrative</h2>
+    <p data-field="core_narrative">
+      The outlook for the Metals asset class is strongly bullish over the next 6-12 months, driven by robust demand, persistent supply constraints, and supportive macroeconomic factors. "Most metals will be better supported by tighter fundamentals" (4), particularly those critical for the energy transition and advanced technologies. Demand for copper is projected to "swell copper demand to 42 million metric tons by 2040, a 50% increase from current levels," propelled by "accelerating electrification, the race for artificial intelligence (AI), and surging defense spending" (5)(6). Silver is also highlighted for its "pivotal role as a 'next generation metal' across industries critical to green energy transition and digital transformation" (7), with strong demand from solar photovoltaics, electric vehicles, and data centers (7). Gold is expected to "sustain its strong trend-like rally into 2026" (2) and "reach yet new heights" (4), supported by safe-haven demand, central bank accumulation, and anticipated Fed rate cuts (2)(4). Uranium is also in a "bull market setup strengthens into 2026" (8).
+      <br><br>
+      On the supply side, "multiple disruptions" (3) and long development timelines for new mines (5)(6) are creating deficits. For example, "refined copper balance for 2026 is now showing a deficit of around 600kt" (4), contributing to a projected "supply deficit of 10 million metric tons by 2040—25% below projected demand" (5). Geopolitical factors and "deglobalization" (8) further exacerbate supply challenges, positioning hard assets as "strategic levers in a multi-polar world" (8). While some metals like Nickel and Iron Ore face oversupply or bearish outlooks (4), the overarching picture for critical industrial and precious metals remains strongly positive (3)(4)(5)(6)(7)(8).
+    </p>
+  </section>
+
+  <section class="key-drivers">
+    <h2>Key Drivers</h2>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Energy Transition Demand</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Accelerating global energy transition initiatives, including widespread electrification, drive significant demand for critical metals. "Electric vehicles (EVs) require 2.9 times more copper than a conventional car" (6), with global EV production forecast to grow at a 13% CAGR between 2025 and 2031 (7). Solar PV capacity has grown over tenfold, leading to a threefold increase in silver demand (7). Record global investment in clean energy, projected to reach "USD 2.2 trillion for 2025" (1), underpins this demand.
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">AI and Data Center Expansion</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        The "rapid growth of the Artificial Intelligence (AI) industry" is estimated to require "between 300,000 and 500,000 additional tons of copper each year until 2030" (3). "Data Centres and Artificial Intelligence represent another critical growth area for silver," with "total global IT power capacity grew by an estimated 53x, from 0.93 GW in 2000 to nearly 50 GW in 2025" (7). AI-driven capital expenditure also contributes to the "Long Hard Asset Trade" (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Geopolitical Tensions & Defense Spending</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        "Geopolitical and technological factors have consolidated and strengthened" demand for copper, including "increased defense spending and strategic mineral protection plans" (3). Surging defense spending further adds to accelerating demand for copper (5)(6). The accelerating "Deglobalization" trend (8) alters global commodity flows and reinforces hard assets as "strategic levers in a multi-polar world" (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Supply Constraints and Disruptions</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        "Multiple disruptions" (3) and "accidents and cuts to production plans at mines" have led to estimated cuts of "around 400,000 tons in global production this year" for copper, with effects expected to "continue throughout 2026 and 2027" (3). Copper faces "significant mine supply disruptions" (4). Overall, the supply response is constrained by factors such as "declining ore grades, rising costs, and long development timelines" (6), leading to "tighter fundamentals" (4) and "structural supply deficits" (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Monetary Policy & US Dollar Weakness</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Prospects for "looser monetary policy in the United States" (3) contribute to higher commodity prices, especially for precious metals. "Further Fed easing expected to remain the dominant driver" for a bearish bias on the USD (2). "Anticipated Fed rate cuts, a weaker US dollar" (4) are expected to keep gold "strong and reach yet new heights" (4), supporting its "Role as a Core Store of Value Strengthens" (8).
+      </p>
+    </div>
+  </section>
+
+  <section class="key-risks">
+    <h2>Key Risks</h2>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Supply Chain Concentration</h3>
+      <p data-field="why_it_matters">
+        The concentration of supply chains, with "six countries responsible for two-thirds of mining production and China dominating processing capacity, making global supply vulnerable to disruptions" (5). Specifically, "China accounts for 12 of the 29 million metric tons of global smelting capacity" (6), posing a systemic risk.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Long Development Timelines for New Mines</h3>
+      <p data-field="why_it_matters">
+        Overcoming projected shortfalls, particularly for copper, "requires significant investment in new mines and expansion of existing assets," but the sector faces challenges like environmental opposition and "lengthy permitting processes, taking an average of 17 years for a new mine to go from discovery to production" (5)(6). This long lead time makes a rapid supply response challenging.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Technological Thrifting in Silver</h3>
+      <p data-field="why_it_matters">
+        While overall demand for silver is strong, "technological 'thrifting' reduces silver per cell" in solar PV, and "copper plating technologies show promise in further reducing silver content" (7). If widely adopted, such innovations could partially offset the growth in industrial demand.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Oversupply in Specific Metals</h3>
+      <p data-field="why_it_matters">
+        Not all metals face a bullish outlook; for example, "Nickel is anticipated to remain in surplus throughout 2026, primarily due to continued supply growth from Indonesia" (4). Similarly, "Iron ore faces a bearish outlook for 2026, influenced by weakening Chinese demand, particularly in the property sector, and increasing seaborne supply" (4). These specific market dynamics could weigh on the overall metals sector sentiment.
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Global Economic Slowdown</h3>
+      <p data-field="why_it_matters">
+        Slowing growth in key demand regions, such as "slowing growth in China" (2), could reduce overall industrial metals consumption. A general weakening in global economic activity could dampen the strong demand projected from traditional industrial sectors (4).
+      </p>
+    </div>
+  </section>
+
+  <section class="signposts">
+    <h2>Signposts to Watch</h2>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Investment in New Mining Capacity</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued reports of "multiple disruptions" (3) and long development timelines (5)(6) without significant new projects reaching production would confirm persistent supply tightness and likely higher prices.</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Accelerated permitting, significant new mine discoveries, or rapid development of existing assets (5)(6) could alleviate long-term supply concerns and ease price pressures.</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Evolution of AI and Energy Transition Demand</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Sustained "rapid growth of the Artificial Intelligence (AI) industry" (3) and accelerating electrification (5)(6), with demand figures for copper and silver continuing to surge in line with or exceeding projections (7).</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Slower-than-expected deployment of AI infrastructure, a deceleration in green energy investments, or policy shifts that reduce incentives (7) could lead to lower demand growth.</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Central Bank Monetary Policy</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Materialization of "further Fed easing expected to remain the dominant driver" (2) and the "anticipated Fed rate cuts, a weaker US dollar" (4) would provide a supportive backdrop for gold and other commodity prices.</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Delayed or fewer-than-expected interest rate cuts by major central banks, or a stronger-than-forecast US dollar, could dampen the upward momentum for precious metals and broader commodities (2)(4).</span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Technological Developments in Material Usage</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Widespread adoption of "new next-gen solar cells (TOPCon, SHJ)" that "require more silver" (7) would confirm strong and sustained industrial demand for silver despite existing thrifting efforts.</span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Rapid scaling and adoption of "copper plating technologies" (7) in solar cells, which significantly reduce silver content, could weaken silver's industrial demand outlook.</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="scenarios">
+    <h2>Scenarios</h2>
+
+    <div class="scenario" data-scenario="base">
+      <h3 data-field="scenario_name">base</h3>
+      <p data-field="scenario_description">
+        The "structural shifts" (8) of deglobalization, fiscal dominance, and AI-driven capital expenditure continue to drive a "Long Hard Asset Trade" (8). "Most metals will be better supported by tighter fundamentals" (4) due to persistent demand from electrification, AI, and defense spending (5)(6)(7), coupled with ongoing supply disruptions and long development cycles for new mines (3)(5)(6). Precious metals, particularly gold, will "sustain its strong trend-like rally" (2) amid "anticipated Fed rate cuts, a weaker US dollar, and ongoing geopolitical uncertainties" (4). Copper prices are expected to average "around US$4.6 per pound" in 2027 (3).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Energy Transition Demand; AI and Data Center Expansion; Geopolitical Tensions & Defense Spending; Supply Constraints and Disruptions; Monetary Policy & US Dollar Weakness
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="upside">
+      <h3 data-field="scenario_name">upside</h3>
+      <p data-field="scenario_description">
+        Faster-than-anticipated growth in AI adoption and energy transition leads to an even sharper "swell copper demand" (5) and intensified industrial silver demand, exceeding current projections (6)(7). Geopolitical tensions escalate further, increasing defense spending and exacerbating "fragmentation of global metal inventory systems" (8), creating more localized shortages and price dislocations (8). Supply disruptions are more severe or prolonged than currently expected (3)(4). Central banks accelerate gold accumulation and Fed rate cuts are deeper and faster, leading to a significantly weaker USD (2)(4). Gold will "reach yet new heights" (4) well beyond current forecasts.
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          strongly bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          AI and Data Center Expansion; Energy Transition Demand; Geopolitical Tensions & Defense Spending; Supply Constraints and Disruptions; Monetary Policy & US Dollar Weakness
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="downside">
+      <h3 data-field="scenario_name">downside</h3>
+      <p data-field="scenario_description">
+        A significant global economic slowdown, particularly in key demand centers like China (4), dampens industrial metals consumption. Technological breakthroughs in material substitution or more aggressive "thrifting" for silver (7) significantly reduce demand per unit in key sectors like solar. Unexpectedly rapid development and deployment of new mining capacity or a resolution of supply chain bottlenecks (5)(6) alleviate deficits. Geopolitical tensions ease, reducing defense spending and encouraging more stable commodity flows. Central banks slow gold accumulation, and monetary policy tightening is prolonged or rate cuts are delayed (2)(4).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          neutral
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Global Economic Slowdown; Technological Thrifting in Silver; Long Development Timelines for New Mines; Monetary Policy & US Dollar Weakness
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <section class="disagreements">
+    <h2>Disagreements & Uncertainties</h2>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Silver Demand from Solar PV: Thrifting vs. New Cell Technology</h3>
+      <p data-field="what_conflicts">
+        There is an ongoing dynamic between technological advancements that aim to reduce silver content per solar cell and the emergence of new cell technologies that require more silver, creating uncertainty about net silver demand in the solar photovoltaic sector.
+      </p>
+      <ul>
+        <li data-field="side_a">Claim A: Technological "thrifting" reduces silver per cell, potentially limiting overall demand growth for silver in solar PV (7).</li>
+        <li data-field="side_b">Claim B: New next-generation solar cells (TOPCon, SHJ) require more silver, potentially offsetting reductions from thrifting, though "copper plating technologies show promise in further reducing silver content" (7) in the future.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="research-quality">
+    <h2>Research Quality & Coverage Assessment</h2>
+
+    <p><strong>Overall quality:</strong>
+      <span data-field="research_quality">
+        strong
+      </span>
+    </p>
+
+    <p data-field="quality_rationale">
+      The research is highly credible and consistent, drawing from major financial institutions and industry bodies including S&P Dow Jones Indices, UOB Global Economics & Markets Research, Banco Central de Chile, ING, S&P Global, The Silver Institute, and Sprott (1)(2)(3)(4)(5)(6)(7)(8). There is significant consistency in the identified demand drivers (AI, energy transition, defense spending) and supply constraints across multiple reports (3)(5)(6)(7)(8). The depth includes specific quantitative forecasts for deficits and demand growth for key metals (3)(4)(5)(6)(7), providing a robust and well-supported foundation for the forward view.
+    </p>
+
+    <p><strong>Coverage completeness:</strong>
+      <span data-field="coverage_completeness">
+        comprehensive
+      </span>
+    </p>
+
+    <p data-field="coverage_gaps">
+      none identified
+    </p>
+
+    <p data-field="missing_thematic_research">
+      none identified
+    </p>
+  </section>
+
+  <section class="coverage-stats">
+    <h2>Sources Used</h2>
+    <ul>
+      <li><strong>Documents provided:</strong>
+        <span data-field="documents_provided">8</span>
+      </li>
+      <li><strong>Documents used:</strong>
+        <span data-field="documents_used">8</span>
+      </li>
+      <li><strong>Sources used:</strong>
+        <ol>
+          <li id="ref-1">
+            <a href="https://www.spglobal.com/spdji/en/research/article/benchmarking-the-energy-transition-insights-from-sp-dji/">Benchmarking the Energy Transition: Insights from S&P DJI</a>
+          </li>
+          <li id="ref-2">
+            <a href="https://www.uobgroup.com/research/quarterly-global-outlook.page">Quarterly Global Outlook 1Q 2026</a>
+          </li>
+          <li id="ref-3">
+            <a href="https://www.bcentral.cl/documents/d/banco-central/box-ii-1-december-2025-ipom-pdf?download=true">BOX II.1: Copper price outlook</a>
+          </li>
+          <li id="ref-4">
+            <a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf">Commodities Outlook 2026</a>
+          </li>
+          <li id="ref-5">
+            <a href="https://press.spglobal.com/2026-01-08-Substantial-Shortfall-in-Copper-Supply-Widends-as-the-Race-for-AI-and-Growing-Defense-Spending-Add-to-Accelerating-Demand,-New-S-P-Global-Study-Finds">'Substantial Shortfall' in Copper Supply Widens as the Race for AI and Growing Defense Spending Add to Accelerating Demand, New S&P Global Study Finds</a>
+          </li>
+          <li id="ref-6">
+            <a href="https://www.spglobal.com/content/dam/spglobal/global-assets/en/special-reports/copper-in-the-age-of-ai/Copper%20in%20the%20Age%20of%20AI_January%202026.pdf">Copper in the Age of AI: Challenges of Electrification</a>
+          </li>
+          <li id="ref-7">
+            <a href="https://silverinstitute.org/wp-content/uploads/2025/12/Silver_The-Next-Generation-Metal_DECEMBER-Release.pdf">Silver, The Next Generation Metal</a>
+          </li>
+          <li id="ref-8">
+            <a href="https://sprott.com/insights/top-10-themes-for-2026/">Top 10 Themes for 2026</a>
+          </li>
+        </ol>
+      </li>
+      <li><strong>Date range:</strong>
+        <span data-field="earliest_publication_date">2025-12-01</span>
+        to
+        <span data-field="latest_publication_date">2026-01-13</span>
+      </li>
+    </ul>
+  </section>
+
+</div></div></section>
+</main>
+</body>
+</html>

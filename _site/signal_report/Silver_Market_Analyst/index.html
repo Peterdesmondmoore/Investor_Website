@@ -1,0 +1,1111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Silver Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of silver’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</title>
+  <link rel="icon" type="image/png" href="C:\Users\peter\OneDrive\Documents\GitHub\Investor_Website\images\Favicon.png" />
+  <meta name="description" content="The Silver Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of silver’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction." />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root{
+      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+            radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+            radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6; --gold:#fbbf24; --radius:20px; --max:1100px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text); overflow-x:hidden;}
+    .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
+    .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;}
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{width:34px; height:34px; display:grid; place-items:center;}
+    .nav a.link{color:var(--muted); text-decoration:none; font-weight:600; font-size:14px;
+      padding:10px 12px; border-radius:12px}
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
+      color:var(--muted); font-weight:650; font-size:13px}
+    .page-title{margin:14px 0 10px; color:var(--muted); font-weight:650; font-size:13px; line-height:1.05;
+      letter-spacing:0; font-style:italic}
+    .dot{width:8px; height:8px; border-radius:99px; background:#10b981; box-shadow:0 0 0 5px rgba(16,185,129,.12)}
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px;}
+    .muted{color:var(--muted)}
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .hero-inject{margin-top:16px; padding:14px; border-radius:16px;
+      border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18);
+      color:var(--muted); font-size:13px; line-height:1.55;}
+    .market-report p{margin:0 0 .8rem}
+    .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
+    .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
+    .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
+    .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
+      color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
+    .tab:hover{background:rgba(255,255,255,.06); color:var(--text)}
+    .tab.is-active{background:rgba(139,92,246,.18); border-color:rgba(139,92,246,.35); color:var(--text)}
+    .panels{padding:12px}
+    .panel{border-radius:16px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.18); padding:14px;}
+    .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
+    .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
+    figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
+      padding:10px; overflow:hidden;}
+    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+    .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
+    .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
+      color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
+    .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
+    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
+    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      .wrap{padding:18px 12px 60px}
+      .nav{flex-direction:column; gap:12px; align-items:flex-start}
+      .brand{font-size:14px}
+      .logo{width:28px; height:28px}
+      .page-title{font-size:12px}
+      h1{font-size:28px; line-height:1.1}
+      .hero{padding:20px 0 12px}
+      .card{padding:16px !important}
+      .kicker{font-size:12px; padding:6px 10px}
+      .hero-inject{padding:12px}
+      .tablist{flex-direction:column; align-items:stretch}
+      .tab{width:100%; text-align:left; padding:12px 14px; font-size:14px}
+      .panel{padding:12px}
+      .panel-title{font-size:15px}
+      .report-buttons{flex-direction:column}
+      .report-btn{width:100%; text-align:center; padding:10px 14px}
+      .nav a.link{font-size:13px; padding:8px 10px}
+    }
+    
+    @media (max-width: 480px) {
+      .wrap{padding:12px 8px 40px}
+      h1{font-size:24px}
+      .page-title{font-size:11px}
+      .kicker{font-size:11px}
+      .panel-body, .panel-bullets, .hero-inject{font-size:12px}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Silver Market Analyst</div>
+        </div>
+      </a>
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="card" style="padding:26px">
+        <div class="kicker"><span class="dot"></span> Silver Market Analyst</div>
+        <div class="page-title">The Silver Market Analyst is a modular analysis framework that combines price diagnostics, positioning regimes, research synthesis, media narrative monitoring, and macro signal interpretation to form a coherent view of silver’s current state. Together, these components translate market data, positioning, research, and narratives into structured, transparent diagnostics designed for context and risk awareness rather than prediction or trade instruction.</div>
+        <div class="hero-inject market-report"><div class="ia-report-block" id="silver-macro-outlook">
+  <h2>Silver Macro Outlook</h2>
+
+  <h3>Regime Assessment</h3>
+  <p>
+    Current conditions align with the <strong>Range-Bound Neutral (G8)</strong> regime (<a href="https://investoranatomy.com/signal_report/Silver_Regime_State/" target="_blank">1</a>).
+    Dominant drivers include neutral liquidity and inflation signals, counterbalanced by real rate headwinds and a weakening US dollar tailwind (<a href="https://investoranatomy.com/signal_report/Silver_Regime_State/" target="_blank">1</a>). Financial stress indicators are also neutral (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">16</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">17</a>).
+  </p>
+
+  <h3>1-Month Outlook (Tactical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Bullish, primarily driven by tactical factors (<a href="https://investoranatomy.com/signal_report/Silver_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Probability:</strong> Historical outcomes for a Range-Bound Neutral (G8) regime indicate a 50% chance of upside and 50% chance of downside over one month.</li>
+    <li><strong>Primary Influences:</strong> Recent news highlights silver futures reaching new record highs due to strong manufacturing PMI data (<a href="https://www.cmegroup.com/videos/2026/01/23/silver-futures-reached-new-record-highs-on-manufacturing-data-1.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">33</a>), a weakening US dollar (<a href="https://www.cmegroup.com/videos/2026/01/23/gold-and-silver-futures-reached-new-record-highs-as-market-await.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">32</a>)(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>), persistent supply shortages (<a href="https://mining.einnews.com/article/885988227/TxhpzSC9TOEfUzyo?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank">37</a>), and geopolitical tensions (<a href="https://www.mining.com/gold-silver-prices-set-new-records-amid-us-europe-trade-war-fears/" target="_blank">29</a>). Strong US economic data also provides a supportive backdrop (<a href="https://www.cmegroup.com/videos/2026/01/22/u-s-markets-rise-on-strong-gdp-and-labor-data-1-22-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank">31</a>).</li>
+    <li><strong>Pricing &amp; Volatility Signals:</strong> Silver pricing shows a technical uptrend (price above 50-day and 200-day averages) and an 'Add' bias from the daily model signal (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">19</a>). Realized volatility is currently high (top 30% of sample), with unusually high trading volume (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">19</a>). The composite pricing view, however, indicates 'Reduce' with modest conviction (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">19</a>).</li>
+    <li><strong>Positioning / Flow Signals:</strong> Speculators are extremely net short (z-score -2.24) while hedgers are deeply net long (z-score 1.87), indicating significant divergence and strong contrarian positioning in Silver futures (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">11</a>). This extreme positioning, coupled with moderate squeeze risk (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">15</a>), suggests potential for short-covering driven upside (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">11</a>). Recent speculative flows show a reduction in long positions as prices rose (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">11</a>).</li>
+    <li><strong>Volatility Profile:</strong> The Range-Bound Neutral (G8) regime typically exhibits Low volatility. However, current market conditions show High realized volatility (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">19</a>).</li>
+  </ul>
+
+  <h3>3-Month Outlook (Cyclical)</h3>
+  <ul>
+    <li><strong>Directional Bias:</strong> Neutral (<a href="https://investoranatomy.com/signal_report/Silver_Regime_State/" target="_blank">1</a>).</li>
+    <li><strong>Probability:</strong> Historical outcomes for a Range-Bound Neutral (G8) regime indicate a 50% chance of upside and 50% chance of downside over three months.</li>
+    <li><strong>Structural Drivers:</strong> Real interest rates remain marginally above trend, posing a headwind to non-yielding assets (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>). Federal Reserve liquidity is in an expansion phase, primarily driven by declining overnight reverse repo usage and reserve balances, though offset by contracting Fed assets (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>). M2 money supply is transitioning to neutral, contributing neutrally to overall liquidity (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>). The explicit neutral rate (r*) proxy indicates a near neutral monetary policy stance (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>). A weakening US dollar trend continues to provide a potential tailwind for silver (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">7</a>). Inflation expectations, both term structure and market implied, are stable and within neutral thresholds (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">9</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">10</a>). Financial stress indicators remain neutral (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">17</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">18</a>).</li>
+    <li><strong>Industrial Cycle Transmission (if applicable):</strong> Research suggests robust industrial demand for silver, particularly from solar (photovoltaics), electric vehicles, and data centers/AI applications, is a structural support likely to persist over this horizon (<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">23</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">24</a>)(<a href="https://silverinstitute.org/wp-content/uploads/2025/12/Silver_The-Next-Generation-Metal_DECEMBER-Release.pdf" target="_blank">26</a>)(<a href="https://silverinstitute.org/wp-content/uploads/2025/04/World_Silver_Survey-2025.pdf" target="_blank">28</a>).</li>
+  </ul>
+
+  <h3>12-Month Outlook (Strategic)</h3>
+  <ul>
+    <li><strong>Regime Persistence:</strong> While the current macro regime is Range-Bound Neutral, the medium-to-long term outlook from research suggests a potential shift towards more supportive regimes over the next 12 months. This implies a transition away from strictly neutral macro dynamics towards conditions more aligned with Liquidity Expansion (G1) or Reflation Hedge (G4), driven by anticipated monetary policy easing and persistent demand-side forces (<a href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf" target="_blank">21</a>)(<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">23</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">24</a>).</li>
+    <li><strong>Historical Outcome Bias:</strong> The 6-12 month stance from research is bullish with high confidence (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">20</a>).</li>
+    <li><strong>Research Context:</strong> Precious metals, including silver, are expected to extend gains into 2026, driven by anticipated Fed rate cuts (<a href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf" target="_blank">21</a>)(<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">23</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">24</a>), a weaker US dollar (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">20</a>)(<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">23</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">24</a>), and persistent global geopolitical uncertainties (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">20</a>)(<a href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf" target="_blank">21</a>)(<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">23</a>). Silver's "dynamic bull case" is reinforced by structural supply deficits (<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">23</a>)(<a href="https://www.wisdomtree.eu/api/sitecore/pdf/getblogpdf?id=dc416e42-3489-46ef-9145-7731911683ef" target="_blank">25</a>) and growing industrial demand from green energy, automotive, and AI-related applications (<a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf" target="_blank">23</a>)(<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">24</a>)(<a href="https://silverinstitute.org/wp-content/uploads/2025/12/Silver_The-Next-Generation-Metal_DECEMBER-Release.pdf" target="_blank">26</a>)(<a href="https://silverinstitute.org/wp-content/uploads/2025/04/World_Silver_Survey-2025.pdf" target="_blank">28</a>). Concerns over fiscal dominance and currency debasement also support a secular shift towards hard assets (<a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf" target="_blank">24</a>)(<a href="https://sprott.com/insights/top-10-themes-for-2026/" target="_blank">27</a>).</li>
+  </ul>
+
+  <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
+  <ul>
+    <li>A conflict exists in the 1-month outlook where the deterministic summary's "Bullish" bias for the overall regime (<a href="https://investoranatomy.com/signal_report/Silver_Regime_State/" target="_blank">1</a>) contrasts with the Range-Bound Neutral (G8) regime's historical 50/50 probability of upside/downside. This indicates that current tactical factors are overriding the typical regime behavior over the near term.</li>
+    <li>Pricing signals for silver present internal conflicts: the technical trend is an uptrend and the daily model signal is 'Add', but the composite view from the pricing signal is 'Reduce' (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">19</a>). This suggests divergence in short-term momentum and conviction.</li>
+    <li>The typical volatility for the Range-Bound Neutral (G8) regime is Low. However, current Silver Pricing data shows High realized volatility (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">19</a>). This tactical elevation in volatility contradicts the regime's historical characteristic.</li>
+    <li>The "Real Rate Headwind" signal (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>) with a Bearish bias for real rates conflicts with the "Liquidity Composite Expansion" signal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>) and the "Weakening USD Index" signal (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>), leading to offsetting macro forces that maintain a Neutral overall regime. The "Macro Theme: Global Inflation & FX Dynamics" also highlights crowded positioning in the weakening USD (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">7</a>), which could signal potential reversal risk despite the current trend.</li>
+    <li><strong>Invalidation Trigger:</strong> A sustained shift in the `Hedger Pressure Indicator` from 'Deep Long' to 'Neutral' or 'Deep Short' (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">11</a>) would invalidate the current contrarian positioning bias. Furthermore, delayed or fewer-than-expected Fed rate cuts (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">20</a>), a strengthening US dollar reversing its downtrend (<a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook" target="_blank">20</a>), or a slowdown in industrial demand for silver due to technological thrifting in PV or policy impacts (<a href="https://silverinstitute.org/wp-content/uploads/2025/12/Silver_The-Next-Generation-Metal_DECEMBER-Release.pdf" target="_blank">26</a>)(<a href="https://silverinstitute.org/wp-content/uploads/2025/04/World_Silver_Survey-2025.pdf" target="_blank">28</a>) could invalidate the bullish strategic outlook.</li>
+  </ul>
+</div></div>
+      </div>
+    </div>
+
+    <section class="card" style="padding:18px">
+      <aside class="tabs" aria-label="Inputs">
+        <div class="tabs-head">
+          <div class="kicker"><span class="dot"></span> Inputs</div>
+        </div>
+
+        <div class="tablist" role="tablist" aria-label="Input tabs">
+          <button class="tab" role="tab" aria-selected="false" aria-controls="panel-price" id="tab-price">Price Signal Decoder</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-CoT" id="tab-CoT">Silver Positioning Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-news" id="tab-news">Silver Media Watcher</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-supply_demand" id="tab-supply_demand">Silver Research Analyst</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-regime" id="tab-regime">Silver Signal Interpreter</button>
+        </div>
+
+        <div class="panels">
+          <div class="panel" role="tabpanel" id="panel-price" aria-labelledby="tab-price" hidden><div class="panel-title">Price Signal Decoder</div><div class="panel-body"><div class="pricing-analysis">
+  <h2>Pricing Context: SLV</h2>
+  <p class="as-of">As of: 2026-01-23 00:00:00</p>
+
+  <section class="summary">
+    <h3>Headline Snapshot</h3>
+    <ul>
+      <li><strong>Last Close:</strong> 92.91</li>
+      <li><strong>Day Change:</strong> 6.6%</li>
+      <li><strong>Composite View:</strong> Reduce (modest conviction)</li>
+    </ul>
+    <p class="interpretation">
+      Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
+    </p>
+  </section>
+
+  <section class="pillar trend">
+    <h3>Technical Trend</h3>
+    <p><strong>State:</strong> Uptrend (price above both 50d and 200d)</p>
+    <ul>
+      <li>Price above 50-day average: <strong>True</strong></li>
+      <li>Price above 200-day average: <strong>True</strong></li>
+      <li>Last close: <strong>92.91</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar volatility">
+    <h3>Volatility Regime</h3>
+    <p><strong>State:</strong> High realized volatility (top 30% of sample)</p>
+    <ul>
+      <li>20-day realised volatility (annualised): <strong>0.74</strong></li>
+      <li>Volatility percentile in sample: <strong>100.0%</strong></li>
+      <li>Downside risk proxy triggered: <strong>False</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar volume">
+    <h3>Volume & Liquidity</h3>
+    <p><strong>State:</strong> Unusually high volume (elevated activity)</p>
+    <ul>
+      <li>Latest volume: <strong>138927234</strong></li>
+      <li>Volume percentile in sample: <strong>98.4%</strong></li>
+      <li>Volume z-score (sample): <strong>4.19</strong></li>
+    </ul>
+  </section>
+
+  <section class="pillar price-position">
+    <h3>Price Position vs 52-Week Range</h3>
+    <p><strong>State:</strong> Trading near 52-week highs</p>
+    <ul>
+      <li>Position within 52-week range (0=low, 1=high): <strong>1.00</strong></li>
+      <li>Drawdown from 52-week high: <strong>0.0%</strong></li>
+    </ul>
+  </section>
+
+  <section class="signal">
+    <h3>Model Signal (Daily)</h3>
+    <p>
+      The daily signal is constructed from trend and momentum:
+      uptrend + positive momentum tends to generate <strong>Add</strong> bias;
+      downtrend + negative momentum tends to generate <strong>Reduce</strong> bias.
+    </p>
+    <p><strong>Latest daily signal value:</strong> 1</p>
+  </section>
+</div></div><div class="panel-media"><figure class="media"><img src="/images/Silver_Pricing_Dashboard.png" alt="Silver price trend" /><div class="media-cap">Silver price momentum and trend diagnostics</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Silver Positioning Analyst</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>As of 2026-01-20, Silver positioning shows a significant divergence with speculators extremely net short while hedgers are deeply net long on a relative basis (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>This indicates a state of underlying tension and strong contrarian positioning, yet the reversal regime is currently stable. Conviction: Medium, Confidence: Mixed Signals, Internal Conflict: Yes.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative net positioning registers a robust z-score of -2.24, indicating extreme short bias, while hedgers show a z-score of 1.87, reflecting a comparatively deep long position (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Recent 4-week speculative flow indicates a reduction in long positions (-7.33% of OI), occurring as the price increased to $85.39 (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>A `specs_vs_hedgers_divergence` is active, signifying strong opposition between these groups (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The `positioning_tension_score` is high at 4.10, but the `reversal_regime` is 'No_Clear_Reversal' (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>), indicating tension without immediate tactical triggers.</li>
+        <li>Conditional Invalidation: A sustained shift in the `hedger_pressure_regime` from `Hedgers_Deep_Long` to `Hedgers_Neutral` or `Hedgers_Deep_Short` (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Silver price continues its upward trend, with hedgers maintaining their relatively bullish stance, absorbing speculative selling pressure (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Upside secondary: A sharp price acceleration triggered by forced speculative short covering as prices continue to move against their extreme positioning.</li>
+        <li>Downside residual: A reversal in hedger sentiment, leading to a significant increase in their absolute net short positions, combined with exhausted speculative buying, causing a price correction.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), as CoT extreme positioning and flow shifts typically influence market trends over several weeks to months.</li>
+        <li>Aggregation Weight Hint: High, given the strong signals from extreme and divergent positioning, which often precede significant market shifts.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs **sentiment** and **liquidity** dynamics. It implies a potential **mid-to-late cycle** dynamic if speculative extremes are attempting to fade a strong underlying trend.</li>
+        <li>It typically interacts with other macro signals by confirming commodity demand or flagging potential reversals when speculative crowding is extreme, particularly in conjunction with **USD regime** (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>) or **inflation expectations** signals (<a href="https://investoranatomy.com/signal_report/ia_us_macro_regime/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">4</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Commitment of Traders (CoT) data for SILVER - COMMODITY EXCHANGE INC., latest observation 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Most influential datapoints for the current state are the `Spec_zscore` (-2.24), `Hedger_zscore` (1.87), `Flow_4w` (-7.33%), and `reversal_regime` ('No_Clear_Reversal') (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Additional public datasets that would improve depth or reliability include `Gold_CoT_Signals` (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">5</a>) for cross-market precious metals context and `USD_Index_Signal` (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>) for currency influence.</li>
+    </ul>
+
+</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_SILVER_Diagnostics.png" alt="Silver CoT diagnostics" /><div class="media-cap">Silver CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Silver Media Watcher</div><div class="panel-body"><div class="asset-media-watcher" data-asset="Silver" data-lookback-days="7" data-as-of-date="2026-01-24">
+
+  <section class="headline">
+    <h2 data-field="title">Silver — Weekly Media &amp; Narrative Context</h2>
+    <p class="subtitle" data-field="subtitle">Weekly sentiment, key themes, and material headlines from the last 7 days.</p>
+  </section>
+
+  <section class="weekly-sentiment">
+    <h3>Weekly Narrative Sentiment (Contextual)</h3>
+    <p data-field="sentiment_paragraph">
+      Silver experienced a predominantly positive narrative over the past week, marked by futures prices reaching new record highs, driven by strong manufacturing PMI data from key economies indicating robust industrial demand for the metal. Further support came from a significant weakening of the U.S. Dollar, making silver more attractive to international buyers, and persistent supply shortages, which buoyed prices. Investment inflows also contributed, with some investors viewing silver as a cheaper alternative to gold. However, a slight counter-narrative emerged as silver futures saw a brief decline early in the week, pushing the gold-silver ratio wider, and a policy decision to potentially lift mining bans in certain areas introduced a future supply-side consideration.
+    </p>
+
+    <ul class="sentiment-counts">
+      <li><strong>Positive:</strong> <span data-field="count_positive">7</span></li>
+      <li><strong>Neutral:</strong> <span data-field="count_neutral">1</span></li>
+      <li><strong>Negative:</strong> <span data-field="count_negative">2</span></li>
+    </ul>
+
+    <p class="note">Sentiment reflects narrative context only and is non-decisional.</p>
+  </section>
+
+  <section class="key-news">
+    <h3>Key Silver News (Last 7 Days)</h3>
+
+    <ul class="news-list">
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/gold-silver-prices-set-new-records-amid-us-europe-trade-war-fears/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold, silver prices jump to new records on Greenland dispute</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-19</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Geopolitical tensions contributed to early-week record price gains for silver, reflecting its role as a safe-haven asset.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/21/gold-futures-extended-record-rally-amid-global-safe-haven-demand.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold futures extended record rally amid global safe-haven demand.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group</span>,
+            <span data-field="publication_date">2026-01-21</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver futures declined despite gold's rally, highlighting a divergence in safe-haven demand preferences and widening the gold-silver ratio.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/22/u-s-markets-rise-on-strong-gdp-and-labor-data-1-22-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">U.S. Markets Rise on Strong GDP and Labor Data.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group</span>,
+            <span data-field="publication_date">2026-01-22</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Stronger U.S. economic data, including GDP and labor, provided a supportive macro backdrop for silver, indicating potential for sustained industrial demand.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/23/gold-and-silver-futures-reached-new-record-highs-as-market-await.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Gold and Silver futures reached new record highs as market awaits FOMC.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver futures continued their rally to record levels, with dollar weakness providing a significant tailwind ahead of the anticipated FOMC meeting.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/23/silver-futures-reached-new-record-highs-on-manufacturing-data-1.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver futures reached new record highs on manufacturing data.</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Strong manufacturing PMI data across major economies directly bolstered expectations for increased industrial demand for silver, driving futures to new record highs.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/886007200/AaoJu4CKzpfM3USS?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">House GOP votes to lift ban on mining near Boundary Waters area</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          The potential lifting of a mining ban signals a future increase in silver supply from the U.S., which could impact long-term market dynamics.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="neutral">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/885845416/BHpJlKE_CpRweXFY?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Davos 2026: Why Ray Dalio Prefers Gold Over Silver Despite The Metal's Hot Rally</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          While silver saw a strong rally, a notable investor's preference for gold suggests a nuanced view on silver's role as a safe-haven or speculative asset.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/885945689/yrX2Ss_YuuCwb0QK?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver, Gold, and Platinum Surge to Historic Peaks Amid Dollar Weakness</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver's surge to historic peaks, coupled with its role as an industrial metal in electronics and limited supply, attracted significant investment inflows.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/885988227/TxhpzSC9TOEfUzyo?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">Silver tops $100 as gold nears $5,000</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Silver surpassed the $100 milestone, fueled by a persistent supply shortage and increased investor demand for it as a relatively cheaper alternative to gold.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Silver Research Analyst</div><div class="panel-body"><div class="asset-forward-view"
+     data-as-of-date="2026-01-18"
+     data-horizon-min-months="6"
+     data-horizon-max-months="12">
+
+  <section class="stance">
+    <h2>6–12 Month Stance</h2>
+    <p><strong>Stance:</strong>
+      <span data-field="stance">bullish</span>
+    </p>
+    <p><strong>Confidence:</strong>
+      <span data-field="confidence">high</span>
+    </p>
+  </section>
+
+  <section class="core-narrative">
+    <h2>Core Narrative</h2>
+    <p data-field="core_narrative">
+      Precious metals, particularly Gold and Silver, are widely expected to extend their significant gains into 2026, building on a strong performance in 2025 (2)(5). Gold is anticipated to remain strong, potentially reaching new highs, with various forecasts placing it around $4,200-$4,530/oz (3)(4)(5)(6). Silver is projected to demonstrate even greater upside potential, potentially outperforming gold, with forecasts generally ranging from $50-$65/oz (3)(4)(5)(6). This constructive outlook is primarily supported by anticipated Fed rate cuts, a weaker US dollar, sustained central bank gold purchases, and persistent global geopolitical uncertainties (2)(4)(5). For silver, additional strength is derived from structural supply deficits and growing industrial demand, especially from green energy and AI-related applications (4)(5)(6)(7)(9).
+    </p>
+  </section>
+
+  <section class="key-drivers">
+    <h2>Key Drivers</h2>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Anticipated Fed Rate Cuts</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Expectations of lower rates from the Federal Reserve and an easing cycle are seen as a key macro factor supporting precious metals (2)(4)(5). A potential 25bps Fed rate cut this week and dovish guidance could influence yields, the dollar, and gold (1). Lower rates will sustain investor enthusiasm for gold, even if real rates remain static due to sticky inflation (5).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Weaker US Dollar</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        A weaker or depreciating US dollar is identified as a supportive driver for gold (1)(4)(5)(6). The US Dollar (DXY) appears to be turning lower, contributing to the bullish outlook for gold (1).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Sustained Central Bank Gold Purchases</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Robust central bank demand for gold, with purchases averaging "almost 260 tonnes per quarter since Q1 2022", is a significant factor in gold's strength (2)(4)(5). Central bank diversification is a broader theme contributing to gold's role as a store of value (8).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Geopolitical Uncertainty and Unease</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Ongoing geopolitical uncertainties, such as tensions in Russia and Venezuela, showed no signs of easing and act as a hedge against geopolitical stress (1)(2)(4). A "fraught global geopolitical environment" adds support for a bullish gold case (5).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Industrial Demand for Silver</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Silver's "dynamic bull case" is powered by its dual role as a monetary hedge and an industrial metal (8). Strong industrial demand from solar (photovoltaics), automotive (especially EVs), and data centers/AI is expected to continue (4)(5)(7)(9). Electric vehicles consume significantly more silver than internal combustion engines, and the build-out of EV charging infrastructure further drives demand (7).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Tight Supply and Deficits for Silver</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        A persistent supply deficit in the silver market, which has seen "a deficit for four consecutive years," leads to "physical tightness" (4)(6). Structural supply deficits are anticipated (8), with another significant deficit of 117.6Moz forecast for 2025 (9).
+      </p>
+    </div>
+
+    <div class="driver">
+      <h3 data-field="driver_name">Fiscal Dominance and Currency Debasement</h3>
+      <p><strong>Directional implication:</strong>
+        <span data-field="directional_implication">
+          supportive
+        </span>
+      </p>
+      <p data-field="mechanism">
+        Concerns over the fiscal sustainability of G20 economies focus investors' attention on gold as a haven (5). Government spending dictating monetary policy, termed "Fiscal Dominance and the Debasement Trade," leads to a "secular shift toward hard assets as fiat currencies rapidly lose purchasing power" (8).
+      </p>
+    </div>
+
+  </section>
+
+  <section class="key-risks">
+    <h2>Key Risks</h2>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Rising US Real Yields</h3>
+      <p data-field="why_it_matters">
+        10-year US Real Yields continuing to edge higher could act as a "headwind for Gold" if they break significant resistance levels (1).
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Technological Thrifting in Solar PV</h3>
+      <p data-field="why_it_matters">
+        Innovation in photovoltaic technologies could "reduce silver consumption per watt by 15–20% in 2025" (6). Industrial fabrication for silver is forecast to "flat-line due to thrifting in PV" (9).
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Impact of US Subsidy Cuts and Trade Tariffs</h3>
+      <p data-field="why_it_matters">
+        US subsidy cuts and trade tariffs pose risks to solar photovoltaic growth (7). Additionally, mixed government incentives and rising tariffs impacting affordability could affect automotive silver demand (7), and fears of potential US tariffs have led to silver outflows from London vaults (7). US trade and foreign policy is a general uncertainty (9).
+      </p>
+    </div>
+
+    <div class="risk">
+      <h3 data-field="risk_name">Sizable Silver Stockpiles</h3>
+      <p data-field="why_it_matters">
+        Despite a forecast deficit for 2025, the price impact for silver is expected to be limited by "still sizable stockpiles of silver" (9). This could mitigate immediate price surges driven by supply tightness.
+      </p>
+    </div>
+
+  </section>
+
+  <section class="signposts">
+    <h2>Signposts to Watch</h2>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Federal Reserve Monetary Policy</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">A 25bps Fed rate cut this week or more dovish guidance from the Fed (1).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Delayed or fewer-than-expected rate cuts, or hawkish Federal Reserve guidance (1).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">US Dollar (DXY) Movement</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">The US Dollar (DXY) continuing to turn lower, indicating sustained depreciation (1).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">The US Dollar (DXY) reversing its downtrend and strengthening against major currencies (1).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Gold's Technical Resistance Levels</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">A sustained move by gold above resistance at US$4,245/oz, indicating the completion of a "triangle" continuation pattern (1).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Gold's failure to break significant resistance levels or a sustained move below key support (1).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Silver's Industrial Demand Metrics</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued strong growth in solar PV installations, electric vehicle production, and data center build-out, along with increased silver consumption in AI-related hardware (7)(9).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">Slower growth in key industrial sectors or accelerated adoption of silver-thrifting technologies without new applications to offset the reduction (7)(9).
+        </span>
+      </p>
+    </div>
+
+    <div class="signpost">
+      <h3 data-field="signpost_name">Central Bank Gold Purchase Trends</h3>
+      <p><strong>Would confirm:</strong>
+        <span data-field="confirm">Continued central bank gold purchases averaging "almost 260 tonnes per quarter" or higher (5).
+        </span>
+      </p>
+      <p><strong>Would invalidate:</strong>
+        <span data-field="invalidate">A significant slowdown or reversal in central bank gold buying patterns (5).
+        </span>
+      </p>
+    </div>
+
+  </section>
+
+  <section class="scenarios">
+    <h2>Scenarios</h2>
+
+    <div class="scenario" data-scenario="base">
+      <h3 data-field="scenario_name">base</h3>
+      <p data-field="scenario_description">
+        Precious metals maintain their bullish momentum into 2026. Gold continues to appreciate, driven by anticipated Fed rate cuts, a weaker US dollar, and sustained central bank demand (2)(4)(5). Silver outperforms gold, benefiting from persistent supply deficits and robust industrial demand from green energy and AI (4)(5)(6)(7). Gold prices are expected to average between $4,200/oz and $4,325/oz, while silver averages $50-$55/oz (3)(4).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Anticipated Fed Rate Cuts; Weaker US Dollar; Sustained Central Bank Gold Purchases; Industrial Demand (Silver); Tight Supply / Deficits (Silver)
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="upside">
+      <h3 data-field="scenario_name">upside</h3>
+      <p data-field="scenario_description">
+        Gold and silver experience even stronger gains, reaching higher price targets such as gold at $4,500/troy oz in Q4 2026 and silver at $65.00/troy oz in Q4 2026 (5). This scenario is fueled by a more aggressive Fed easing cycle or a more pronounced US dollar depreciation (1). Heightened global geopolitical tensions further boost gold's safe-haven appeal, while industrial silver demand accelerates beyond expectations due to rapid AI infrastructure build-out (4)(5)(7). The increasing role of hard assets amidst "Fiscal Dominance and the Debasement Trade" also provides strong support (8).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          bullish
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Anticipated Fed Rate Cuts (more aggressive); Weaker US Dollar (more pronounced); Geopolitical Uncertainty/Unease (heightened); Industrial Demand (Silver, stronger than expected); Fiscal Dominance and Currency Debasement
+        </span>
+      </p>
+    </div>
+
+    <div class="scenario" data-scenario="downside">
+      <h3 data-field="scenario_name">downside</h3>
+      <p data-field="scenario_description">
+        Gold could remain rangebound if current macro conditions persist without significant changes, or if the anticipated Fed easing is slower than expected (1). For silver, even with a deficit, price impact might be limited by "still sizable stockpiles" (9). A stronger-than-expected US dollar or an unexpected de-escalation of geopolitical tensions could dampen overall precious metals enthusiasm (1)(9). Furthermore, technological "thrifting" in solar photovoltaics could curb silver demand if not sufficiently offset by new applications (7)(9). Rising US real yields could also act as a headwind for gold (1).
+      </p>
+      <p><strong>Implied stance:</strong>
+        <span data-field="implied_stance">
+          neutral
+        </span>
+      </p>
+      <p><strong>Key drivers:</strong>
+        <span data-field="drivers_most_responsible">
+          Rising US Real Yields; Still Sizable Stockpiles (Silver); Technological Thrifting in PV; Slower-than-expected Fed easing; Stronger US Dollar
+        </span>
+      </p>
+    </div>
+
+  </section>
+
+  <section class="disagreements">
+    <h2>Disagreements & Uncertainties</h2>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Impact of Silver Stockpiles on Price</h3>
+      <p data-field="what_conflicts">
+        There is a divergence on whether current silver stockpiles will limit the impact of anticipated deficits on price.
+      </p>
+      <ul>
+        <li data-field="side_a">The silver market's "fourth consecutive deficit" in 2024 and an anticipated significant deficit in 2025 imply strong fundamentals and justify a "record-breaking rally" (6)(9).</li>
+        <li data-field="side_b">While "Another significant deficit of 117.6Moz is forecast for 2025," its price impact is expected to be "limited by 'still sizable stockpiles of silver'" (9).</li>
+      </ul>
+    </div>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Gold ETF Inflow Trends</h3>
+      <p data-field="what_conflicts">
+        Reports offer conflicting signals on gold ETF inflows, either indicating slowing interest or room for further participation.
+      </p>
+      <ul>
+        <li data-field="side_a">Gold's strength was partially offset by "slowing gold ETF inflows (-0.1%)" (1).</li>
+        <li data-field="side_b">"ETF holdings across all precious metals are still well below their highest levels," suggesting "room for further investor participation" (5).</li>
+      </ul>
+    </div>
+
+    <div class="disagreement">
+      <h3 data-field="topic">Effectiveness of Silver Thrifting in Solar PV</h3>
+      <p data-field="what_conflicts">
+        While technological advancements reduce silver per solar cell, their net impact on demand is subject to debate due to new cell technologies.
+      </p>
+      <ul>
+        <li data-field="side_a">Technological "thrifting" is expected to "reduce silver consumption per watt by 15–20% in 2025," and industrial fabrication is forecast to "flat-line due to thrifting in PV" (6)(9).</li>
+        <li data-field="side_b">However, "new next-gen solar cells (TOPCon, SHJ) require more silver, potentially offsetting reductions" from thrifting technologies (7).</li>
+      </ul>
+    </div>
+
+  </section>
+
+  <section class="research-quality">
+    <h2>Research Quality & Coverage Assessment</h2>
+
+    <p><strong>Overall quality:</strong>
+      <span data-field="research_quality">
+        strong
+      </span>
+    </p>
+
+    <p data-field="quality_rationale">
+      The research set exhibits strong overall quality, characterized by consistent bullish outlooks for precious metals (Gold and Silver) across multiple reputable sources (2)(4)(5)(6)(8). Documents provide detailed price forecasts for 2026 (3)(4)(5)(6) and offer in-depth analysis of macroeconomic factors, geopolitical influences, and specific industrial demand drivers for silver (1)(4)(7). The depth of analysis, especially concerning silver's role in green energy and AI, enhances credibility (7).
+    </p>
+
+    <p><strong>Coverage completeness:</strong>
+      <span data-field="coverage_completeness">
+        comprehensive
+      </span>
+    </p>
+
+    <p data-field="coverage_gaps">
+      none identified
+    </p>
+
+    <p data-field="missing_thematic_research">
+      none identified
+    </p>
+  </section>
+
+  <section class="coverage-stats">
+    <h2>Sources Used</h2>
+    <ul>
+      <li><strong>Documents provided:</strong>
+        <span data-field="documents_provided">10</span>
+      </li>
+      <li><strong>Documents used:</strong>
+        <span data-field="documents_used">9</span>
+      </li>
+      <li><strong>Sources used:</strong>
+        <ol>
+          <li id="ref-1">
+            <a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook">The 2026 Gold Outlook</a>
+          </li>
+          <li id="ref-2">
+            <a href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf">1H2026 Commodities Outlook</a>
+          </li>
+          <li id="ref-3">
+            <a href="https://economics.bmo.com/media/filer_public/fc/3d/fc3d0b80-ae57-475d-9f07-c1e83a029fb5/commoditiesoutlook.pdf">Commodities Outlook: Our Key Commodities Forecasts for December 2025</a>
+          </li>
+          <li id="ref-4">
+            <a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf">Commodities Outlook 2026</a>
+          </li>
+          <li id="ref-5">
+            <a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf">Precious metals to extend gains in 2026</a>
+          </li>
+          <li id="ref-6">
+            <a href="https://www.wisdomtree.eu/api/sitecore/pdf/getblogpdf?id=dc416e42-3489-46ef-9145-7731911683ef">Silver outlook to Q3 2026 - Silver’s second act: the metal’s rally has room to run</a>
+          </li>
+          <li id="ref-7">
+            <a href="https://silverinstitute.org/wp-content/uploads/2025/12/Silver_The-Next-Generation-Metal_DECEMBER-Release.pdf">Silver, The Next Generation Metal</a>
+          </li>
+          <li id="ref-8">
+            <a href="https://sprott.com/insights/top-10-themes-for-2026/">Top 10 Themes for 2026</a>
+          </li>
+          <li id="ref-9">
+            <a href="https://silverinstitute.org/wp-content/uploads/2025/04/World_Silver_Survey-2025.pdf">World Silver Survey 2025</a>
+          </li>
+        </ol>
+      </li>
+      <li><strong>Date range:</strong>
+        <span data-field="earliest_publication_date">2025-04-01</span>
+        to
+        <span data-field="latest_publication_date">2026-01-13</span>
+      </li>
+    </ul>
+  </section>
+
+</div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Silver Signal Interpreter</div><div class="panel-body"><div class="silver-regime-state">
+    <h2 class="silver-regime-state-title">Silver Regime State — Deterministic Summary</h2>
+    <table class="silver-regime-table">
+        <thead>
+            <tr>
+                <th>Macro Driver</th>
+                <th>Regime State</th>
+                <th>Conflict Flags</th>
+                <th>Drivers</th>
+                <th>1-Month Horizon Bias</th>
+                <th>3-Month Horizon Bias</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="category-row">
+                <td colspan="7"><strong>Liquidity &amp; Real Rates</strong></td>
+            </tr>
+            <tr>
+                <td>Real Interest Rate Trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</td>
+                <td>Bearish</td>
+                <td>Yes</td>
+                <td>Real yields marginally above trend, signaling restrictive conditions; internal conflict noted in signal interpretation.</td>
+                <td>Neutral</td>
+                <td>Headwind</td>
+                <td>Current policy stance is restrictive, capping potential upside.</td>
+            </tr>
+            <tr>
+                <td>Federal Reserve Liquidity Composite (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>)</td>
+                <td>Expansion</td>
+                <td>Yes</td>
+                <td>Strong expansion driven by declining ON RRP usage and reserve balances; offset by contracting Fed assets.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Overall liquidity is in expansion, but with internal tensions.</td>
+            </tr>
+            <tr>
+                <td>M2 Money Supply (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>)</td>
+                <td>Neutral</td>
+                <td>Yes</td>
+                <td>Bullish on 3-month momentum (Nov 2025) but projected to transition to Neutral (Dec 2025); Fed composite notes as Neutral due to missing data.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Fragile bullish signal transitioning to neutral, contributing neutrally to overall liquidity.</td>
+            </tr>
+            <tr>
+                <td>Explicit Neutral Rate (r*) Proxy (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>)</td>
+                <td>Neutral (Near Neutral Policy Stance)</td>
+                <td>No</td>
+                <td>Policy stance is near neutral, with the neutral rate (r*) itself in a rising trend.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Monetary policy is neither overtly accommodative nor restrictive.</td>
+            </tr>
+            <tr class="category-row">
+                <td colspan="7"><strong>USD / FX Dynamics</strong></td>
+            </tr>
+            <tr>
+                <td>USD Index (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)</td>
+                <td>Bearish</td>
+                <td>No</td>
+                <td>Index remains below its 12-month moving average, indicating a weakening trend.</td>
+                <td>Weakening</td>
+                <td>Weakening</td>
+                <td>Dominant weakening trend, providing a potential tailwind for Silver.</td>
+            </tr>
+            <tr>
+                <td>USD Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>)</td>
+                <td>Neutral</td>
+                <td>No</td>
+                <td>Neutral positioning with no clear directional bias or imminent reversal risk.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Short-term positioning is balanced, lacking strong directional conviction.</td>
+            </tr>
+            <tr>
+                <td>Macro Theme: Global Inflation &amp; FX Dynamics (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">7</a>)</td>
+                <td>Weakening (USD Driver)</td>
+                <td>Yes</td>
+                <td>Regime described as "Late-Cycle / Crowded," with a weakening USD as the dominant driver.</td>
+                <td>Weakening</td>
+                <td>Weakening</td>
+                <td>Supports the overall weakening USD narrative, but notes crowded positioning.</td>
+            </tr>
+            <tr class="category-row">
+                <td colspan="7"><strong>Inflation Credibility</strong></td>
+            </tr>
+            <tr>
+                <td>Inflation Term Structure (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">8</a>)</td>
+                <td>Neutral</td>
+                <td>No</td>
+                <td>Composite value near zero, reflecting stable inflation expectations across the term structure.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Inflation expectations are stable and neither reflationary nor disinflationary.</td>
+            </tr>
+            <tr>
+                <td>Market Implied Inflation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">9</a>)</td>
+                <td>Neutral (Stable)</td>
+                <td>No</td>
+                <td>Composite z-score within stable regime thresholds; subdued momentum in breakeven rates.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Market's medium-term inflation outlook remains stable.</td>
+            </tr>
+            <tr>
+                <td>Policy-Relevant Inflation (PCE) (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">10</a>)</td>
+                <td>Neutral</td>
+                <td>No</td>
+                <td>PCE composite z-score indicates inflation near its trend, within neutral thresholds.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Official inflation measures are stable, easing pressure but not signaling disinflation.</td>
+            </tr>
+            <tr class="category-row">
+                <td colspan="7"><strong>Transmission &amp; Amplification Channels</strong></td>
+            </tr>
+            <tr>
+                <td>Silver Individual Market Analysis (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">11</a>)</td>
+                <td>Extreme Spec Short / Hedger Deep Long</td>
+                <td>Yes</td>
+                <td>Speculators are extremely net short (z-score -2.24) while hedgers are deeply net long (z-score 1.87), indicating significant divergence and tension.</td>
+                <td>Bullish (Squeeze Potential)</td>
+                <td>Neutral</td>
+                <td>Strong contrarian signal with potential for short-covering driven upside.</td>
+            </tr>
+            <tr>
+                <td>Cross Sector Positioning (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">12</a>)</td>
+                <td>Neutral</td>
+                <td>No</td>
+                <td>No broad speculative crowding, hedger pressure, or unwind risk across major sectors.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Overall market positioning is stable, lacking systemic imbalances.</td>
+            </tr>
+            <tr>
+                <td>Specs vs Hedgers Divergence Reversal Risk (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">13</a>)</td>
+                <td>Low Divergence</td>
+                <td>No</td>
+                <td>Unusually aligned market positioning between speculators and hedgers across futures markets.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Macro-level divergence is low, suggesting market consensus rather than extreme tension.</td>
+            </tr>
+            <tr>
+                <td>Hedger Pressure Indicator (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">14</a>)</td>
+                <td>Normal</td>
+                <td>No</td>
+                <td>Commercial positioning is within typical historical bounds, no significant supply or shortage pressure.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Physical market indicators are normal, not signaling tightness or oversupply.</td>
+            </tr>
+            <tr>
+                <td>Squeeze &amp; Exhaustion Risk Indicators (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">15</a>)</td>
+                <td>Moderate Squeeze Risk / Normal Exhaustion</td>
+                <td>No</td>
+                <td>Indicates heightened vulnerability to short-covering, while trend fatigue remains typical.</td>
+                <td>Volatility Expansion Risk</td>
+                <td>Neutral</td>
+                <td>Tactical risk of short squeezes is elevated, supporting potential short-term volatility.</td>
+            </tr>
+            <tr>
+                <td>Financial Stress Index (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">16</a>)</td>
+                <td>Neutral</td>
+                <td>No</td>
+                <td>Financial stress is below average but not loose enough to be considered bullish.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>No elevated financial stress.</td>
+            </tr>
+            <tr>
+                <td>Financial Stress Composite (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">17</a>)</td>
+                <td>Neutral</td>
+                <td>No</td>
+                <td>Persistent neutral regime for financial stress, stable and normal functioning of credit/funding markets.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Composite measure of financial stress is neutral.</td>
+            </tr>
+            <tr>
+                <td>Market Volatility (VIX) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">18</a>)</td>
+                <td>NORMAL</td>
+                <td>No</td>
+                <td>VIX at 15.64, composite z-score near zero, reflecting de-escalation of market risk sentiment.</td>
+                <td>Neutral</td>
+                <td>Neutral</td>
+                <td>Market volatility is normal, not indicating stress or spikes.</td>
+            </tr>
+            <tr class="category-row">
+                <td colspan="7"><strong>Market Expression (Confirmatory Only)</strong></td>
+            </tr>
+            <tr>
+                <td>Silver Pricing (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">19</a>)</td>
+                <td>Uptrend / Add bias</td>
+                <td>Yes</td>
+                <td>Technical trend is an uptrend (price above 50d and 200d), daily model signal is 'Add'; composite view is 'Reduce'.</td>
+                <td>Bullish</td>
+                <td>Neutral</td>
+                <td>Confirmatory signals are mixed, with underlying uptrend despite conflicting composite view.</td>
+            </tr>
+            <tr class="category-row">
+                <td colspan="7"><strong>Overall Silver Regime State</strong></td>
+            </tr>
+            <tr>
+                <td>Overall Macro Regime</td>
+                <td>Neutral</td>
+                <td>Yes (6 signals conflict)</td>
+                <td>Liquidity is Neutral, Real Rates are a Headwind (capping upside), USD is Weakening (tailwind), and Inflation is Neutral. Stress is NOT Elevated.</td>
+                <td><strong>Bullish</strong></td>
+                <td><strong>Neutral</strong></td>
+                <td>The overall Silver macro regime is Neutral, but with upside capped due to real rate headwinds. Short-term, a weakening USD and extreme speculative positioning in Silver suggest a Bullish bias.</td>
+            </tr>
+        </tbody>
+    </table>
+</div></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      <div class="pill">Investor Anatomy • Silver Market Analyst • Not Investment Advice</div>
+    </footer>
+  </main>
+
+  <script>
+    (function(){
+      const tabs = Array.from(document.querySelectorAll('.tablist .tab'));
+      const panels = Array.from(document.querySelectorAll('.panels .panel'));
+      if(!tabs.length || !panels.length) return;
+
+      function activate(tab){
+        const targetId = tab.getAttribute('aria-controls');
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panels.forEach(p => {
+          const on = p.id === targetId;
+          p.classList.toggle('is-active', on);
+          p.hidden = !on;
+        });
+      }
+
+      tabs.forEach(t => t.addEventListener('click', () => activate(t)));
+
+      tabs.forEach((t, idx) => {
+        t.addEventListener('keydown', (e) => {
+          if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          e.preventDefault();
+          const next = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+          const el = tabs[(next + tabs.length) % tabs.length];
+          el.focus();
+          activate(el);
+        });
+      });
+
+      const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
+      activate(initial);
+    })();
+  </script>
+</body>
+</html>

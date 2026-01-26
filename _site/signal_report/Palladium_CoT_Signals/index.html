@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Palladium - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Palladium - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Palladium futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-20</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>Palladium futures, as of 2026-01-20, show hedgers maintaining a deeply short position (z-score -1.305), while speculators are exhibiting a positive 4-week long build flow.</li>
+        <li>This indicates a state of Hedger_Covering with high underlying tension but no immediate reversal flags.</li>
+        <li>Conviction: Medium, Interpretation Confidence: High Confidence, Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Hedgers are the dominant "controller" with a net open interest gap of -16.497% (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Speculative net positioning has a z-score of 1.275, strongly divergent from hedger positioning (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The 4-week speculative flow indicates a "Long_Build" momentum with a strength of 1.237 (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The market is in a "Hedgers_Deep_Short" regime, contributing to a "High_Tension_Low_Flags" synthetic state (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">3</a>).</li>
+        <li>Conditional Invalidation: The signal would weaken if hedgers cease to be in a "Deep_Short" regime.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Hedgers remain deeply short, creating potential for future short covering that could support palladium prices.</li>
+        <li>Upside secondary: Sustained speculative long building, combined with persistent hedger short positions, could lead to a short squeeze or accelerated price appreciation.</li>
+        <li>Downside residual: Speculative long accumulation stalls or reverses, and hedgers extend their short positions without covering, causing price weakness.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months). The structural positioning of hedgers and the momentum of speculative flows point to a medium-term outlook.</li>
+        <li>Aggregation Weight Hint: High. The clear divergence and strong underlying positioning dynamics provide robust input for composite macro signals.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: This signal primarily informs pricing and sentiment within the industrial metals commodity complex.</li>
+        <li>Cycle position: The "Hedgers_Deep_Short" regime often suggests anticipated changes in physical supply/demand balance, typically relevant in mid-to-late cycle economic phases (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">2</a>).</li>
+        <li>Typical interaction with other macro signals: It often correlates with global growth indicators (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">4</a>), industrial production data (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">5</a>), and broader commodity positioning sentiment (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">6</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Palladium - NEW YORK MERCANTILE EXCHANGE CoT data, latest observation 2026-01-20 (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Key datapoints influencing this state include Spec_Net_%OI, Hedger_Net_%OI, Spec_zscore, Hedger_zscore, Flow_4w, and the hedger_deep_short status.</li>
+        <li>Additional public datasets that would improve depth or reliability: Specific industrial demand data for palladium (e.g., auto catalysts) and the "Energy-Adjusted Metals Tailwind Signal" (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">7</a>).</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Palladium CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_PALLADIUM_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Palladium futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Palladium CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>197</th>
+      <td>2025-10-14</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-8.485212</td>
+      <td>-15.669266</td>
+      <td>1.767225</td>
+      <td>-1.777543</td>
+      <td>17.652754</td>
+      <td>Hedgers</td>
+      <td>-7.184054</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>17.652754</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>3.544768</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>-1839</td>
+      <td>-3396</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>145.139999</td>
+    </tr>
+    <tr>
+      <th>198</th>
+      <td>2025-10-21</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-6.630061</td>
+      <td>-16.205676</td>
+      <td>1.778396</td>
+      <td>-1.774727</td>
+      <td>18.890105</td>
+      <td>Hedgers</td>
+      <td>-9.575615</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>18.890105</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>3.553122</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>-1292</td>
+      <td>-3158</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>134.964996</td>
+    </tr>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-7.088866</td>
+      <td>-16.368744</td>
+      <td>1.673543</td>
+      <td>-1.717180</td>
+      <td>13.079046</td>
+      <td>Hedgers</td>
+      <td>-9.279877</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>13.079046</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>3.390723</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>99.230697</td>
+      <td>-1388</td>
+      <td>-3205</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>133.389999</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-5.382781</td>
+      <td>-16.270103</td>
+      <td>1.687570</td>
+      <td>-1.628980</td>
+      <td>12.460089</td>
+      <td>Hedgers</td>
+      <td>-10.887322</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>12.460089</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>3.316551</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>-1061</td>
+      <td>-3207</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>136.300003</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-3.893145</td>
+      <td>-15.960438</td>
+      <td>1.689603</td>
+      <td>-1.520402</td>
+      <td>4.592067</td>
+      <td>Hedgers</td>
+      <td>-12.067294</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>4.592067</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>3.210005</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>-803</td>
+      <td>-3292</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>134.645004</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-5.993231</td>
+      <td>-15.779825</td>
+      <td>1.522092</td>
+      <td>-1.441299</td>
+      <td>0.636830</td>
+      <td>Hedgers</td>
+      <td>-9.786594</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.636830</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.963391</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>96.633181</td>
+      <td>-1275</td>
+      <td>-3357</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>134.154999</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-5.641860</td>
+      <td>-15.639761</td>
+      <td>1.486605</td>
+      <td>-1.375247</td>
+      <td>1.447006</td>
+      <td>Hedgers</td>
+      <td>-9.997901</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.447006</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.861852</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>97.196492</td>
+      <td>-1075</td>
+      <td>-2980</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>132.550003</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-3.585597</td>
+      <td>-15.457239</td>
+      <td>1.534130</td>
+      <td>-1.308643</td>
+      <td>1.797184</td>
+      <td>Hedgers</td>
+      <td>-11.871642</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.797184</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.842773</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>-714</td>
+      <td>-3078</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>139.929993</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-0.091465</td>
+      <td>-15.919703</td>
+      <td>1.642627</td>
+      <td>-1.339096</td>
+      <td>3.801680</td>
+      <td>Hedgers</td>
+      <td>-15.828239</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.801680</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.981722</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>-19</td>
+      <td>-3307</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>142.884995</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>1.328136</td>
+      <td>-17.773446</td>
+      <td>1.647300</td>
+      <td>-1.561903</td>
+      <td>7.321367</td>
+      <td>Hedgers</td>
+      <td>-16.445311</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>7.321367</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>3.209203</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>293</td>
+      <td>-3921</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>154.255005</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-2.567264</td>
+      <td>-17.644987</td>
+      <td>1.416429</td>
+      <td>-1.493184</td>
+      <td>3.074596</td>
+      <td>Hedgers</td>
+      <td>-15.077722</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.074596</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.909614</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>94.237341</td>
+      <td>-583</td>
+      <td>-4007</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>177.824997</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-5.200796</td>
+      <td>-17.894430</td>
+      <td>1.258718</td>
+      <td>-1.481980</td>
+      <td>-1.615199</td>
+      <td>Hedgers</td>
+      <td>-12.693634</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.615199</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Adding_Short</td>
+      <td>2.740698</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>90.341425</td>
+      <td>-1071</td>
+      <td>-3685</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>157.455002</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>0.413458</td>
+      <td>-19.355005</td>
+      <td>1.463340</td>
+      <td>-1.622598</td>
+      <td>0.504923</td>
+      <td>Hedgers</td>
+      <td>-18.941547</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.504923</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>3.085938</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>98.646872</td>
+      <td>80</td>
+      <td>-3745</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>173.214996</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-0.082123</td>
+      <td>-16.855720</td>
+      <td>1.383766</td>
+      <td>-1.216003</td>
+      <td>-1.410259</td>
+      <td>Hedgers</td>
+      <td>-16.773597</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.410259</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Adding_Short</td>
+      <td>2.599769</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>97.913734</td>
+      <td>-16</td>
+      <td>-3284</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>179.440002</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>PALLADIUM - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-1.330412</td>
+      <td>-17.827516</td>
+      <td>1.275465</td>
+      <td>-1.305532</td>
+      <td>1.236852</td>
+      <td>Hedgers</td>
+      <td>-16.497104</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.236852</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>2.580997</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>075651</td>
+      <td>NYME</td>
+      <td>1.0</td>
+      <td>75.0</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>96.067078</td>
+      <td>-255</td>
+      <td>-3417</td>
+      <td>True</td>
+      <td>True</td>
+      <td>disaggregated</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>177.705002</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Palladium CoT Signals</a></section>
+</main>
+</body>
+</html>

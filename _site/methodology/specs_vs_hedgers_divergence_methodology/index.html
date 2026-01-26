@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Specs vs Hedgers Divergence — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Specs vs Hedgers Divergence</h1>
+      <div class="mt-2 text-slate-600 text-sm">Cross-market divergence indicator capturing tension between speculative and commercial hedger positioning, highlighting periods of potential reversal, transition risk, and unstable market structure.</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">This signal measures the degree of positioning disagreement between Speculators and Hedgers across futures markets. When Spec_zscore and Hedger_zscore diverge sharply in opposite directions, it signals heightened risk of volatility, position unwinds, and macro transition dynamics. Breadth aggregation and robust z-score normalisation convert these divergences into a macro-level indicator of structural instability.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Inputs</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>df_cot_signals</strong> — unified enriched CoT dataset.</li>
+        <li><strong>Spec_zscore</strong> — speculative z-score.</li>
+        <li><strong>Hedger_zscore</strong> — commercial hedger z-score.</li>
+        <li><strong>Market_and_Exchange_Names</strong> — used for breadth aggregation.</li>
+        <li><strong>Commodity_Class / Classification / Sub-Classification</strong> — used for optional sector view.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Divergence Flag Construction</h2>
+      <p class="leading-7">Divergence occurs when Speculators and Hedgers strongly oppose each other:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">divergence = (Spec_zscore · Hedger_zscore &lt; 0) \wedge (|Spec_zscore| ≥ 1.0) \wedge (|Hedger_zscore| ≥ 1.0)</div>
+      </div>
+      <p class="leading-7 mt-3">This captures <em>strong</em> disagreement — one group is crowded long while the other is crowded short (or vice versa), both with significant conviction.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Macro-Level Aggregation (Divergence Breadth)</h2>
+      <p class="leading-7">Divergence breadth is computed across all markets for each report date:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><strong>divergence_count</strong> — number of markets exhibiting strong divergence.</li>
+        <li><strong>avg_spec_zscore</strong> — mean speculative z-score.</li>
+        <li><strong>avg_hedger_zscore</strong> — mean hedger z-score.</li>
+        <li><strong>divergence_share</strong> — proportion of markets with divergence.</li>
+      </ul>
+      <p class="leading-7 mt-3">This transforms individual contract disagreements into a macro-level instability indicator.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Normalisation: Macro Divergence Risk Index</h2>
+      <p class="leading-7">Robust z-score normalisation is applied to the divergence share to construct a comparable risk index:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z\_{rob}(X) = \dfrac{X - median(X)}{1.4826 \cdot MAD(X)}</div>
+      </div>
+      <p class="leading-7 mt-3">This method stabilises the index against outliers and evolving market composition.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Regime Labels</h2>
+      <p class="leading-7">The robust z-score is mapped to a macro regime:</p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z ≥ 1.0 → High Divergence Risk</div>
+        <div class="eq">0.5 ≤ z &lt; 1.0 → Moderate Divergence Risk</div>
+        <div class="eq">−0.5 &lt; z &lt; 0.5 → Normal</div>
+        <div class="eq">z ≤ −0.5 → Low Divergence (historically low disagreement)</div>
+      </div>
+      <p class="leading-7 mt-3">High divergence risk highlights market instability, internal tensions, and potential turning points.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Optional Sector-Level Divergence View</h2>
+      <p class="leading-7">If sector classification is present or derivable, divergence breadth can also be computed per sector:</p>
+      <ul class="list-disc pl-6 leading-7 mt-3">
+        <li><strong>divergence_share by sector</strong> — shows whether instability is isolated (e.g., only Metals) or broad-based.</li>
+      </ul>
+      <p class="leading-7 mt-3">Sector sorting may reveal early signals of rotation, stress, or speculative imbalance.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code># Prep dataset
+df_div = df_cot_signals.copy()
+df_div["Report_Date"] = pd.to_datetime(df_div["Report_Date"], errors="coerce")
+
+# Divergence flag
+sz = pd.to_numeric(df_div["Spec_zscore"], errors="coerce")
+hz = pd.to_numeric(df_div["Hedger_zscore"], errors="coerce")
+
+df_div["specs_vs_hedgers_divergence"] = (
+    sz.notna() &amp; hz.notna() &amp;
+    (sz * hz &lt; 0) &amp; (sz.abs() >= 1.0) &amp; (hz.abs() >= 1.0)
+)
+
+# Daily aggregation
+df_divergence_daily = (
+    df_div.groupby("Report_Date").agg(
+        n_markets=("Market_and_Exchange_Names", "nunique"),
+        divergence_count=("specs_vs_hedgers_divergence", "sum"),
+        avg_spec_zscore=("Spec_zscore", "mean"),
+        avg_hedger_zscore=("Hedger_zscore", "mean"),
+    ).reset_index()
+)
+
+df_divergence_daily["divergence_share"] = (
+    df_divergence_daily["divergence_count"] / df_divergence_daily["n_markets"]
+)
+
+# Robust z-score
+def _robust_z(series: pd.Series) -> pd.Series:
+    x = pd.to_numeric(series,
+
+    </code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Interpretation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>High Divergence Risk</strong> — specs and hedgers are pulling in opposite directions with conviction, often preceding volatility or macro regime changes.</li>
+        <li><strong>Moderate Divergence Risk</strong> — elevated disagreement, signalling early tension but not yet systemic.</li>
+        <li><strong>Normal</strong> — neither group is strongly opposing the other; positioning alignment is typical.</li>
+        <li><strong>Low Divergence</strong> — unusually aligned markets, often occurring during strong macro consensus phases.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Divergence requires both sides to have significant z-score magnitudes, so quieter positioning periods produce fewer signals.</li>
+        <li>Different markets have different typical hedger/spec behaviours, making cross-market interpretation imperfect.</li>
+        <li>Narrow commodities or thinly traded contracts may produce noisy z-scores.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">10. Practical Use Cases</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Identify when speculative narratives detach from commercial fundamentals.</li>
+        <li>Use as a reversal-risk overlay on trend-following or momentum strategies.</li>
+        <li>Combine with Market Tone, Hedger Pressure, and Sector Flow signals to detect macro inflection points.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Specs vs Hedgers Divergence signal.</footer>
+  </main>
+</body>
+</html>

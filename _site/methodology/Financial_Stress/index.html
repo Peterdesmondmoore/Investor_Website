@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Stress Index (STLFSI4) — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000} a{color:#000;text-decoration:underline}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    pre code{display:block;overflow:auto}
+    .tag{font-size:.7rem;border:1px solid #e5e7eb;border-radius:.35rem;padding:.1rem .35rem;background:#fff}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.0</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Financial Stress Index (STLFSI4)</h1>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible, weekly risk-conditions signal derived from <span class="font-semibold">FRED: STLFSI4</span> (St. Louis Fed Financial Stress Index, 4th rev.). We align to Friday frequency, apply a robust rolling z-score to the level, and map combined level/z information into regimes. No plots.</p>
+      <div class="mt-3 flex gap-2 text-xs text-slate-600">
+        <span class="tag">FRED</span>
+        <span class="tag">STLFSI4</span>
+        <span class="tag">Weekly (W‑FRI)</span>
+        <span class="tag">Robust Z</span>
+        <span class="tag">Regime Classification</span>
+      </div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We convert the St. Louis Fed’s composite financial stress index into a weekly <em>risk-on / risk-off</em> classifier. The series is harmonised to a Friday weekly cadence and forward-filled to remove minor publication gaps. We compute a robust z-score on the level to quantify deviations from its long-run distribution, then classify regimes using transparent rules that combine absolute level with relative z-score.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1) Data (FRED Identifier)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>STLFSI4</b>: St. Louis Fed Financial Stress Index (rev. 4)</li>
+      </ul>
+      <p class="leading-7 mt-3">We operate at a <span class="font-semibold">weekly Friday</span> frequency (<code>"W-FRI"</code>) and forward-fill within week to ensure continuity.</p>
+      <div class="box text-sm mt-3">
+<pre><code># Fetch & align (fredapi)
+stlfsi = fred.get_series("STLFSI4")
+df_stress = pd.DataFrame(stlfsi, columns=["STLFSI4"])
+df_stress = df_stress.resample("W-FRI").last().ffill()
+print("✅ STLFSI4 data retrieved."); print(df_stress.tail())</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2) Robust Z-Score on Level</h2>
+      <p class="leading-7">To measure <em>relative</em> tightness/looseness versus history, we compute a robust z-score using median and MAD over a rolling window. Given weekly data, we use a <span class="font-semibold">3‑year</span> target window (156 weeks) with a <span class="font-semibold">minimum</span> of 52 weeks; if history is shorter, we adapt to 80% of available observations but never below 52.</p>
+      <div class="box text-sm">
+        <div class="eq">\( z_t = \dfrac{X_t - \text{median}_W(X)}{1.4826\,\text{MAD}_W(X)} \)</div>
+        <p class="mt-2 text-sm">Window choice: \(W = \max\{52, \min(156, \lfloor 0.8\,N \rfloor)\}\), where \(N\) is non-missing sample size.</p>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def robust_z(series, window=156, min_window=52):
+    s = series.astype(float)
+    w = max(min_window, window if s.notna().sum() >= window else int(max(min_window, s.notna().sum()*0.8)))
+    med = s.rolling(w, min_periods=min_window).median()
+    mad = (s - med).abs().rolling(w, min_periods=min_window).median()
+    return (s - med) / (1.4826 * mad.replace(0, np.nan))
+
+df_stress["Stress_z"] = robust_z(df_stress["STLFSI4"], window=156, min_window=52)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3) Regime Classification</h2>
+      <p class="leading-7">We combine <em>absolute level</em> and <em>relative z-score</em> to form weekly regimes:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Bearish</b> (risk‑off): <code>STLFSI4 &gt; 0</code> <em>or</em> <code>z &gt; +0.5</code> → tightening / elevated stress</li>
+          <li><b>Bullish</b> (risk‑on): <code>STLFSI4 &lt; 0</code> <em>and</em> <code>z &lt; −0.5</code> → loose conditions</li>
+          <li><b>Neutral</b>: otherwise (including any NaNs)</li>
+        </ul>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def classify_stress(row, level_thresh=0.0, z_lo=-0.5, z_hi=0.5):
+    lvl, z = row["STLFSI4"], row["Stress_z"]
+    if np.isnan(lvl) or np.isnan(z):
+        return "Neutral"
+    if (lvl &gt; level_thresh) or (z &gt; z_hi):
+        return "Bearish"
+    if (lvl &lt; level_thresh) and (z &lt; z_lo):
+        return "Bullish"
+    return "Neutral"
+
+df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</code></pre>
+      </div>
+      <p class="text-sm mt-2 text-slate-600">Thresholds can be tuned based on backtests or risk appetite.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4) Outputs & Columns</h2>
+      <div class="box text-sm">
+<pre><code># Core columns
+["STLFSI4","Stress_z","FinancialStress_Signal"]</code></pre>
+      </div>
+      <p class="leading-7 mt-3">Console prints echo the tail of the aligned series and the final signal view. No plots are generated.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5) Data Handling & Validation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Frequency alignment:</b> resample to weekly Friday (<code>"W-FRI"</code>) with <code>.last()</code>, then <code>.ffill()</code>.</li>
+        <li><b>NaN policy:</b> robust z uses median/MAD; where MAD = 0, z is NaN; classification treats any NaN as Neutral.</li>
+        <li><b>Reproducibility:</b> all transforms are deterministic given STLFSI4.</li>
+      </ul>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">6) Interpretation & Use</h2>
+      <p class="leading-7">Negative values of STLFSI4 generally indicate looser-than-average conditions; positive values indicate tighter-than-average. <span class="font-semibold">Bearish</span> regimes suggest caution in risk assets; <span class="font-semibold">Bullish</span> regimes align with easier conditions. Use alongside growth, labor, and inflation signals for a holistic macro regime map.</p>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly specification for the Financial Stress Index signal.</footer>
+  </main>
+</body>
+</html>

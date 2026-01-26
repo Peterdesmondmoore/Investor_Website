@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Copper · Media Watcher</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Copper · Media Watcher</h1>
+      <p class="subtitle">Copper Media &amp; Narrative Context Summary</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-01-24</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="asset-media-watcher" data-asset="Copper" data-lookback-days="7" data-as-of-date="2026-01-24">
+
+  <section class="headline">
+    <h2 data-field="title">Copper — Weekly Media &amp; Narrative Context</h2>
+    <p class="subtitle" data-field="subtitle">Weekly sentiment, key themes, and material headlines from the last 7 days.</p>
+  </section>
+
+  <section class="weekly-sentiment">
+    <h3>Weekly Narrative Sentiment (Contextual)</h3>
+    <p data-field="sentiment_paragraph">
+      Copper narratives this week were primarily shaped by supply-side concerns, which largely supported prices. Significant global mine disruptions, including a mudslide in Indonesia and labor strikes in Chile, combined with reduced production guidance from Lundin and delayed output peaks from Chile, fueled persistent worries about future supply. This tightness was underscored by copper prices rallying above $13,000 and a spike in LME prompt spreads, indicating strong demand for immediate delivery. However, some counter-narratives emerged, with U.S. Comex inventories rising, Rio Tinto's output beating estimates, and LME spreads easing later in the week, suggesting a potential short-lived nature of the immediate market squeeze. Geopolitical efforts by the DRC to secure supply chains and policy discussions around future tariffs also contributed to the complex market context.
+    </p>
+
+    <ul class="sentiment-counts">
+      <li><strong>Positive:</strong> <span data-field="count_positive">7</span></li>
+      <li><strong>Neutral:</b> <span data-field="count_neutral">1</span></li>
+      <li><strong>Negative:</strong> <span data-field="count_negative">2</span></li>
+    </ul>
+
+    <p class="note">Sentiment reflects narrative context only and is non-decisional.</p>
+  </section>
+
+  <section class="key-news">
+    <h3>Key Copper News (Last 7 Days)</h3>
+
+    <ul class="news-list">
+      <li class="news-item" data-sentiment="neutral">
+        <p class="headline">
+          <a data-field="url" href="https://www.cmegroup.com/videos/2026/01/22/copper-futures-ended-five-session-decline-1-22-26.html?utm_source=cmegroup&utm_medium=rss&utm_campaign=distribution" target="_blank" rel="noopener">
+            <span data-field="news_headline">Copper futures ended five session decline</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">CME Group - Metals Video</span>,
+            <span data-field="publication_date">2026-01-22</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Copper prices stabilized despite rising inventories, strongly supported by significant global mine disruptions and potential future tariffs impacting refined copper imports.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/lundin-mining-shares-slip-on-weaker-2026-copper-gold-guidance/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Lundin shares slip on weaker 2026 copper, gold guidance</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-22</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          A major miner cutting production guidance due to lower mining rates signals tightening future copper supply.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://mining.einnews.com/article/885899065/xPSUcl4Gi-MJtDa2?ref=rss&ecode=RTz1oPsRZsCpdz10" target="_blank" rel="noopener">
+            <span data-field="news_headline">DRC Eyes U.S. Partnerships: Promoting Copper and Cobalt to Secure Critical Mineral Supply Chains</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">EIN News - Mining (Gold)</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          DRC's initiative to partner with the U.S. on critical minerals aims to secure future copper supply chains and attract investment.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/copper-price-rallies-back-above-13000-on-supply-worries/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Copper price rallies back above $13,000 on supply worries</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Copper prices rallied significantly, driven by persistent supply concerns that underscore underlying market tightness.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/web/striking-workers-disrupt-access-to-chiles-escondida-zaldivar-copper-mines/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Striking workers disrupt access to Chile’s Escondida, Zaldivar copper mines</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-23</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Labor strikes disrupting access to major Chilean copper mines, including the world's largest, signal immediate supply threats.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/web/chile-delays-copper-output-peak-cuts-short-term-forecasts/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Chile delays copper output peak, cuts short-term forecasts</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-19</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Chile, a major producer, delaying its copper output peak and cutting short-term forecasts signals tighter supply ahead.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/web/copper-production-halted-at-strike-hit-capstone-mine-in-chile/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Copper output disrupted at strike-hit Capstone Chile mine</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-22</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          A strike and water supply restrictions at Capstone's Mantoverde mine in Chile have halted processing operations, immediately impacting copper output.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="positive">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/web/key-lme-copper-spread-spikes-to-highest-level-since-2021-squeeze/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Key LME copper spread spikes to highest level since 2021 squeeze</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-20</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          A significant spike in LME copper spreads, indicating strong backwardation, points to immediate market tightness and strong demand for prompt supply.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/web/rio-tintos-fourth-quarter-iron-ore-shipments-rise-7/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Rio Tinto’s fourth-quarter iron ore, copper output beat estimates</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-20</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          Rio Tinto's copper output exceeding estimates suggests a slight easing of immediate supply concerns compared to expectations.
+        </p>
+      </li>
+      <li class="news-item" data-sentiment="negative">
+        <p class="headline">
+          <a data-field="url" href="https://www.mining.com/web/copper-price-spreads-ease-in-sign-squeeze-will-prove-short-lived/" target="_blank" rel="noopener">
+            <span data-field="news_headline">Copper price spreads ease in sign squeeze will prove short-lived</span>
+          </a>
+          <span class="meta">
+            — <span data-field="publisher">Mining.com</span>,
+            <span data-field="publication_date">2026-01-21</span>
+          </span>
+        </p>
+        <p class="why-it-matters" data-field="why_it_matters">
+          The easing of copper price spreads suggests that the recent market tightness for prompt delivery may be short-lived.
+        </p>
+      </li>
+    </ul>
+  </section>
+
+</div></div></section>
+</main>
+</body>
+</html>
