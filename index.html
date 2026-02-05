@@ -1630,87 +1630,45 @@
 
     // NETLIFY IDENTITY STATE MANAGEMENT
     (function() {
-      if (typeof netlifyIdentity !== 'undefined') {
-        netlifyIdentity.on('init', user => {
-          const loginBtn = document.getElementById('login-btn');
-          const logoutBtn = document.getElementById('logout-btn');
-          const signalMapLink = document.getElementById('signal-map-link');
-          const rssFeedLink = document.getElementById('rss-feed-link');
-          const docLibraryLink = document.getElementById('doc-library-link');
-          const signalCatalogueLink = document.getElementById('signal-catalogue-link');
-          const signalMapNote = document.getElementById('signal-map-note');
-          const quantModelsTitle = document.getElementById('quant-models-title');
-          const quantModelsContent = document.getElementById('quant-models-content');
-          const quantModelsTitle = document.getElementById('quant-models-title');
-          const quantModelsContent = document.getElementById('quant-models-content');
-          const quantModelsTitle = document.getElementById('quant-models-title');
-          const quantModelsContent = document.getElementById('quant-models-content');
-          
-          if (user) {
-            if (loginBtn) loginBtn.style.display = 'none';
-            if (logoutBtn) logoutBtn.style.display = 'block';
-            if (signalMapLink) signalMapLink.style.display = 'block';
-            if (rssFeedLink) rssFeedLink.style.display = 'block';
-            if (docLibraryLink) docLibraryLink.style.display = 'block';
-            if (signalCatalogueLink) signalCatalogueLink.style.display = 'block';
-            if (signalMapNote) signalMapNote.style.display = 'none';
-            if (quantModelsTitle) quantModelsTitle.style.display = 'flex';
-            if (quantModelsContent) quantModelsContent.style.display = 'block';
-          } else {
-            if (loginBtn) loginBtn.style.display = 'block';
-            if (logoutBtn) logoutBtn.style.display = 'none';
-            if (signalMapLink) signalMapLink.style.display = 'none';
-            if (rssFeedLink) rssFeedLink.style.display = 'none';
-            if (docLibraryLink) docLibraryLink.style.display = 'none';
-            if (signalCatalogueLink) signalCatalogueLink.style.display = 'none';
-            if (signalMapNote) signalMapNote.style.display = 'block';
-            if (quantModelsTitle) quantModelsTitle.style.display = 'none';
-            if (quantModelsContent) quantModelsContent.style.display = 'none';
-          }
-        });
-
-        netlifyIdentity.on('login', user => {
-          netlifyIdentity.close();
-          
-          const loginBtn = document.getElementById('login-btn');
-          const logoutBtn = document.getElementById('logout-btn');
-          const signalMapLink = document.getElementById('signal-map-link');
-          const rssFeedLink = document.getElementById('rss-feed-link');
-          const docLibraryLink = document.getElementById('doc-library-link');
-          const signalCatalogueLink = document.getElementById('signal-catalogue-link');
-          const signalMapNote = document.getElementById('signal-map-note');
-          
-          if (loginBtn) loginBtn.style.display = 'none';
-          if (logoutBtn) logoutBtn.style.display = 'block';
-          if (signalMapLink) signalMapLink.style.display = 'block';
-          if (rssFeedLink) rssFeedLink.style.display = 'block';
-          if (docLibraryLink) docLibraryLink.style.display = 'block';
-          if (signalCatalogueLink) signalCatalogueLink.style.display = 'block';
-          if (signalMapNote) signalMapNote.style.display = 'none';
-          if (quantModelsTitle) quantModelsTitle.style.display = 'flex';
-          if (quantModelsContent) quantModelsContent.style.display = 'block';
-        });
-
-        netlifyIdentity.on('logout', () => {
-          const loginBtn = document.getElementById('login-btn');
-          const logoutBtn = document.getElementById('logout-btn');
-          const signalMapLink = document.getElementById('signal-map-link');
-          const rssFeedLink = document.getElementById('rss-feed-link');
-          const docLibraryLink = document.getElementById('doc-library-link');
-          const signalCatalogueLink = document.getElementById('signal-catalogue-link');
-          const signalMapNote = document.getElementById('signal-map-note');
-          
-          if (loginBtn) loginBtn.style.display = 'block';
-          if (logoutBtn) logoutBtn.style.display = 'none';
-          if (signalMapLink) signalMapLink.style.display = 'none';
-          if (rssFeedLink) rssFeedLink.style.display = 'none';
-          if (docLibraryLink) docLibraryLink.style.display = 'none';
-          if (signalCatalogueLink) signalCatalogueLink.style.display = 'none';
-          if (signalMapNote) signalMapNote.style.display = 'block';
-          if (quantModelsTitle) quantModelsTitle.style.display = 'none';
-          if (quantModelsContent) quantModelsContent.style.display = 'none';
-        });
+      if (typeof netlifyIdentity === 'undefined') {
+        return;
       }
+
+      function setAuthUI(user) {
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const signalMapLink = document.getElementById('signal-map-link');
+        const rssFeedLink = document.getElementById('rss-feed-link');
+        const docLibraryLink = document.getElementById('doc-library-link');
+        const signalCatalogueLink = document.getElementById('signal-catalogue-link');
+        const signalMapNote = document.getElementById('signal-map-note');
+        const quantModelsTitle = document.getElementById('quant-models-title');
+        const quantModelsContent = document.getElementById('quant-models-content');
+        const isAuthed = Boolean(user);
+
+        if (loginBtn) loginBtn.style.display = isAuthed ? 'none' : 'block';
+        if (logoutBtn) logoutBtn.style.display = isAuthed ? 'block' : 'none';
+        if (signalMapLink) signalMapLink.style.display = isAuthed ? 'block' : 'none';
+        if (rssFeedLink) rssFeedLink.style.display = isAuthed ? 'block' : 'none';
+        if (docLibraryLink) docLibraryLink.style.display = isAuthed ? 'block' : 'none';
+        if (signalCatalogueLink) signalCatalogueLink.style.display = isAuthed ? 'block' : 'none';
+        if (signalMapNote) signalMapNote.style.display = isAuthed ? 'none' : 'block';
+        if (quantModelsTitle) quantModelsTitle.style.display = isAuthed ? 'flex' : 'none';
+        if (quantModelsContent) quantModelsContent.style.display = isAuthed ? 'block' : 'none';
+      }
+
+      netlifyIdentity.on('init', user => {
+        setAuthUI(user);
+      });
+
+      netlifyIdentity.on('login', user => {
+        netlifyIdentity.close();
+        setAuthUI(user);
+      });
+
+      netlifyIdentity.on('logout', () => {
+        setAuthUI(null);
+      });
     })();
   </script>
 </body>
