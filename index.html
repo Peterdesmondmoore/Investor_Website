@@ -1412,16 +1412,13 @@
     }, 12000);
 
     function loadCarouselData() {
-      const preloaded = window.IA_INSIGHTS_CAROUSEL;
-      if (Array.isArray(preloaded) && preloaded.length) {
-        carouselItems = preloaded;
-        carouselIndex = 0;
-        renderDots();
-        updateCarousel();
-        return;
-      }
-      fetch(`/insights_carousel.json?v=${Date.now()}`)
-        .then((response) => response.json())
+      fetch(`/insights_carousel.json?v=${Date.now()}`, { cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.json();
+        })
         .then((data) => {
           carouselItems = Array.isArray(data) ? data : [];
           carouselIndex = 0;
@@ -1430,6 +1427,13 @@
         })
         .catch((err) => {
           console.error("Failed to load insights_carousel.json", err);
+          const preloaded = window.IA_INSIGHTS_CAROUSEL;
+          if (Array.isArray(preloaded) && preloaded.length) {
+            carouselItems = preloaded;
+            carouselIndex = 0;
+            renderDots();
+            updateCarousel();
+          }
         });
     }
 
