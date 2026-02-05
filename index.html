@@ -956,7 +956,7 @@
   <div class="nav-header" id="nav-header">
     <div class="nav-header-inner">
       <div class="nav-brand">Investor Anatomy</div>
-      <button class="nav-menu-btn" id="nav-menu-btn" aria-label="Toggle navigation">
+      <button class="nav-menu-btn" id="nav-menu-btn" aria-label="Toggle navigation" onclick="IA_toggleNav()">
         <span class="nav-menu-label">Menu</span>
         <span class="nav-menu-icon">
           <span></span>
@@ -968,13 +968,13 @@
   </div>
 
   <!-- Navigation Overlay -->
-  <div class="ia-nav-overlay" id="ia-nav-overlay"></div>
+  <div class="ia-nav-overlay" id="ia-nav-overlay" onclick="IA_closeNav()"></div>
 
   <!-- Navigation Panel -->
   <nav class="ia-nav-panel" id="ia-nav-panel">
     <div class="ia-nav-panel-header">
       <span class="ia-nav-panel-title"></span>
-      <button class="ia-nav-close" id="ia-nav-close" aria-label="Close navigation">
+      <button class="ia-nav-close" id="ia-nav-close" aria-label="Close navigation" onclick="IA_closeNav()">
         <span></span>
         <span></span>
       </button>
@@ -1410,96 +1410,124 @@
     </div>
   </div>
 
+  <script>
+    (function() {
+      const toggle = document.getElementById('nav-menu-btn');
+      const overlay = document.getElementById('ia-nav-overlay');
+      const panel = document.getElementById('ia-nav-panel');
+
+      function openNav() {
+        if (!toggle || !overlay || !panel) return;
+        toggle.classList.add('is-open');
+        overlay.classList.add('open');
+        panel.classList.add('open');
+      }
+
+      function closeNav() {
+        if (!toggle || !overlay || !panel) return;
+        toggle.classList.remove('is-open');
+        overlay.classList.remove('open');
+        panel.classList.remove('open');
+      }
+
+      window.IA_toggleNav = function() {
+        if (panel && panel.classList.contains('open')) {
+          closeNav();
+        } else {
+          openNav();
+        }
+      };
+
+      window.IA_closeNav = closeNav;
+    })();
+  </script>
   <script src="insights_carousel.js"></script>
   <script>
     // FEATURED INSIGHTS CAROUSEL DATA (sourced from insights_carousel.json)
-    let carouselItems = [];
-    let carouselIndex = 0;
+    try {
+      let carouselItems = [];
+      let carouselIndex = 0;
 
-    const carouselImageEl = document.getElementById("carousel-image");
-    const imageLabelEl = document.getElementById("carousel-image-label");
-    const tagEl = document.getElementById("carousel-tag");
-    const titleEl = document.getElementById("carousel-title");
-    const subtitleEl = document.getElementById("carousel-subtitle");
-    const summaryEl = document.getElementById("carousel-summary");
-    const metaEl = document.getElementById("carousel-meta");
-    const buttonEl = document.getElementById("carousel-button");
-    const dotsContainer = document.getElementById("carousel-dots");
+      const carouselImageEl = document.getElementById("carousel-image");
+      const imageLabelEl = document.getElementById("carousel-image-label");
+      const tagEl = document.getElementById("carousel-tag");
+      const titleEl = document.getElementById("carousel-title");
+      const subtitleEl = document.getElementById("carousel-subtitle");
+      const summaryEl = document.getElementById("carousel-summary");
+      const metaEl = document.getElementById("carousel-meta");
+      const buttonEl = document.getElementById("carousel-button");
+      const dotsContainer = document.getElementById("carousel-dots");
+      const prevButton = document.getElementById("carousel-prev");
+      const nextButton = document.getElementById("carousel-next");
 
-    function renderDots() {
-      dotsContainer.innerHTML = "";
-      if (!carouselItems.length) {
-        return;
-      }
-      carouselItems.forEach((_, idx) => {
-        const dot = document.createElement("div");
-        dot.className = "carousel-dot" + (idx === carouselIndex ? " active" : "");
-        dot.addEventListener("click", () => {
-          carouselIndex = idx;
+      const hasCarouselEls = carouselImageEl && imageLabelEl && tagEl && titleEl && summaryEl && metaEl && buttonEl && dotsContainer && prevButton && nextButton;
+      if (!hasCarouselEls) {
+        console.warn("Carousel elements missing; skipping carousel init.");
+      } else {
+        function renderDots() {
+          dotsContainer.innerHTML = "";
+          if (!carouselItems.length) {
+            return;
+          }
+          carouselItems.forEach((_, idx) => {
+            const dot = document.createElement("div");
+            dot.className = "carousel-dot" + (idx === carouselIndex ? " active" : "");
+            dot.addEventListener("click", () => {
+              carouselIndex = idx;
+              updateCarousel();
+            });
+            dotsContainer.appendChild(dot);
+          });
+        }
+
+        function updateCarousel() {
+          if (!carouselItems.length) {
+            return;
+          }
+          const item = carouselItems[carouselIndex];
+          if (item.imagePath) {
+            carouselImageEl.style.backgroundImage = `url('${item.imagePath}')`;
+          } else {
+            carouselImageEl.style.backgroundImage = '';
+          }
+          imageLabelEl.textContent = item.imageLabel || "";
+          tagEl.textContent = item.tag || "";
+          titleEl.textContent = item.title || "";
+          titleEl.style.display = item.title ? "block" : "none";
+          if (subtitleEl) {
+            subtitleEl.textContent = item.subtitle || "";
+          }
+          summaryEl.textContent = item.snippet || item.summary || "";
+          metaEl.textContent = item.meta || "";
+          if (item.url) {
+            const href = item.url.startsWith("/") || item.url.startsWith("http") ? item.url : `/${item.url}`;
+            buttonEl.onclick = () => { window.location.href = href; };
+          } else {
+            buttonEl.onclick = null;
+          }
+          renderDots();
+        }
+
+        prevButton.addEventListener("click", () => {
+          if (!carouselItems.length) return;
+          carouselIndex = (carouselIndex - 1 + carouselItems.length) % carouselItems.length;
           updateCarousel();
         });
-        dotsContainer.appendChild(dot);
-      });
-    }
 
-    function updateCarousel() {
-      if (!carouselItems.length) {
-        return;
-      }
-      const item = carouselItems[carouselIndex];
-      if (item.imagePath) {
-        carouselImageEl.style.backgroundImage = `url('${item.imagePath}')`;
-      } else {
-        carouselImageEl.style.backgroundImage = '';
-      }
-      imageLabelEl.textContent = item.imageLabel;
-      tagEl.textContent = item.tag;
-      titleEl.textContent = item.title || "";
-      titleEl.style.display = item.title ? "block" : "none";
-      if (subtitleEl) {
-        subtitleEl.textContent = item.subtitle || "";
-      }
-      summaryEl.textContent = item.snippet || item.summary || "";
-      metaEl.textContent = item.meta;
-      buttonEl.onclick = () => { window.location.href = item.url; };
-      renderDots();
-    }
-
-    document.getElementById("carousel-prev").addEventListener("click", () => {
-      if (!carouselItems.length) return;
-      carouselIndex = (carouselIndex - 1 + carouselItems.length) % carouselItems.length;
-      updateCarousel();
-    });
-
-    document.getElementById("carousel-next").addEventListener("click", () => {
-      if (!carouselItems.length) return;
-      carouselIndex = (carouselIndex + 1) % carouselItems.length;
-      updateCarousel();
-    });
-
-    // Auto-rotate every 12 seconds
-    setInterval(() => {
-      if (!carouselItems.length) return;
-      carouselIndex = (carouselIndex + 1) % carouselItems.length;
-      updateCarousel();
-    }, 12000);
-
-    function loadCarouselData() {
-      fetch(`/insights_carousel.json?v=${Date.now()}`, { cache: "no-store" })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          carouselItems = Array.isArray(data) ? data : [];
-          carouselIndex = 0;
-          renderDots();
+        nextButton.addEventListener("click", () => {
+          if (!carouselItems.length) return;
+          carouselIndex = (carouselIndex + 1) % carouselItems.length;
           updateCarousel();
-        })
-        .catch((err) => {
-          console.error("Failed to load insights_carousel.json", err);
+        });
+
+        // Auto-rotate every 12 seconds
+        setInterval(() => {
+          if (!carouselItems.length) return;
+          carouselIndex = (carouselIndex + 1) % carouselItems.length;
+          updateCarousel();
+        }, 12000);
+
+        function loadCarouselData() {
           const preloaded = window.IA_INSIGHTS_CAROUSEL;
           if (Array.isArray(preloaded) && preloaded.length) {
             carouselItems = preloaded;
@@ -1507,58 +1535,51 @@
             renderDots();
             updateCarousel();
           }
-        });
+
+          fetch(`insights_carousel.json?v=${Date.now()}`, { cache: "no-store" })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              carouselItems = Array.isArray(data) ? data : [];
+              carouselIndex = 0;
+              renderDots();
+              updateCarousel();
+            })
+            .catch((err) => {
+              console.error("Failed to load insights_carousel.json", err);
+            });
+        }
+
+        loadCarouselData();
+      }
+    } catch (err) {
+      console.error("Carousel init failed", err);
     }
 
-    loadCarouselData();
+    window.addEventListener('DOMContentLoaded', () => {
+      // MODEL BASICS TABS
+      try {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.tab-panel');
 
-    // MODEL BASICS TABS
-    (function() {
-      const tabs = document.querySelectorAll('.tab-btn');
-      const panels = document.querySelectorAll('.tab-panel');
-
-      tabs.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const target = btn.getAttribute('data-tab');
-          tabs.forEach(b => b.classList.remove('active'));
-          panels.forEach(p => p.classList.remove('active'));
-          btn.classList.add('active');
-          const panel = document.getElementById(target);
-          if (panel) panel.classList.add('active');
+        tabs.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-tab');
+            tabs.forEach(b => b.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            const panel = document.getElementById(target);
+            if (panel) panel.classList.add('active');
+          });
         });
-      });
-    })();
-
-    // NAVIGATION TOGGLE
-    (function() {
-      const toggle = document.getElementById('nav-menu-btn');
-      const overlay = document.getElementById('ia-nav-overlay');
-      const panel = document.getElementById('ia-nav-panel');
-      const close = document.getElementById('ia-nav-close');
-
-      function openNav() {
-        toggle.classList.add('is-open');
-        overlay.classList.add('open');
-        panel.classList.add('open');
+      } catch (err) {
+        console.error("Tabs init failed", err);
       }
-
-      function closeNav() {
-        toggle.classList.remove('is-open');
-        overlay.classList.remove('open');
-        panel.classList.remove('open');
-      }
-
-      toggle.addEventListener('click', () => {
-        if (panel.classList.contains('open')) {
-          closeNav();
-        } else {
-          openNav();
-        }
-      });
-
-      close.addEventListener('click', closeNav);
-      overlay.addEventListener('click', closeNav);
-    })();
+    });
 
     // HEADER SCROLL EFFECT
     (function() {
