@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>VIX Futures - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>VIX Futures - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for VIX futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-02-03</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement (mandatory):</strong>
+            Given a Spec_Net_%OI of -22.1% and a Spec_zscore of -1.11, this setup aligns with
+            Downward-biased price paths and Elevated volatility,
+            where the dominant risk is Mean reversion, not Trend continuation. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)
+        </li>
+        <li>The signal currently occupies a Balanced Short Bias regime characterized by a persistent speculative short position and deep long hedger pressure. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Stretch Rule: Positioning is classified as stretched when the absolute z-score is between 1.0 and 2.0 (applied to Spec_zscore). (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Flow Rule: Flow aligned with net direction indicates reinforcement; here, negative flow reinforces a net short position. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>VIX Specific Rule: Speculative positioning reflects demand for convexity and protection; short crowding increases systemic crash risk. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Hedger Rule: Hedger extremes (z > 1.0) are interpreted as mean-reversion pressure rather than directional momentum. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Main drivers include a Speculative Z-score of -1.11 and a Hedger Z-score of 1.10, indicating moderate positioning stretch. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Reinforcement momentum is present as 4-week flow (-0.4) aligns with the net short dominance. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>A Specs vs. Hedgers divergence is active, confirming the tension between speculative shorting and commercial hedging. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: Speculative Z-score returning to a magnitude below 1.0. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: VIX remains suppressed or mean-reverts lower, supported by continued speculative short reinforcement.</li>
+        <li>Upside risk: A sharp short-covering squeeze triggered by a sudden systemic shock, exacerbated by the current short crowding.</li>
+        <li>Downside risk: Persistent low-volatility regime as specs continue to supply convexity to the market.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks); CoT data captures weekly positioning shifts relevant for short-term sentiment cycles. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: Medium; the moderate stretch provides meaningful context for risk-on/risk-off sentiment without reaching extreme exhaustion levels.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the Sentiment and Risk Appetite dimension by measuring the market's "insurance" pricing and convexity demand.</li>
+        <li>Cycle position: Mid-to-late expansion, where shorting volatility is a common yield-enhancement behavior.</li>
+        <li>Typically interacts with equity indices and credit spreads to signal potential volatility expansion or suppression.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>VIX Futures CoT (CBOE), latest observation: 2026-02-03. (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Most influential data: Speculative Z-score (-1.11) and Hedger Pressure Regime (Deep Long). (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Additional reliability could be gained from the VIX Market Volatility signal (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">2</a>) or the Financial Stress Index. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">3</a>)</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">VIX Futures CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_VIX_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">VIX futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>VIX Futures CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>199</th>
+      <td>2025-10-28</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-16.2</td>
+      <td>16.5</td>
+      <td>-0.808500</td>
+      <td>0.875214</td>
+      <td>5.5</td>
+      <td>Balanced</td>
+      <td>-3.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>5.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.683714</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>27.436823</td>
+      <td>-71589</td>
+      <td>72771</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>200</th>
+      <td>2025-11-04</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-18.6</td>
+      <td>19.5</td>
+      <td>-1.085633</td>
+      <td>1.221353</td>
+      <td>5.2</td>
+      <td>Balanced</td>
+      <td>-9.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>5.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>True</td>
+      <td>False</td>
+      <td>Bullish_Reversal_Risk</td>
+      <td>Balanced_Long_Bias</td>
+      <td>2.306987</td>
+      <td>1</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>18.772563</td>
+      <td>-85632</td>
+      <td>89205</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-17.7</td>
+      <td>18.1</td>
+      <td>-0.930248</td>
+      <td>0.999590</td>
+      <td>2.1</td>
+      <td>Balanced</td>
+      <td>-4.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>2.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.929838</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>22.021661</td>
+      <td>-77022</td>
+      <td>79106</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-16.8</td>
+      <td>17.9</td>
+      <td>-0.778336</td>
+      <td>0.936445</td>
+      <td>-2.4</td>
+      <td>Balanced</td>
+      <td>-1.100000e+00</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-2.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.714780</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>25.270758</td>
+      <td>-80007</td>
+      <td>85120</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-13.1</td>
+      <td>13.0</td>
+      <td>-0.265748</td>
+      <td>0.271410</td>
+      <td>3.1</td>
+      <td>Balanced</td>
+      <td>1.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.537157</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>38.628159</td>
+      <td>-54674</td>
+      <td>54103</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-15.0</td>
+      <td>15.6</td>
+      <td>-0.506128</td>
+      <td>0.598167</td>
+      <td>3.6</td>
+      <td>Balanced</td>
+      <td>-6.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.104295</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>31.768953</td>
+      <td>-63828</td>
+      <td>65877</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-18.5</td>
+      <td>18.3</td>
+      <td>-0.952747</td>
+      <td>0.933949</td>
+      <td>-0.8</td>
+      <td>Balanced</td>
+      <td>2.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-0.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.886696</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>19.133574</td>
+      <td>-75511</td>
+      <td>74825</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-18.3</td>
+      <td>18.7</td>
+      <td>-0.909839</td>
+      <td>0.967229</td>
+      <td>-1.5</td>
+      <td>Balanced</td>
+      <td>-4.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.877067</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>19.855596</td>
+      <td>-74492</td>
+      <td>75996</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-21.5</td>
+      <td>21.7</td>
+      <td>-1.278875</td>
+      <td>1.303514</td>
+      <td>-8.4</td>
+      <td>Balanced</td>
+      <td>-2.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-8.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.582390</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>8.303249</td>
+      <td>-81235</td>
+      <td>82381</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-22.5</td>
+      <td>22.5</td>
+      <td>-1.355969</td>
+      <td>1.355676</td>
+      <td>-7.5</td>
+      <td>Balanced</td>
+      <td>3.552714e-15</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-7.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.711645</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>4.693141</td>
+      <td>-90403</td>
+      <td>90370</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-21.7</td>
+      <td>21.1</td>
+      <td>-1.208738</td>
+      <td>1.142036</td>
+      <td>-3.2</td>
+      <td>Balanced</td>
+      <td>6.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-3.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.350775</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>7.581227</td>
+      <td>-88250</td>
+      <td>86131</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-22.9</td>
+      <td>22.3</td>
+      <td>-1.305901</td>
+      <td>1.241902</td>
+      <td>-4.6</td>
+      <td>Balanced</td>
+      <td>6.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-4.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.547803</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>3.249097</td>
+      <td>-92363</td>
+      <td>89774</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-22.4</td>
+      <td>22.4</td>
+      <td>-1.195475</td>
+      <td>1.205141</td>
+      <td>-0.9</td>
+      <td>Balanced</td>
+      <td>0.000000e+00</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-0.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.400616</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>5.054152</td>
+      <td>-89223</td>
+      <td>89327</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>212</th>
+      <td>2026-01-27</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-20.7</td>
+      <td>19.3</td>
+      <td>-0.964273</td>
+      <td>0.815861</td>
+      <td>1.8</td>
+      <td>Balanced</td>
+      <td>1.400000e+00</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>1.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.780134</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>11.191336</td>
+      <td>-74986</td>
+      <td>69887</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>213</th>
+      <td>2026-02-03</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>-22.1</td>
+      <td>21.9</td>
+      <td>-1.105489</td>
+      <td>1.099023</td>
+      <td>-0.4</td>
+      <td>Balanced</td>
+      <td>2.000000e-01</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-0.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.204512</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>6.137184</td>
+      <td>-80635</td>
+      <td>79709</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>VIX FUTURES - CBOE FUTURES EXCHANGE</td>
+      <td>1170E1</td>
+      <td>0.0</td>
+      <td>117.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: VIX Futures CoT Signals</a></section>
+  <div class="disclaimer">
+    The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+  </div>
+</main>
+</body>
+</html>
