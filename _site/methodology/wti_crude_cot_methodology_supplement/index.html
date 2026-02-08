@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WTI Crude Oil (NYMEX) CoT Diagnostics — Supplementary Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    code { background:#f6f8fa; padding:.15rem .35rem; border-radius:.35rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+  <header class="mb-10">
+    <div class="flex flex-col gap-2">
+      <h1 class="text-3xl font-semibold text-slate-900">WTI Crude Oil (NYMEX) CoT Diagnostics</h1>
+      <div class="flex flex-wrap gap-2">
+        <span class="pill">Market: WTI Financial Crude Oil</span>
+        <span class="pill">Exchange: NYMEX</span>
+        <span class="pill">Focus: Positioning → balance-of-risks</span>
+      </div>
+    </div>
+
+    <p class="text-slate-600 mt-3 text-sm leading-6">
+      A mini, supplementary methodology that layers <strong>WTI crude oil–specific</strong> interpretation guidance
+      on top of the <em>Single‑Market CoT Diagnostics</em> core framework (positions, stretch, flow, reversal risk).
+      WTI differs from metals because <strong>physical logistics, inventories, refinery dynamics, and term structure</strong>
+      are frequently the dominant drivers of near‑term price behaviour.
+    </p>
+
+    <div class="box mt-6 text-sm">
+      <p class="font-semibold mb-2">Contents</p>
+      <ul class="list-disc pl-6 leading-7">
+        <li><a class="toc" href="#scope">1. Scope & intent</a></li>
+        <li><a class="toc" href="#structure">2. WTI market structure: what makes it different</a></li>
+        <li><a class="toc" href="#venue">3. Venue & instrument notes (NYMEX WTI)</a></li>
+        <li><a class="toc" href="#baselines">4. Structural baselines and “normal” bias</a></li>
+        <li><a class="toc" href="#adjustments">5. WTI-specific interpretation adjustments</a></li>
+        <li><a class="toc" href="#termstructure">6. Term structure & inventory validation</a></li>
+        <li><a class="toc" href="#regimes">7. Regime flag nuances in WTI</a></li>
+        <li><a class="toc" href="#templates">8. Output language templates for WTI</a></li>
+        <li><a class="toc" href="#checklist">9. Quick checklist (LLM-friendly)</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <section class="mb-10" id="scope">
+    <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+    <p class="leading-7">
+      This supplement keeps your signal definitions unchanged, but modifies interpretation priors for WTI.
+      The objective is to reduce false inference by explicitly accounting for:
+      <strong>(i) physical/inventory regime</strong>, <strong>(ii) term structure signals</strong>, and
+      <strong>(iii) event-driven shock risk</strong> (OPEC, geopolitics, hurricanes, outages).
+    </p>
+
+    <div class="box text-sm mt-4">
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Core remains unchanged:</strong> Net %OI, z‑score stretch, 4‑week flow, reversal score, regime flags.</li>
+        <li><strong>WTI supplement adds:</strong> inventory/curve validation, event-risk framing, and logistics-aware baselines.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="rule mb-10"></div>
+
+  <section class="mb-10" id="structure">
+    <h2 class="text-2xl font-semibold mb-3">2. WTI market structure: what makes it different</h2>
+
+    <div class="box">
+      <h3 class="text-lg font-semibold mb-2">2.1 WTI is strongly driven by physical balance and inventories</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Short-run price is often dominated by changes in inventory expectations and refinery demand.</li>
+        <li>Positioning signals are most reliable when they align with <strong>inventory direction</strong> and <strong>curve shape</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">2.2 Logistics & delivery structure matter</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>WTI is a deliverable futures contract; regional logistics can create local tightness/looseness episodes.</li>
+        <li>These episodes can drive positioning extremes that are “mechanical/physical,” not purely speculative belief.</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">2.3 WTI has frequent event-driven shocks</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>OPEC decisions, sanctions, geopolitics, hurricanes, pipeline disruptions can dominate near-term paths.</li>
+        <li>CoT should therefore be interpreted as a <strong>fragility and skew lens</strong> around event risk.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mb-10" id="venue">
+    <h2 class="text-2xl font-semibold mb-3">3. Venue & instrument notes (NYMEX WTI)</h2>
+    <div class="box">
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Use the correct series:</strong> “WTI Financial Crude Oil – NYMEX” positioning.</li>
+        <li><strong>Overlay alignment:</strong> ensure the price overlay is NYMEX WTI (not Brent) unless explicitly doing cross-benchmark inference.</li>
+        <li><strong>Cross-benchmark caution:</strong> Brent/WTI spreads can move for logistics reasons; divergences can reflect spread dynamics, not a CoT error.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="rule mb-10"></div>
+
+  <section class="mb-10" id="baselines">
+    <h2 class="text-2xl font-semibold mb-3">4. Structural baselines and “normal” bias</h2>
+    <p class="leading-7">
+      In WTI, “normal” positioning states vary with inventory regimes and curve shape. Avoid treating long-run averages as stationary.
+    </p>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">4.1 Commercial categories embed producer/refiner/merchant hedging</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Commercial net short is common (producers hedge production; merchants hedge physical exposure).</li>
+        <li>Commercial extremes can be a physical tightness/looseness cue, but interpret via <code>Hedger_zscore</code>, not sign.</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">4.2 Spec positioning can follow macro + energy complex flows</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>WTI participates in broader “risk-on/risk-off” and inflation hedging trades.</li>
+        <li>Spec extremes can persist if macro regime supports the energy complex (USD, rates, growth, inflation expectations).</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mb-10" id="adjustments">
+    <h2 class="text-2xl font-semibold mb-3">5. WTI-specific interpretation adjustments</h2>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">5.1 Add a “physical validation gate” before strong calls</h3>
+      <p class="leading-7">
+        Before escalating reversal or squeeze narratives, check whether physical conditions support persistence:
+      </p>
+      <ul class="list-disc pl-6 leading-7 mt-2">
+        <li><strong>Inventories:</strong> drawing vs building (direction matters more than level).</li>
+        <li><strong>Curve:</strong> backwardation (tightness) vs contango (looseness).</li>
+        <li><strong>Refining:</strong> implied demand/throughput regime (if available).</li>
+      </ul>
+      <p class="text-sm text-slate-600 mt-3">
+        If positioning suggests reversal but physical signals confirm tightness, downgrade reversal confidence and frame as “fragile continuation.”
+      </p>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">5.2 Treat stretch as fragility, not a reversal clock</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>WTI can remain crowded during extended inventory drawdowns or builds.</li>
+        <li>Therefore, <code>|z| ≥ 2</code> should be framed as higher tail-risk and volatility, not deterministic mean reversion.</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">5.3 Flows are the best timing proxy</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>In WTI, multi-week flow turns often precede (or coincide with) curve/inventory inflection.</li>
+        <li>Use <code>Flow_4w</code> to detect sponsorship fading (longs reducing) or short-covering (shorts reducing).</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">5.4 Event-risk overlay (required language)</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>When OPEC/geopolitical/weather risk is elevated, treat CoT as describing <strong>skew under uncertainty</strong>.</li>
+        <li>Prefer phrasing: “outcomes are non-linear; positioning increases vulnerability to gap risk.”</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="rule mb-10"></div>
+
+  <section class="mb-10" id="termstructure">
+    <h2 class="text-2xl font-semibold mb-3">6. Term structure & inventory validation</h2>
+
+    <div class="box">
+      <h3 class="text-lg font-semibold mb-2">6.1 Backwardation vs contango as a confirmation layer</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Backwardation</strong> generally signals near-term tightness and supports persistent bull trends (crowded longs can persist).</li>
+        <li><strong>Contango</strong> generally signals looseness and supports mean reversion risk (crowded longs are more fragile).</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">6.2 Inventory direction as the “sanity check”</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>When inventories are drawing, bearish positioning signals require stronger evidence (flow turns + macro headwinds).</li>
+        <li>When inventories are building, bullish positioning signals require stronger evidence (flow turns + macro tailwinds).</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4 text-sm">
+      <p class="font-semibold mb-2">Practical rule</p>
+      <p class="leading-7">
+        If CoT and physical indicators disagree, <strong>describe the conflict explicitly</strong> and downgrade confidence.
+        Do not “force” direction from CoT alone.
+      </p>
+    </div>
+  </section>
+
+  <section class="mb-10" id="regimes">
+    <h2 class="text-2xl font-semibold mb-3">7. Regime flag nuances in WTI</h2>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">7.1 Crowded Long (WTI)</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Interpret as: continuation possible, but drawdown risk rises sharply if inventories stop drawing or the curve flattens.</li>
+        <li>Upgrade exhaustion risk when: crowded long + <strong>flow fade</strong> + curve loosens / inventories build.</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">7.2 Crowded Short / Squeeze Risk (WTI)</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>WTI squeezes often occur around supply shocks or sudden inventory draws.</li>
+        <li>Upgrade squeeze risk when: extreme shorts + short-covering flow + physical tightness indicators improve.</li>
+      </ul>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">7.3 Reversal Score / Positioning Tension (WTI)</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Interpret as setup intensity. Highest-quality setups are those where physical regime is flipping and flows confirm.</li>
+        <li>Use as a risk-weighting input; avoid deterministic timing language.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mb-10" id="templates">
+    <h2 class="text-2xl font-semibold mb-3">8. Output language templates for WTI</h2>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">8.1 Neutral / balanced</h3>
+      <p class="leading-7">
+        “WTI positioning is directionally aligned without extreme stretch; flows are stable. Absent confirmation from inventories/curve,
+        the signal implies normal volatility and moderate trend persistence.”
+      </p>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">8.2 Crowded long with physical confirmation</h3>
+      <p class="leading-7">
+        “WTI is crowded to the long side, implying elevated fragility. However, with inventories drawing and the curve supportive,
+        crowded positioning can persist; the key risk is a physical inflection that triggers liquidation.”
+      </p>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">8.3 Crowded long with physical deterioration</h3>
+      <p class="leading-7">
+        “WTI is crowded long and flows are fading. With inventories no longer tightening / curve loosening,
+        the setup shifts toward higher reversal risk and drawdown sensitivity.”
+      </p>
+    </div>
+
+    <div class="box mt-4">
+      <h3 class="text-lg font-semibold mb-2">8.4 Crowded short / squeeze‑skewed</h3>
+      <p class="leading-7">
+        “WTI is stretched to the short side, creating convex upside risk. If short-covering flows emerge alongside tightening physical indicators
+        (draws, backwardation), upside skew dominates with elevated gap risk around events.”
+      </p>
+    </div>
+  </section>
+
+  <div class="rule mb-10"></div>
+
+  <section class="mb-10" id="checklist">
+    <h2 class="text-2xl font-semibold mb-3">9. Quick checklist (LLM‑friendly)</h2>
+    <div class="box">
+      <ol class="list-decimal pl-6 leading-7">
+        <li><strong>Overlay alignment:</strong> NYMEX WTI positioning should use WTI price/curve, not Brent unless intentional.</li>
+        <li><strong>Physical gate:</strong> check inventory direction and curve shape before strong reversal/squeeze claims.</li>
+        <li><strong>Stretch:</strong> treat <code>|z| ≥ 2</code> as fragility/tail-risk; persistence is common in strong physical regimes.</li>
+        <li><strong>Flow:</strong> multi-week flow turns are the best sponsorship timing proxy.</li>
+        <li><strong>Events:</strong> always add event-risk language; WTI outcomes are frequently non-linear.</li>
+        <li><strong>Conflicts:</strong> if CoT contradicts physical indicators, downgrade confidence and describe the contradiction.</li>
+      </ol>
+    </div>
+
+    <p class="text-sm text-slate-600 mt-4">
+      Note: this supplement is intentionally concise and interpretive. Market-specific thresholds and tactical decision rules should be layered separately.
+    </p>
+  </section>
+
+  <footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+    © 2026. WTI Crude Oil (NYMEX) CoT Diagnostics — Supplementary Methodology.
+  </footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-mini S&P 500 (CME) CoT Diagnostics — Supplementary Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    code { background:#f6f8fa; padding:.15rem .35rem; border-radius:.35rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+    .callout { border-left: 4px solid #e5e7eb; padding-left: 1rem; color:#334155; }
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+  <h1 class="text-3xl font-semibold text-slate-900">E-mini S&P 500 CoT Diagnostics (CME)</h1>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span class="pill">Market: E-mini S&P 500</span>
+    <span class="pill">Exchange: CME</span>
+    <span class="pill">Asset class: Equity index futures</span>
+  </div>
+
+  <p class="text-slate-600 mt-3 text-sm leading-6">
+    This supplementary methodology defines how to interpret CoT diagnostics for <strong>E-mini S&P 500</strong>.
+    Equity index futures differ from single-commodity markets because a large share of positions represent
+    <strong>systematic hedging, dealer intermediation, and volatility-linked exposure</strong>. As a result, the same
+    core signals should be interpreted as <em>risk appetite and hedging pressure</em> rather than physical tightness.
+  </p>
+
+  <div class="box mt-6 text-sm">
+    <p class="font-semibold mb-2">Contents</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><a class="toc" href="#scope">1. Scope & intent</a></li>
+      <li><a class="toc" href="#structure">2. Equity index structure: what makes it different</a></li>
+      <li><a class="toc" href="#mapping">3. Category mapping in equity index futures (interpretive)</a></li>
+      <li><a class="toc" href="#baselines">4. Baselines: why sign is less meaningful</a></li>
+      <li><a class="toc" href="#adjustments">5. S&P-specific interpretation adjustments</a></li>
+      <li><a class="toc" href="#regimes">6. Regime flag nuances in equities</a></li>
+      <li><a class="toc" href="#templates">7. Output language templates</a></li>
+      <li><a class="toc" href="#checklist">8. Quick checklist (LLM-friendly)</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="scope" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+  <p class="leading-7">
+    This supplement keeps your core signal definitions unchanged (Net %OI, z-score stretch, 4-week flow,
+    crowding flags, squeeze/exhaustion, reversal score, tension score). It modifies interpretation to reflect
+    that equity index futures are frequently used for <strong>portfolio hedging and fast beta exposure</strong>.
+  </p>
+  <div class="box text-sm mt-4">
+    <ul class="list-disc pl-6 leading-7">
+      <li><strong>Primary use of CoT in ES:</strong> identify <em>risk appetite</em>, <em>hedging pressure</em>, and <em>fragility</em>.</li>
+      <li><strong>Less reliable use:</strong> “physical tightness” analogies or supply scarcity narratives.</li>
+      <li><strong>Best practice:</strong> interpret extremes as <strong>skew and convexity</strong>, and flows as near-term sponsorship signals.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="structure" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">2. Equity index structure: what makes it different</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">2.1 Futures are a hedging and beta instrument</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Institutions use ES to hedge equity exposure quickly, roll systematically, and manage beta during risk events.</li>
+      <li>Therefore, “commercial vs speculator” roles can reflect <strong>hedging needs</strong>, not information advantage.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">2.2 Dealer intermediation & options flows can matter more than narrative</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Index options positioning can drive hedging flows into futures (gamma/vega hedging).</li>
+      <li>CoT can pick up this hedging pressure indirectly; treat some moves as “flow-mechanical.”</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">2.3 Regime persistence is common</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>In equities, crowding can persist through long bull markets or prolonged de-risking phases.</li>
+      <li>Therefore, stretch is a <strong>fragility indicator</strong>, not a timing tool.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="mapping" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">3. Category mapping in equity index futures (interpretive)</h2>
+
+  <div class="box">
+    <ul class="list-disc pl-6 leading-7">
+      <li><strong>Non-commercials / managed money:</strong> directional beta expression; can be trend-following and momentum-aligned.</li>
+      <li><strong>Commercials:</strong> often represent hedgers and intermediaries; not reliably “smart money” in the commodity sense.</li>
+      <li><strong>Other reportables / non-reportables:</strong> mixture; treat primarily as context, not a signal anchor.</li>
+    </ul>
+  </div>
+
+  <p class="text-sm text-slate-600 mt-3">
+    Practical rule: in ES, interpret net positioning as “who is carrying beta risk vs who is warehousing hedges,”
+    rather than “informed vs uninformed.”
+  </p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="baselines" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">4. Baselines: why sign is less meaningful</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">4.1 Net short does not always mean bearish conviction</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Net shorts can represent hedging against large long cash equity exposure.</li>
+      <li>Interpret via <strong>stretch</strong> (z-score/percentile) and <strong>flow</strong> (change), not sign.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">4.2 “Commercials are informed” is weaker in equity indices</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Commercials may be taking the other side of client flows (intermediation), not expressing a valuation view.</li>
+      <li>Therefore, extreme commercial positioning is more reliably a <strong>pressure/imbalance</strong> signal than a directional forecast.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="adjustments" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">5. S&P-specific interpretation adjustments</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">5.1 Prioritise flow over level for tactical interpretation</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li><code>Flow_4w</code> turning is the best indicator that risk appetite is changing.</li>
+      <li>Levels can remain extreme for long periods; do not force mean reversion.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">5.2 Treat crowding as volatility / crash-risk vs melt-up-risk</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li><strong>Crowded long</strong>: increased drawdown sensitivity if an exogenous shock triggers de-risking.</li>
+      <li><strong>Crowded short</strong>: upside convexity (short-covering rallies), especially if macro conditions stabilise.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">5.3 Add a “risk-event” overlay in language</h3>
+    <p class="leading-7">
+      Equity index outcomes can gap on macro data, central bank surprises, earnings, geopolitics, and volatility shocks.
+      CoT should be framed as describing <strong>positioning vulnerability</strong> into those events.
+    </p>
+    <p class="callout mt-3 text-sm">
+      Recommended phrase: “Positioning implies asymmetric outcomes if a risk event forces rapid de-risking / short-covering.”
+    </p>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">5.4 Divergence handling (if price overlay exists)</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li><strong>Price rising + longs reducing</strong>: sponsorship fading; rally more fragile.</li>
+      <li><strong>Price falling + shorts reducing</strong>: capitulation / stabilisation risk; squeeze/skew rises.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="regimes" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">6. Regime flag nuances in equities</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">6.1 Crowded Long</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Interpret as: trend may persist, but fragility rises—particularly to volatility shocks and macro surprises.</li>
+      <li>Upgrade exhaustion risk when flows slow and implied volatility rises (if your framework includes a vol overlay).</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">6.2 Crowded Short / Squeeze Risk</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Interpret as: upside convexity (risk of sharp relief rallies).</li>
+      <li>Upgrade when short-covering flows appear and price stabilises.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">6.3 Reversal Score / Positioning Tension</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Interpret as: probability-weighted reversal setup, not deterministic timing.</li>
+      <li>Highest quality when: extreme stretch + flow turn + visible price/volatility divergence.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="templates" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">7. Output language templates</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">7.1 Neutral / stable risk appetite</h3>
+    <p class="leading-7">
+      “ES positioning is directionally aligned without extreme stretch, and flows are stable. This implies a
+      neutral-to-supportive risk appetite backdrop with normal volatility risk.”
+    </p>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">7.2 Crowded long (fragile continuation)</h3>
+    <p class="leading-7">
+      “ES is stretched to the long side, implying elevated fragility. Upside can persist, but the dominant risk is
+      rapid de-risking if a volatility or macro shock occurs.”
+    </p>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">7.3 Crowded short (relief-rally skew)</h3>
+    <p class="leading-7">
+      “ES is stretched to the short side, creating convex upside risk via short-covering. If flows confirm shorts are reducing,
+      the distribution skews toward sharp relief rallies and elevated volatility.”
+    </p>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">7.4 High reversal setup</h3>
+    <p class="leading-7">
+      “Positioning tension is elevated and flows are turning, consistent with a higher reversal setup. Outcomes are non-linear;
+      confidence should be expressed as skew/fragility rather than a point forecast.”
+    </p>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="checklist" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">8. Quick checklist (LLM-friendly)</h2>
+
+  <div class="box">
+    <ol class="list-decimal pl-6 leading-7">
+      <li><strong>Interpretation frame:</strong> ES CoT = risk appetite + hedging pressure, not physical scarcity.</li>
+      <li><strong>Sign caution:</strong> net shorts can be hedges; rely on stretch + flow.</li>
+      <li><strong>Stretch:</strong> treat <code>|z| ≥ 2</code> as fragility/tail-risk, not reversal timing.</li>
+      <li><strong>Flow:</strong> multi-week flow turns are the best sponsorship signal.</li>
+      <li><strong>Crowding flags:</strong> long = crash-risk sensitivity; short = relief-rally convexity.</li>
+      <li><strong>Events:</strong> always add “risk-event” language (macro/volatility/earnings shocks).</li>
+      <li><strong>Divergence:</strong> use price/positioning divergence to downgrade trend confidence.</li>
+    </ol>
+  </div>
+
+  <p class="text-sm text-slate-600 mt-4">
+    Note: this supplement is intentionally concise and interpretive. If you want, the next extension is a companion page for
+    <strong>VIX futures CoT</strong> to explicitly link volatility hedging dynamics to equity index positioning.
+  </p>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+  © 2026. E-mini S&P 500 (CME) CoT Diagnostics — Supplementary Methodology.
+</footer>
+
+</main>
+</body>
+</html>

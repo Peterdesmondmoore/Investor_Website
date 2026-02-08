@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palladium (NYMEX) CoT Diagnostics — Supplementary Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    code { background:#f6f8fa; padding:.15rem .35rem; border-radius:.35rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+  <h1 class="text-3xl font-semibold text-slate-900">Palladium CoT Diagnostics (NYMEX)</h1>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span class="pill">Market: Palladium</span>
+    <span class="pill">Exchange: NYMEX</span>
+    <span class="pill">Use-case: Volatility & tail-risk</span>
+  </div>
+
+  <p class="text-slate-600 mt-3 text-sm leading-6">
+    This supplementary methodology defines how to interpret Commitment of Traders diagnostics for
+    <strong>NYMEX Palladium</strong>. Palladium is structurally distinct from gold and silver due to
+    <strong>extreme supply concentration</strong>, <strong>thin liquidity</strong>, and
+    <strong>frequent regime breaks</strong>. As a result, CoT signals should be treated primarily as
+    <em>fragility and convexity indicators</em>, not linear trend tools.
+  </p>
+
+  <div class="box mt-6 text-sm">
+    <p class="font-semibold mb-2">Contents</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><a class="toc" href="#scope">1. Scope & intent</a></li>
+      <li><a class="toc" href="#structure">2. Palladium market structure</a></li>
+      <li><a class="toc" href="#baselines">3. Structural baselines & instability</a></li>
+      <li><a class="toc" href="#adjustments">4. Palladium-specific interpretation adjustments</a></li>
+      <li><a class="toc" href="#regimes">5. Regime flag nuances</a></li>
+      <li><a class="toc" href="#templates">6. Output language templates</a></li>
+      <li><a class="toc" href="#checklist">7. Quick checklist</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="scope" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+  <p class="leading-7">
+    Palladium CoT interpretation requires tighter guardrails than other metals. Small changes in
+    positioning can produce outsized price responses due to thin liquidity and supply concentration.
+    This supplement ensures the model emphasises <strong>tail-risk, squeeze probability, and regime instability</strong>
+    rather than smooth trend extrapolation.
+  </p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="structure" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">2. Palladium market structure</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">2.1 Extreme supply concentration</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Primary supply is highly concentrated (Russia, South Africa).</li>
+      <li>Geopolitical or operational disruptions can overwhelm positioning signals.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">2.2 Thin futures liquidity</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Open interest is materially smaller than gold or silver.</li>
+      <li>Positioning may reflect a small number of participants.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">2.3 Structural volatility</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Palladium exhibits frequent gap moves and regime shifts.</li>
+      <li>Mean reversion is less reliable; convex outcomes are common.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="baselines" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">3. Structural baselines & instability</h2>
+
+  <div class="box">
+    <ul class="list-disc pl-6 leading-7">
+      <li>Historical averages are unstable; long lookbacks dilute signal quality.</li>
+      <li>Z-scores should be computed on rolling windows and treated as <em>contextual</em>, not absolute.</li>
+      <li>Commercial vs speculative roles are less informative due to participant concentration.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="adjustments" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">4. Palladium-specific interpretation adjustments</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">4.1 Data quality gate (mandatory)</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>If open interest is low or unstable, downgrade all confidence levels.</li>
+      <li>Flag when positioning is dominated by a small participant set.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">4.2 Stretch = convexity, not reversal</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Extreme z-scores indicate tail-risk amplification.</li>
+      <li>Do not assume timely mean reversion.</li>
+    </ul>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">4.3 Flows dominate timing</h3>
+    <ul class="list-disc pl-6 leading-7">
+      <li>Multi-week flow changes are the most reliable dynamic input.</li>
+      <li>Single-week moves are often noise.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="regimes" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">5. Regime flag nuances</h2>
+
+  <div class="box">
+    <h3 class="text-lg font-semibold mb-2">Crowded Long</h3>
+    <p class="leading-7">
+      Indicates extreme fragility. Drawdowns can be sharp and discontinuous.
+    </p>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">Crowded Short / Squeeze Risk</h3>
+    <p class="leading-7">
+      High convex upside risk. Palladium squeezes are often violent and event-driven.
+    </p>
+  </div>
+
+  <div class="box mt-4">
+    <h3 class="text-lg font-semibold mb-2">Reversal Score</h3>
+    <p class="leading-7">
+      Represents regime instability rather than directional certainty.
+    </p>
+  </div>
+</section>
+
+<section id="templates" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">6. Output language templates</h2>
+
+  <div class="box">
+    <p>
+      “Palladium positioning is stretched, implying elevated fragility and non-linear outcome risk.
+      Given thin liquidity and supply concentration, tail-risk dominates directional confidence.”
+    </p>
+  </div>
+
+  <div class="box mt-4">
+    <p>
+      “Extreme short positioning creates convex upside risk. Any supply or geopolitical shock could
+      trigger rapid short-covering with outsized price response.”
+    </p>
+  </div>
+</section>
+
+<section id="checklist" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">7. Quick checklist</h2>
+
+  <div class="box">
+    <ol class="list-decimal pl-6 leading-7">
+      <li>Check open interest depth and stability.</li>
+      <li>Treat z-score extremes as tail-risk signals.</li>
+      <li>Prioritise multi-week flows over levels.</li>
+      <li>Always include event/geopolitical risk framing.</li>
+      <li>Avoid linear trend extrapolation language.</li>
+    </ol>
+  </div>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+  © 2026. Palladium CoT Diagnostics — Supplementary Methodology.
+</footer>
+
+</main>
+</body>
+</html>
