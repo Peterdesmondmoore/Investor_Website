@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Stress Composite — Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    a.ref{color:#2563eb;text-decoration:underline}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.1</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Financial Stress Composite</h1>
+      <div class="mt-2 text-slate-600 text-sm">
+        Integrates broad financial-stress conditions, credit spreads, and the yield-curve slope to assess market stress levels.
+      </div>
+      <div class="mt-2 text-xs text-slate-500">Last updated: February 10, 2026</div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">
+        The Financial Stress Composite blends three independent indicators of U.S. financial strain:
+        the St. Louis Fed Financial Stress Index (STLFSI4), high-yield option-adjusted spreads (HY OAS),
+        and the yield-curve slope (T10Y2Y). Higher stress corresponds to elevated STLFSI4, wider credit spreads,
+        and deeper yield-curve inversion. Inputs are transformed to a common direction, robustly normalised
+        using rolling median/MAD z-scores, and aggregated into a continuous composite that maps to
+        <em>High_Stress</em>, <em>Neutral</em>, or <em>Low_Stress</em>.
+      </p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
+      <p class="leading-7">
+        All inputs are sourced from FRED and resampled to month-end for consistent cross-signal comparison.
+        Where a series is higher-frequency (daily/weekly), month-end uses the last available observation in the month.
+      </p>
+
+      <div class="mt-5 grid grid-cols-1 gap-4">
+        <div class="box">
+          <div class="text-sm font-semibold text-slate-900">1.1 STLFSI4 — St. Louis Fed Financial Stress Index (weekly)</div>
+          <ul class="list-disc pl-6 leading-7 mt-2 text-sm">
+            <li><strong>Source:</strong> FRED series <code>STLFSI4</code>.</li>
+            <li><strong>What it captures:</strong> a broad, multi-market measure of stress spanning funding, credit, and equity-related indicators.</li>
+            <li><strong>Composition note:</strong> STLFSI4 is itself a composite; it incorporates multiple spreads and market variables (including measures related to volatility and funding spreads).</li>
+            <li><strong>Practical implication:</strong> STLFSI4 can “carry” VIX/TED-like information indirectly, so overlap/double-counting is possible when adding external spread measures.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <div class="text-sm font-semibold text-slate-900">1.2 HY OAS — ICE BofA U.S. High Yield Option-Adjusted Spread (daily)</div>
+          <ul class="list-disc pl-6 leading-7 mt-2 text-sm">
+            <li><strong>Source:</strong> FRED series <code>BAMLH0A0HYM2</code>.</li>
+            <li><strong>What it captures:</strong> compensation for default/liquidity risk in below-investment-grade U.S. corporate bonds, net of embedded options (option-adjusted).</li>
+            <li><strong>Why it matters:</strong> widening OAS typically coincides with tighter financial conditions and higher risk premia.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <div class="text-sm font-semibold text-slate-900">1.3 T10Y2Y — 10-Year minus 2-Year Treasury Yield Spread (daily)</div>
+          <ul class="list-disc pl-6 leading-7 mt-2 text-sm">
+            <li><strong>Source:</strong> FRED series <code>T10Y2Y</code>.</li>
+            <li><strong>What it captures:</strong> a term-spread proxy for growth and policy expectations; persistent inversion is historically associated with tighter conditions and elevated recession risk.</li>
+            <li><strong>Directionality:</strong> for “stress” interpretation we invert the slope so that more inversion contributes positively to stress.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Transformation</h2>
+      <p class="leading-7">
+        Stress rises with higher STLFSI4 and wider HY OAS, but tends to rise as the curve becomes more inverted.
+        To align directions, invert the slope:
+      </p>
+      <div class="box text-sm">
+        <div class="eq">Stress_Curve_t = −T10Y2Y_t</div>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">
+        This makes higher values indicate more inversion and therefore higher “stress contribution.”
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Normalisation</h2>
+      <p class="leading-7">
+        Each component is transformed into a robust rolling z-score to reduce outlier sensitivity.
+      </p>
+      <div class="box text-sm">
+        <div class="eq">z_{rob}(X)_t = (X_t − median(X)_{t,w}) / (1.4826·MAD(X)_{t,w})</div>
+        <div class="text-xs mt-2">
+          Rolling window <span class="eq">w = 60</span> months (minimum 24). MAD scaling reduces outlier bias and improves robustness in crisis tails.
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Composite construction</h2>
+      <p class="leading-7">
+        The v1.0 composite used equal weights. In v1.1, the default remains equal-weight, but the framework supports
+        regime-aware dynamic weights (Section 7–8).
+      </p>
+      <div class="box text-sm">
+        <div class="eq">
+          C_t = w_{STL,t}·z(STLFSI4_t) + w_{HY,t}·z(HY_OAS_t) + w_{INV,t}·z(−T10Y2Y_t),
+          &nbsp;with&nbsp; w_{i,t} ≥ 0,&nbsp; Σ_i w_{i,t}=1
+        </div>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">
+        Default: <span class="eq">w_{STL,t}=w_{HY,t}=w_{INV,t}=1/3</span>.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Regime mapping</h2>
+      <div class="box text-sm">
+        <div class="eq">If C_t &gt; 0.75 → High_Stress; &nbsp;|C_t| ≤ 0.75 → Neutral; &nbsp;C_t &lt; −0.75 → Low_Stress</div>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">
+        Thresholds are intentionally coarse to emphasise regime classification over point forecasts.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Data freshness, staleness, and quality flags (v1.1)</h2>
+      <p class="leading-7">
+        Some underlying market series can be stale around holidays, data outages, or vendor delays. Because STLFSI4
+        is itself a composite that may embed volatility (VIX-like) and funding-spread (TED-like) inputs, staleness can
+        propagate into the composite.
+      </p>
+
+      <div class="box text-sm mt-4">
+        <div class="font-semibold text-slate-900">Recommended reporting fields</div>
+        <ul class="list-disc pl-6 leading-7 mt-2">
+          <li><strong>AsOfDate_i:</strong> last observation date used for each component at month-end.</li>
+          <li><strong>StaleFlag_i:</strong> 1 if AsOfDate_i is older than a chosen tolerance (e.g., 5 trading days) at evaluation time.</li>
+          <li><strong>CompositeConfidence:</strong> “High” if no stale components; otherwise “Medium/Low” depending on count and importance.</li>
+        </ul>
+      </div>
+
+      <p class="text-sm text-slate-600 mt-2">
+        These flags do not change the historical values; they contextualise reliability of the latest print.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Sub-component contributions (v1.1)</h2>
+      <p class="leading-7">
+        To reduce interpretability gaps, publish each component’s contribution to the composite:
+      </p>
+      <div class="box text-sm">
+        <div class="eq">Contrib_{i,t} = w_{i,t} · z_i,t</div>
+      </div>
+      <p class="text-sm text-slate-600 mt-2">
+        This makes it explicit whether “stress” is being driven by credit, the yield curve, or broad multi-market strain.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Dynamic weighting by market regime (v1.1)</h2>
+      <p class="leading-7">
+        v1.1 introduces an optional regime-aware weighting overlay intended to reduce double-counting and improve robustness
+        when one pillar dominates. The objective is not optimisation, but sensible re-weighting when stress is clearly credit-
+        driven vs curve-driven.
+      </p>
+
+      <div class="box text-sm mt-4">
+        <div class="font-semibold text-slate-900">Simple, fully FRED-based rule (example)</div>
+        <ul class="list-disc pl-6 leading-7 mt-2">
+          <li><strong>High-stress months:</strong> if <code>C_{t-1} &gt; 0.75</code>, increase weight on STLFSI4 and HY OAS, reduce inversion weight
+              (e.g., <code>w_STL=0.40, w_HY=0.40, w_INV=0.20</code>).</li>
+          <li><strong>Low-stress months:</strong> if <code>C_{t-1} &lt; -0.75</code>, revert to equal weights (or modestly increase inversion weight if desired).</li>
+          <li><strong>Neutral:</strong> use equal weights.</li>
+        </ul>
+      </div>
+
+      <p class="text-sm text-slate-600 mt-2">
+        If you prefer a data-driven scheme, an alternative is to set <span class="eq">w_{i,t}</span> inversely proportional to each component’s rolling
+        correlation with STLFSI4 (to downweight overlap) while keeping weights bounded (e.g., 0.2–0.5).
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Implementation (Python)</h2>
+      <div class="box text-sm">
+<pre><code>import pandas as pd
+import numpy as np
+
+def robust_z(s, win=60, min_win=24):
+    x = pd.to_numeric(s, errors="coerce").astype(float)
+    med = x.rolling(win, min_periods=min_win).median()
+    mad = (x - med).abs().rolling(win, min_periods=min_win).median()
+    return (x - med) / (1.4826 * mad.replace(0, np.nan))
+
+# Expect inputs: STLFSI4 (weekly), BAMLH0A0HYM2 (daily), T10Y2Y (daily)
+# All resampled to month-end before applying robust_z.
+f = df_fin_stress.copy()
+
+# Transformations
+f["Z_STL"] = robust_z(f["STLFSI4"])
+f["Z_HY"]  = robust_z(f["HY_OAS"])
+f["Z_INV"] = robust_z(-f["T10Y2Y"])   # inversion-aligned
+
+# Default equal weights
+w_eq = {"STL": 1/3, "HY": 1/3, "INV": 1/3}
+
+# Optional regime-aware weights (simple example using lagged composite)
+hi, lo = 0.75, -0.75
+w_hi = {"STL": 0.40, "HY": 0.40, "INV": 0.20}
+
+# First pass composite (equal-weight) to define the lagged regime
+f["C_eq"] = (w_eq["STL"]*f["Z_STL"] + w_eq["HY"]*f["Z_HY"] + w_eq["INV"]*f["Z_INV"])
+
+def weights_for_row(c_lag):
+    if pd.isna(c_lag):
+        return w_eq
+    if c_lag > hi:
+        return w_hi
+    return w_eq
+
+w_stl, w_hy, w_inv = [], [], []
+for c_lag in f["C_eq"].shift(1):
+    w = weights_for_row(c_lag)
+    w_stl.append(w["STL"]); w_hy.append(w["HY"]); w_inv.append(w["INV"])
+
+f["W_STL"], f["W_HY"], f["W_INV"] = w_stl, w_hy, w_inv
+
+# Final composite and contributions
+f["Fin_Stress"] = f["W_STL"]*f["Z_STL"] + f["W_HY"]*f["Z_HY"] + f["W_INV"]*f["Z_INV"]
+f["Contrib_STL"] = f["W_STL"]*f["Z_STL"]
+f["Contrib_HY"]  = f["W_HY"]*f["Z_HY"]
+f["Contrib_INV"] = f["W_INV"]*f["Z_INV"]
+
+def regime(v):
+    if pd.isna(v):
+        return np.nan
+    return "High_Stress" if v > hi else ("Low_Stress" if v < lo else "Neutral")
+
+f["Fin_Stress_Regime"] = f["Fin_Stress"].apply(regime)
+
+df_sig_fin_stress = f
+</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">10. Interpretation (how to read the signal)</h2>
+
+      <div class="box text-sm">
+        <div class="font-semibold text-slate-900">10.1 What the composite is (and is not)</div>
+        <ul class="list-disc pl-6 leading-7 mt-2">
+          <li><strong>It is:</strong> a standardised summary of stress across (i) broad multi-market strain (STLFSI4), (ii) corporate credit risk premia (HY OAS),
+              and (iii) curve inversion pressure (−T10Y2Y).</li>
+          <li><strong>It is not:</strong> a standalone recession model, nor a precise timing tool. Use it to contextualise regime risk and the “channel” of stress.</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <div class="font-semibold text-slate-900">10.2 Regime meanings</div>
+        <ul class="list-disc pl-6 leading-7 mt-2">
+          <li><strong>High_Stress:</strong> stress is materially above its own long-run distribution. Historically consistent with tightened funding/credit conditions,
+              elevated volatility, and lower risk appetite. Focus on which contribution dominates (credit vs curve vs broad stress).</li>
+          <li><strong>Neutral:</strong> conditions are near historical norms. Day-to-day market moves may be noisy; watch for persistence and contribution shifts.</li>
+          <li><strong>Low_Stress:</strong> broad conditions are accommodative: tighter spreads, less inversion pressure, and subdued multi-market strain.</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <div class="font-semibold text-slate-900">10.3 Component-level reading</div>
+        <ul class="list-disc pl-6 leading-7 mt-2">
+          <li><strong>HY OAS dominates:</strong> “credit-led stress” (risk premia, default/liquidity concerns). This channel is closely linked to the macro cycle and risk appetite.</li>
+          <li><strong>Inversion dominates:</strong> “policy/growth expectations-led stress” (tight front-end policy vs longer-run growth/inflation expectations).</li>
+          <li><strong>STLFSI4 dominates:</strong> “system-wide stress” spanning multiple markets (funding, volatility, cross-asset dislocations).</li>
+          <li><strong>Stale flags:</strong> treat the latest composite print with caution if one or more components are stale; rely more on the non-stale contributions.</li>
+        </ul>
+      </div>
+
+      <p class="leading-7 mt-4">
+        Academic and policy literature supports the core components: the term spread is a widely used leading indicator for recession risk and policy stance,
+        credit spreads contain information about risk premia and predict real activity, and financial-stress indices aggregate cross-market strains into a
+        single stress gauge.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">11. Limitations</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Overlap risk:</strong> STLFSI4 already aggregates multiple spreads/volatility inputs; adding HY OAS and inversion can double-count certain dynamics.</li>
+        <li><strong>Monthly resampling:</strong> month-end snapshots can miss intramonth stress spikes; the signal is designed for regime context, not event detection.</li>
+        <li><strong>Threshold stability:</strong> fixed thresholds (±0.75) may under/over-state stress in structurally different volatility regimes; adaptive thresholds can be considered for trading use.</li>
+        <li><strong>Staleness:</strong> quality flags improve interpretability, but do not “fix” stale data; operational monitoring is still required.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">12. References (interpretation anchors)</h2>
+      <ul class="list-disc pl-6 leading-7 text-sm">
+        <li>FRED: St. Louis Fed Financial Stress Index (STLFSI4). <a class="ref" href="https://fred.stlouisfed.org/series/STLFSI4">Series page</a>.</li>
+        <li>FRED Blog: The St. Louis Fed’s Financial Stress Index, version 4. <a class="ref" href="https://fredblog.stlouisfed.org/2022/11/the-st-louis-feds-financial-stress-index-version-4/">Article</a>.</li>
+        <li>FRED: ICE BofA U.S. High Yield Index Option-Adjusted Spread (BAMLH0A0HYM2). <a class="ref" href="https://fred.stlouisfed.org/series/BAMLH0A0HYM2">Series page</a>.</li>
+        <li>Estrella, A. &amp; Mishkin, F. (1998): “Predicting U.S. recessions: Financial variables as leading indicators.” (NY Fed discussion summarized in yield-curve resources).</li>
+        <li>New York Fed: Yield Curve as a Leading Indicator / recession probability model. <a class="ref" href="https://www.newyorkfed.org/research/capital_markets/ycfaq">Resource</a>.</li>
+        <li>Gilchrist, S. &amp; Zakrajšek, E. (2012): “Credit Spreads and Business Cycle Fluctuations.” <a class="ref" href="https://www.aeaweb.org/articles?id=10.1257/aer.102.4.1692">AER</a>.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Methodology reference for the Financial Stress Composite signal.</footer>
+  </main>
+</body>
+</html>

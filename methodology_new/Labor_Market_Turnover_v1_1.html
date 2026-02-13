@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Labor Market Turnover Differential — Methodology (v1.1)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000} a{color:#000;text-decoration:underline}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    pre code{display:block;overflow:auto}
+    .kbd{border:1px solid #e5e7eb;padding:.1rem .35rem;border-radius:.35rem;background:#fff}
+    .tag{font-size:.7rem;border:1px solid #e5e7eb;border-radius:.35rem;padding:.1rem .35rem;background:#fff}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <nav class="screen-only border-b">
+    <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+      <div class="smallcaps">Methodology White Paper</div>
+      <div>Version 1.1</div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-5 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Labor Market Turnover Differential</h1>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible, monthly signal that gauges <em>labor‑market tightness</em> by comparing worker‑initiated quits to employer‑initiated layoffs & discharges. Built from FRED JOLTS series using robust z‑scores and clear regime rules.</p>
+      <div class="mt-3 flex gap-2 text-xs text-slate-600">
+        <span class="tag">FRED</span>
+        <span class="tag">JOLTS</span>
+        <span class="tag">Robust Z</span>
+        <span class="tag">Regime Classification</span>
+      </div>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+      <p class="leading-7">We compute the monthly <span class="font-semibold">Turnover Differential</span> as the quits rate minus the layoffs &amp; discharges rate. Intuition: a rising gap (quits ≫ layoffs) reflects worker confidence and tight conditions; a shrinking or negative gap signals loosening. We standardise the differential with a robust rolling z‑score and map it, alongside the level, into categorical regimes (<span class="font-semibold">Bullish</span>, <span class="font-semibold">Neutral</span>, <span class="font-semibold">Bearish</span>) for downstream macro &amp; markets use.</p>
+    </section>
+
+    <div class="rule mb-10"></div>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data (FRED Identifiers)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>JTSQUR</b>: Quits Rate (%), total nonfarm</li>
+        <li><b>JTSLDR</b>: Layoffs &amp; Discharges Rate (%), total nonfarm</li>
+      </ul>
+      <p class="leading-7 mt-3">Both are monthly. We coerce to a common monthly index at Month‑Start (<code>"MS"</code>) and forward‑fill within month to handle publication alignment.</p>
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Data source overview (what each series measures)</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>JTSQUR (Quits rate)</b> — the share of employed workers who <em>voluntarily</em> separate from their job in a given month. Often interpreted as a revealed-preference measure of worker confidence and outside options (job-to-job transitions).</li>
+          <li><b>JTSLDR (Layoffs &amp; discharges rate)</b> — the share of employed workers whose separations are <em>employer-initiated</em> (layoffs or discharges) in a given month. Often interpreted as a measure of firm-level retrenchment or demand weakness.</li>
+        </ul>
+        <p class="mt-3 leading-7">
+          <span class="font-semibold">Release cadence &amp; lag:</span> JOLTS is released monthly with roughly a one‑month lag (e.g., January data released in early March). This means the signal is <em>not</em> a high-frequency “nowcast” input; it is best used as a slow-moving confirmation signal within the labor pillar.
+        </p>
+        <p class="mt-2 leading-7">
+          <span class="font-semibold">Revisions &amp; benchmarking:</span> JOLTS estimates are revised as part of the BLS annual revision process (including seasonal-factor updates and benchmarking). Recent years of data can change materially, so historical backtests should treat the series as <em>real-time</em> noisy and revision-prone rather than fixed truth.
+        </p>
+        <p class="mt-2 leading-7">
+          <span class="font-semibold">Optional auxiliary series (recommended for v1.1+ extensions):</span>
+        </p>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>JTSJOL (Job openings level)</b> and <b>UNEMPLOY (Unemployment level)</b> — can be combined into an <em>unemployed-per-opening</em> ratio (UNEMPLOY / JTSJOL) as a direct slack / tightness proxy.</li>
+          <li><b>JTSHIR (Hires rate)</b> — can be used to separate worker confidence (quits) from employer hiring appetite (hires), and to compute alternative turnover composites.</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-3">
+<pre><code># Fetch & align (fredapi)
+q = fred.get_series("JTSQUR").to_frame("QuitsRate")
+l = fred.get_series("JTSLDR").to_frame("LayoffRate")
+q.index = pd.to_datetime(q.index); l.index = pd.to_datetime(l.index)
+
+turnover_raw_df = (
+  pd.concat([q, l], axis=1).sort_index()
+    .resample("MS").last().ffill().reset_index()
+    .rename(columns={"index": "Date"})
+)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2. Signal Construction</h2>
+      <p class="leading-7">The level differential (percentage points) is:</p>
+      <div class="box text-sm">
+        <div class="eq">\( \text{Turnover\_Diff}^{pp}_t = \text{QuitsRate}_t - \text{LayoffRate}_t \)</div>
+      </div>
+      <p class="leading-7 mt-3">We then compute a <span class="font-semibold">robust z‑score</span> using a rolling window with median and MAD, guarding against outliers and short histories.</p>
+      <div class="box text-sm">
+        <div class="eq">\( z_t = \dfrac{x_t - \text{median}_{W}(x)}{1.4826\,\text{MAD}_{W}(x)} \)</div>
+        <p class="mt-2 text-sm">Default window \(W=60\) months with a minimum of 24. If history is shorter, the window adapts: \(W = \max(24, \lfloor0.8\cdot N\rfloor)\).</p>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def _robust_z(s, window=60, min_window=24):
+    s = pd.to_numeric(s, errors="coerce").astype(float)
+    n = s.notna().sum()
+    w = max(min_window, window if n >= window else int(n * 0.8) if n else min_window)
+    med = s.rolling(w, min_periods=min_window).median()
+    mad = (s - med).abs().rolling(w, min_periods=min_window).median()
+    return (s - med) / (mad.replace(0, np.nan) * 1.4826)</code></pre>
+      </div>
+    
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Methodology amendment (v1.1)</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>Data latency:</b> treat the signal as a <em>lagged</em> labor-tightness confirmation input; do not interpret short-term shifts as real-time turning points.</li>
+          <li><b>Benchmarking revisions:</b> maintain a small revision-aware “transition band” (or require sustained confirmation) to reduce false regime flips caused by later revisions.</li>
+          <li><b>Emphasize quits:</b> optionally up-weight quits relative to layoffs in the level composite to reflect that quits often carry more information about worker outside options than layoffs do about demand at the margin:
+            <span class="eq">\( x^{pp}_t = lpha\,	ext{QuitsRate}_t - 	ext{LayoffRate}_t \)</span> with <code>α</code> &gt; 1 (e.g., 1.25–1.50) tested via backtest.</li>
+          <li><b>Add tightness ratio:</b> incorporate <em>unemployed per job opening</em> (UNEMPLOY / JTSJOL). High values indicate slack; falling values indicate tightening. Use as a modifier or confirmation filter.</li>
+          <li><b>Momentum via moving z-score:</b> compute a rolling z-score on the 3–6 month change in the composite (and/or on the tightness ratio) to better capture turning momentum without over-reacting to one-month noise.</li>
+        </ul>
+      </div>
+
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Regime Classification</h2>
+      <p class="leading-7">We combine information from the level (pp) and the robust z‑score into three regimes. Neutral “bands” prevent over‑trading on noise:</p>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Level neutral band (pp):</b> [-0.20, 0.50]</li>
+          <li><b>Z neutral band:</b> [-0.50, 0.50]</li>
+        </ul>
+        <div class="mt-3">
+          <div class="eq">If level &lt; −0.20 <span class="italic">or</span> z &lt; −0.50 → <b>Bearish</b></div>
+          <div class="eq">Else if level &gt; 0.50 <span class="italic">and</span> z &gt; 0.50 → <b>Bullish</b></div>
+          <div class="eq">Else → <b>Neutral</b></div>
+        </div>
+      </div>
+      <div class="box text-sm mt-3">
+<pre><code>def _classify(row):
+    lvl, z = row["Turnover_Diff_pp"], row["Turnover_Diff_z"]
+    if pd.isna(lvl) or pd.isna(z): return "Neutral"
+    if (lvl &lt; -0.20) or (z &lt; -0.50): return "Bearish"
+    if (lvl &gt;  0.50) and (z &gt;  0.50): return "Bullish"
+    return "Neutral"</code></pre>
+      </div>
+      <p class="text-sm mt-2 text-slate-600">Thresholds are configurable via <code>level_neutral_band</code> and <code>z_neutral_band</code>.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">4. Outputs & Metadata</h2>
+      <div class="box text-sm">
+<pre><code># Core columns
+["Date","QuitsRate","LayoffRate",
+ "Turnover_Diff_pp","Turnover_Diff_z","Turnover_Regime"]
+
+# Attached metadata
+attrs["series"] = {"quits": "JTSQUR", "layoffs": "JTSLDR"}
+attrs["generated_at"] = datetime.utcnow().isoformat() + "Z"
+attrs["rules"] = {
+  "level_neutral_band_pp": (-0.20, 0.50),
+  "z_neutral_band": (-0.50, 0.50),
+  "definition": "Bullish if quits ≫ layoffs; Bearish if layoffs ≥ quits and/or negative momentum."
+}</code></pre>
+      </div>
+      <p class="leading-7 mt-3">For reporting, the last five years can be rendered as an HTML table for dashboards or emails.</p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">5. Data Handling & Validation</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Frequency alignment:</b> resample to Month‑Start and forward‑fill within month to ensure synchronous comparisons.</li>
+        <li><b>Short‑history safety:</b> adaptive robust z‑window prevents unstable scaling during early sample periods.</li>
+        <li><b>NaN policy:</b> coercion to numeric; z‑scores undefined where MAD = 0 are set to NaN and naturally mapped to Neutral.</li>
+        <li><b>Preview hooks:</b> print/display last rows of the raw and final data frames for quick inspection.</li>
+      </ul>
+    </section>
+
+    
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Model Interpretation (how to read the signal)</h2>
+
+      <div class="box text-sm">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">What the level means</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>Turnover_Diff_pp &gt; 0:</b> quits exceed layoffs, consistent with a “tight” labor market where workers have outside options and firms are not broadly shedding labor.</li>
+          <li><b>Turnover_Diff_pp near 0:</b> tighter and looser forces are balanced; interpret as “late‑cycle” or “transitional” unless other labor indicators confirm.</li>
+          <li><b>Turnover_Diff_pp &lt; 0:</b> layoffs exceed quits, consistent with a loosening labor market (often an early warning for rising unemployment risk).</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">What the robust z-score means</h3>
+        <p class="leading-7">
+          The robust z-score measures how unusual the current level is relative to its recent history (rolling median/MAD). It is best interpreted as <span class="font-semibold">extremeness</span>, not “causality”:
+        </p>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>z &gt; +0.5:</b> tighter-than-normal vs history (worker confidence unusually strong and/or layoffs unusually low).</li>
+          <li><b>z between −0.5 and +0.5:</b> typical / noisy range; avoid over-interpreting.</li>
+          <li><b>z &lt; −0.5:</b> looser-than-normal vs history (quits weak and/or layoffs elevated).</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">How to use it inside a macro model</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>As a labor-tightness confirmation:</b> treat “Bullish” as confirming labor strength (supportive for growth/consumption, wage pressure risk); treat “Bearish” as confirming deterioration (higher recession risk).</li>
+          <li><b>Combine with vacancy/unemployment tightness:</b> the unemployed-per-opening ratio (UNEMPLOY / JTSJOL) is a direct slack proxy linked to search-and-matching theory and Beveridge-curve dynamics. Use it to validate whether quits/layoffs are signaling the same tightness direction.</li>
+          <li><b>Look for sustained shifts:</b> because JOLTS is lagged and revised, prefer sustained moves (multi‑month) and cross-confirmation rather than reacting to one print.</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Academic anchors (why these variables matter)</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>Search &amp; matching / Beveridge curve:</b> tightness is often summarized by the vacancy–unemployment relationship; shifts can reflect changes in matching efficiency and flows.</li>
+          <li><b>Worker flows (quits/layoffs):</b> quits and layoffs are core separations margins; they help decompose labor-market dynamics beyond the unemployment rate.</li>
+          <li><b>Tightness and wage growth:</b> recent work emphasizes quits and vacancies-per-searcher as informative tightness measures for wage inflation.</li>
+        </ul>
+      </div>
+
+      <div class="mt-5 text-sm text-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Selected references</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li>Barlevy, G. (2024). “The Shifting Reasons for Beveridge Curve Shifts.” <em>Journal of Economic Perspectives</em>.</li>
+          <li>Davis, S. J., Faberman, R. J., &amp; Haltiwanger, J. (2011/2012). “Labor Market Flows in the Cross Section and Over Time.” (JOLTS-based worker flows).</li>
+          <li>Domash, A., &amp; Summers, L. H. (2022). “How Tight are U.S. Labor Markets?” (tightness indicators and u/v measures).</li>
+          <li>Heise, S. et al. (NY Fed Staff Reports, 2024). “Wage Growth and Labor Market Tightness.” (quits and vacancies per effective searcher).</li>
+          <li>BLS JOLTS Technical Note &amp; annual revisions notices (data definitions, benchmarking, and revision windows).</li>
+        </ul>
+      </div>
+    </section>
+
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Implementation Notes (Python)</h2>
+      <div class="box text-sm">
+<pre><code># ➊ Fetch & harmonise monthly series (fredapi)
+# ➋ Compute level differential in percentage points
+# ➌ Apply robust rolling z-score with adaptive window
+# ➍ Classify regimes with level & z neutral bands
+# ➎ Persist metadata & (optional) HTML table for last 5y</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">8. Governance & Change Control</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Review thresholds and windows semi‑annually with backtests around turning points.</li>
+        <li>Document rationale for any rule changes (e.g., neutral bands, window length).</li>
+        <li>Version outputs and store data‑quality logs for auditability.</li>
+      </ul>
+    </section>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print‑friendly specification for the Labor Market Turnover Differential (v1.1).</footer>
+  </main>
+</body>
+</html>

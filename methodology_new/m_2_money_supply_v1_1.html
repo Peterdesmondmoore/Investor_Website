@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>M2 Money Supply — Methodology</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<style>
+    body{font-family:"Merriweather",serif}
+    h1,h2,h3,h4{font-family:"Inter",sans-serif}
+    .container{max-width:960px}
+    .rule{height:1px;background:linear-gradient(90deg,#e5e7eb,transparent)}
+    .smallcaps{font-variant-caps:all-small-caps;letter-spacing:.04em}
+    @media print{nav,.screen-only{display:none!important} body{color:#000}}
+    .eq{font-family:"Merriweather",serif;font-style:italic}
+    .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+<nav class="screen-only border-b">
+<div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
+<div class="smallcaps">Methodology White Paper</div>
+<div>Version 1.1</div>
+</div>
+</nav>
+<main class="container mx-auto px-5 py-10">
+<header class="mb-10">
+<h1 class="text-3xl md:text-4xl font-semibold text-slate-900">M2 Money Supply Signal</h1>
+<div class="mt-2 text-slate-600 text-sm">A reproducible specification for an M2‑based macro liquidity signal (FRED <strong>M2SL</strong>).</div>
+</header>
+<section class="mb-10">
+<h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
+<p class="leading-7">This document formalises a rule‑based signal derived from the growth and short‑term momentum of the US M2 money stock (<code>M2SL</code>). We compute 12‑month and 3‑month percentage changes, then map observations to <em>Bullish</em>, <em>Neutral</em>, or <em>Bearish</em> regimes using transparent thresholds intended for macro‑risk applications (e.g., precious metals, cyclicals).</p>
+</section>
+<div class="rule mb-10"></div>
+<section class="mb-10"><h2 class="text-2xl font-semibold mb-3">1. Data Sources</h2>
+</section>
+<section class="mb-10"><h2 class="text-2xl font-semibold mb-3">2. Preparation</h2>
+</section>
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">3. Transformations</h2>
+<ol class="list-decimal pl-6 leading-7">
+<li><strong>Year‑over‑Year growth:</strong>
+<div class="box mt-2 text-sm"><div class="eq">M2_{YoY,t} = 100 \times \frac{M2_t - M2_{t-12}}{M2_{t-12}}</div></div>
+</li>
+<li><strong>3‑month momentum:</strong>
+<div class="box mt-2 text-sm"><div class="eq">M2_{3M,t} = 100 \times \frac{M2_t - M2_{t-3}}{M2_{t-3}}</div></div>
+</li>
+</ol>
+</section>
+<section class="mb-10"><h2 class="text-2xl font-semibold mb-3">4. Signal Classification</h2>
+</section>
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">5. Implementation Notes (Python)</h2>
+<div class="box text-sm">
+<pre><code># Fetch &amp; prepare (no interpolation by default)
+m2sl_df = fetch_fred_series_df('M2SL')
+m2sl_df['Date']  = pd.to_datetime(m2sl_df['Date'])
+m2sl_df['Value'] = pd.to_numeric(m2sl_df['Value'], errors='coerce')
+
+a = m2sl_df.sort_values('Date').reset_index(drop=True)
+a['missing_data_flag'] = a['Value'].isna()
+
+# Transforms (YoY and 3M)
+a['M2SL_YoY']           = a['Value'].pct_change(12) * 100
+a['M2SL_3M_Change']     = a['Value'].pct_change(3)  * 100
+
+# Optional: rolling z-scores (example: 120 months = 10 years)
+WINDOW = 120
+a['M2SL_YoY_Z'] = (a['M2SL_YoY'] - a['M2SL_YoY'].rolling(WINDOW).mean()) / a['M2SL_YoY'].rolling(WINDOW).std()
+a['M2SL_3M_Z']  = (a['M2SL_3M_Change'] - a['M2SL_3M_Change'].rolling(WINDOW).mean()) / a['M2SL_3M_Change'].rolling(WINDOW).std()
+
+# Regime rules (baseline thresholds)
+HIGH_YOY = 6.0; LOW_YOY = 2.0; ACC3M = 1.0; DEC3M = -1.0
+
+def level_regime(yoy):
+    if pd.isna(yoy): return 'Neutral'
+    if yoy &gt; HIGH_YOY: return 'Bullish'
+    if yoy &lt; LOW_YOY:  return 'Bearish'
+    return 'Neutral'
+
+def momentum_regime(m3):
+    if pd.isna(m3): return 'Neutral'
+    if m3 &gt; ACC3M:  return 'Bullish'
+    if m3 &lt; DEC3M:  return 'Bearish'
+    return 'Neutral'
+
+a['Level_Regime']    = a['M2SL_YoY'].apply(level_regime)
+a['Momentum_Regime'] = a['M2SL_3M_Change'].apply(momentum_regime)
+
+# Example overall aggregation: "worst-of" (risk-control)
+order = {'Bearish':0,'Neutral':1,'Bullish':2}
+inv   = {v:k for k,v in order.items()}
+a['Overall_Regime'] = a.apply(lambda r: inv[min(order[r['Level_Regime']], order[r['Momentum_Regime']])], axis=1)
+</code></pre>
+</div>
+</section>
+<section class="mb-10"><h2 class="text-2xl font-semibold mb-3">6. Assumptions &amp; Limitations</h2>
+</section>
+<section class="mb-10">
+<h2 class="text-2xl font-semibold mb-3">7. Reproducibility</h2>
+<ul class="list-disc pl-6 leading-7">
+<li>Persist source ID (<code>M2SL</code>), retrieval timestamps, and library versions.</li>
+<li>Log missing‑data treatment (interpolation, fills) and any threshold overrides.</li>
+<li>Store the output panel with <code>M2SL_YoY</code>, <code>M2SL_3Month_Change</code>, and <code>M2_Signal</code> columns for audit.</li>
+</ul>
+</section>
+<section class="mb-16">
+<h2 class="text-2xl font-semibold mb-3">8. Applications</h2>
+<p class="leading-7">Use as a standalone macro‑liquidity indicator or as an input to broader composites (e.g., the Federal Reserve Liquidity Composite). Helpful for conditioning risk‑on/off tilts in metals and cyclical assets.</p>
+</section><section class="mb-10"><h2 class="text-2xl font-semibold mb-3">9. Model Interpretation</h2>
+</section>
+<section class="mb-16"><h2 class="text-2xl font-semibold mb-3">10. References</h2>
+
+
+
+</section><footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print‑friendly academic specification for the M2 Money Supply Signal. Version 1.1.</footer>
+</main>
+</body>
+</html>
