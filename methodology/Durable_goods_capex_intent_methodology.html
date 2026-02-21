@@ -24,7 +24,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -145,15 +145,85 @@ display(df_sig_capex.tail())
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">7. Interpretation</h2>
+
+      <p class="leading-7">This signal is designed to read like a <em>capex leading indicator</em> based on durable goods order momentum. It is best interpreted as a <b>directional</b> signal (improving vs deteriorating investment intent), not as a direct measure of realised business fixed investment.</p>
+
+      <div class="rule my-6"></div>
+
+      <h3 class="text-xl font-semibold text-slate-900 mb-2">7.1 Model Interpretation (how to read the signal)</h3>
+
+      <h4 class="text-lg font-semibold text-slate-900 mt-4 mb-2">What the levels mean</h4>
       <ul class="list-disc pl-6 leading-7">
-        <li><strong>Expansion:</strong> rapid durable‑goods order growth — indicative of rising capex commitments.</li>
-        <li><strong>Neutral:</strong> stable order momentum consistent with baseline investment pace.</li>
-        <li><strong>Contraction:</strong> weakening orders — early signal of softening business investment.</li>
+        <li><b>Capex_Intent</b> (composite robust z-score): positive values indicate orders growth is <em>above its recent typical range</em> (stronger capex intent); negative values indicate <em>below typical</em> (weakening intent).</li>
+        <li><b>Expansion (C &gt; 0.75):</b> durable orders momentum is unusually strong vs history; consistent with a rising pipeline of equipment/structures spending, subject to confirmation by other activity indicators.</li>
+        <li><b>Neutral (|C| ≤ 0.75):</b> momentum is within the normal/noisy range; avoid over-interpreting a single month.</li>
+        <li><b>Contraction (C &lt; −0.75):</b> momentum is unusually weak vs history; often aligns with softening business investment and higher growth-downside risk.</li>
+      </ul>
+
+      <h4 class="text-lg font-semibold text-slate-900 mt-4 mb-2">What the robust z-score means (extremeness, not causality)</h4>
+      <p class="leading-7">The robust z-score compares the current growth rate to a rolling median and MAD window (48 months, minimum 18). It measures <b>unusualness</b> relative to recent history and is less sensitive to outliers than mean/standard-deviation z-scores.</p>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>z &gt; +0.5:</b> stronger-than-normal capex intent momentum.</li>
+        <li><b>−0.5 ≤ z ≤ +0.5:</b> typical/noisy range; interpret only with corroboration.</li>
+        <li><b>z &lt; −0.5:</b> weaker-than-normal capex intent momentum.</li>
+      </ul>
+
+      <h4 class="text-lg font-semibold text-slate-900 mt-4 mb-2">How to read YoY vs 3‑month annualised growth</h4>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>YoY (g<sub>12</sub>):</b> higher signal-to-noise, slower turning; good for confirming regime shifts.</li>
+        <li><b>3‑month annualised (g<sub>3mAnn</sub>):</b> faster turning; useful for early inflection detection but more volatile and more sensitive to one-off bookings.</li>
+        <li><b>Best practice:</b> treat a regime change as higher confidence when <em>both</em> components move in the same direction for multiple months.</li>
+      </ul>
+
+      <h4 class="text-lg font-semibold text-slate-900 mt-4 mb-2">How to interpret ex‑transport vs headline</h4>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Ex‑transport (ADXTNO preferred):</b> reduces distortions from aircraft/defence/large transportation orders; typically a cleaner read on broad-based equipment demand.</li>
+        <li><b>Headline (DGORDER):</b> can swing with large transportation bookings; treat large divergences between headline and ex‑transport as a <em>composition warning</em>, not a pure capex swing.</li>
+      </ul>
+
+      <div class="rule my-6"></div>
+
+      <h3 class="text-xl font-semibold text-slate-900 mb-2">7.2 How to use it inside a macro model</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>As an investment-cycle early warning:</b> Contraction regimes can precede weakness in business fixed investment and cyclical earnings sensitivity (industrials, semis, capital goods).</li>
+        <li><b>Cross-confirmation:</b> Validate with other investment-related series (e.g., industrial production, PMIs/new orders, credit conditions) and with realised fixed investment in national accounts.</li>
+        <li><b>Real vs nominal check:</b> Durable goods orders are nominal; if inflation/price effects are changing rapidly, confirm with real activity indicators to avoid misreading price-driven moves as volume.</li>
+        <li><b>Timing discipline:</b> Durable goods are noisy and revised; prefer multi-month confirmation and avoid reacting to a single print.</li>
+      </ul>
+
+      <div class="rule my-6"></div>
+
+      <h3 class="text-xl font-semibold text-slate-900 mb-2">7.3 Academic anchors (why these variables matter)</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Investment dynamics and adjustment costs:</b> Business investment tends to respond with lags to shocks and financial conditions; orders and shipments are commonly used as near-term leading indicators of equipment spending.</li>
+        <li><b>Accelerator-style intuition:</b> Investment demand co-moves with expected output and demand conditions; new orders can proxy shifts in expected sales that drive capex planning.</li>
+        <li><b>Measurement link:</b> Durable goods orders originate from the Census Bureau M3 survey; they are directly used in tracking equipment-related activity and are monitored by policymakers and forecasters as high-frequency signals.</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold text-slate-900 mt-6 mb-2">7.4 Selected references (starter list)</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Census Bureau. “Manufacturers’ Shipments, Inventories, and Orders (M3) – Technical Documentation and Revision Policy.”</li>
+        <li>Caballero, R. J. (1999). “Aggregate Investment.” <i>Handbook of Macroeconomics</i>. (investment dynamics and adjustment costs)</li>
+        <li>Chirinko, R. S. (1993). “Business Fixed Investment Spending: Modeling Strategies, Empirical Results, and Policy Implications.” <i>Journal of Economic Literature</i>.</li>
+        <li>Bernanke, B. S., Gertler, M., &amp; Gilchrist, S. (1999). “The Financial Accelerator in a Quantitative Business Cycle Framework.” <i>Handbook of Macroeconomics</i>. (credit conditions and investment)</li>
+        <li>FRED series documentation for <code>DGORDER</code>, <code>ADXTNO</code>, and <code>DGEXORD</code> (definitions, units, vintage/revision notes).</li>
+      </ul>
+
+    
+
+    
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Future Enhancements (Out of Scope)</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><b>Volatility-aware thresholds:</b> adapt ±0.75 bands based on rolling dispersion of the composite to reduce false signals in high-vol regimes.</li>
+        <li><b>Real (price-adjusted) capex intent:</b> deflate orders using appropriate producer-price indices to better approximate volume dynamics.</li>
+        <li><b>Bayesian / state-space smoothing:</b> combine headline and ex-transport in a latent-factor model to reduce noise and handle revisions.</li>
+        <li><b>Sectoral decomposition:</b> separate defense/aircraft/IT equipment to isolate cyclically sensitive components.</li>
       </ul>
     </section>
 
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">8. Limitations</h2>
+<section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Limitations</h2>
       <ul class="list-disc pl-6 leading-7">
         <li>Durable goods data are volatile and subject to large revisions; smoothing windows mitigate but do not remove noise.</li>
         <li>Transportation equipment orders can distort headline DGORDER; hence preference for ADXTNO when available.</li>
@@ -161,7 +231,7 @@ display(df_sig_capex.tail())
       </ul>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Capex Intent signal.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Methodology reference for the Capex Intent signal.</footer>
   </main>
 </body>
 </html>
