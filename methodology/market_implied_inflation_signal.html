@@ -25,7 +25,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -33,12 +33,12 @@
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Market‑Implied Inflation Expectations</h1>
       <p class="mt-2 text-slate-600 text-sm">A reproducible signal that summarises <em>forward inflation expectations</em> inferred from TIPS breakevens. Built to complement the Fed Inflation signal by focusing on <strong>market pricing</strong> rather than realised CPI.</p>
-      <p class="mt-2 text-xs text-slate-500">Why: CPI shows history; TIPS breakevens reveal forward expectations. Sources: FRED (T5YIE, T10YIE).</p>
+      <p class="mt-2 text-xs text-slate-500">Why: CPI shows history; TIPS breakevens reveal forward expectations. Sources: FRED (T5YIFR, T10YIE).</p>
     </header>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
-      <p class="leading-7">We construct a monthly signal using FRED’s <b>T5YIE</b> (5‑Year Forward Inflation Expectation Rate) and <b>T10YIE</b> (10‑Year Breakeven Inflation Rate). Each is transformed to YoY and 3‑month annualised changes, standardised via robust rolling z‑scores, and combined into a <em>Market‑Implied Inflation Expectations (MIIE)</em> composite. Regimes map to <span class="font-semibold">RISING</span>, <span class="font-semibold">STABLE</span>, or <span class="font-semibold">FALLING</span> expectations. A comparison hook aligns MIIE with the <em>Fed Inflation</em> and <em>CPI vs PPI</em> signals.</p>
+      <p class="leading-7">We construct a monthly signal using FRED’s <b>T5YIFR</b> (5‑Year, 5‑Year Forward Inflation Expectation Rate) and <b>T10YIE</b> (10‑Year Breakeven Inflation Rate). Each is transformed to YoY and 3‑month annualised changes, standardised via robust rolling z‑scores, and combined into a <em>Market‑Implied Inflation Expectations (MIIE)</em> composite. Regimes map to <span class="font-semibold">RISING</span>, <span class="font-semibold">STABLE</span>, or <span class="font-semibold">FALLING</span> expectations. A comparison hook aligns MIIE with the <em>Fed Inflation</em> and <em>CPI vs PPI</em> signals.</p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -46,11 +46,23 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">1. Data (FRED Identifiers)</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><b>T5YIE</b> — 5‑Year Forward Inflation Expectation Rate (breakeven implied, % p.a.)</li>
-        <li><b>T10YIE</b> — 10‑Year Breakeven Inflation Rate (UST10 − TIPS10, % p.a.)</li>
+        <li><b>T5YIFR</b> — 5‑Year, 5‑Year Forward Inflation Expectation Rate (derived from 5‑ and 10‑year breakevens, % p.a.)</li>
+        <li><b>T10YIE</b> — 10‑Year Breakeven Inflation Rate (nominal 10y minus TIPS 10y, % p.a.)</li>
       </ul>
       <p class="leading-7 mt-3">Both series are resampled to month‑end with bounded forward‑fill (≤2 months) to accommodate publication lags. Titles and last‑observation dates are captured for documentation.</p>
     </section>
+
+      <div class="box text-sm mt-4">
+        <p class="leading-7"><b>What these series represent:</b></p>
+        <ul class="list-disc pl-6 leading-7 mt-2">
+          <li><b>Breakeven inflation</b> is the difference between a nominal Treasury constant‑maturity yield and a TIPS (inflation‑indexed) constant‑maturity yield of the same tenor. It is often interpreted as <span class="italic">inflation compensation</span>, not “pure” expected inflation.</li>
+          <li><b>T10YIE</b> is derived from the 10‑year nominal constant‑maturity yield (DGS10) and the 10‑year TIPS constant‑maturity yield (DFII10) as published on FRED.</li>
+          <li><b>T5YIFR</b> is a <b>forward</b> rate: expected average inflation over the <em>five‑year period starting five years ahead</em> (a 5y5y forward). FRED constructs it mechanically from 5‑ and 10‑year breakevens, so it inherits the same market microstructure effects as underlying breakevens.</li>
+          <li><b>Units &amp; frequency:</b> Both are percent per annum, available at daily frequency on FRED; this signal samples month‑end values to align with other macro composites.</li>
+        </ul>
+        <p class="text-xs text-slate-500 mt-3">Data source: St. Louis Fed FRED, which republishes the underlying Treasury constant‑maturity estimates and derived breakeven/forward series.</p>
+      </div>
+
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2. Data Quality, Cleaning &amp; Validation</h2>
@@ -60,6 +72,9 @@
           <li><b>Bounded forward‑fill:</b> up to 2 months max; else mark as <code>missing_critical</code>.</li>
           <li><b>Minimum history:</b> require ≥120 months coverage for robust transforms; otherwise adapt window (≥60 months) and emit a warning.</li>
           <li><b>Outlier guard:</b> winsorise 0.5–99.5th percentiles before z‑scoring (configurable).</li>
+          <li><b>Breakeven distortions:</b> breakevens embed (i) expected inflation, (ii) an inflation risk premium, and (iii) a TIPS liquidity premium; QE and “safe‑asset” demand can move nominal and real yields unevenly, shifting breakevens without a one‑for‑one change in expectations.</li>
+          <li><b>Liquidity overlays (recommended):</b> record a <code>liquidity_regime</code> and optionally down‑weight level components when liquidity is stressed. Practical proxies include TIPS trading liquidity (bid‑ask/volume), nominal–TIPS fitting errors, or publicly available liquidity indices/ETFs when direct microstructure data are unavailable.</li>
+
         </ul>
       </div>
       <p class="leading-7 mt-3">A <span class="font-mono">data_quality_flag</span> field records staleness, ffill counts, and window adaptations.</p>
@@ -156,20 +171,53 @@ components = {
       </ul>
     </section>
 
+    
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">10. Interpretation &amp; Applications</h2>
-      <p class="leading-7">MIIE reflects how markets price medium‑ to long‑term inflation. <span class="italic">RISING</span> heightens the risk of tighter policy and higher real yields; <span class="italic">FALLING</span> supports a disinflationary bias. Use in synthesis with liquidity, credit, and growth signals.</p>
-    </section>
+      <h2 class="text-2xl font-semibold mb-3">10. Interpretation Guide (How to Read the Signal)</h2>
+      <div class="box text-sm">
+        <p class="leading-7"><b>Key identity:</b> breakeven inflation is best treated as <span class="italic">inflation compensation</span>:</p>
+        <div class="eq mt-2">Breakeven ≈ Expected Inflation + Inflation Risk Premium − TIPS Liquidity Premium</div>
+        <p class="leading-7 mt-3">This means the signal can move because markets update inflation expectations, but also because risk premia or liquidity conditions change.</p>
+        <ul class="list-disc pl-6 leading-7 mt-3">
+          <li><b>RISING regime:</b> inflation compensation is increasing relative to its long‑run distribution (z(MIIE) ≥ 1.0). Typical macro associations: higher inflation pricing, higher probability of restrictive policy, and (often) upward pressure on real yields—unless the move is dominated by liquidity/premia effects.</li>
+          <li><b>FALLING regime:</b> inflation compensation is declining (z(MIIE) ≤ −0.5). Typical associations: disinflation pricing and/or flight‑to‑quality dynamics that compress inflation compensation.</li>
+          <li><b>STABLE regime:</b> mid‑range z‑scores suggest expectations are not moving decisively relative to history; focus shifts to cross‑signal confirmation (CPI/PPI, growth, liquidity, credit).</li>
+        </ul>
+      </div>
 
-    <section class="mb-16">
-      <h2 class="text-2xl font-semibold mb-3">11. Governance &amp; Change Control</h2>
+      <h3 class="text-xl font-semibold mt-6 mb-2">10.1 Practical checks (avoid common misreads)</h3>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>Liquidity stress:</b> during risk‑off episodes, TIPS liquidity can deteriorate and mechanically depress breakevens. If a liquidity proxy is flagged “stressed”, interpret a FALLING reading with caution (it may be liquidity‑driven rather than a clean shift in expectations).</li>
+          <li><b>QE / supply effects:</b> large‑scale asset purchases and shifts in the supply of safe duration can change term premia and relative pricing across nominal vs real curves; treat level moves as less informative when policy interventions are dominant.</li>
+          <li><b>Use z‑scores as “distance from normal”:</b> robust long‑window z‑scores are intended to reduce sensitivity to transient dislocations. Extremes (e.g., |z| ≥ 2) are better viewed as “unusual pricing” than as point forecasts of inflation.</li>
+          <li><b>Cross‑validation:</b> compare MIIE to realised inflation signals (Fed Inflation; CPI vs PPI) and to real‑yield/term‑premium diagnostics. Persistent divergence is often more informative than single‑month flips.</li>
+        </ul>
+      </div>
+
+      <h3 class="text-xl font-semibold mt-6 mb-2">10.2 Literature anchor (selected)</h3>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6 leading-7">
+          <li>Fed Board and academic work on extracting inflation compensation from TIPS yield curves and the role of risk premia (Gürkaynak, Sack &amp; Wright).</li>
+          <li>Evidence that ignoring TIPS liquidity can mislead inference about expectations and inflation risk premia (D’Amico, Kim &amp; Wei; related central‑bank summaries).</li>
+          <li>Documentation of persistent TIPS–Treasury mispricing consistent with liquidity/supply effects (Fleckenstein, Longstaff &amp; Lustig).</li>
+          <li>Evidence that QE and safe‑asset demand shift term premia and relative pricing across rates markets (Krishnamurthy &amp; Vissing‑Jorgensen).</li>
+        </ul>
+      </div>
+    </section>
+<section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">12. Governance &amp; Change Control</h2>
       <ul class="list-disc pl-6 leading-7">
         <li>Quarterly review of components, thresholds, weights, and backtests.</li>
         <li>Document rationale for changes; maintain semantic versioning.</li>
       </ul>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly specification for the Market‑Implied Inflation Expectations signal.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print‑friendly specification for the Market‑Implied Inflation Expectations signal.
+      <div class="mt-3 text-xs text-slate-500 leading-6">
+        <div><b>References (links):</b></div>
+        <div>FRED: T10YIE; T5YIFR. • Gürkaynak, Sack &amp; Wright (2010), <span class="italic">AEJ: Macroeconomics</span>. • D’Amico, Kim &amp; Wei (Fed/FEDS). • Fleckenstein, Longstaff &amp; Lustig (2014), <span class="italic">Journal of Finance</span>. • Krishnamurthy &amp; Vissing‑Jorgensen (2011), <span class="italic">Brookings Papers</span>.</div>
+      </div></footer>
   </main>
 </body>
 </html>

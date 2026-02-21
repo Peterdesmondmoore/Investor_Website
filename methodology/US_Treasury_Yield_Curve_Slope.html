@@ -24,7 +24,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -52,7 +52,11 @@
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2. Methodology</h2>
-      <ol class="list-decimal pl-6 leading-7">
+      
+      <div class="box mt-4 text-sm leading-6">
+        <p><strong>Data construction note:</strong> Constant‑maturity yields are estimates constructed by the U.S. Treasury; they can be revised and occasionally suffer missing values (e.g., holidays). The signal relies only on the slope; including the level of real yields and term premium would provide more nuance.</p>
+      </div>
+<ol class="list-decimal pl-6 leading-7">
         <li><strong>Monthly alignment:</strong> reindex each series to month-start (<code>MS</code>) over its span and forward-fill missing months.</li>
         <li><strong>Merge & spread:</strong> create a panel with columns <code>Value_GS10</code>, <code>Value_FEDFUNDS</code>; compute the slope
           <div class="box mt-2 text-sm"><div class="eq">Yield_Spread<sub>t</sub> = GS10<sub>t</sub> − FEDFUNDS<sub>t</sub></div></div>
@@ -60,11 +64,16 @@
         <li><strong>Trend proxy:</strong> compute a short-horizon moving average as a steepening/flattening proxy
           <div class="box mt-2 text-sm"><div class="eq">Yield_Spread_Trend<sub>t</sub> = Mean(Yield_Spread<sub>t−2:t</sub>)  (3 months)</div></div>
         </li>
+        <li><strong>Extremeness (rolling z‑score):</strong> compute a rolling z‑score of the slope to measure statistical extremeness
+          <div class="box mt-2 text-sm"><div class="eq">Z<sub>t</sub> = (Yield_Spread<sub>t</sub> − Mean(Yield_Spread)) / Std(Yield_Spread)  (rolling window)</div></div>
+          <div class="mt-2 text-sm text-slate-600">Default window: 60 months (5 years). Shorter windows adapt faster; longer windows reduce noise.</div>
+        </li>
+
         <li><strong>Classification:</strong> apply deterministic rules (for a silver-risk orientation) using level and steepening tests:
           <div class="box mt-2 text-sm">
             <ul class="list-disc pl-6">
               <li><strong>Bullish:</strong> <span class="eq">Yield_Spread<sub>t</sub> ≤ 0%</span> (curve flat/inverted).</li>
-              <li><strong>Bearish:</strong> <span class="eq">Yield_Spread<sub>t</sub> > 1.5%</span> or steepening, i.e. <span class="eq">Yield_Spread<sub>t</sub> > Yield_Spread_Trend<sub>t</sub></span>.</li>
+              <li><strong>Bearish:</strong> <span class="eq">Yield_Spread<sub>t</sub> &gt; 1.5%</span> or a <strong>sustained steepening</strong> condition (e.g., <span class="eq">Yield_Spread<sub>t</sub> &gt; Yield_Spread_Trend<sub>t</sub></span> for multiple months). Use the rolling z‑score to flag unusually steep configurations.</li>
               <li><strong>Neutral:</strong> <span class="eq">0 < Yield_Spread<sub>t</sub> ≤ 0.5%</span> or <span class="eq">0.5 < Yield_Spread<sub>t</sub> ≤ 1.5%</span> with <span class="eq">Yield_Spread<sub>t</sub> ≤ Yield_Spread_Trend<sub>t</sub></span>.</li>
             </ul>
           </div>
@@ -72,9 +81,41 @@
       </ol>
       <p class="leading-7 mt-3">The neutral bands recognise that mildly positive slopes can be benign unless accompanied by steepening momentum.</p>
     </section>
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Model Interpretation</h2>
+
+      <p class="leading-7">The slope (term spread) is commonly interpreted as a summary of (i) expected future short rates and (ii) compensation for duration risk (term premia). In the academic literature, the slope has been shown to contain predictive information about future economic activity and recession risk, but it is not a precise timing tool.</p>
+
+      <div class="box mt-4">
+        <h3 class="text-lg font-semibold mb-2">Interpretation heuristics</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><strong>Inversion (slope ≤ 0):</strong> historically associated with elevated recession risk at 6–18 month horizons; interpret as a risk-warning rather than a trigger for immediate action.</li>
+          <li><strong>Re-steepening:</strong> can occur via <em>bull steepening</em> (short rates falling) during deteriorating growth; persistence filters (multi-month confirmation) matter.</li>
+          <li><strong>Very steep slopes:</strong> often align with early-cycle expansions, but may also reflect higher term premia; consider adding real-yield levels and a term-premium estimate.</li>
+        </ul>
+      </div>
+
+      <div class="box mt-4">
+        <h3 class="text-lg font-semibold mb-2">Using z‑scores and persistence</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><strong>Rolling z‑score:</strong> interpret Z-scores as “extremeness” rather than direction. Large absolute values indicate unusual configurations relative to recent history.</li>
+          <li><strong>Sustained steepening rule:</strong> require multiple months of steepening (and/or a z‑score threshold) before regime flips to reduce noise from data revisions and calendar effects.</li>
+        </ul>
+      </div>
+
+      <h3 class="text-lg font-semibold mt-6 mb-2">Academic anchors (selected)</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Estrella &amp; Hardouvelis (1991) — term structure as a predictor of real economic activity.</li>
+        <li>Estrella &amp; Mishkin (1998) — financial variables (including term spreads) as leading indicators for U.S. recessions.</li>
+        <li>Ang, Piazzesi &amp; Wei (2006) — yield curve and GDP growth forecasting in an arbitrage-free framework.</li>
+        <li>Adrian, Crump &amp; Moench (2013) — term premium extraction to separate expectations vs premia components.</li>
+      </ul>
+    </section>
+
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">3. Implementation Notes (Python)</h2>
+      <h2 class="text-2xl font-semibold mb-3">4. Implementation Notes (Python)</h2>
+
       <div class="box text-sm">
 <pre><code>def fetch_fred_series_df(series_id):
     s = fred.get_series(series_id)
@@ -127,8 +168,11 @@ merged_yield_df['Yield_Curve_Signal'] = merged_yield_df.apply(generate_yield_cur
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">4. Sensitivity and Limitations</h2>
+      <h2 class="text-2xl font-semibold mb-3">5. Sensitivity and Limitations</h2>
       <ul class="list-disc pl-6 leading-7">
+        <li><strong>Signal stability:</strong> use a rolling z‑score for extremeness and require sustained steepening/flattening before regime flips to reduce whipsaw.</li>
+        <li><strong>Scope:</strong> the slope alone conflates expected-policy and term‑premium channels; add real yields and an explicit term-premium estimate for more nuance.</li>
+
         <li><strong>Window length:</strong> 2–6 months: shorter windows are more reactive but noisier.</li>
         <li><strong>Thresholds:</strong> 0.5%/1.5% bands can be shifted to match asset-class betas; steepening test may trigger earlier.</li>
         <li><strong>Data issues:</strong> forward-fill assumes missing months carry prior values; consider calendar-month end alignment for alternatives.</li>
@@ -136,7 +180,7 @@ merged_yield_df['Yield_Curve_Signal'] = merged_yield_df.apply(generate_yield_cur
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">5. Reproducibility</h2>
+      <h2 class="text-2xl font-semibold mb-3">6. Reproducibility</h2>
       <ul class="list-disc pl-6 leading-7">
         <li>Capture series IDs (<code>GS10</code>, <code>FEDFUNDS</code>), retrieval timestamps, and library versions.</li>
         <li>Persist the merged monthly panel and the final <code>Yield_Curve_Signal</code> with timestamps.</li>
@@ -145,11 +189,79 @@ merged_yield_df['Yield_Curve_Signal'] = merged_yield_df.apply(generate_yield_cur
     </section>
 
     <section class="mb-16">
-      <h2 class="text-2xl font-semibold mb-3">6. Applications</h2>
+      <h2 class="text-2xl font-semibold mb-3">7. Applications</h2>
       <p class="leading-7">Useful as a macro overlay for duration/curve trades, as a conditioning variable in metals or cyclical-beta strategies, and for regime annotation in multi-asset dashboards.</p>
     </section>
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">8. References</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Estrella, A. &amp; Hardouvelis, G. (1991). <em>The Term Structure as a Predictor of Real Economic Activity</em>. Journal of Finance.</li>
+        <li>Estrella, A. &amp; Mishkin, F.S. (1998). <em>Predicting U.S. Recessions: Financial Variables as Leading Indicators</em>. Review of Economics and Statistics.</li>
+        <li>Ang, A., Piazzesi, M., &amp; Wei, M. (2006). <em>What Does the Yield Curve Tell Us About GDP Growth?</em>. Journal of Econometrics.</li>
+        <li>Adrian, T., Crump, R.K., &amp; Moench, E. (2013). <em>Pricing the Term Structure with Linear Regressions</em>. Journal of Financial Economics.</li>
+      </ul>
+    </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly academic specification for the US Treasury Yield Curve Slope Signal.</footer>
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print-friendly academic specification for the US Treasury Yield Curve Slope Signal.</footer>
   </main>
+
+<section id="data-sources">
+  <h2>4. Data Sources Overview</h2>
+
+  <h3>U.S. Treasury Constant Maturity Yields</h3>
+  <p>
+    U.S. Treasury constant-maturity yields are published by the U.S. Department of the Treasury and represent
+    interpolated estimates of yields for standardized maturities (e.g. 2Y, 10Y, 30Y), derived from the
+    Treasury yield curve fitted to actively traded securities.
+  </p>
+  <p>
+    These series are designed to provide continuity through time, but they are not direct market quotes.
+    Revisions can occur due to curve-fitting updates, and observations may be missing on market holidays
+    or during periods of limited issuance. As a result, they are best interpreted as smooth approximations
+    of term structure conditions rather than precise transaction prices.
+  </p>
+
+  <h3>Yield Curve Slope Construction</h3>
+  <p>
+    The yield curve slope in this model is defined as the spread between long-dated and short-dated
+    constant-maturity yields (typically 10Y minus 2Y). This transformation removes level effects and
+    focuses attention on expectations of future growth, inflation, and monetary policy.
+  </p>
+  <p>
+    Academic literature emphasizes that slope measures embed both expectations of short-rate paths and
+    term premia. Because this signal uses only the slope, it intentionally abstracts from decomposing
+    these components; users should therefore treat it as a reduced-form macro signal rather than a
+    structural estimate.
+  </p>
+
+  <h3>Real Yield and Term Premium Considerations</h3>
+  <p>
+    The model does not explicitly incorporate real yields or term premia (e.g. ACM or Kim–Wright
+    decompositions). Research shows that real rate expectations and term premia can materially affect
+    recession and asset-price forecasting performance. Their exclusion is a deliberate simplification
+    to maintain robustness and transparency, but it limits interpretive nuance.
+  </p>
+
+  <h3>Statistical Normalisation (Rolling Z-Scores)</h3>
+  <p>
+    To contextualise slope movements through time, the model applies a rolling z-score to the slope
+    series. This expresses the current slope relative to its own recent history, allowing identification
+    of statistically extreme inversions or steepenings.
+  </p>
+  <p>
+    Rolling normalisation mitigates regime drift and long-run structural changes in interest rate levels,
+    but it also implies that extremeness is defined relative to the chosen lookback window rather than a
+    fixed economic threshold.
+  </p>
+
+  <h3>Persistence and Regime Confirmation</h3>
+  <p>
+    Regime classification requires persistence: short-lived steepenings or inversions are not sufficient
+    to trigger regime changes. This design choice aligns with empirical findings that sustained yield
+    curve configurations, rather than single observations, carry the strongest macroeconomic signal.
+  </p>
+</section>
+
 </body>
 </html>

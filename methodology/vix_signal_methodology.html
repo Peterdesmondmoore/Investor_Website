@@ -24,7 +24,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -37,7 +37,7 @@
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold">Abstract</h2>
-      <p class="leading-7 mt-2">We build a daily-to-monthly <em>Market Volatility Signal (MVS)</em> using the closing VIX index (<b>VIXCLS</b>). Components include level, short/medium-term momentum, and percentile rank vs. history. A composite score maps to regimes—<span class="font-semibold">CALM</span>, <span class="font-semibold">NORMAL</span>, <span class="font-semibold">ELEVATED</span>, <span class="font-semibold">STRESSED</span>, <span class="font-semibold">CRISIS</span>—anchored to intuitive thresholds (&lt;20 calm; ≥30 stress) and robust z-scores.</p>
+      <p class="leading-7 mt-2">We build a daily-to-weekly/monthly <em>Market Volatility Signal (MVS)</em> using the closing VIX index (<b>VIXCLS</b>). Components include level, short/medium-term momentum, a trailing percentile rank vs. history, and optional complements (realised volatility and options skew) to reduce false positives. A composite score maps to regimes—<span class="font-semibold">CALM</span>, <span class="font-semibold">NORMAL</span>, <span class="font-semibold">ELEVATED</span>, <span class="font-semibold">STRESSED</span>, <span class="font-semibold">CRISIS</span>—anchored to intuitive thresholds (&lt;20 calm; ≥30 stress) and robust z-scores.</p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -45,10 +45,16 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold">1) Data</h2>
       <ul class="list-disc pl-6 leading-7 mt-2">
-        <li><b>VIXCLS</b> — CBOE Volatility Index: VIX (close, % annualised).</li>
+        <li><b>VIXCLS</b> — CBOE Volatility Index (VIX close; annualised %; S&amp;P 500 option‑implied 30‑day variance).</li>
+        <li><b>Derived snapshots</b> — weekly (last business day) and monthly (month‑end), plus optional <b>intraday/weekly stress capture</b> (e.g., max VIX over week; or average of daily closes).</li>
+        <li><b>Realised volatility (optional complement)</b> — computed from S&amp;P 500 returns (e.g., 21‑trading‑day realised volatility; annualised). This is a model-free, ex‑post volatility estimator used to benchmark implied volatility.</li>
+        <li><b>Options skew (optional complement)</b> — a tail‑risk / skew proxy (e.g., CBOE SKEW index, or a put‑call risk‑reversal if available) to distinguish “high vol with heavy downside tail” from “high vol without skew”.</li>
       </ul>
-      <p class="leading-7 mt-3">Frequency: business daily. For monthly reporting, we snapshot month-end; for weekly, last business day of week. Bounded forward-fill is allowed for calendar alignment (≤3 business days).</p>
-    </section>
+
+      <p class="leading-7 mt-3">
+        <b>Frequency &amp; snapshot policy.</b> VIXCLS is business‑daily. Month‑end snapshots support reporting consistency, but can miss intramonth stress bursts. For signal construction we prefer (i) weekly snapshots and/or (ii) a “stress capture” statistic over the month (e.g., max or 95th‑percentile VIX), with month‑end used only as a reporting anchor. Forward‑fill is allowed only for calendar alignment (≤3 business days).
+      </p>
+</section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold">2) Data Quality &amp; Validation</h2>
@@ -57,7 +63,8 @@
           <li><b>Staleness:</b> flag if last obs &gt; 3 business days old.</li>
           <li><b>Bounds &amp; outliers:</b> winsorise at 0.5–99.5th pct for stability; VIX is strictly non-negative.</li>
           <li><b>Minimum history:</b> ≥ 5 years preferred for percentile/z-scores; adaptive window ≥ 2 years allowed.</li>
-          <li><b>Trading holidays:</b> treat gaps as non-trading days; no interpolation beyond <code>limit=3</code>.</li>
+          <li><b>Trading holidays / stale prints:</b> treat gaps as non-trading days; no interpolation beyond <code>limit=3</code>. Flag if the latest close is missing due to holidays or data delays.</li>
+          <li><b>Intraday spikes:</b> month-end reporting can miss short-lived stress; optionally store weekly maxima (or 95th pct) and/or use weekly snapshots to capture episodic risk-off events.</li>
         </ul>
       </div>
       <p class="text-sm mt-2"><code>data_quality_flag</code> records staleness, winsorisation, and window adaptations.</p>
@@ -114,6 +121,12 @@
         </ul>
       </div>
       <p class="text-sm mt-2">We also report a 0–100 score using rolling min–max scaling over 2–5 years.</p>
+      <p class="leading-7 mt-4">
+        <b>Percentile-first guardrail (recommended).</b> To avoid strict level thresholds (and structural shifts in volatility),
+        also classify regimes by trailing percentile rank over a rolling window (e.g., 2–5y): CALM (&lt;30th), NORMAL (30–60th),
+        ELEVATED (60–80th), STRESSED (80–95th), CRISIS (&gt;95th), with the absolute VIX levels (&lt;20, ≥30, ≥45) acting as backstops.
+      </p>
+
     </section>
 
     <section class="mb-10">
@@ -164,8 +177,39 @@ ema20 = vix_d.ewm(span=20, adjust=False).mean()
       <p class="leading-7">VIX is a short-horizon risk gauge. Values below 20 are generally consistent with calm conditions; 30 and above indicate market stress. Use alongside Liquidity and Credit to calibrate risk-on/off stance and to set expectations for drawdown risk.</p>
     </section>
 
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">11) Model interpretation (how to read the signal)</h2>
+      <p class="leading-7 mt-2">
+        The signal is designed to separate <b>risk sentiment</b> (implied volatility) from <b>realised turbulence</b> (ex‑post volatility) and <b>tail risk</b> (skew).
+        In practice, interpret it as a <i>probabilistic risk‑off thermometer</i>, not a timing tool.
+      </p>
+
+      <div class="box text-sm mt-4">
+        <ul class="list-disc pl-6">
+          <li><b>VIX level vs. percentile rank:</b> use level for intuitive communication (e.g., ≥30 = stress), but use percentile rank for robustness across regimes and decades.</li>
+          <li><b>Implied vs. realised volatility:</b> when implied vol rises faster than realised vol, markets are pricing a higher volatility risk premium (often consistent with tighter risk appetite).</li>
+          <li><b>Skew / tail risk:</b> elevated VIX with worsening skew implies downside‑tail hedging demand, which historically aligns with higher crash‑risk compensation.</li>
+          <li><b>Event-driven spikes:</b> if the weekly max VIX is high but the month‑end close is benign, treat the regime as “latent stress” and look for confirmation from credit/liquidity signals.</li>
+        </ul>
+      </div>
+
+      <p class="leading-7 mt-4">
+        <b>Academic anchors (why these complements help):</b>
+        high‑frequency realised volatility is a statistically efficient estimator of return variation (Andersen, Bollerslev, Diebold &amp; Labys, 2003),
+        variance risk premia (implied minus realised) have predictive content for equity returns (Bollerslev, Tauchen &amp; Zhou, 2009),
+        and option‑implied higher moments (including skew) are linked to differential option pricing and tail‑risk compensation (Bakshi, Kapadia &amp; Madan, 2003).
+        The original VIX concept as a benchmark for expected market volatility traces to Whaley’s work on volatility indices and their market interpretation.
+      </p>
+
+      <p class="text-sm text-slate-600 mt-2">
+        Practical rule: treat <b>STRESSED/CRISIS</b> as a regime where risk control dominates (position sizing, hedging),
+        while <b>CALM/NORMAL</b> regimes support carry/risk premia harvesting—subject to confirmation from liquidity and credit.
+      </p>
+    </section>
+
+
     <section class="mb-16">
-      <h2 class="text-2xl font-semibold">11) Governance &amp; Change Control</h2>
+      <h2 class="text-2xl font-semibold">12) Governance &amp; Change Control</h2>
       <ul class="list-disc pl-6 leading-7">
         <li>Quarterly review of components, thresholds, weights, and backtests.</li>
         <li>Document rationale for changes; maintain semantic versioning.</li>

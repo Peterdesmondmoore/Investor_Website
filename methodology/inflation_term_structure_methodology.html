@@ -24,7 +24,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -41,14 +41,39 @@
 
     <div class="rule mb-10"></div>
 
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
-      <ul class="list-disc pl-6 leading-7">
-        <li><strong>T5YIE</strong> — 5‑Year Breakeven Inflation Rate (FRED, daily; market‑implied CPI over 5y).</li>
-        <li><strong>T10YIE</strong> — 10‑Year Breakeven Inflation Rate (FRED, daily; market‑implied CPI over 10y).</li>
-        <li><strong>DFII10</strong> — 10‑Year Treasury Inflation‑Indexed Security, Constant Maturity (real yield, FRED, daily).</li>
-      </ul>
-      <p class="leading-7 mt-3">All inputs are resampled to month‑end and trimmed to a rolling history as required by the rolling window used in the robust z‑score (default <span class="eq">win = 60</span> months, <span class="eq">min\_win = 24</span> months).</p>
+        <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">1. Data Sources (Provenance, Construction, Caveats)</h2>
+
+      <p class="leading-7">This signal uses market‑implied inflation compensation and real yields from U.S. Treasury markets, distributed via FRED. Each series is a <em>constructed estimate</em> (constant‑maturity / model‑based) rather than a raw trade print; the economic meaning is strongest when markets are liquid and functioning normally.</p>
+
+      <div class="box mt-4 text-sm leading-6">
+        <h3 class="font-semibold text-slate-900 mb-2">1.1 Series overview</h3>
+        <ul class="list-disc pl-6">
+          <li><strong>T5YIE</strong> — 5‑Year Breakeven Inflation Rate (FRED; daily). Constructed from 5‑year nominal Treasury constant‑maturity yield and 5‑year TIPS constant‑maturity yield. Interpreted as inflation compensation over the next 5 years, but it embeds expected inflation <em>plus</em> risk and liquidity components.</li>
+          <li><strong>T10YIE</strong> — 10‑Year Breakeven Inflation Rate (FRED; daily). Same construction at 10‑year maturity; a longer‑horizon inflation compensation measure.</li>
+          <li><strong>DFII10</strong> — 10‑Year Treasury Inflation‑Indexed Security, Constant Maturity (FRED; daily). Model‑based constant‑maturity real yield estimate derived from TIPS pricing. Because it is a constant‑maturity series, it can be revised and may exhibit missing values around holidays / market closures.</li>
+        </ul>
+      </div>
+
+      <div class="box mt-4 text-sm leading-6">
+        <h3 class="font-semibold text-slate-900 mb-2">1.2 What these series measure (and what they do <em>not</em>)</h3>
+        <ul class="list-disc pl-6">
+          <li><strong>Breakeven inflation (BEI) is not a pure expectation.</strong> BEI can be decomposed into expected inflation plus an inflation risk premium, and may also reflect differential liquidity premia between nominal Treasuries and TIPS—effects that can be large in stress episodes.</li>
+          <li><strong>Real yields reflect both expected real rates and market premia.</strong> TIPS yields can include a liquidity premium; changes in that premium can move DFII10 without a commensurate change in “true” expected real rates.</li>
+          <li><strong>Index linkage:</strong> TIPS cashflows are linked to U.S. CPI (CPI‑U) with a lag, so short‑horizon moves can reflect hedging demand and risk premia rather than near‑term CPI dynamics.</li>
+        </ul>
+      </div>
+
+      <div class="box mt-4 text-sm leading-6">
+        <h3 class="font-semibold text-slate-900 mb-2">1.3 Practical data quality notes</h3>
+        <ul class="list-disc pl-6">
+          <li><strong>Frequency & alignment:</strong> Inputs are daily but resampled to month‑end (last observation). This reduces noise but can delay recognition of turning points.</li>
+          <li><strong>Revisions & missing values:</strong> Constant‑maturity series are estimates and may be revised; missing values can occur (e.g., holidays). The robust z‑score (median/MAD) dampens outliers but does not remove revision risk in the most recent window.</li>
+          <li><strong>Liquidity sensitivity:</strong> In risk‑off conditions, TIPS liquidity can deteriorate, distorting both BEI and real yields; interpret regime flips cautiously if accompanied by broad funding stress.</li>
+        </ul>
+      </div>
+
+      <p class="leading-7 mt-4">All inputs are resampled to month‑end and trimmed to a rolling history as required by the rolling window used in the robust z‑score (default <span class="eq">win = 60</span> months, <span class="eq">min\_win = 24</span> months).</p>
     </section>
 
     <section class="mb-10">
@@ -156,7 +181,60 @@ df_sig_infl_term = d
       <p class="leading-7">Useful as a conditioning variable for macro factor models, inflation‑sensitive tilts (commodities, breakevens, value/growth), and as a cross‑check against price‑based risk indicators (e.g., real‑yield shocks). Naturally pairs with liquidity and activity signals for broader regime classification.</p>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the Inflation Term‑Structure signal.</footer>
+    
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Model Interpretation (How to Read the Signal)</h2>
+
+      <div class="box text-sm leading-6">
+        <h3 class="font-semibold text-slate-900 mb-2">9.1 What the composite is telling you</h3>
+        <ul class="list-disc pl-6">
+          <li><strong>The composite is a standardized blend of inflation compensation and real rates.</strong> A higher composite means (i) breakevens are high relative to their own recent history and/or (ii) real yields are low relative to their own recent history (after sign inversion), consistent with easier real financial conditions and stronger inflation compensation.</li>
+          <li><strong>It is a <em>relative</em> indicator.</strong> Because each component is robust‑z‑scored, the regime reflects how unusual current conditions are versus the last ~5 years (default window), not whether inflation is “high” in an absolute sense.</li>
+          <li><strong>Term structure context matters.</strong> The 10y–5y breakeven slope is computed as a diagnostic: steepening can indicate rising long‑run inflation compensation (or premia), while flattening can indicate the opposite.</li>
+        </ul>
+      </div>
+
+      <div class="box mt-4 text-sm leading-6">
+        <h3 class="font-semibold text-slate-900 mb-2">9.2 Reading the discrete regimes</h3>
+        <ul class="list-disc pl-6">
+          <li><strong>Reflation (C ≥ 0.75):</strong> inflation compensation and/or real‑rate easing is elevated versus recent history. Historically this regime tends to align with pro‑cyclical pricing and higher inflation sensitivity in asset returns (but causality is not implied).</li>
+          <li><strong>Neutral (|C| &lt; 0.75):</strong> conditions are within a normal historical band; the signal should be treated as a weak conditioning variable rather than a directional forecast.</li>
+          <li><strong>Disinflation (C ≤ −0.75):</strong> breakevens are low and/or real yields are high versus history, consistent with tighter real conditions and weaker inflation compensation.</li>
+        </ul>
+      </div>
+
+      <div class="box mt-4 text-sm leading-6">
+        <h3 class="font-semibold text-slate-900 mb-2">9.3 How to diagnose “why” the regime is what it is</h3>
+        <ul class="list-disc pl-6">
+          <li><strong>Check component contributions:</strong> compare <code>Z_T5</code>, <code>Z_T10</code>, and <code>Z_mReal</code>. A reflation reading driven mainly by <code>Z_mReal</code> is “real‑rate easing” dominated; one driven by <code>Z_T5</code>/<code>Z_T10</code> is “inflation compensation” dominated.</li>
+          <li><strong>Check consistency across horizons:</strong> large divergence between 5y and 10y breakevens can indicate changing long‑run inflation premium versus near‑term inflation hedging demand.</li>
+          <li><strong>Validate against non‑market anchors:</strong> when interpretation is high‑stakes, cross‑check with survey measures of inflation expectations and with liquidity/stress indicators, because BEI can be noisy when premia move.</li>
+        </ul>
+      </div>
+
+      <div class="box mt-4 text-sm leading-6">
+        <h3 class="font-semibold text-slate-900 mb-2">9.4 When to treat the signal as lower confidence</h3>
+        <ul class="list-disc pl-6">
+          <li><strong>Liquidity dislocations:</strong> if there is evidence of impaired TIPS liquidity, breakevens may compress and real yields may be biased higher, creating false “disinflation” reads.</li>
+          <li><strong>Rapid policy / risk shocks:</strong> during acute risk‑off episodes, risk premia can dominate expectations, so the composite may reflect hedging demand rather than a durable macro shift.</li>
+          <li><strong>Window sensitivity:</strong> regime classification depends on the rolling standardisation window; structural breaks can change what is “extreme.”</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="mb-16">
+      <h2 class="text-2xl font-semibold mb-3">10. References (Selected)</h2>
+      <ol class="list-decimal pl-6 leading-7 text-sm">
+        <li>FRED: <a class="underline" href="https://fred.stlouisfed.org/series/T5YIE" target="_blank" rel="noopener">5‑Year Breakeven Inflation Rate (T5YIE)</a> — series description and construction.</li>
+        <li>FRED: <a class="underline" href="https://fred.stlouisfed.org/series/DFII10" target="_blank" rel="noopener">10‑Year TIPS Yield, Constant Maturity (DFII10)</a> — series description.</li>
+        <li><a class="underline" href="https://www.federalreserve.gov/pubs/feds/2014/201424/201424pap.pdf" target="_blank" rel="noopener">D’Amico, Kim, and Wei (Fed, 2014)</a>: evidence that TIPS liquidity premia affect breakevens and interpretation.</li>
+        <li><a class="underline" href="https://www.frbsf.org/wp-content/uploads/wp2017-11.pdf" target="_blank" rel="noopener">Andreasen, Christensen, and Riddell (FRBSF, 2020)</a>: estimation and behavior of the TIPS liquidity premium.</li>
+        <li><a class="underline" href="https://www.newyorkfed.org/medialibrary/media/research/staff_reports/sr570.pdf" target="_blank" rel="noopener">Abrahams et&nbsp;al. (NY Fed, 2012)</a>: decomposition of real/nominal yield curves; discussion of TIPS liquidity and breakeven components.</li>
+        <li><a class="underline" href="https://www.frbsf.org/wp-content/uploads/wp2021-08.pdf" target="_blank" rel="noopener">Beauregard, Doppelt, and Zhu (FRBSF, 2021)</a>: breakeven inflation as expectations plus risk and liquidity premia.</li>
+      </ol>
+    </section>
+
+<footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print‑friendly academic specification for the Inflation Term‑Structure signal.</footer>
   </main>
 </body>
 </html>

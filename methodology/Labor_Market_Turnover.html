@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Labor Market Turnover Differential — Methodology</title>
+  <title>Labor Market Turnover Differential — Methodology (v1.1)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +27,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -57,6 +57,27 @@
         <li><b>JTSLDR</b>: Layoffs &amp; Discharges Rate (%), total nonfarm</li>
       </ul>
       <p class="leading-7 mt-3">Both are monthly. We coerce to a common monthly index at Month‑Start (<code>"MS"</code>) and forward‑fill within month to handle publication alignment.</p>
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Data source overview (what each series measures)</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>JTSQUR (Quits rate)</b> — the share of employed workers who <em>voluntarily</em> separate from their job in a given month. Often interpreted as a revealed-preference measure of worker confidence and outside options (job-to-job transitions).</li>
+          <li><b>JTSLDR (Layoffs &amp; discharges rate)</b> — the share of employed workers whose separations are <em>employer-initiated</em> (layoffs or discharges) in a given month. Often interpreted as a measure of firm-level retrenchment or demand weakness.</li>
+        </ul>
+        <p class="mt-3 leading-7">
+          <span class="font-semibold">Release cadence &amp; lag:</span> JOLTS is released monthly with roughly a one‑month lag (e.g., January data released in early March). This means the signal is <em>not</em> a high-frequency “nowcast” input; it is best used as a slow-moving confirmation signal within the labor pillar.
+        </p>
+        <p class="mt-2 leading-7">
+          <span class="font-semibold">Revisions &amp; benchmarking:</span> JOLTS estimates are revised as part of the BLS annual revision process (including seasonal-factor updates and benchmarking). Recent years of data can change materially, so historical backtests should treat the series as <em>real-time</em> noisy and revision-prone rather than fixed truth.
+        </p>
+        <p class="mt-2 leading-7">
+          <span class="font-semibold">Optional auxiliary series (recommended for v1.1+ extensions):</span>
+        </p>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>JTSJOL (Job openings level)</b> and <b>UNEMPLOY (Unemployment level)</b> — can be combined into an <em>unemployed-per-opening</em> ratio (UNEMPLOY / JTSJOL) as a direct slack / tightness proxy.</li>
+          <li><b>JTSHIR (Hires rate)</b> — can be used to separate worker confidence (quits) from employer hiring appetite (hires), and to compute alternative turnover composites.</li>
+        </ul>
+      </div>
+
       <div class="box text-sm mt-3">
 <pre><code># Fetch & align (fredapi)
 q = fred.get_series("JTSQUR").to_frame("QuitsRate")
@@ -91,6 +112,19 @@ turnover_raw_df = (
     mad = (s - med).abs().rolling(w, min_periods=min_window).median()
     return (s - med) / (mad.replace(0, np.nan) * 1.4826)</code></pre>
       </div>
+    
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Methodology amendment (v1.1)</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>Data latency:</b> treat the signal as a <em>lagged</em> labor-tightness confirmation input; do not interpret short-term shifts as real-time turning points.</li>
+          <li><b>Benchmarking revisions:</b> maintain a small revision-aware “transition band” (or require sustained confirmation) to reduce false regime flips caused by later revisions.</li>
+          <li><b>Emphasize quits:</b> optionally up-weight quits relative to layoffs in the level composite to reflect that quits often carry more information about worker outside options than layoffs do about demand at the margin:
+            <span class="eq">\( x^{pp}_t = lpha\,	ext{QuitsRate}_t - 	ext{LayoffRate}_t \)</span> with <code>α</code> &gt; 1 (e.g., 1.25–1.50) tested via backtest.</li>
+          <li><b>Add tightness ratio:</b> incorporate <em>unemployed per job opening</em> (UNEMPLOY / JTSJOL). High values indicate slack; falling values indicate tightening. Use as a modifier or confirmation filter.</li>
+          <li><b>Momentum via moving z-score:</b> compute a rolling z-score on the 3–6 month change in the composite (and/or on the tightness ratio) to better capture turning momentum without over-reacting to one-month noise.</li>
+        </ul>
+      </div>
+
     </section>
 
     <section class="mb-10">
@@ -147,10 +181,61 @@ attrs["rules"] = {
       </ul>
     </section>
 
+    
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">6. Interpretation & Use Cases</h2>
-      <p class="leading-7">The Turnover Differential is a concise barometer of labor‑market tightness. <span class="font-semibold">Bullish</span> (quits ≫ layoffs) historically co‑moves with strong wage pressure and resilient consumption; <span class="font-semibold">Bearish</span> regimes often precede labor softening and increased recession risk. Use alongside other macro pillars (growth, inflation, financial conditions) to condition asset‑allocation tilts.</p>
+      <h2 class="text-2xl font-semibold mb-3">6. Model Interpretation (how to read the signal)</h2>
+
+      <div class="box text-sm">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">What the level means</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>Turnover_Diff_pp &gt; 0:</b> quits exceed layoffs, consistent with a “tight” labor market where workers have outside options and firms are not broadly shedding labor.</li>
+          <li><b>Turnover_Diff_pp near 0:</b> tighter and looser forces are balanced; interpret as “late‑cycle” or “transitional” unless other labor indicators confirm.</li>
+          <li><b>Turnover_Diff_pp &lt; 0:</b> layoffs exceed quits, consistent with a loosening labor market (often an early warning for rising unemployment risk).</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">What the robust z-score means</h3>
+        <p class="leading-7">
+          The robust z-score measures how unusual the current level is relative to its recent history (rolling median/MAD). It is best interpreted as <span class="font-semibold">extremeness</span>, not “causality”:
+        </p>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>z &gt; +0.5:</b> tighter-than-normal vs history (worker confidence unusually strong and/or layoffs unusually low).</li>
+          <li><b>z between −0.5 and +0.5:</b> typical / noisy range; avoid over-interpreting.</li>
+          <li><b>z &lt; −0.5:</b> looser-than-normal vs history (quits weak and/or layoffs elevated).</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">How to use it inside a macro model</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>As a labor-tightness confirmation:</b> treat “Bullish” as confirming labor strength (supportive for growth/consumption, wage pressure risk); treat “Bearish” as confirming deterioration (higher recession risk).</li>
+          <li><b>Combine with vacancy/unemployment tightness:</b> the unemployed-per-opening ratio (UNEMPLOY / JTSJOL) is a direct slack proxy linked to search-and-matching theory and Beveridge-curve dynamics. Use it to validate whether quits/layoffs are signaling the same tightness direction.</li>
+          <li><b>Look for sustained shifts:</b> because JOLTS is lagged and revised, prefer sustained moves (multi‑month) and cross-confirmation rather than reacting to one print.</li>
+        </ul>
+      </div>
+
+      <div class="box text-sm mt-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Academic anchors (why these variables matter)</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><b>Search &amp; matching / Beveridge curve:</b> tightness is often summarized by the vacancy–unemployment relationship; shifts can reflect changes in matching efficiency and flows.</li>
+          <li><b>Worker flows (quits/layoffs):</b> quits and layoffs are core separations margins; they help decompose labor-market dynamics beyond the unemployment rate.</li>
+          <li><b>Tightness and wage growth:</b> recent work emphasizes quits and vacancies-per-searcher as informative tightness measures for wage inflation.</li>
+        </ul>
+      </div>
+
+      <div class="mt-5 text-sm text-slate-600">
+        <h3 class="text-lg font-semibold text-slate-900 mb-2">Selected references</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li>Barlevy, G. (2024). “The Shifting Reasons for Beveridge Curve Shifts.” <em>Journal of Economic Perspectives</em>.</li>
+          <li>Davis, S. J., Faberman, R. J., &amp; Haltiwanger, J. (2011/2012). “Labor Market Flows in the Cross Section and Over Time.” (JOLTS-based worker flows).</li>
+          <li>Domash, A., &amp; Summers, L. H. (2022). “How Tight are U.S. Labor Markets?” (tightness indicators and u/v measures).</li>
+          <li>Heise, S. et al. (NY Fed Staff Reports, 2024). “Wage Growth and Labor Market Tightness.” (quits and vacancies per effective searcher).</li>
+          <li>BLS JOLTS Technical Note &amp; annual revisions notices (data definitions, benchmarking, and revision windows).</li>
+        </ul>
+      </div>
     </section>
+
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">7. Implementation Notes (Python)</h2>
@@ -172,7 +257,7 @@ attrs["rules"] = {
       </ul>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly specification for the Labor Market Turnover Differential.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print‑friendly specification for the Labor Market Turnover Differential (v1.1).</footer>
   </main>
 </body>
 </html>

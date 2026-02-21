@@ -26,20 +26,22 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
   <main class="container mx-auto px-5 py-10">
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Financial Stress Index (STLFSI4)</h1>
-      <p class="mt-2 text-slate-600 text-sm">A reproducible, weekly risk-conditions signal derived from <span class="font-semibold">FRED: STLFSI4</span> (St. Louis Fed Financial Stress Index, 4th rev.). We align to Friday frequency, apply a robust rolling z-score to the level, and map combined level/z information into regimes. No plots.</p>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible, weekly risk-conditions signal derived from <span class="font-semibold">FRED: STLFSI4</span> (St. Louis Fed Financial Stress Index, 4th rev.). v1.1 adds an <em>optional</em> pillar view (volatility / credit / liquidity) plus a <em>confidence</em> flag when component series are stale. No plots.</p>
       <div class="mt-3 flex gap-2 text-xs text-slate-600">
         <span class="tag">FRED</span>
         <span class="tag">STLFSI4</span>
         <span class="tag">Weekly (W‑FRI)</span>
         <span class="tag">Robust Z</span>
         <span class="tag">Regime Classification</span>
+        <span class="tag">Pillar Decomposition (Optional)</span>
+        <span class="tag">Confidence Flag</span>
       </div>
     </header>
 
@@ -50,20 +52,82 @@
 
     <div class="rule mb-10"></div>
 
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">1) Data (FRED Identifier)</h2>
-      <ul class="list-disc pl-6 leading-7">
-        <li><b>STLFSI4</b>: St. Louis Fed Financial Stress Index (rev. 4)</li>
-      </ul>
-      <p class="leading-7 mt-3">We operate at a <span class="font-semibold">weekly Friday</span> frequency (<code>"W-FRI"</code>) and forward-fill within week to ensure continuity.</p>
-      <div class="box text-sm mt-3">
+    
+<section class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1) Data Sources (Composite + Pillars)</h2>
+
+  <h3 class="text-lg font-semibold text-slate-900 mt-2">1.1 Primary composite (baseline)</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><b>STLFSI4</b> — St. Louis Fed Financial Stress Index (rev. 4), weekly composite published by the Federal Reserve Bank of St. Louis via FRED.</li>
+  </ul>
+
+  <p class="leading-7 mt-3">
+    We operate at a <span class="font-semibold">weekly Friday</span> cadence (<code>"W-FRI"</code>) and forward-fill within week to ensure continuity.
+    STLFSI4 itself is a composite built from multiple market indicators; we treat it as the authoritative headline stress level.
+  </p>
+
+  <div class="box text-sm mt-3">
 <pre><code># Fetch & align (fredapi)
 stlfsi = fred.get_series("STLFSI4")
 df_stress = pd.DataFrame(stlfsi, columns=["STLFSI4"])
 df_stress = df_stress.resample("W-FRI").last().ffill()
 print("✅ STLFSI4 data retrieved."); print(df_stress.tail())</code></pre>
-      </div>
-    </section>
+  </div>
+
+  <h3 class="text-lg font-semibold text-slate-900 mt-6">1.2 Optional “pillar” components (for interpretability)</h3>
+  <p class="leading-7">
+    To make drivers explicit, we optionally source representative sub-series and map them into three pillars. These components are typically
+    <em>near real-time</em>, but can suffer outages, late updates, or discontinuations (especially interbank-spread series).
+  </p>
+
+  <div class="box text-sm mt-3">
+    <table class="w-full text-left">
+      <thead>
+        <tr class="text-slate-600">
+          <th class="py-2 pr-3">Pillar</th>
+          <th class="py-2 pr-3">Series (FRED)</th>
+          <th class="py-2 pr-3">What it captures</th>
+          <th class="py-2">Notes</th>
+        </tr>
+      </thead>
+      <tbody class="align-top">
+        <tr class="border-t">
+          <td class="py-2 pr-3"><b>Volatility</b></td>
+          <td class="py-2 pr-3"><code>VIXCLS</code></td>
+          <td class="py-2 pr-3">Equity implied volatility (“risk aversion / uncertainty” proxy).</td>
+          <td class="py-2">Daily close; resampled to <code>W-FRI</code>.</td>
+        </tr>
+        <tr class="border-t">
+          <td class="py-2 pr-3"><b>Credit</b></td>
+          <td class="py-2 pr-3"><code>BAMLH0A0HYM2</code> (alt: <code>BAMLC0A0CM</code>)</td>
+          <td class="py-2 pr-3">Corporate credit risk premium (high yield OAS; investment grade OAS as fallback).</td>
+          <td class="py-2">Daily close; resampled to <code>W-FRI</code>.</td>
+        </tr>
+        <tr class="border-t">
+          <td class="py-2 pr-3"><b>Liquidity</b></td>
+          <td class="py-2 pr-3"><code>TEDRATE</code></td>
+          <td class="py-2 pr-3">Interbank/treasury funding stress proxy (TED spread).</td>
+          <td class="py-2">Marked “DISCONTINUED” on FRED; when stale, pillar confidence is reduced and/or a replacement spread should be substituted.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="box text-sm mt-3">
+<pre><code># Optional pillars (fredapi) -> resample weekly (W-FRI)
+vix = fred.get_series("VIXCLS")                 # volatility
+hy_oas = fred.get_series("BAMLH0A0HYM2")        # credit
+ted = fred.get_series("TEDRATE")                # liquidity (may be discontinued)
+
+df_pillars = pd.DataFrame({"VIXCLS": vix, "HY_OAS": hy_oas, "TEDRATE": ted})
+df_pillars = df_pillars.resample("W-FRI").last()</code></pre>
+  </div>
+
+  <p class="text-sm mt-2 text-slate-600">
+    Design intent: the headline classifier remains STLFSI4; pillars are used to explain <em>why</em> stress is changing, and to generate a staleness-aware confidence flag.
+  </p>
+</section>
+
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2) Robust Z-Score on Level</h2>
@@ -82,6 +146,70 @@ print("✅ STLFSI4 data retrieved."); print(df_stress.tail())</code></pre>
 
 df_stress["Stress_z"] = robust_z(df_stress["STLFSI4"], window=156, min_window=52)</code></pre>
       </div>
+    
+</section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">2b) Pillar Contributions & Confidence (v1.1, optional)</h2>
+      <p class="leading-7">
+        When pillar series are enabled, we compute a robust z-score for each pillar and aggregate them into an explainable “pillar stress”
+        score. Pillars are oriented so that <b>higher</b> values imply <b>more</b> stress.
+      </p>
+
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Volatility pillar:</b> higher <code>VIXCLS</code> → higher stress.</li>
+          <li><b>Credit pillar:</b> wider OAS (<code>BAMLH0A0HYM2</code>) → higher stress.</li>
+          <li><b>Liquidity pillar:</b> wider TED (<code>TEDRATE</code>) → higher stress (but series may be discontinued).</li>
+        </ul>
+      </div>
+
+      <p class="leading-7 mt-3">
+        We publish both the pillar z-scores and a simple contribution view. A default equal-weight aggregation is used unless explicitly
+        overridden (e.g., <code>w_vol=0.33, w_credit=0.33, w_liq=0.34</code>).
+      </p>
+
+      <div class="box text-sm mt-3">
+<pre><code># Robust z per pillar (same robust_z as above)
+df_pillars["VIX_z"] = robust_z(df_pillars["VIXCLS"])
+df_pillars["Credit_z"] = robust_z(df_pillars["HY_OAS"])
+df_pillars["Liq_z"] = robust_z(df_pillars["TEDRATE"])
+
+weights = {"VIX_z": 1/3, "Credit_z": 1/3, "Liq_z": 1/3}
+df_pillars["PillarStress_z"] = sum(df_pillars[k] * w for k, w in weights.items())
+
+# Contributions (simple share of weighted z)
+for k, w in weights.items():
+    df_pillars[f"contrib_{k}"] = (df_pillars[k] * w) / df_pillars["PillarStress_z"].replace(0, np.nan)</code></pre>
+      </div>
+
+      <h3 class="text-lg font-semibold text-slate-900 mt-6">Staleness-aware confidence flag</h3>
+      <p class="leading-7">
+        Because component feeds can stall (outages, vendor maintenance, holidays, discontinued series), we attach a confidence flag based on
+        how recently each pillar updated relative to the weekly anchor date.
+      </p>
+
+      <div class="box text-sm mt-3">
+<pre><code>def staleness_days(series):
+    return (series.index.max() - series.dropna().index.max()).days if series.dropna().size else 10_000
+
+# Example rule-of-thumb thresholds (tune to your pipeline):
+# 0–7d: OK, 8–21d: stale, &gt;21d: critical (or discontinued)
+stale = {
+  "vol": staleness_days(df_pillars["VIXCLS"]) &gt; 7,
+  "credit": staleness_days(df_pillars["HY_OAS"]) &gt; 7,
+  "liq": staleness_days(df_pillars["TEDRATE"]) &gt; 21
+}
+df_pillars["FSI_Confidence"] = (
+  "HIGH" if not any(stale.values())
+  else "MED" if sum(stale.values()) == 1
+  else "LOW"
+)</code></pre>
+      </div>
+
+      <p class="text-sm mt-2 text-slate-600">
+        If pillars are disabled, confidence defaults to <b>HIGH</b> so long as <code>STLFSI4</code> updated on schedule.
+      </p>
     </section>
 
     <section class="mb-10">
@@ -114,7 +242,9 @@ df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</
       <h2 class="text-2xl font-semibold mb-3">4) Outputs & Columns</h2>
       <div class="box text-sm">
 <pre><code># Core columns
-["STLFSI4","Stress_z","FinancialStress_Signal"]</code></pre>
+["STLFSI4","Stress_z","FinancialStress_Signal",
+ # Optional interpretability columns
+ "VIXCLS","HY_OAS","TEDRATE","VIX_z","Credit_z","Liq_z","PillarStress_z","FSI_Confidence"]</code></pre>
       </div>
       <p class="leading-7 mt-3">Console prints echo the tail of the aligned series and the final signal view. No plots are generated.</p>
     </section>
@@ -124,16 +254,80 @@ df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</
       <ul class="list-disc pl-6 leading-7">
         <li><b>Frequency alignment:</b> resample to weekly Friday (<code>"W-FRI"</code>) with <code>.last()</code>, then <code>.ffill()</code>.</li>
         <li><b>NaN policy:</b> robust z uses median/MAD; where MAD = 0, z is NaN; classification treats any NaN as Neutral.</li>
-        <li><b>Reproducibility:</b> all transforms are deterministic given STLFSI4.</li>
+        <li><b>Reproducibility:</b> all transforms are deterministic given STLFSI4 (and the selected pillar series, if enabled).</li>
+        <li><b>Staleness handling (v1.1):</b> if any component series is stale/discontinued, we publish <code>FSI_Confidence</code> and avoid over-weighting missing pillars in narrative summaries.</li>
       </ul>
     </section>
 
-    <section class="mb-16">
-      <h2 class="text-2xl font-semibold mb-3">6) Interpretation & Use</h2>
-      <p class="leading-7">Negative values of STLFSI4 generally indicate looser-than-average conditions; positive values indicate tighter-than-average. <span class="font-semibold">Bearish</span> regimes suggest caution in risk assets; <span class="font-semibold">Bullish</span> regimes align with easier conditions. Use alongside growth, labor, and inflation signals for a holistic macro regime map.</p>
-    </section>
+    
+<section class="mb-16">
+  <h2 class="text-2xl font-semibold mb-3">6) Interpretation & Use (Model Interpretation)</h2>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly specification for the Financial Stress Index signal.</footer>
+  <h3 class="text-lg font-semibold text-slate-900">6.1 What the headline level means</h3>
+  <p class="leading-7">
+    <b>STLFSI4 is standardized around a long-run average.</b> In practice, <b>positive</b> values indicate above-average financial stress/tightness,
+    while <b>negative</b> values indicate below-average stress/looser conditions. Treat the level as a “headline” barometer of broad market stress rather than a
+    single-market signal. (St. Louis Fed STLFSI4 documentation; see References.)
+  </p>
+
+  <h3 class="text-lg font-semibold text-slate-900 mt-6">6.2 How to interpret the robust z-score</h3>
+  <p class="leading-7">
+    The robust z-score is a <b>within-history extremeness</b> measure. Use it to distinguish:
+    (i) modest tightness/looseness (near 0) vs (ii) statistically unusual stress/ease (large magnitude).
+    Because the z-score uses rolling median/MAD, it is less sensitive to crisis outliers than mean/std.
+  </p>
+
+  <div class="box text-sm mt-3">
+    <ul class="list-disc pl-6">
+      <li><b>z &gt; +0.5:</b> above-normal stress relative to the recent multi-year distribution (watch for “risk-off” behaviour).</li>
+      <li><b>z &lt; −0.5:</b> below-normal stress / easy conditions (often compatible with “risk-on” positioning).</li>
+      <li><b>Near thresholds:</b> expect whipsaw risk; prefer sustained confirmation (e.g., 2–4 weekly closes) if you use this for regime switching.</li>
+    </ul>
+  </div>
+
+  <h3 class="text-lg font-semibold text-slate-900 mt-6">6.3 Pillars: interpreting <em>drivers</em>, not just the label (v1.1)</h3>
+  <p class="leading-7">
+    When enabled, pillar contributions provide a decomposition into <b>volatility</b> (risk aversion), <b>credit</b> (risk premium / intermediation capacity),
+    and <b>liquidity</b> (funding stress). This aligns with the academic treatment of financial stress as a multi-dimensional phenomenon captured by co-movement across
+    spreads, volatility, and liquidity measures.
+  </p>
+
+  <div class="box text-sm mt-3">
+    <ul class="list-disc pl-6">
+      <li><b>Volatility-led stress:</b> spikes in implied volatility can be sharp and mean-reverting; use for tactical risk management (VIX literature).</li>
+      <li><b>Credit-led stress:</b> widening spreads often carry higher macro predictive content, especially via “excess bond premium” dynamics.</li>
+      <li><b>Liquidity-led stress:</b> widening funding spreads can signal market-functioning risk; treat as high-severity when confirmed.</li>
+    </ul>
+  </div>
+
+  <h3 class="text-lg font-semibold text-slate-900 mt-6">6.4 Confidence flag: how to use it</h3>
+  <p class="leading-7">
+    <b>FSI_Confidence</b> is a data-quality indicator, not a market call. If confidence is <b>LOW</b>, interpret pillar narratives cautiously and default to the headline
+    STLFSI4 regime until components resume updating. This addresses real-time outage risk in VIX/credit-spread/funding-spread feeds.
+  </p>
+
+  <h3 class="text-lg font-semibold text-slate-900 mt-6">6.5 Practical usage</h3>
+  <div class="box text-sm mt-3">
+    <ul class="list-disc pl-6">
+      <li><b>Strategic:</b> use sustained “Bearish” readings as a headwind to cyclical risk exposure, not as a timing tool in isolation.</li>
+      <li><b>Tactical:</b> use rapid increases (level + z) and volatility-led surges for short-horizon risk controls.</li>
+      <li><b>Macro integration:</b> interpret stress jointly with growth/inflation conditions; the literature links severe stress episodes to downturn risk, but not every stress episode produces a recession.</li>
+    </ul>
+  </div>
+
+  <h3 class="text-lg font-semibold text-slate-900 mt-6">References (selected)</h3>
+  <ol class="list-decimal pl-6 leading-7 text-sm text-slate-700">
+    <li>St. Louis Fed / FRED: STLFSI4 series notes and description (method and component categories).</li>
+    <li>St. Louis Fed FRED Blog (2022): “The St. Louis Fed’s Financial Stress Index, version 4”.</li>
+    <li>Hakkio, C. S., &amp; Keeton, W. R. (2009). “Financial stress: what is it, how can it be measured, and why does it matter?” Federal Reserve Bank of Kansas City, Economic Review.</li>
+    <li>Cardarelli, R., Elekdag, S., &amp; Lall, S. (2009/2010). “Financial Stress, Downturns, and Recoveries / Financial Stress and Economic Contractions.” IMF Working Paper / related journal version.</li>
+    <li>Whaley, R. E. (2000). “The Investor Fear Gauge.” (VIX interpretation).</li>
+    <li>Gilchrist, S., &amp; Zakrajšek, E. (2012). “Credit Spreads and Business Cycle Fluctuations.” American Economic Review.</li>
+  </ol>
+</section>
+
+
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print-friendly specification for the Financial Stress Index signal (v1.1).</footer>
   </main>
 </body>
 </html>

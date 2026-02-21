@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Housing Lead — Methodology</title>
+  <title>Housing Lead — Methodology (v1.1)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,140 +18,301 @@
     .eq{font-family:"Merriweather",serif;font-style:italic}
     .box{border:1px solid #e5e7eb;border-radius:.75rem;padding:1rem;background:#fafafa}
     code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    a{color:#0f172a;text-decoration:underline;text-decoration-color:#cbd5e1}
+    a:hover{text-decoration-color:#64748b}
   </style>
 </head>
 <body class="bg-white text-slate-800">
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
   <main class="container mx-auto px-5 py-10">
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Housing Lead</h1>
-      <div class="mt-2 text-slate-600 text-sm">Composite leading indicator for the housing cycle using permits, housing starts momentum, and mortgage‑rate headwinds.</div>
+      <div class="mt-2 text-slate-600 text-sm">
+        Composite leading indicator for the housing cycle using permits, housing starts momentum, and mortgage‑rate headwinds.
+      </div>
     </header>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
-      <p class="leading-7">The Housing Lead signal blends forward indicators of residential activity (building permits and housing starts) with the financing constraint captured by the 30‑year mortgage rate. Momentum in permits (6‑month annualised) and starts (3‑month annualised) are positively related to future construction, while higher mortgage rates are a drag. Robust z‑scores and fixed weights produce a stable, interpretable composite with regimes: <em>Expanding</em>, <em>Neutral</em>, and <em>Contracting</em>.</p>
+      <p class="leading-7">
+        Housing Lead blends forward indicators of residential activity (building permits and housing starts) with the financing constraint captured by the
+        30‑year mortgage rate. Because housing series are volatile and frequently revised (including seasonal factors), v1.1 introduces explicit smoothing
+        (moving averages and percentile ranks) and an <em>Early Warning</em> band designed to flag rapid deterioration before the main regime threshold is crossed.
+      </p>
     </section>
 
     <div class="rule mb-10"></div>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
-      <ul class="list-disc pl-6 leading-7">
-        <li><strong>PERMIT</strong> — Building Permits: New Private Housing Units (FRED: <code>PERMIT</code>), monthly, SAAR.</li>
-        <li><strong>HOUST</strong> — Housing Starts: Total: New Privately Owned (FRED: <code>HOUST</code>), monthly, SAAR.</li>
-        <li><strong>MORTGAGE30US</strong> — 30‑Year Fixed Rate Mortgage Average (FRED: <code>MORTGAGE30US</code>), weekly average; resampled to month‑end.</li>
-      </ul>
-      <p class="leading-7 mt-3">Ensure consistent frequency (month‑end) before constructing the composite.</p>
+      <h2 class="text-2xl font-semibold mb-3">1. Data (FRED)</h2>
+
+      <div class="box mb-4">
+        <h3 class="text-lg font-semibold mb-2">PERMIT — Building Permits: New Private Housing Units</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><strong>FRED code:</strong> <code>PERMIT</code></li>
+          <li><strong>Concept:</strong> Units authorized by building permits; a pipeline measure that typically leads starts and completions.</li>
+          <li><strong>Frequency:</strong> Monthly; Seasonally Adjusted Annual Rate (SAAR).</li>
+          <li><strong>Release & revisions:</strong> Released in the U.S. Census/HUD “New Residential Construction” report; prior months are routinely revised.</li>
+          <li><strong>Key measurement issues:</strong> High month‑to‑month noise; seasonal adjustment can be difficult around turning points.</li>
+        </ul>
+      </div>
+
+      <div class="box mb-4">
+        <h3 class="text-lg font-semibold mb-2">HOUST — Housing Starts: Total: New Privately Owned</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><strong>FRED code:</strong> <code>HOUST</code></li>
+          <li><strong>Concept:</strong> Groundbreakings / construction starts; tends to follow permits with a lag.</li>
+          <li><strong>Frequency:</strong> Monthly; SAAR.</li>
+          <li><strong>Release & revisions:</strong> Same report as permits; prior months often revised alongside permits.</li>
+          <li><strong>Key measurement issues:</strong> Weather sensitivity, strikes, and calendar effects can create temporary swings.</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h3 class="text-lg font-semibold mb-2">MORTGAGE30US — 30‑Year Fixed Rate Mortgage Average</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><strong>FRED code:</strong> <code>MORTGAGE30US</code></li>
+          <li><strong>Concept:</strong> Financing conditions / affordability headwind; higher rates typically reduce housing demand and activity.</li>
+          <li><strong>Frequency:</strong> Weekly average; resampled to month‑end (see below).</li>
+          <li><strong>Release & revisions:</strong> Generally stable (minor backfill possible); holiday weeks can shift the effective timing.</li>
+          <li><strong>Key measurement issues:</strong> The “month‑end” value may not represent intra‑month dynamics when rates move quickly.</li>
+        </ul>
+      </div>
+
+      <p class="leading-7 mt-4">
+        <strong>Calendar alignment:</strong> All inputs are aligned to a month‑end index. Weekly mortgage data are resampled using the last observed weekly value
+        in each month (i.e., “month‑end last”).
+      </p>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">2. Transformations</h2>
-      <ol class="list-decimal pl-6 leading-7">
-        <li><strong>Permits momentum:</strong> six‑month annualised growth
+      <h2 class="text-2xl font-semibold mb-3">2. Data Quality, Revisions, and Seasonal Adjustment</h2>
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Revisions are expected:</strong> Permits and starts are frequently revised in subsequent releases, so the most recent 1–3 months should be treated as “preliminary.”</li>
+        <li><strong>Seasonal adjustment can be unstable:</strong> Turning points (rapid slowdowns/rebounds) can amplify seasonal‑factor error and raise flip risk in threshold models.</li>
+        <li><strong>Practical implication:</strong> Use smoothing and rank‑based transforms; publish a “freshness / revision risk” note for the latest months when used in live monitoring.</li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">3. Transformations (v1.1)</h2>
+      <p class="leading-7">
+        v1.1 keeps the original growth definitions but introduces smoothing and percentile ranks to reduce noise from revisions and seasonal adjustment.
+      </p>
+
+      <ol class="list-decimal pl-6 leading-7 mt-3">
+        <li>
+          <strong>Level smoothing (3‑month moving average):</strong>
           <div class="box mt-2 text-sm">
-            <div class="eq">PERMIT\_{6mAnn,t} = (PERMIT_t / PERMIT_{t−6})^2 − 1</div>
+            <div class="eq">PERMIT^{MA3}_t = \frac{1}{3}(PERMIT_t + PERMIT_{t-1} + PERMIT_{t-2})</div>
+            <div class="eq mt-2">HOUST^{MA3}_t = \frac{1}{3}(HOUST_t + HOUST_{t-1} + HOUST_{t-2})</div>
           </div>
         </li>
-        <li><strong>Starts momentum:</strong> three‑month annualised growth
+
+        <li>
+          <strong>Permits momentum:</strong> six‑month annualised growth (computed on smoothed levels)
           <div class="box mt-2 text-sm">
-            <div class="eq">HOUST\_{3mAnn,t} = (HOUST_t / HOUST_{t−3})^4 − 1</div>
+            <div class="eq">PERMIT_{6mAnn,t} = (PERMIT^{MA3}_t / PERMIT^{MA3}_{t−6})^2 − 1</div>
           </div>
         </li>
-        <li><strong>Mortgage headwind:</strong> use the level of <span class="eq">MORTGAGE30US</span>; higher rates are negative for activity.</li>
+
+        <li>
+          <strong>Starts momentum:</strong> three‑month annualised growth (computed on smoothed levels)
+          <div class="box mt-2 text-sm">
+            <div class="eq">HOUST_{3mAnn,t} = (HOUST^{MA3}_t / HOUST^{MA3}_{t−3})^4 − 1</div>
+          </div>
+        </li>
+
+        <li>
+          <strong>Mortgage headwind:</strong> month‑end level of <span class="eq">MORTGAGE30US</span> (higher is worse).
+        </li>
+
+        <li>
+          <strong>Percentile ranks (optional companion series):</strong> For interpretability and robustness, compute rolling percentile ranks for each transformed input.
+          <div class="box mt-2 text-sm">
+            <div class="eq">pct(X)_t = \mathrm{PercentileRank}(X_t; X_{t-w..t})</div>
+            <div class="text-xs mt-2">Typical window: <span class="eq">w = 60</span> months (minimum 24). Use percentiles as a cross‑check, not as the sole trigger.</div>
+          </div>
+        </li>
       </ol>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">3. Normalisation</h2>
-      <div class="box text-sm">
-        <div class="eq">z\_{rob}(X)_t = \dfrac{X_t − \mathrm{median}(X)_{t,w}}{1.4826·\mathrm{MAD}(X)_{t,w}}</div>
-        <div class="text-xs mt-2">with rolling window <span class="eq">w = 48</span> months (minimum 18). Robust to outliers and structural level shifts.</div>
+      <h2 class="text-2xl font-semibold mb-3">4. Normalisation</h2>
+      <p class="leading-7">
+        Robust z‑scores are used to standardise components while limiting the influence of outliers and level shifts.
+      </p>
+      <div class="box text-sm mt-3">
+        <div class="eq">z_{rob}(X)_t = \dfrac{X_t − \mathrm{median}(X)_{t,w}}{1.4826·\mathrm{MAD}(X)_{t,w}}</div>
+        <div class="text-xs mt-2">Rolling window <span class="eq">w = 48</span> months (minimum 18).</div>
       </div>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">4. Composite Construction</h2>
-      <p class="leading-7">Weighting emphasises forward permit signals, then starts, with a smaller penalty from mortgage rates:</p>
+      <h2 class="text-2xl font-semibold mb-3">5. Composite Construction</h2>
+      <p class="leading-7">
+        Weighting emphasises permits (most forward‑looking), then starts, with a smaller penalty from mortgage rates.
+      </p>
+      <div class="box text-sm mt-3">
+        <div class="eq">C_t = 0.45·z(PERMIT_{6mAnn,t}) + 0.35·z(HOUST_{3mAnn,t}) + 0.20·z(−MORTGAGE30US_t)</div>
+      </div>
+      <p class="leading-7 mt-3">
+        <strong>Monitoring outputs (recommended):</strong> publish the component z‑scores, the composite <span class="eq">C_t</span>, and the companion percentile ranks.
+        This makes it easier to distinguish “broad housing deterioration” from “rate‑only headwinds.”
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">6. Regime Mapping (with Early Warning)</h2>
+
       <div class="box text-sm">
-        <div class="eq">Housing\_{Lead,t} = 0.45·z(PERMIT\_{6mAnn,t}) + 0.35·z(HOUST\_{3mAnn,t}) + 0.20·z(−MORTGAGE30US_t)</div>
+        <div class="eq">
+          Expanding: C_t &gt; 0.75; &nbsp;&nbsp;
+          Neutral: |C_t| ≤ 0.75; &nbsp;&nbsp;
+          Contracting: C_t &lt; −0.75
+        </div>
+      </div>
+
+      <p class="leading-7 mt-4">
+        <strong>Early Warning band (v1.1):</strong> flag rapid deterioration even if <span class="eq">C_t</span> is still above the contracting threshold.
+        Use one of the two equivalent rules below (pick one for implementation consistency):
+      </p>
+
+      <ul class="list-disc pl-6 leading-7">
+        <li><strong>Momentum rule:</strong> if <span class="eq">\Delta_3 C_t = C_t − C_{t-3} &lt; −0.60</span>, set <em>Early Warning</em>.</li>
+        <li><strong>Rank rule:</strong> if <span class="eq">pct(C_t) &lt; 25</span> and <span class="eq">\Delta_3 C_t &lt; 0</span>, set <em>Early Warning</em>.</li>
+      </ul>
+
+      <p class="leading-7 mt-3">
+        Early Warning is a <em>risk flag</em>, not a separate regime. It indicates that the signal is deteriorating quickly and revisions/noise risk is elevated.
+      </p>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">7. Interpretation Guide</h2>
+
+      <div class="box mb-4">
+        <h3 class="text-lg font-semibold mb-2">How to read the composite</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><strong>Permits lead:</strong> A rising permits momentum z‑score is the earliest sign of a housing upswing; falling permits often precede a broader slowdown.</li>
+          <li><strong>Starts confirm:</strong> Starts momentum typically follows permits and helps confirm whether authorisations are translating into activity.</li>
+          <li><strong>Rates are the constraint:</strong> Mortgage rates often act as the dominant headwind/tailwind via affordability and financing conditions.</li>
+          <li><strong>Composite is a balance:</strong> A “Neutral” composite can still mask offsetting forces (e.g., strong permits but high rates). Use component contributions.</li>
+        </ul>
+      </div>
+
+      <div class="box mb-4">
+        <h3 class="text-lg font-semibold mb-2">Interpreting Early Warning</h3>
+        <ul class="list-disc pl-6 leading-7">
+          <li><strong>Primary use:</strong> identify turning‑point risk (downswing) sooner than threshold regimes.</li>
+          <li><strong>Common pattern:</strong> permits momentum rolls over first; starts follow with a lag; rate spikes can accelerate the transition.</li>
+          <li><strong>Actionability:</strong> treat as “watch‑list” status; require confirmation (e.g., persistent deterioration over 2–3 months) before high‑conviction macro calls.</li>
+        </ul>
+      </div>
+
+      <div class="box">
+        <h3 class="text-lg font-semibold mb-2">Typical lead/lag intuition (high level)</h3>
+        <p class="leading-7">
+          In many housing‑cycle frameworks, permits tend to lead starts by months because approvals precede groundbreakings, and construction completion lags further.
+          Mortgage rates affect demand and financing, and can influence both the level and the momentum of permits/starts through affordability and credit conditions.
+        </p>
       </div>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">5. Regime Mapping</h2>
-      <div class="box text-sm">
-        <div class="eq">If\ C_t > 0.75 → \textit{Expanding};\quad |C_t| ≤ 0.75 → \textit{Neutral};\quad C_t < −0.75 → \textit{Contracting}</div>
-      </div>
-    </section>
-
-    <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">6. Implementation (Python)</h2>
+      <h2 class="text-2xl font-semibold mb-3">8. Implementation (Python, reference)</h2>
       <div class="box text-sm">
 <pre><code>import pandas as pd
 import numpy as np
 
 def robust_z(s, win=48, min_win=18):
     x = pd.to_numeric(s, errors="coerce").astype(float)
-    w = max(min_win, min(win, x.dropna().size))
-    med = x.rolling(w, min_periods=min_win).median()
-    mad = (x - med).abs().rolling(w, min_periods=min_win).median()
+    med = x.rolling(win, min_periods=min_win).median()
+    mad = (x - med).abs().rolling(win, min_periods=min_win).median()
     return (x - med) / (1.4826 * mad.replace(0, np.nan))
+
+def pct_rank(s, win=60, min_win=24):
+    x = pd.to_numeric(s, errors="coerce").astype(float)
+    def _rank(v):
+        if v.isna().all(): return np.nan
+        return v.rank(pct=True).iloc[-1]
+    return x.rolling(win, min_periods=min_win).apply(_rank, raw=False)
 
 d = df_housing.copy()
 
-d["PERMIT_6mAnn"] = (d["PERMIT"] / d["PERMIT"].shift(6))**2 - 1.0
+# 1) Smooth levels
+d["PERMIT_MA3"] = d["PERMIT"].rolling(3, min_periods=3).mean()
+d["HOUST_MA3"]  = d["HOUST"].rolling(3, min_periods=3).mean()
 
-d["HOUST_3mAnn"]  = (d["HOUST"] / d["HOUST"].shift(3))**4 - 1.0
+# 2) Annualised momentum on smoothed levels
+d["PERMIT_6mAnn"] = (d["PERMIT_MA3"] / d["PERMIT_MA3"].shift(6))**2 - 1.0
+d["HOUST_3mAnn"]  = (d["HOUST_MA3"] / d["HOUST_MA3"].shift(3))**4 - 1.0
 
-d["Z_PERMIT"] = robust_z(d["PERMIT_6mAnn"]) 
+# 3) Standardise
+d["Z_PERMIT"] = robust_z(d["PERMIT_6mAnn"])
+d["Z_HOUST"]  = robust_z(d["HOUST_3mAnn"])
+d["Z_MORT"]   = robust_z(-d["MORTGAGE30US"])  # month-end aligned series
 
-d["Z_HOUST"]  = robust_z(d["HOUST_3mAnn"]) 
+# 4) Composite + contributions
+d["Housing_Lead"] = (0.45*d["Z_PERMIT"] + 0.35*d["Z_HOUST"] + 0.20*d["Z_MORT"])
+d["dC_3m"] = d["Housing_Lead"] - d["Housing_Lead"].shift(3)
+d["pctC"]  = pct_rank(d["Housing_Lead"])
 
-d["Z_MORT"]   = robust_z(-d["MORTGAGE30US"]) 
-
-d["Housing_Lead"] = (0.45*d["Z_PERMIT"] + 0.35*d["Z_HOUST"] + 0.20*d["Z_MORT"]) 
-
+# 5) Regime + Early Warning
 hi, lo = 0.75, -0.75
 
 def _regime(v):
     if pd.isna(v): return np.nan
     return "Expanding" if v > hi else ("Contracting" if v < lo else "Neutral")
 
+def _early_warning(C, dC_3m, pctC):
+    if pd.isna(C) or pd.isna(dC_3m): return np.nan
+    # choose ONE rule-set; keep it stable in production
+    return bool(dC_3m < -0.60) or (pd.notna(pctC) and (pctC < 0.25) and (dC_3m < 0))
+
 d["Housing_Regime"] = d["Housing_Lead"].apply(_regime)
+d["Early_Warning"]  = [
+    _early_warning(C, dc, pc) for C, dc, pc in zip(d["Housing_Lead"], d["dC_3m"], d["pctC"])
+]
 
-df_sig_housing = d
-
-display(df_sig_housing.tail())
-</code></pre>
+df_sig_housing = d</code></pre>
       </div>
+      <p class="text-xs text-slate-600 mt-3">
+        Note: keep the Early Warning rule stable (do not switch between rule-sets without documenting a version change).
+      </p>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">7. Interpretation</h2>
+      <h2 class="text-2xl font-semibold mb-3">9. Academic & Institutional References (interpretation anchors)</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><strong>Expanding:</strong> permitting and starts momentum outweigh mortgage headwinds; pipeline growth likely.</li>
-        <li><strong>Neutral:</strong> mixed signals; housing activity near trend.</li>
-        <li><strong>Contracting:</strong> weak permits/starts and/or high mortgage rates point to housing slowdown.</li>
+        <li><strong>Permits as leading indicators:</strong> Dua & Smyth, “Using Leading Indicators to Forecast U.S. Home Sales…” (early evidence that permits improve forecast accuracy).</li>
+        <li><strong>Construction lags:</strong> Bahadir (2014), documents typical delays from permitting to completion (supports “permits lead starts” intuition).</li>
+        <li><strong>Interest rates and housing cycles:</strong> Berger‑Thomson & Ellis (RBA RDP 2004‑08) and related housing‑cycle literature linking interest rates to construction dynamics.</li>
+        <li><strong>Official release/revision context:</strong> U.S. Census Bureau “New Residential Construction” documentation and releases (permits/starts revisions; SAAR; sampling error bands).</li>
       </ul>
+      <p class="leading-7 mt-3">
+        These references are used to anchor interpretation (directionality and lead/lag logic). The regime thresholds and Early Warning parameters remain heuristic and
+        should be validated against your downstream macro model requirements.
+      </p>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">8. Limitations</h2>
+      <h2 class="text-2xl font-semibold mb-3">10. Limitations</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li>PERMIT and HOUST are volatile and subject to revisions; use multi‑month windows to reduce noise.</li>
-        <li>MORTGAGE30US is weekly and may require careful resampling (e.g., month‑end last).</li>
-        <li>Fixed thresholds (±0.75) are heuristic; calibration may be warranted for portfolio applications.</li>
+        <li><strong>Revision risk:</strong> the latest data points can change materially; treat near-term readings as provisional.</li>
+        <li><strong>Seasonality & noise:</strong> even SAAR series can be noisy; smoothing reduces false flips but adds lag.</li>
+        <li><strong>Threshold calibration:</strong> ±0.75 is a simple heuristic; calibrate if you need a specific false-positive/false-negative trade-off.</li>
+        <li><strong>Rates vs activity:</strong> mortgage rates can move faster than monthly activity; consider reporting weekly rate changes separately in dashboards.</li>
       </ul>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Housing Lead signal.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Methodology reference for the Housing Lead signal (v1.1).</footer>
   </main>
 </body>
 </html>
