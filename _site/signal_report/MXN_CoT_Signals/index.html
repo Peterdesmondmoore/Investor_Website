@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Mexican Peso - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Mexican Peso - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Mexican Peso futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-02-17</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a Spec Net %OI of 37.1% and a Spec z-score of -0.12, this setup aligns with
+            Transition-biased price paths and Normal volatility,
+            where the dominant risk is Long liquidation, not short covering (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).
+        </li>
+        <li>The signal is currently in a Normal synthetic state with a Balanced_Short_Bias market structure as speculators reduce net long exposure (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Stretch Rule (z-score): Measures extremeness of positioning; |z| < 1 is classified as normal or un-stretched (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Flow Rule (4-week change): Flow opposing net direction (Long Reduction while net long) signifies de-risking or conviction fading (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Confidence Rule: A flow turn (Flow_4w of -7.5) in an un-stretched market warrants a Medium confidence interpretation stance (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Latest observation date: 2026-02-17 (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculators remain net long at 37.1% of Open Interest, but 4-week flow has accelerated to -7.5 (Long_Reduction) (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Lack of positioning stretch (Spec z-score -0.12) indicates the trend is not yet at an exhaustion extreme, but momentum is fading (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Internal stability is high as both speculators and hedgers (z-score 0.07) are within normal historical bounds (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A shift to positive flow (Long_Build) exceeding 5.0 strength would signal a resumption of the bullish trend.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Dominant base case: Continued price consolidation or softening as speculative conviction fades via long liquidation.</li>
+        <li>Most plausible upside risk: Renewed carry trade appetite if global risk sentiment improves, triggering a "Long_Build" flow.</li>
+        <li>Most plausible downside risk: EM de-risking shock where balanced long bias collapses into a "Squeeze Risk" if price breaks lower.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks); flow-driven shifts in un-stretched markets typically resolve within short-term windows (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; the absence of extremes limits its use as a reversal signal, but it serves as a timely gauge of risk-on fading.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Macro dimension informed: Global risk sentiment and carry trade appetite via Mexican Peso positioning (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Cycle position: Mid-to-late expansion; current flow suggests a defensive rotation or de-leveraging.</li>
+        <li>Interacts with USD regime signals and global funding stress to identify broader EM vulnerability (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Dataset: CoT Individual Market Analysis (MXN), latest observation 2026-02-17 (<a href="https://investoranatomy.com/signal_report/MXN_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Influential Datapoints: Flow_4w (-7.5), Spec_Net_%OI (37.1%), and Spec_zscore (-0.12).</li>
+        <li>External indicators: VIX Futures CoT and USD Index Signal would provide valuable confirmation of the global risk backdrop.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Mexican Peso CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_MXN_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Mexican Peso futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Mexican Peso CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>43.2</td>
+      <td>-45.5</td>
+      <td>0.907646</td>
+      <td>-0.922181</td>
+      <td>5.3</td>
+      <td>Balanced</td>
+      <td>-2.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>5.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.829827</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>80.804388</td>
+      <td>85181</td>
+      <td>-89816</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05437</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>44.2</td>
+      <td>-46.2</td>
+      <td>0.936554</td>
+      <td>-0.927871</td>
+      <td>2.8</td>
+      <td>Balanced</td>
+      <td>-2.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>2.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.864425</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>82.632541</td>
+      <td>95828</td>
+      <td>-99877</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05438</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>45.9</td>
+      <td>-47.6</td>
+      <td>1.016252</td>
+      <td>-0.980865</td>
+      <td>3.7</td>
+      <td>Balanced</td>
+      <td>-1.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>3.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.997117</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>85.740402</td>
+      <td>95187</td>
+      <td>-98808</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05431</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>42.0</td>
+      <td>-43.9</td>
+      <td>0.725530</td>
+      <td>-0.725188</td>
+      <td>-3.8</td>
+      <td>Balanced</td>
+      <td>-1.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-3.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.450718</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>78.610603</td>
+      <td>98940</td>
+      <td>-103349</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05463</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>37.6</td>
+      <td>-39.0</td>
+      <td>0.389852</td>
+      <td>-0.385022</td>
+      <td>-5.6</td>
+      <td>Balanced</td>
+      <td>-1.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-5.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.774874</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>70.566728</td>
+      <td>106976</td>
+      <td>-110797</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05494</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>23.8</td>
+      <td>-25.1</td>
+      <td>-0.625849</td>
+      <td>0.551042</td>
+      <td>-20.4</td>
+      <td>Balanced</td>
+      <td>-1.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-20.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.176891</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>45.338208</td>
+      <td>87112</td>
+      <td>-91739</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05555</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>39.6</td>
+      <td>-41.5</td>
+      <td>0.497368</td>
+      <td>-0.510722</td>
+      <td>-6.3</td>
+      <td>Balanced</td>
+      <td>-1.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-6.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.008090</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>74.223035</td>
+      <td>101176</td>
+      <td>-106053</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05570</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>42.6</td>
+      <td>-44.8</td>
+      <td>0.688809</td>
+      <td>-0.703358</td>
+      <td>0.6</td>
+      <td>Balanced</td>
+      <td>-2.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.392167</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>79.707495</td>
+      <td>106366</td>
+      <td>-111789</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05550</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>43.7</td>
+      <td>-45.4</td>
+      <td>0.742076</td>
+      <td>-0.715631</td>
+      <td>6.1</td>
+      <td>Balanced</td>
+      <td>-1.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>6.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.457706</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>81.718464</td>
+      <td>109301</td>
+      <td>-113554</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05563</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>42.9</td>
+      <td>-44.8</td>
+      <td>0.655424</td>
+      <td>-0.648142</td>
+      <td>19.1</td>
+      <td>Balanced</td>
+      <td>-1.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>19.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.303566</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>80.255941</td>
+      <td>103558</td>
+      <td>-108180</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05601</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>44.6</td>
+      <td>-46.7</td>
+      <td>0.785635</td>
+      <td>-0.779186</td>
+      <td>5.0</td>
+      <td>Balanced</td>
+      <td>-2.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>5.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.564821</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>81.763527</td>
+      <td>107153</td>
+      <td>-111938</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05666</td>
+    </tr>
+    <tr>
+      <th>212</th>
+      <td>2026-01-27</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>43.4</td>
+      <td>-45.1</td>
+      <td>0.663626</td>
+      <td>-0.632366</td>
+      <td>0.8</td>
+      <td>Balanced</td>
+      <td>-1.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>0.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.295992</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>77.212389</td>
+      <td>103114</td>
+      <td>-107349</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05791</td>
+    </tr>
+    <tr>
+      <th>213</th>
+      <td>2026-02-03</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>40.1</td>
+      <td>-42.4</td>
+      <td>0.312701</td>
+      <td>-0.363735</td>
+      <td>-3.6</td>
+      <td>Balanced</td>
+      <td>-2.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-3.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.676436</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>69.020501</td>
+      <td>90592</td>
+      <td>-95803</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05791</td>
+    </tr>
+    <tr>
+      <th>214</th>
+      <td>2026-02-10</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>37.5</td>
+      <td>-39.3</td>
+      <td>-0.007901</td>
+      <td>-0.018106</td>
+      <td>-5.4</td>
+      <td>Balanced</td>
+      <td>-1.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-5.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.010204</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>63.097950</td>
+      <td>84951</td>
+      <td>-89138</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05819</td>
+    </tr>
+    <tr>
+      <th>215</th>
+      <td>2026-02-17</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>37.1</td>
+      <td>-39.1</td>
+      <td>-0.122622</td>
+      <td>0.069643</td>
+      <td>-7.5</td>
+      <td>Balanced</td>
+      <td>-2.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-7.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.192265</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>58.808933</td>
+      <td>84122</td>
+      <td>-88665</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>MEXICAN PESO - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>095741</td>
+      <td>0.0</td>
+      <td>95.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.05824</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Mexican Peso CoT Signals</a></section>
+  <div class="disclaimer">
+    The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+  </div>
+</main>
+</body>
+</html>

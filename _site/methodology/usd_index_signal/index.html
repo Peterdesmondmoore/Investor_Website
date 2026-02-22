@@ -24,19 +24,28 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
   <main class="container mx-auto px-5 py-10">
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">USD Index Signal</h1>
-      <div class="mt-2 text-slate-600 text-sm">A reproducible specification using FRED <strong>DTWEXBGS</strong> (Broad U.S. Dollar Index) to derive a macro‑directional risk signal, applicable across asset classes. This specification is USD‑centric and the labels reflect U.S. dollar direction.</div>
+      <div class="mt-2 text-slate-600 text-sm">
+        A reproducible specification using FRED <strong>DTWEXBGS</strong> (Broad U.S. Dollar Index) to derive a macro‑directional risk signal, applicable across asset classes.
+        This specification is USD‑centric and the labels reflect U.S. dollar direction.
+      </div>
     </header>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
-      <p class="leading-7">This document formalises a rules‑based signal from the Broad U.S. Dollar Index (<code>DTWEXBGS</code>). The method computes a 12‑month moving average and a 6‑month percentage change on a monthly series, then classifies regimes as <strong>Bullish</strong>, <strong>Neutral</strong>, or <strong>Bearish</strong>.. The framework is broadly applicable to global macro analysis, FX strategies, and commodity risk interpretation, The labels refer strictly to U.S. dollar direction and are not asset‑specific.</p>
+      <p class="leading-7">
+        This document formalises a rules‑based signal from the Broad U.S. Dollar Index (<code>DTWEXBGS</code>).
+        The method computes a 12‑month moving average and a 6‑month percentage change on a monthly series, then classifies regimes as
+        <strong>Bullish</strong>, <strong>Neutral</strong>, or <strong>Bearish</strong>.
+        Version 1.1 adds tiered logic and a hysteresis band around the moving average to reduce whipsaws, and recommends publishing continuous diagnostics alongside the discrete label.
+        The labels refer strictly to U.S. dollar direction and are not asset‑specific.
+      </p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -46,33 +55,67 @@
       <ul class="list-disc pl-6 leading-7">
         <li><strong>DTWEXBGS</strong> — Trade‑Weighted U.S. Dollar Index: Broad (FRED; daily observations resampled to monthly).</li>
       </ul>
-      <p class="leading-7 mt-3">The series is fetched from FRED with optional title metadata, coerced to numeric, and normalised to a monthly calendar prior to indicator construction.</p>
+
+      <p class="leading-7 mt-3">
+        <strong>DTWEXBGS</strong> is a nominal trade‑weighted U.S. dollar index versus a broad basket of trading‑partner currencies.
+        Daily observations are retrieved from FRED, with associated metadata (series ID and title) retained where available.
+        Values are coerced to numeric (non‑numeric entries become missing) and standardised to a monthly calendar by resampling to
+        <code>MS</code> (month‑start) and taking the last available observation in each month as an end‑of‑month proxy.
+        This monthly normalisation ensures consistent alignment for medium‑term indicators and regime classification.
+      </p>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">2. Alignment & Transformations</h2>
+      <h2 class="text-2xl font-semibold mb-3">2. Alignment &amp; Transformations</h2>
       <ol class="list-decimal pl-6 leading-7">
         <li><strong>Monthly alignment:</strong> resample to <code>MS</code> (month‑start) and take the last value in each month.</li>
-        <li><strong>Indicators:</strong> compute a 12‑month moving average and a 6‑month percentage change:
+        <li>
+          <strong>Indicators:</strong> compute a 12‑month moving average, a 6‑month percentage change, and a continuous distance-to-MA:
           <div class="box mt-2 text-sm">
             <div class="eq">USD_{12M\,MA,t} = MA_{12}(USD_t)</div>
             <div class="eq">USD_{6M\,chg,t} = 100 \times \frac{USD_t - USD_{t-6}}{USD_{t-6}}</div>
+            <div class="eq">USD_{dist,t} = 100 \times \left(\frac{USD_t}{USD_{12M\,MA,t}} - 1\right)</div>
           </div>
         </li>
       </ol>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">3. Signal Classification</h2>
-      <p class="leading-7">Interpretation is USD-centric: a weakening U.S. dollar reflects potential easing in financial conditions, while a strengthening U.S. dollar indicates tightening. Signal labels refer strictly to U.S. dollar direction and are not asset-specific.</p>
+      <h2 class="text-2xl font-semibold mb-3">3. Signal Classification (Tiered + Hysteresis)</h2>
+
+      <p class="leading-7">
+        Interpretation is USD‑centric: a weakening U.S. dollar reflects potential easing in financial conditions, while a strengthening U.S. dollar indicates tightening.
+        Prior versions used a dual trigger (6‑month change thresholds <em>or</em> position versus the 12‑month MA), which can flip the discrete label on trivial moves around the moving average.
+        Version 1.1 uses <strong>tiered logic</strong> (require momentum and level to agree) and a <strong>hysteresis band</strong> around the MA to reduce whipsaws.
+      </p>
+
       <div class="box text-sm">
+        <p class="mb-2"><strong>Parameters</strong></p>
+        <ul class="list-disc pl-6 mb-3">
+          <li><strong>Momentum threshold:</strong> <span class="eq">T = 5%</span> on <span class="eq">USD_{6M\,chg}</span>.</li>
+          <li><strong>Hysteresis band:</strong> <span class="eq">h</span> around the MA (e.g., <span class="eq">h = 0.5%</span>), defining:
+            <span class="eq">Upper_t = USD_{12M\,MA,t} \times (1+h)</span> and
+            <span class="eq">Lower_t = USD_{12M\,MA,t} \times (1-h)</span>.
+          </li>
+        </ul>
+
+        <p class="mb-2"><strong>Entry conditions (tiered)</strong></p>
+        <ul class="list-disc pl-6 mb-3">
+          <li><strong>Bullish (USD strengthening):</strong> <span class="eq">USD_{6M\,chg,t} &gt; +T</span> <em>and</em> <span class="eq">USD_t &gt; Upper_t</span>.</li>
+          <li><strong>Bearish (USD weakening):</strong> <span class="eq">USD_{6M\,chg,t} &lt; -T</span> <em>and</em> <span class="eq">USD_t &lt; Lower_t</span>.</li>
+          <li><strong>Neutral:</strong> otherwise or when inputs are missing.</li>
+        </ul>
+
+        <p class="mb-2"><strong>Stateful hysteresis (persistence)</strong></p>
         <ul class="list-disc pl-6">
-          <li><strong>Bearish (USD):</strong> <span class="eq">USD_{6M\,chg} &lt; −5%</span> <em>or</em> <span class="eq">USD_t &lt; USD_{12M\,MA,t}</span>.</li>
-<li><strong>Bullish (USD):</strong> <span class="eq">USD_{6M\,chg} &gt; +5%</span> <em>or</em> <span class="eq">USD_t &gt; USD_{12M\,MA,t}</span>.</li>
-<li><strong>Neutral:</strong> otherwise or when inputs are missing.</li>
+          <li>If previously <strong>Bullish</strong>, retain Bullish unless <span class="eq">USD_t</span> crosses below <span class="eq">Lower_t</span> (or momentum turns sufficiently negative), preventing rapid flips near the MA.</li>
+          <li>If previously <strong>Bearish</strong>, retain Bearish unless <span class="eq">USD_t</span> crosses above <span class="eq">Upper_t</span> (or momentum turns sufficiently positive).</li>
         </ul>
       </div>
-      <p class="leading-7 mt-3">Thresholds (±5%) are heuristic and may be tuned to volatility regimes or target applications.</p>
+
+      <p class="leading-7 mt-3">
+        <strong>Publishing recommendation:</strong> alongside the discrete label, publish <span class="eq">USD_{dist}</span> (distance to MA) and <span class="eq">USD_{6M\,chg}</span> (momentum) to preserve continuous information for downstream aggregation and diagnostics.
+      </p>
     </section>
 
     <section class="mb-10">
@@ -105,36 +148,75 @@ monthly = usd_df.set_index('Date')['Value'].resample('MS').last().to_frame()
 monthly.columns = ['Value_Monthly']
 monthly['USD_12Month_MA']    = monthly['Value_Monthly'].rolling(12).mean()
 monthly['USD_6Month_Change'] = monthly['Value_Monthly'].pct_change(6) * 100
+monthly['USD_Dist_to_MA']    = (monthly['Value_Monthly'] / monthly['USD_12Month_MA'] - 1.0) * 100
 
-def generate_usd_signal(row):
-    usd_6month_change = row['USD_6Month_Change']
-    usd_value = row['Value_Monthly']
-    usd_12month_ma = row['USD_12Month_MA']
+# Hysteresis bands (defaults; tune as needed)
+T = 5.0          # momentum threshold (%)
+h = 0.005        # 0.5% band around MA
 
-    if pd.isna(usd_6month_change) or pd.isna(usd_value) or pd.isna(usd_12month_ma):
+monthly['MA_Upper'] = monthly['USD_12Month_MA'] * (1 + h)
+monthly['MA_Lower'] = monthly['USD_12Month_MA'] * (1 - h)
+
+def classify_usd_signal_row(row, prev_signal='Neutral'):
+    chg  = row['USD_6Month_Change']
+    usd  = row['Value_Monthly']
+    ma   = row['USD_12Month_MA']
+    up   = row['MA_Upper']
+    low  = row['MA_Lower']
+
+    if pd.isna(chg) or pd.isna(usd) or pd.isna(ma) or pd.isna(up) or pd.isna(low):
         return 'Neutral'
 
-    # Bearish USD (weakening)
-    if (usd_6month_change < -5) or (usd_value < usd_12month_ma):
-        return 'Bearish'
+    # Tiered entry logic (momentum AND level beyond the band)
+    bullish_entry = (chg >  T) and (usd > up)
+    bearish_entry = (chg < -T) and (usd < low)
 
-    # Bullish USD (strengthening)
-    if (usd_6month_change > 5) or (usd_value > usd_12month_ma):
+    # Stateful hysteresis / persistence
+    if prev_signal == 'Bullish':
+        if bearish_entry:
+            return 'Bearish'
+        # retain Bullish unless a decisive break occurs
+        if usd < low and chg < 0:
+            return 'Neutral'
         return 'Bullish'
 
+    if prev_signal == 'Bearish':
+        if bullish_entry:
+            return 'Bullish'
+        if usd > up and chg > 0:
+            return 'Neutral'
+        return 'Bearish'
+
+    # Neutral: only enter on tiered conditions
+    if bullish_entry:
+        return 'Bullish'
+    if bearish_entry:
+        return 'Bearish'
     return 'Neutral'
 
-monthly['USD_Signal'] = monthly.apply(generate_usd_signal, axis=1)
+# Apply sequentially to preserve hysteresis behaviour
+signals = []
+prev = 'Neutral'
+for _, r in monthly.iterrows():
+    prev = classify_usd_signal_row(r, prev_signal=prev)
+    signals.append(prev)
 
+monthly['USD_Signal'] = signals
+
+# Recommended outputs (publish alongside label)
+# - USD_Dist_to_MA
+# - USD_6Month_Change
+# - MA_Upper / MA_Lower (for diagnostics)
 </code></pre>
       </div>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">5. Assumptions & Limitations</h2>
+      <h2 class="text-2xl font-semibold mb-3">5. Assumptions &amp; Limitations</h2>
       <ul class="list-disc pl-6 leading-7">
         <li>End‑of‑month sampling approximates period closes; averaging can smooth volatility if preferred.</li>
-        <li>Static ±5% bands are illustrative; calibrate dynamically to USD volatility or risk tolerance.</li>
+        <li>Static thresholds (<span class="eq">T</span>, <span class="eq">h</span>) are illustrative; calibrate to USD volatility, horizon, and tolerance for signal turnover.</li>
+        <li>Tiered logic reduces flips near the MA but can delay turning points; publishing continuous diagnostics mitigates information loss.</li>
         <li>Signal is USD‑centric but broadly interpretable across FX, commodities, equities, and macro indicators.</li>
       </ul>
     </section>
@@ -143,14 +225,101 @@ monthly['USD_Signal'] = monthly.apply(generate_usd_signal, axis=1)
       <h2 class="text-2xl font-semibold mb-3">6. Reproducibility</h2>
       <ul class="list-disc pl-6 leading-7">
         <li>Persist series ID (<code>DTWEXBGS</code>), retrieval timestamps, and library versions.</li>
-        <li>Record resampling policy (<code>MS</code> + last‑of‑month), window lengths, and thresholds.</li>
-        <li>Store the monthly panel with <code>USD_12Month_MA</code>, <code>USD_6Month_Change</code>, and <code>USD_Signal</code>.</li>
+        <li>Record resampling policy (<code>MS</code> + last‑of‑month), window lengths, thresholds (<span class="eq">T</span>, <span class="eq">h</span>), and hysteresis rules.</li>
+        <li>Store the monthly panel with <code>USD_12Month_MA</code>, <code>USD_6Month_Change</code>, <code>USD_Dist_to_MA</code>, band levels, and <code>USD_Signal</code>.</li>
       </ul>
     </section>
 
     <section class="mb-16">
       <h2 class="text-2xl font-semibold mb-3">7. Applications</h2>
-      <p class="leading-7">The USD Index Signal serves as a broad macro indicator of currency strength, risk sentiment, and financial conditions. It can be applied to FX positioning, cross-asset risk analysis, equity rotation strategies, and multi‑factor macro regime models alongside liquidity, rates, and inflation metrics.</p>
+      <p class="leading-7">
+        The USD Index Signal serves as a broad macro indicator of currency strength, risk sentiment, and financial conditions.
+        It can be applied to FX positioning, cross‑asset risk analysis, equity rotation strategies, and multi‑factor macro regime models alongside liquidity, rates, and inflation metrics.
+      </p>
+    
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">8. Model Interpretation & Academic Context</h2>
+
+      <p class="leading-7">
+        This signal is designed to be interpreted as a <strong>state and momentum diagnostic</strong> for U.S. dollar conditions rather than a point‑forecasting model.
+        Interpretation should emphasise <em>direction, persistence, and regime alignment</em>, not short‑term turning‑point precision.
+      </p>
+
+      <h3 class="text-xl font-semibold mt-5 mb-2">8.1 Interpreting the Components</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>
+          <strong>6‑Month Percentage Change (Momentum):</strong>
+          Captures medium‑term trend persistence. Academic literature shows that FX and macro series exhibit
+          <em>time‑series momentum</em> at horizons of 3–12 months (e.g. Moskowitz, Ooi & Pedersen, 2012).
+          Large positive (negative) values indicate reinforcing trend dynamics rather than isolated shocks.
+        </li>
+        <li>
+          <strong>Position Relative to the 12‑Month Moving Average (Level):</strong>
+          Acts as a slow‑moving regime anchor. Moving‑average filters are widely used to distinguish
+          expansionary versus contractionary states and to reduce noise in macro indicators
+          (e.g. Fama & French, 1988; Brock, Lakonishok & LeBaron, 1992).
+        </li>
+        <li>
+          <strong>Distance to MA (Continuous):</strong>
+          The magnitude of deviation from the regime anchor provides information on
+          <em>trend maturity</em> and potential mean‑reversion risk. Larger distances often coincide with
+          elevated positioning or late‑cycle dynamics rather than incremental trend initiation.
+        </li>
+      </ul>
+
+      <h3 class="text-xl font-semibold mt-5 mb-2">8.2 Interpreting the Discrete Signal</h3>
+      <p class="leading-7">
+        The discrete <strong>Bullish / Neutral / Bearish</strong> labels should be interpreted as
+        <em>probabilistic regime descriptors</em>, not deterministic trade signals.
+        Requiring agreement between momentum and level aligns with academic evidence that
+        combined filters improve robustness relative to single‑rule systems.
+      </p>
+
+      <ul class="list-disc pl-6 leading-7">
+        <li>
+          <strong>Bullish (USD):</strong> Indicates a strengthening‑dollar regime with reinforcing momentum.
+          Historically associated with tighter global financial conditions, headwinds for USD‑priced commodities,
+          and pressure on non‑USD assets (Bruno & Shin, 2015).
+        </li>
+        <li>
+          <strong>Bearish (USD):</strong> Indicates a weakening‑dollar regime with reinforcing downside momentum.
+          Often coincides with easing financial conditions, improved global risk appetite,
+          and tailwinds for commodities and non‑USD assets.
+        </li>
+        <li>
+          <strong>Neutral:</strong> Reflects transition, conflict, or insufficient confirmation.
+          Neutral states are informative and frequently precede regime shifts or volatility expansions.
+        </li>
+      </ul>
+
+      <h3 class="text-xl font-semibold mt-5 mb-2">8.3 Role of Hysteresis</h3>
+      <p class="leading-7">
+        The hysteresis band around the moving average introduces <em>state persistence</em>,
+        a concept aligned with regime‑switching and filtering literature.
+        By preventing rapid oscillation near thresholds, hysteresis reduces false regime changes and
+        improves interpretability at the cost of modest signal delay.
+        This trade‑off is well documented in macro filtering and trend‑following research.
+      </p>
+
+      <h3 class="text-xl font-semibold mt-5 mb-2">8.4 How to Use This Signal in Practice</h3>
+      <ul class="list-disc pl-6 leading-7">
+        <li>Use the <strong>discrete signal</strong> for regime classification and high‑level allocation context.</li>
+        <li>Use <strong>USD_{6M chg}</strong> and <strong>USD_{dist}</strong> for assessing conviction, maturity, and asymmetry.</li>
+        <li>Combine with complementary macro signals (rates, liquidity, credit) rather than in isolation.</li>
+        <li>Avoid interpreting single‑period changes as regime shifts; focus on persistence.</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold mt-5 mb-2">8.5 Selected Academic References</h3>
+      <ul class="list-disc pl-6 leading-7 text-sm">
+        <li>Moskowitz, T., Ooi, Y., & Pedersen, L. (2012). <em>Time Series Momentum</em>. Journal of Financial Economics.</li>
+        <li>Brock, W., Lakonishok, J., & LeBaron, B. (1992). <em>Simple Technical Trading Rules and the Stochastic Properties of Stock Returns</em>. Journal of Finance.</li>
+        <li>Fama, E., & French, K. (1988). <em>Permanent and Temporary Components of Stock Prices</em>. Journal of Political Economy.</li>
+        <li>Bruno, V., & Shin, H. S. (2015). <em>Cross‑Border Banking and Global Liquidity</em>. Review of Economic Studies.</li>
+        <li>Hamilton, J. (1989). <em>A New Approach to the Economic Analysis of Nonstationary Time Series and the Business Cycle</em>. Econometrica.</li>
+      </ul>
+    </section>
+
+
     </section>
 
     <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly academic specification for the USD Index Signal.</footer>

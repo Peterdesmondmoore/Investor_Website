@@ -35,6 +35,8 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("js");
   eleventyConfig.addPassthroughCopy("images");
+  eleventyConfig.addPassthroughCopy("components");
+  eleventyConfig.addPassthroughCopy("shared");
   eleventyConfig.addPassthroughCopy("insights_carousel.js");
   eleventyConfig.addPassthroughCopy("insights_carousel.json");
 

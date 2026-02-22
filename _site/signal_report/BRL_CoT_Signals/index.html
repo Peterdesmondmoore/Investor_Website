@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Brazilian Real - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Brazilian Real - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Brazilian Real futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-02-17</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement (mandatory):</strong>
+            Given a Spec_Net_%OI of 36.6 and a Spec_zscore of -0.255, this setup aligns with
+            Upward-biased price paths and Normal volatility,
+            where the dominant risk is Trend continuation, not Mean reversion.
+        </li>
+        <li>The market is currently in a Balanced_Long_Bias regime characterized by positive net speculative positioning and a sustained four-week long build (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>State Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Z-score Interpretation: Values where |z| &lt; 1 are classified as un-stretched or normal positioning (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Flow Alignment: Flow (14.9%) moving in the same direction as net positioning (36.6%) is interpreted as conviction building and trend reinforcement (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Confidence Grading: A "Medium" conviction reflects the presence of a clear flow turn despite the absence of extreme stretch (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Latest observation date: 2026-02-17.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Speculative flow has transitioned from a deep reduction phase in January to a steady accumulation of 14.9% over four weeks (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Stabilization of price at 0.19075 coincides with the lack of crowding or exhaustion flags, suggesting a healthy trend reset (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Positioning tension remains low (0.38), indicating a lack of immediate mean-reversion pressure from hedgers.</li>
+        <li>Conditional Invalidation: A reversal of speculative flow to negative (Long Reduction) would negate the upward bias.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued gradual appreciation supported by reinforcing speculative inflows.</li>
+        <li>Most plausible upside risk: Acceleration of commodity-cycle demand triggering a speculative squeeze.</li>
+        <li>Most plausible downside risk: USD strengthening causing a rapid speculative de-risking and flow reversal.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Tactical (weeks): Driven by the current 4-week flow momentum and near-term positioning shifts.</li>
+        <li>Aggregation Weight Hint: Medium; the signal provides a clean view of EM sentiment without extreme crowding.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Dimension informed: Emerging Market liquidity and commodity-linked pricing dynamics (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Cycle position: Mid-cycle stabilization following a technical position washout.</li>
+        <li>Interaction: Typically correlates with industrial metals demand and global risk-on positioning breadth.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE (CoT): Latest Date 2026-02-17 (<a href="https://investoranatomy.com/signal_report/BRL_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Influential datapoints: Spec_Net_%OI (36.6), Flow_4w (14.9), and Spec_zscore (-0.255).</li>
+        <li>Public datasets: 10-Year Real Yields and Broad Trade-Weighted USD Index for broader context.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Brazilian Real CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_BRL_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Brazilian Real futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Brazilian Real CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>201</th>
+      <td>2025-11-10</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>53.7</td>
+      <td>-56.9</td>
+      <td>0.955795</td>
+      <td>-0.950801</td>
+      <td>-3.3</td>
+      <td>Balanced</td>
+      <td>-3.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-3.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.906596</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>95.233645</td>
+      <td>57405</td>
+      <td>-60833</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18775</td>
+    </tr>
+    <tr>
+      <th>202</th>
+      <td>2025-11-18</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>51.1</td>
+      <td>-54.6</td>
+      <td>0.840547</td>
+      <td>-0.847978</td>
+      <td>-4.0</td>
+      <td>Balanced</td>
+      <td>-3.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-4.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.688525</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>92.803738</td>
+      <td>53819</td>
+      <td>-57548</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18755</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>2025-11-25</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>43.7</td>
+      <td>-46.6</td>
+      <td>0.580115</td>
+      <td>-0.579847</td>
+      <td>2.6</td>
+      <td>Balanced</td>
+      <td>-2.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>2.6</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.159962</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>85.887850</td>
+      <td>56781</td>
+      <td>-60629</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18590</td>
+    </tr>
+    <tr>
+      <th>204</th>
+      <td>2025-12-02</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>60.5</td>
+      <td>-63.6</td>
+      <td>1.078251</td>
+      <td>-1.061561</td>
+      <td>4.4</td>
+      <td>Balanced</td>
+      <td>-3.1</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>4.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Short</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>2.139813</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>100.000000</td>
+      <td>60846</td>
+      <td>-64017</td>
+      <td>True</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>True</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18630</td>
+    </tr>
+    <tr>
+      <th>205</th>
+      <td>2025-12-09</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>58.4</td>
+      <td>-60.9</td>
+      <td>0.976330</td>
+      <td>-0.945002</td>
+      <td>4.7</td>
+      <td>Balanced</td>
+      <td>-2.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>4.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.921332</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>98.068077</td>
+      <td>57434</td>
+      <td>-59943</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18295</td>
+    </tr>
+    <tr>
+      <th>206</th>
+      <td>2025-12-16</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>53.1</td>
+      <td>-56.1</td>
+      <td>0.772814</td>
+      <td>-0.764968</td>
+      <td>2.0</td>
+      <td>Balanced</td>
+      <td>-3.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>2.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>1.537782</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>93.192272</td>
+      <td>48006</td>
+      <td>-50840</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18250</td>
+    </tr>
+    <tr>
+      <th>207</th>
+      <td>2025-12-23</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>41.9</td>
+      <td>-43.7</td>
+      <td>0.362614</td>
+      <td>-0.329645</td>
+      <td>-1.8</td>
+      <td>Balanced</td>
+      <td>-1.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.692259</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>82.888684</td>
+      <td>47675</td>
+      <td>-49733</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18035</td>
+    </tr>
+    <tr>
+      <th>208</th>
+      <td>2025-12-30</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>39.0</td>
+      <td>-41.7</td>
+      <td>0.225875</td>
+      <td>-0.226755</td>
+      <td>-21.5</td>
+      <td>Balanced</td>
+      <td>-2.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-21.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.452630</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>80.220791</td>
+      <td>42109</td>
+      <td>-44958</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18174</td>
+    </tr>
+    <tr>
+      <th>209</th>
+      <td>2026-01-06</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>23.9</td>
+      <td>-27.6</td>
+      <td>-0.406239</td>
+      <td>0.348348</td>
+      <td>-34.5</td>
+      <td>Balanced</td>
+      <td>-3.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-34.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>0.754588</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>66.329347</td>
+      <td>17617</td>
+      <td>-20298</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18500</td>
+    </tr>
+    <tr>
+      <th>210</th>
+      <td>2026-01-13</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>22.6</td>
+      <td>-26.6</td>
+      <td>-0.567400</td>
+      <td>0.493437</td>
+      <td>-30.5</td>
+      <td>Balanced</td>
+      <td>-4.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-30.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.060837</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>65.133395</td>
+      <td>17874</td>
+      <td>-21003</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18510</td>
+    </tr>
+    <tr>
+      <th>211</th>
+      <td>2026-01-20</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>21.7</td>
+      <td>-26.1</td>
+      <td>-0.762615</td>
+      <td>0.666592</td>
+      <td>-20.2</td>
+      <td>Balanced</td>
+      <td>-4.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-20.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>1.429208</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>64.305428</td>
+      <td>17641</td>
+      <td>-21265</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18525</td>
+    </tr>
+    <tr>
+      <th>212</th>
+      <td>2026-01-27</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>15.6</td>
+      <td>-18.8</td>
+      <td>-1.394959</td>
+      <td>1.355625</td>
+      <td>-23.4</td>
+      <td>Balanced</td>
+      <td>-3.2</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-23.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Deep_Long</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Short_Bias</td>
+      <td>2.750584</td>
+      <td>0</td>
+      <td>High_Tension_Low_Flags</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>25.291181</td>
+      <td>18845</td>
+      <td>-22726</td>
+      <td>False</td>
+      <td>True</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>True</td>
+      <td>0</td>
+      <td>0.19195</td>
+    </tr>
+    <tr>
+      <th>213</th>
+      <td>2026-02-03</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>35.4</td>
+      <td>-40.2</td>
+      <td>-0.213404</td>
+      <td>0.087563</td>
+      <td>11.5</td>
+      <td>Balanced</td>
+      <td>-4.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>11.5</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.300967</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>57.744108</td>
+      <td>30962</td>
+      <td>-35133</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.18975</td>
+    </tr>
+    <tr>
+      <th>214</th>
+      <td>2026-02-10</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>35.5</td>
+      <td>-40.9</td>
+      <td>-0.265951</td>
+      <td>0.097357</td>
+      <td>12.9</td>
+      <td>Hedgers</td>
+      <td>-5.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>12.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Hedger_Covering</td>
+      <td>0.363308</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>57.912458</td>
+      <td>31643</td>
+      <td>-36474</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.19150</td>
+    </tr>
+    <tr>
+      <th>215</th>
+      <td>2026-02-17</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>36.6</td>
+      <td>-41.4</td>
+      <td>-0.255169</td>
+      <td>0.124605</td>
+      <td>14.9</td>
+      <td>Balanced</td>
+      <td>-4.8</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>14.9</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Hedgers_Neutral</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Balanced_Long_Bias</td>
+      <td>0.379774</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>59.422750</td>
+      <td>34662</td>
+      <td>-39192</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>BRAZILIAN REAL - CHICAGO MERCANTILE EXCHANGE</td>
+      <td>102741</td>
+      <td>0.0</td>
+      <td>102.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>0.19075</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Brazilian Real CoT Signals</a></section>
+  <div class="disclaimer">
+    The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+  </div>
+</main>
+</body>
+</html>

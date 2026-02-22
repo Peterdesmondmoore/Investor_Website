@@ -24,7 +24,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -40,6 +40,23 @@
       <p class="leading-7 mt-2">We build a monthly <em>Credit Spreads Composite (CSC)</em> from ICE BofA US High Yield OAS and US Corporate Master OAS. Level and momentum features are robust‑standardised and combined into a composite that maps to regimes—<span class="font-semibold">EASY</span>, <span class="font-semibold">NORMAL</span>, <span class="font-semibold">TIGHTENING</span>, <span class="font-semibold">STRESSED</span>. The CSC feeds into the broader <em>Financial Stress Index (FSI)</em> as a key sub‑pillar alongside Liquidity, VIX, and Funding indicators.</p>
     </section>
 
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">Version 1.1 — Methodology Amendments</h2>
+      <div class="box text-sm">
+        <ul class="list-disc pl-6">
+          <li><b>Vendor revisions &amp; reporting lag:</b> ICE OAS series can be revised and can lag by ~1 business day; levels can be distorted when bid–ask spreads widen in market stress.</li>
+          <li><b>Composite weighting:</b> baseline fixed-weight composite is retained for continuity, but we add an <i>experimental</i> volatility-/regime-aware reweighting option and publish component contributions for transparency.</li>
+          <li><b>Momentum overlay:</b> the regime decision now explicitly uses both <i>level</i> and <i>momentum</i> (3‑month annualised change) with a persistence check to reduce one‑off spikes.</li>
+          <li><b>Time-varying percentiles:</b> percentile ranks are computed over a rolling window (default 10 years) and exposed as an output so users can see when “wide” is wide relative to the recent distribution.</li>
+        
+          <li><b>Vendor revisions &amp; lag:</b> ICE may revise recent observations; allow 1–2 business days for “final” prints and keep a retrieval timestamp for audit.</li>
+          <li><b>Stress distortion:</b> during liquidity shocks, bid–ask widening can inflate observed spreads; winsorisation and persistence rules reduce false regime flips.</li>
+
+        </ul>
+      </div
+    </section>
+</section>
+
     <div class="rule mb-10"></div>
 
     <section class="mb-10">
@@ -49,6 +66,14 @@
         <li><b>BAMLC0A0CM</b> — ICE BofA US Corporate Master Option‑Adjusted Spread (pct points).</li>
       </ul>
       <p class="leading-7 mt-3">Frequency: daily; we aggregate to month‑end or week‑end snapshots. Units are percentage points (bps/100). Titles and last‑obs dates are logged.</p>
+      <div class="box text-sm mt-4">
+        <ul class="list-disc pl-6">
+          <li><b>What OAS represents:</b> ICE BofA option‑adjusted spreads are the spread between an index‑level OAS (market‑cap weighted across constituents) and a spot U.S. Treasury curve.</li>
+          <li><b>Rating universe:</b> <b>BAMLH0A0HYM2</b> covers below‑investment‑grade (BB or lower); <b>BAMLC0A0CM</b> covers investment‑grade (BBB or higher).</li>
+          <li><b>Month-end mechanics:</b> when the last calendar day falls on a weekend, weekend observations can occur due to month‑end accrued‑interest adjustments.</li>
+          <li><b>Known practical frictions:</b> levels can be impacted by market microstructure (wider bid–ask spreads, dealer balance‑sheet constraints) and vendor revisions; treat single‑day moves cautiously during stress.</li>
+        </ul>
+      </div>
     </section>
 
     <section class="mb-10">
@@ -97,6 +122,9 @@
       <div class="box text-sm mt-3">
         <div class="eq">CSC_t = \sum_k w_k\, z^k_t,\quad \sum_k w_k = 1</div>
       </div>
+
+      <p class="leading-7 mt-3"><b>Experimental dynamic weighting (optional):</b> compute component volatilities over a rolling window (e.g., 36–60 months) and tilt weights toward more stable components (inverse‑volatility) or toward HY components when a broader volatility regime is elevated (e.g., VIX/STLFSI high). Publish both <code>CSC_fixed</code> and <code>CSC_dyn</code> to preserve comparability while enabling research.</p>
+
     </section>
 
     <section class="mb-10">
@@ -111,6 +139,10 @@
         </ul>
       </div>
       <p class="text-sm mt-2">We also publish a 0–100 score via rolling min–max over 10 years.</p>
+
+      <p class="text-sm mt-3"><b>Persistence / momentum overlay (v1.1):</b> require that either (a) <i>CSC z</i> remains above the threshold for 2 consecutive observations, or (b) the level condition (HY) and momentum condition (Δ3m annualised) agree, before upgrading to <b>TIGHTENING</b>/<b>STRESSED</b>. This reduces whipsaws from one‑day prints or microstructure noise.</p>
+      <p class="text-sm mt-2"><b>Time-varying percentiles:</b> percentile ranks are computed on a rolling 10‑year window (120 months) by default and are recalculated each period; avoid comparing percentile ranks across different window settings without noting the window.</p>
+
     </section>
 
     <section class="mb-10">
@@ -166,9 +198,31 @@ components = {
         <li>Quarterly review of components, thresholds, and weights vs backtests.</li>
         <li>Document methodology updates; maintain semantic versioning.</li>
       </ul>
+    
+    <section class="mb-10">
+      <h2 class="text-2xl font-semibold">12) Model Interpretation (How to Read the Signal)</h2>
+      <div class="box text-sm">
+        <p class="leading-7"><b>What the spreads “mean” economically:</b> corporate spreads embed (i) expected default losses and (ii) time‑varying risk premia and liquidity compensation. In stressed markets, the liquidity/risk‑premium component can dominate moves in observed spreads.</p>
+        <ul class="list-disc pl-6 mt-3">
+          <li><b>Level (HY / IG OAS):</b> higher levels indicate tighter corporate funding conditions. HY is typically more cyclically sensitive than IG.</li>
+          <li><b>Momentum (Δ3m annualised, Δ12m):</b> rapid widening is often more informative than the level alone for transition risk (shock propagation into equities and real activity).</li>
+          <li><b>Percentile rank:</b> interpret as “how unusual” current spreads are relative to the recent distribution (rolling window). A high percentile with <i>flat</i> momentum is often late‑cycle/plateau; a high percentile with <i>accelerating</i> momentum is acute stress.</li>
+          <li><b>Composite z-score:</b> a standardised summary for cross‑pillar aggregation (FSI). Use component contributions to identify whether HY, IG, or momentum is driving the signal.</li>
+          <li><b>Data quality flags:</b> treat regime changes as lower confidence when <code>stale</code>, heavy <code>ffill</code>, or large bid–ask/widening episodes are present.</li>
+        </ul>
+        <p class="leading-7 mt-3"><b>Cross-checks:</b> interpret the credit pillar jointly with volatility (VIX), liquidity (reserves/repo), and funding metrics. “Widening spreads with calm VIX” often signals early credit deterioration; “high VIX with stable spreads” often reflects equity-specific volatility rather than credit tightening.</p>
+      </div>
+      <h3 class="text-xl font-semibold mt-6">Academic anchors (selected)</h3>
+      <ul class="list-disc pl-6 leading-7 text-sm mt-2">
+        <li>Decompositions showing a large, time‑varying risk‑premium component (“excess bond premium”) that predicts macro outcomes: Gilchrist &amp; Zakrajšek (2012).</li>
+        <li>Evidence that corporate spreads reflect default risk <i>and</i> nondefault components linked to liquidity and market‑wide conditions: Longstaff, Mithal &amp; Neis (2005).</li>
+        <li>Liquidity effects in crises (illiquidity contribution to spreads rises sharply when markets are stressed): Dick‑Nielsen, Feldhütter &amp; Lando (2012).</li>
+      </ul>
+      <p class="text-sm text-slate-500 mt-3">These references justify interpreting OAS moves as a blend of fundamentals and market frictions, motivating robustness tools (winsorisation, persistence, and volatility‑aware weighting).</p>
     </section>
+</section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print-friendly specification for the Credit Spreads signal.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print-friendly specification for the Credit Spreads signal.</footer>
   </main>
 </body>
 </html>

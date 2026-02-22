@@ -24,7 +24,7 @@
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
-      <div>Version 1.0</div>
+      <div>Version 1.1</div>
     </div>
   </nav>
 
@@ -42,14 +42,47 @@
     <div class="rule mb-10"></div>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">1. Data</h2>
-      <ul class="list-disc pl-6 leading-7">
-        <li><strong>ICSA</strong> — Initial Claims, Seasonally Adjusted (FRED: <code>ICSA</code>), weekly.</li>
-        <li><strong>CCSA</strong> — Continuing Claims, Seasonally Adjusted (FRED: <code>CCSA</code>), weekly.</li>
-        <li><strong>PAYEMS</strong> — Total Nonfarm Payrolls, Seasonally Adjusted (FRED: <code>PAYEMS</code>), monthly.</li>
-      </ul>
-      <p class="leading-7 mt-3">ICSA and CCSA are resampled to monthly frequency to align with PAYEMS.</p>
-    </section>
+  <h2 class="text-2xl font-semibold mb-3">1. Data Sources (Expanded)</h2>
+  <p class="leading-7">
+    This composite uses high-frequency unemployment insurance (UI) claims as a near-real-time labour stress gauge,
+    and the establishment survey payroll series as the canonical measure of payroll employment growth.
+    All series are obtained from FRED for consistent access and metadata; the original producers are the U.S. Department of Labor
+    (Employment and Training Administration) and the U.S. Bureau of Labor Statistics (BLS).
+  </p>
+
+  <h3 class="text-lg font-semibold mt-5 mb-2">ICSA — Initial Claims, Seasonally Adjusted (FRED: <code>ICSA</code>)</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><strong>Producer:</strong> U.S. Department of Labor (ETA), published weekly; distributed via FRED.</li>
+    <li><strong>What it measures:</strong> First-time filings for UI benefits — a timely indicator of changes in layoffs.</li>
+    <li><strong>Frequency & timing:</strong> Weekly observations; typically released with a short lag after the reference week.</li>
+    <li><strong>Construction notes:</strong> Seasonally adjusted; sensitive to holiday effects and administrative changes (eligibility, backlogs, program transitions).</li>
+    <li><strong>Revision risk:</strong> Weekly values can be revised as states update counts; month-end averaging reduces, but does not eliminate, noise.</li>
+  </ul>
+
+  <h3 class="text-lg font-semibold mt-5 mb-2">CCSA — Continuing Claims, Seasonally Adjusted (FRED: <code>CCSA</code>)</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><strong>Producer:</strong> U.S. Department of Labor (ETA), published weekly; distributed via FRED.</li>
+    <li><strong>What it measures:</strong> Ongoing UI benefit claims (insured unemployment). These claims are based on the week of unemployment (not the week the initial claim was filed).</li>
+    <li><strong>Interpretation nuance:</strong> More affected by benefit duration, re-employment rates, and policy rules than initial claims; best read as persistence of labour market stress rather than the onset of stress.</li>
+    <li><strong>Revision risk:</strong> Similar to ICSA (administrative updates), plus sensitivity to policy/program parameters.</li>
+  </ul>
+
+  <h3 class="text-lg font-semibold mt-5 mb-2">PAYEMS — Total Nonfarm Payrolls, Seasonally Adjusted (FRED: <code>PAYEMS</code>)</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><strong>Producer:</strong> BLS Current Employment Statistics (CES) establishment survey; monthly.</li>
+    <li><strong>What it measures:</strong> Payroll jobs at nonfarm establishments (level), widely treated as the baseline labour activity series.</li>
+    <li><strong>Frequency & timing:</strong> Monthly; subject to routine monthly revisions and annual benchmark revisions to align with more comprehensive UI tax records (QCEW).</li>
+    <li><strong>Revision risk:</strong> Monthly prints are revised in subsequent releases; the annual benchmark process can shift the historical level and near-term momentum.</li>
+  </ul>
+
+  <div class="box text-sm mt-5">
+    <div class="font-semibold mb-1">Alignment choice</div>
+    <div class="leading-6">
+      ICSA and CCSA are resampled to monthly frequency to align with PAYEMS. This reduces high-frequency noise and makes the composite comparable across components,
+      but it also means the signal inherits the slower update cadence of the monthly payroll series.
+    </div>
+  </div>
+</section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2. Transformations</h2>
@@ -127,16 +160,96 @@ display(df_sig_labor.tail())
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">7. Interpretation</h2>
-      <ul class="list-disc pl-6 leading-7">
-        <li><strong>Tightening:</strong> declining claims and accelerating payrolls — late‑cycle strength.</li>
-        <li><strong>Neutral:</strong> steady labour market consistent with trend growth.</li>
-        <li><strong>Softening:</strong> rising claims and flattening payroll growth — potential early sign of slowdown.</li>
-      </ul>
-    </section>
+  <h2 class="text-2xl font-semibold mb-3">7. Interpretation</h2>
+
+  <p class="leading-7">
+    The composite (<code>Labor_Momentum</code>) is an average of three robust z-scores. Positive values indicate labour strengthening
+    (claims falling and/or payroll momentum rising); negative values indicate labour softening.
+  </p>
+
+  <div class="box text-sm mt-4">
+    <div class="font-semibold mb-2">Regime meaning (as implemented)</div>
+    <ul class="list-disc pl-6 leading-6">
+      <li><strong>Tightening (C<sub>t</sub> &gt; 0.75):</strong> Broad labour improvement — layoffs easing (claims down) and hiring momentum firming (payroll 3mDiff up).</li>
+      <li><strong>Neutral (|C<sub>t</sub>| ≤ 0.75):</strong> Mixed or near-trend labour conditions — the system is not confidently signalling a regime.</li>
+      <li><strong>Softening (C<sub>t</sub> &lt; −0.75):</strong> Broad labour deterioration — layoffs rising (claims up) and hiring momentum fading.</li>
+    </ul>
+  </div>
+
+  <h3 class="text-lg font-semibold mt-6 mb-2">Reading the drivers</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><strong>Claims-driven moves:</strong> If <code>Z_ICSA</code> and <code>Z_CCSA</code> fall (more negative), the composite will typically weaken even if payroll momentum is stable. This tends to be the earliest warning channel.</li>
+    <li><strong>Payroll-driven moves:</strong> If <code>Z_PAYEMS</code> turns sharply lower while claims remain benign, the composite can weaken after the onset of a slowdown in hiring rather than layoffs.</li>
+    <li><strong>Divergences:</strong> A common transition pattern is <em>claims rising first</em> (softening signal) while payroll momentum remains positive, followed later by a weaker <code>PAYEMS_3mDiff</code>.</li>
+  </ul>
+
+  <div class="box text-sm mt-5">
+    <div class="font-semibold mb-1">Practical caution</div>
+    <div class="leading-6">
+      The payroll component can be materially revised (monthly revisions and annual benchmarks). When the composite is near thresholds (±0.75),
+      treat a single-month flip as lower confidence and prefer sustained confirmation across multiple releases.
+    </div>
+  </div>
+</section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">8. Limitations</h2>
+  <h2 class="text-2xl font-semibold mb-3">8. Model Interpretation (with Academic Context)</h2>
+
+  <p class="leading-7">
+    This signal is designed for <strong>state</strong> and <strong>momentum</strong> inference rather than point forecasting. It combines:
+    (i) weekly UI claims (fast, noisy, layoff-sensitive) and (ii) payroll hiring momentum (slower, benchmarked, broader labour demand).
+    Interpreting the output is best done by decomposing the composite into component contributions and by accounting for known data imperfections.
+  </p>
+
+  <h3 class="text-lg font-semibold mt-6 mb-2">What the composite is (and is not)</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><strong>It is:</strong> a robust, standardized measure of recent labour-market momentum relative to the prior ~3 years (36-month rolling window).</li>
+    <li><strong>It is not:</strong> an unemployment rate proxy, nor a level estimate of labour tightness; it is a direction-and-extremeness metric.</li>
+  </ul>
+
+  <h3 class="text-lg font-semibold mt-6 mb-2">How to interpret regimes</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><strong>Tightening:</strong> Historically, claims often lead the unemployment rate and broader cyclical turning points; a sustained tightening regime suggests labour is providing support to growth, but late-cycle overheating risks can rise if inflation is also firm.</li>
+    <li><strong>Softening:</strong> Sustained increases in initial claims have been documented as leading indicators of labour deterioration and recession risk; this regime is a “watch” condition for broader slowdown dynamics.</li>
+    <li><strong>Neutral:</strong> Treat as “insufficient evidence” rather than a view; use other macro blocks (inflation/credit/liquidity) for confirmation.</li>
+  </ul>
+
+  <h3 class="text-lg font-semibold mt-6 mb-2">Why robust z-scores</h3>
+  <p class="leading-7">
+    Claims and payroll momentum can contain outliers (pandemic-period spikes, strikes, administrative distortions) and are revised. Median/MAD scaling
+    reduces sensitivity to extreme points compared with mean/standard-deviation scaling, improving stability for regime mapping.
+    The constant 1.4826 rescales MAD to be comparable to the standard deviation under Gaussian assumptions.
+  </p>
+
+  <h3 class="text-lg font-semibold mt-6 mb-2">Data caveats that matter for interpretation</h3>
+  <ul class="list-disc pl-6 leading-7">
+    <li><strong>Claims noise:</strong> Weekly claims can be volatile and revised; month-end aggregation helps but does not eliminate short-lived distortions.</li>
+    <li><strong>Payroll revisions:</strong> CES payroll employment is revised each month and benchmarked annually to QCEW (UI tax records). This can change recent momentum signals and may alter apparent turning points.</li>
+    <li><strong>Policy/administration dependence:</strong> Claims levels can shift with eligibility rules, processing backlogs, and program changes — interpret extremes with institutional context.</li>
+  </ul>
+
+  <div class="box text-sm mt-6">
+    <div class="font-semibold mb-2">Recommended reading</div>
+    <ul class="list-disc pl-6 leading-6">
+      <li>NY Fed Quarterly Review (1983): evidence that initial claims can lead the unemployment rate at cyclical turning points.</li>
+      <li>Choi & Varian (2009): discusses initial claims as a strong leading indicator and approaches to forecasting claims.</li>
+      <li>BLS CES Benchmark Article (annual): explains the benchmark revision process and typical magnitude of revisions.</li>
+      <li>Phillips (2012): examines properties and potential biases in payroll benchmark revisions.</li>
+      <li>Rousseeuw & Croux (1993): robust scale estimation context related to MAD-style approaches.</li>
+    </ul>
+    <div class="text-xs text-slate-600 mt-3">
+      Links: 
+      <a class="underline" href="https://www.newyorkfed.org/medialibrary/media/research/quarterly_review/1983v8/v8n4article8.pdf" target="_blank" rel="noreferrer">NY Fed (1983)</a> ·
+      <a class="underline" href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1659307" target="_blank" rel="noreferrer">Choi (2009 SSRN)</a> ·
+      <a class="underline" href="https://www.bls.gov/web/empsit/cesbmart.htm" target="_blank" rel="noreferrer">BLS CES Benchmark</a> ·
+      <a class="underline" href="https://www.sciencedirect.com/science/article/abs/pii/S0165176511006410" target="_blank" rel="noreferrer">Phillips (2012)</a> ·
+      <a class="underline" href="https://en.wikipedia.org/wiki/Robust_measures_of_scale" target="_blank" rel="noreferrer">MAD scaling (overview)</a>
+    </div>
+  </div>
+</section>
+
+<section class="mb-10">
+      <h2 class="text-2xl font-semibold mb-3">9. Limitations</h2>
       <ul class="list-disc pl-6 leading-7">
         <li>Weekly claims data are volatile; month‑end averaging helps but may still produce noise.</li>
         <li>PAYEMS subject to periodic revisions; re‑benchmarking can alter short‑term momentum.</li>
@@ -144,7 +257,7 @@ display(df_sig_labor.tail())
       </ul>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Methodology reference for the Labour Market Momentum signal.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">© 2025–2026. Methodology reference for the Labour Market Momentum signal (v1.1).</footer>
   </main>
 </body>
 </html>

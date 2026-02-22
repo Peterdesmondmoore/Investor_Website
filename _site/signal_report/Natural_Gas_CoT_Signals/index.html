@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      overflow-x: auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .table-box table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .table-box th,
+    .table-box td {
+      padding: 7px 9px;
+      border-bottom: 1px solid #111827;
+    }
+
+    .table-box th {
+      text-align: left;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      white-space: nowrap;
+      background: #020617;
+    }
+
+    .table-box tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .table-box tr:nth-child(even) {
+      background: #020617;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Natural Gas - Individual Market Analysis</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Natural Gas - Individual Market Analysis</h1>
+      <p class="subtitle">CoT signals and diagnostics for Natural Gas futures.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2024-08-27</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a Spec Net %OI of -9.0, a positive 4-week flow of +30.0, and a market structure classified as Spec Trend Long, this setup aligns with
+            Transition-biased price paths and Indeterminate volatility,
+            where the dominant risk is Short covering / squeeze, not Trend continuation (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).
+        </li>
+        <li>The market is emerging from a deep net-short posture, characterized by aggressive speculative long building and short covering despite a negative net position.</li>
+        <li>State Conviction Band: Low; Interpretation Confidence: Low Confidence; Internal Conflict Flag: No.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Spec Net %OI: Interpreted to normalize market size; higher absolute values imply greater fragility (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>4-Week Flow: Measures near-term pressure; flows opposing net direction indicate de-risking or early turn risk (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Natural Gas Supplementary: Mandates avoiding macro over-interpretation due to idiosyncratic, weather-driven volatility (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Data Freshness: Stale (Latest observation: 2024-08-27).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is a massive 30-point swing in 4-week flow, which has shifted the Spec Net %OI from -39.0 to -9.0 (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Price momentum is stabilizing and turning upward, aligned with the reduction in speculative short conviction (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Internal Tension: Speculators remain net short (-9.0) but recent activity is exclusively long-biased, creating a transition phase.</li>
+        <li>Conditional Invalidation: A price breakdown below the 1.714 level, reversing recent flow gains (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued short covering supports a transition toward a neutral or net-long speculative regime.</li>
+        <li>Upside risk: Sudden weather-driven demand spike triggering a non-linear squeeze of remaining shorts.</li>
+        <li>Downside risk: Resumption of supply-side pressure if flow momentum fades before crossing into net-long territory.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Tactical (weeks): Based on the methodology's emphasis on 4-week flow for short-term behavior (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Low; justified by the stale data and the market's idiosyncratic nature which limits broader macro extrapolation (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs energy-sector liquidity and pricing stress.</li>
+        <li>Cycle position: Late-stage consolidation or early-stage recovery.</li>
+        <li>Typical interaction: Serves as an energy stress amplifier; rarely a primary driver for global macro indices.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>E-Mini Natural Gas CoT Data (Latest: 2024-08-27) (<a href="https://investoranatomy.com/signal_report/Natural_Gas_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Spec Net %OI (-9.0) and 4-Week Flow (+30.0) are the most influential metrics.</li>
+        <li>Regional weather forecasts and EIA storage reports would provide critical fundamental depth.</li>
+    </ul>
+
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Stale Data: The latest CoT report date is 2024-08-27; update to current week required for tactical relevance.</li>
+  <li>Missing Z-Scores: Spec and Hedger z-scores are NaN in the provided dataset, preventing a high-confidence assessment of positioning stretch.</li>
+</ul>
+--></div></section>
+
+<section class="section"><h2 class="section-title">Natural Gas CoT Diagnostics Chart</h2><div class="box chart-box"><img src="/images/CoT_NATGAS_Diagnostics.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Natural Gas futures: CoT diagnostics, positioning, crowding, reversal risk, and price overlay.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Natural Gas CoT Signals Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Report_Date</th>
+      <th>Market_and_Exchange_Names</th>
+      <th>Spec_Net_%OI</th>
+      <th>Hedger_Net_%OI</th>
+      <th>Spec_zscore</th>
+      <th>Hedger_zscore</th>
+      <th>Flow_4w</th>
+      <th>controller</th>
+      <th>controller_gap_%OI</th>
+      <th>spec_extreme_1y</th>
+      <th>hedger_extreme_1y</th>
+      <th>any_extreme_1y</th>
+      <th>extreme_side</th>
+      <th>flow_4w_label</th>
+      <th>flow_4w_strength</th>
+      <th>crowded_long</th>
+      <th>crowded_short</th>
+      <th>squeeze_risk</th>
+      <th>exhaustion_risk</th>
+      <th>hedger_pressure_regime</th>
+      <th>bullish_reversal_risk</th>
+      <th>bearish_reversal_risk</th>
+      <th>reversal_regime</th>
+      <th>market_structure_regime</th>
+      <th>positioning_tension_score</th>
+      <th>risk_flags_count</th>
+      <th>synthetic_state</th>
+      <th>CFTC_Contract_Market_Code</th>
+      <th>CFTC_Market_Code</th>
+      <th>CFTC_Region_Code</th>
+      <th>CFTC_Commodity_Code</th>
+      <th>Commodity_Class</th>
+      <th>Commodity_SubClass</th>
+      <th>Region_Class</th>
+      <th>COT_Index_Spec</th>
+      <th>Spec_Net_Contracts</th>
+      <th>Hedger_Net_Contracts</th>
+      <th>hedger_pressure</th>
+      <th>specs_vs_hedgers_divergence</th>
+      <th>source</th>
+      <th>Market and Exchange Names</th>
+      <th>CFTC Contract Market Code</th>
+      <th>CFTC Region Code</th>
+      <th>CFTC Commodity Code</th>
+      <th>hedger_deep_short</th>
+      <th>hedger_deep_long</th>
+      <th>reversal_score</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2024-03-12</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-39.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Specs</td>
+      <td>39.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Unknown</td>
+      <td>NaN</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Unknown</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Neutral_or_Flat</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>NaN</td>
+      <td>-10004</td>
+      <td>0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>023655</td>
+      <td>1.0</td>
+      <td>23.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>1.714</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2024-03-19</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-40.4</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>-1.4</td>
+      <td>Specs</td>
+      <td>40.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Reduction</td>
+      <td>-1.4</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Unknown</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Long_Unwind</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>NaN</td>
+      <td>-12212</td>
+      <td>0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>023655</td>
+      <td>1.0</td>
+      <td>23.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>1.744</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2024-04-16</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-30.7</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>8.3</td>
+      <td>Specs</td>
+      <td>30.7</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>8.3</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Unknown</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>NaN</td>
+      <td>-8747</td>
+      <td>0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>023655</td>
+      <td>1.0</td>
+      <td>23.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>1.732</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2024-04-23</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-29.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>10.0</td>
+      <td>Specs</td>
+      <td>29.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>10.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Unknown</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>NaN</td>
+      <td>-9197</td>
+      <td>0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>023655</td>
+      <td>1.0</td>
+      <td>23.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>1.812</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2024-08-27</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>-9.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>30.0</td>
+      <td>Specs</td>
+      <td>9.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>None</td>
+      <td>Long_Build</td>
+      <td>30.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>Unknown</td>
+      <td>False</td>
+      <td>False</td>
+      <td>No_Clear_Reversal</td>
+      <td>Spec_Trend_Long</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>Normal</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Other</td>
+      <td>Unknown</td>
+      <td>Other / Unknown</td>
+      <td>NaN</td>
+      <td>-1794</td>
+      <td>0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>legacy</td>
+      <td>E-MINI NATURAL GAS - NEW YORK MERCANTILE EXCHANGE</td>
+      <td>023655</td>
+      <td>1.0</td>
+      <td>23.0</td>
+      <td>False</td>
+      <td>False</td>
+      <td>0</td>
+      <td>1.904</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+
+<section class="section"><a href="/methodology/single_market_cot_methodology.html" class="methodology-button" target="_blank" rel="noopener">Methodology: Natural Gas CoT Signals</a></section>
+  <div class="disclaimer">
+    The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+  </div>
+</main>
+</body>
+</html>
