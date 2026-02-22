@@ -7,7 +7,10 @@
   <link rel="icon" type="image/png" href="/images/Favicon.png" />
   <style>
     :root {
-      --bg: #020617;
+      --bg-primary: #0b1220;
+      --bg-secondary: #121b2d;
+      --text-primary: #f3f4f6;
+      --bg: var(--bg-primary);
       --bg-elevated: #0b1120;
       --card: #111827;
       --border-subtle: #1f2937;
@@ -40,17 +43,24 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 64px;
-      background: rgba(2, 6, 23, 0.85);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      height: 60px;
+      background: transparent;
+      border-bottom: 1px solid transparent;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-family: "Playfair Display", Georgia, serif;
       z-index: 100;
+      transition: background 0.3s ease, border-color 0.3s ease;
       backdrop-filter: blur(10px);
     }
 
-    .nav-inner {
+    .nav-header.scrolled {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid #2a3644;
+    }
+
+    .nav-header-inner {
       max-width: 1120px;
       width: 100%;
       display: flex;
@@ -60,43 +70,226 @@
     }
 
     .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
       color: var(--text-main);
+      letter-spacing: 0.02em;
+      transition: color 0.2s ease;
+      text-decoration: none;
     }
 
-    .nav-brand img {
-      width: 34px;
-      height: 34px;
-      object-fit: contain;
+    .nav-brand:hover {
+      color: #8b5cf6;
+      text-decoration: none;
     }
 
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.1;
-    }
-
-    .brand-text .top {
+    .nav-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: rgba(42, 54, 68, 0.5);
+      color: #e5e7eb;
+      cursor: pointer;
       font-size: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .nav-menu-btn:hover {
+      background: rgba(42, 54, 68, 0.8);
+    }
+
+    .nav-menu-label {
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      color: var(--text-muted);
+      font-size: 11px;
+      color: #9ca3af;
     }
 
-    .brand-text .bottom {
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.01em;
+    .nav-menu-icon {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
-    .nav-link {
-      padding: 8px 14px;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(148,163,184,0.35);
-      color: var(--text-muted);
+    .nav-menu-icon span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      transition: transform 0.22s ease, opacity 0.18s ease, width 0.18s ease;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(1) {
+      transform: translateY(5px) rotate(45deg);
+      width: 16px;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(2) {
+      opacity: 0;
+      width: 0;
+    }
+
+    .nav-menu-btn.is-open .nav-menu-icon span:nth-child(3) {
+      transform: translateY(-5px) rotate(-45deg);
+      width: 16px;
+    }
+
+    .ia-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.65);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease-out;
+      backdrop-filter: blur(3px);
+      z-index: 40;
+    }
+
+    .ia-nav-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ia-nav-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 300px;
+      max-width: 82vw;
+      background: var(--bg-elevated);
+      border-left: 1px solid #111827;
+      box-shadow: -24px 0 60px rgba(0,0,0,0.85);
+      transform: translateX(100%);
+      transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 20px 20px;
+      font-family: "Playfair Display", Georgia, serif;
+    }
+
+    .ia-nav-panel.open {
+      transform: translateX(0);
+    }
+
+    .ia-nav-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .ia-nav-panel-title {
       font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+    }
+
+    .ia-nav-close {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .ia-nav-close span {
+      position: absolute;
+      width: 14px;
+      height: 2px;
+      border-radius: 999px;
+      background: #e5e7eb;
+    }
+
+    .ia-nav-close span:first-child {
+      transform: rotate(45deg);
+    }
+
+    .ia-nav-close span:last-child {
+      transform: rotate(-45deg);
+    }
+
+    .ia-nav-panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .ia-nav-link {
+      font-size: 15px;
+      font-weight: 500;
+      color: #e5e7eb;
+      padding: 6px 0;
+    }
+
+    .ia-nav-link:hover {
+      color: #facc15;
+      text-decoration: none;
+    }
+
+    .nav-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+      padding: 12px 0 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-section-title:hover {
+      color: #e5e7eb;
+    }
+
+    .nav-section-arrow {
+      transition: transform 0.2s ease;
+    }
+
+    .nav-section-arrow.open {
+      transform: rotate(180deg);
+    }
+
+    .nav-section-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-section-content.open {
+      max-height: 500px;
+    }
+
+    .nav-section-content .ia-nav-link {
+      padding-left: 12px;
+    }
+
+    .nav-note {
+      font-size: 12px;
+      color: #9ca3af;
+      padding: 8px 12px;
+      margin: 8px 0;
+      border-left: 2px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 4px;
+      line-height: 1.4;
     }
 
     .page {
@@ -255,6 +448,70 @@
       color: var(--text-muted);
     }
 
+    /* Universal Footer (reused from index) */
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      width: 100%;
+      background: var(--bg-secondary);
+      z-index: 1;
+    }
+
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .universal-footer-brand:hover {
+      color: #8b5cf6;
+      text-decoration: none;
+    }
+
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none;
+    }
+
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
     @media (max-width: 1100px) {
       .insights-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -269,26 +526,19 @@
         height: 180px;
       }
       .video-background video {
-        object-position: 20px center;
+        object-position: center center;
+      }
+      .universal-footer-top {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
 </head>
 <body>
-  <div class="nav-header">
-    <div class="nav-inner">
-      <a class="nav-brand" href="/index.html">
-        <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" />
-        <div class="brand-text">
-          <span class="top">Investor Anatomy</span>
-          <span class="bottom">Insights</span>
-        </div>
-      </a>
-      <a class="nav-link" href="/index.html">Home</a>
-    </div>
-  </div>
+  <div data-include-nav></div>
 
-  <div class="page">
+<div class="page">
     <div class="video-background">
       <video autoplay muted loop playsinline>
         <source src="/images/IA_Insights.mp4" type="video/mp4" />
@@ -313,10 +563,10 @@
 <article class="insights-card"><div class="insights-image has-image" style="background-image: url('/images/IA_Silver_Card.png');"><span class="insights-image-label">Silver Outlook</span></div><div class="insights-body"><p class="subtitle card-subtitle">Silver is poised for a tactical recovery as speculative short positioning reaches exhaustion amid supportive structural supply deficits and a weakening US dollar.</p><div class="insights-snippet">The silver market is currently navigating a period of heightened volatility, balancing immediate macroeconomic headwinds against deep-seated structural imbalances. We...</div><a class="insights-link" href="/Podcast_Silver.html">Read the analysis</a></div></article>
 <article class="insights-card"><div class="insights-image has-image" style="background-image: url('/images/IA_Copper_Card.png');"><span class="insights-image-label">Copper Outlook</span></div><div class="insights-body"><p class="subtitle card-subtitle">Long-term structural demand for copper is being overshadowed by a significant near-term supply glut and rising speculative risk.</p><div class="insights-snippet">We observe the copper market entering a phase of high tension where optimistic long-term narratives meet a present reality of...</div><a class="insights-link" href="/Podcast_Copper.html">Read the analysis</a></div></article>
 <article class="insights-card"><div class="insights-image has-image" style="background-image: url('/images/IA_Lithium_Card.png');"><span class="insights-image-label">Lithium Outlook</span></div><div class="insights-body"><p class="subtitle card-subtitle">A fundamental transition from structural surplus toward tightening supply, catalyzed by surging stationary storage demand, is redefining the lithium pricing floor and elevating squeeze risks.</p><div class="insights-snippet">We observe a market at a pivotal inflection point as the long-standing narrative of oversupply begins to dissolve. Despite headwinds...</div><a class="insights-link" href="/Podcast_Lithium.html">Read the analysis</a></div></article></div></section>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
     </main>
   </div>
+  <div data-include-footer></div>
+  <script src="/shared/layout-loader.js"></script>
 </body>
 </html>
+
