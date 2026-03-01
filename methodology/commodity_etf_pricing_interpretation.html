@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commodity ETF — Pricing Interpretation</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .callout { border-left: 4px solid #e5e7eb; padding-left: 1rem; color:#334155; }
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    table{width:100%}
+    th,td{border-bottom:1px solid #e5e7eb;padding:.6rem .5rem;vertical-align:top}
+    th{font-weight:600;color:#0f172a}
+  </style>
+
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+  <h1 class="text-3xl font-semibold text-slate-900">Commodity ETF — Pricing Interpretation</h1>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span class='pill'>Asset type: Commodity ETF/ETN</span>
+    <span class='pill'>Instrument: Fund/Note</span>
+    <span class='pill'>signal_id: commodity_etf_pricing_interpretation</span>
+    <span class='pill'>Framework: Pricing Context overlay</span>
+    <span class='pill'>Version: v1</span>
+  </div>
+
+  <p class="text-slate-600 mt-3 text-sm leading-6">
+    This page defines a lightweight, model-ready interpretation layer for <strong>Commodity ETF</strong> pricing context.
+    It is designed to sit on top of the generic Pricing Context outputs (trend, volatility, liquidity/volume, 52-week position),
+    translating them into asset-specific decision guidance while preserving explainability.
+  </p>
+
+  <div class="box mt-6 text-sm">
+    <p class="font-semibold mb-2">Contents</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><a class='toc' href='#scope'>1. Scope & intent</a></li>
+      <li><a class='toc' href='#measures'>2. What the signal measures</a></li>
+      <li><a class='toc' href='#drivers'>3. Primary drivers</a></li>
+      <li><a class='toc' href='#rules'>4. Interpretation rules</a></li>
+      <li><a class='toc' href='#bias'>5. Regime bias logic</a></li>
+      <li><a class='toc' href='#confirm'>6. Confirmation or conflict signals</a></li>
+      <li><a class='toc' href='#limits'>7. Known limitations</a></li>
+      <li><a class='toc' href='#usage'>8. Model usage notes</a></li>
+      <li><a class='toc' href='#meta'>9. Metadata payload</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="scope" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+  <p class="leading-7">Translate pricing context into guidance for commodity ETFs/ETNs that act as liquid beta to an underlying commodity or basket, focusing on trend persistence vs roll/structure effects and liquidity-driven volatility.</p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="measures" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">2. What the signal measures</h2>
+  <div class="box">
+    <p class="leading-7">Trend/momentum, realised volatility, volume/liquidity, and 52-week positioning for commodity ETF proxies; interpreted as investable beta plus potential structure effects (roll yield, tracking, collateral rates) depending on product.</p>
+  </div>
+</section>
+
+<section id="drivers" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">3. Primary drivers</h2>
+  <div class="box">
+    <ul class="list-disc pl-6 leading-7">
+      <li>Underlying commodity spot and futures curve dynamics (backwardation/contango effects)</li><li>Macro risk and liquidity conditions impacting commodity beta</li><li>ETF flow dynamics and market maker inventory conditions (reflected via volume/volatility)</li><li>USD and global growth expectations (commodity-cycle sensitivity)</li><li>Product structure differences (ETN credit, collateral yield, roll methodology)</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="rules" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">4. Interpretation rules</h2>
+  
+<div class="box overflow-x-auto">
+  <table class="text-sm">
+    <thead>
+      <tr>
+        <th style="min-width:220px">Condition</th>
+        <th style="min-width:260px">Economic meaning</th>
+        <th style="min-width:280px">Investment implication</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class='text-slate-900 font-medium'>Uptrend with normal volatility and stable volume</td><td class='text-slate-700'>Clean beta trend; market functioning normal</td><td class='text-slate-700'>Use as primary vehicle for directional exposure; size per volatility targets; maintain while trend persists.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Uptrend with very high volatility percentile</td><td class='text-slate-700'>Commodity beta is unstable; higher tail risk and gap potential</td><td class='text-slate-700'>Reduce leverage; prefer smaller, staged adds; treat as tactical exposure until volatility normalises.</td></tr>
+<tr><td class='text-slate-900 font-medium'>High volume percentile with trend break (breakdown)</td><td class='text-slate-700'>Risk-off or macro shock with broad participation</td><td class='text-slate-700'>De-risk quickly; wait for stabilisation and trend repair before re-entry.</td></tr>
+<tr><td class='text-slate-900 font-medium'>52-week high proximity with volatility rising</td><td class='text-slate-700'>Extended regime; asymmetry increases if curve/roll turns or macro shocks hit</td><td class='text-slate-700'>Prefer hold/trim; avoid chase; require consolidation or confirming macro signals.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Mid-range 52-week position with low volatility and flat trend</td><td class='text-slate-700'>Carry/roll effects may dominate; directional edge limited</td><td class='text-slate-700'>Downgrade conviction; defer to fundamentals/curve analysis rather than technicals alone.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+  <p class="text-sm text-slate-600 mt-3">
+    Implementation note: treat these as <em>overrides/weights</em> applied to the generic pillar states, not as a standalone trading system.
+  </p>
+</section>
+
+<section id="bias" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">5. Regime bias logic</h2>
+  <div class="box">
+    <p class="leading-7">Commodity ETF pricing context is most useful for identifying when beta is clean (trend with normal vol) versus when macro/liquidity dominates (volatility extremes). Interpret extremes as risk regime shifts more than directional certainty.</p>
+  </div>
+</section>
+
+<section id="confirm" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">6. Confirmation or conflict signals</h2>
+  <div class="box">
+    <p class="leading-7">Confirm with underlying spot/futures curve measures (if available), broad commodity indices, USD trend, and liquidity indicators. Conflicts (ETF uptrend while underlying curve deteriorates) should reduce conviction.</p>
+  </div>
+</section>
+
+<section id="limits" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">7. Known limitations</h2>
+  <div class="box">
+    <p class="leading-7">ETF/ETN structures can create tracking differences; roll yield may change returns independent of spot; corporate actions and methodology changes can break comparability; data may be adjusted.</p>
+  </div>
+</section>
+
+<section id="usage" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">8. Model usage notes</h2>
+  <div class="box">
+    <p class="leading-7">Use pricing context for timing and risk (sizing) and pair with curve/fundamental signals when available. Treat volatility and volume as primary regime diagnostics; avoid attributing causality without external confirmation.</p>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="meta" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">9. Metadata payload</h2>
+  <div class="box">
+    <p class="text-sm text-slate-600 mb-3">Embedded, machine-readable JSON payload used by downstream models:</p>
+    <pre class="text-xs overflow-x-auto bg-white border border-slate-200 rounded-lg p-3"><code>{
+  "methodology_interpretation": {
+    "signal_id": "commodity_etf_pricing_interpretation",
+    "signal_purpose": "Translate pricing context into guidance for commodity ETFs/ETNs that act as liquid beta to an underlying commodity or basket, focusing on trend persistence vs roll/structure effects and liquidity-driven volatility.",
+    "what_the_signal_measures": "Trend/momentum, realised volatility, volume/liquidity, and 52-week positioning for commodity ETF proxies; interpreted as investable beta plus potential structure effects (roll yield, tracking, collateral rates) depending on product.",
+    "primary_drivers": [
+      "Underlying commodity spot and futures curve dynamics (backwardation/contango effects)",
+      "Macro risk and liquidity conditions impacting commodity beta",
+      "ETF flow dynamics and market maker inventory conditions (reflected via volume/volatility)",
+      "USD and global growth expectations (commodity-cycle sensitivity)",
+      "Product structure differences (ETN credit, collateral yield, roll methodology)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Uptrend with normal volatility and stable volume",
+        "economic_meaning": "Clean beta trend; market functioning normal",
+        "investment_implication": "Use as primary vehicle for directional exposure; size per volatility targets; maintain while trend persists."
+      },
+      {
+        "condition": "Uptrend with very high volatility percentile",
+        "economic_meaning": "Commodity beta is unstable; higher tail risk and gap potential",
+        "investment_implication": "Reduce leverage; prefer smaller, staged adds; treat as tactical exposure until volatility normalises."
+      },
+      {
+        "condition": "High volume percentile with trend break (breakdown)",
+        "economic_meaning": "Risk-off or macro shock with broad participation",
+        "investment_implication": "De-risk quickly; wait for stabilisation and trend repair before re-entry."
+      },
+      {
+        "condition": "52-week high proximity with volatility rising",
+        "economic_meaning": "Extended regime; asymmetry increases if curve/roll turns or macro shocks hit",
+        "investment_implication": "Prefer hold/trim; avoid chase; require consolidation or confirming macro signals."
+      },
+      {
+        "condition": "Mid-range 52-week position with low volatility and flat trend",
+        "economic_meaning": "Carry/roll effects may dominate; directional edge limited",
+        "investment_implication": "Downgrade conviction; defer to fundamentals/curve analysis rather than technicals alone."
+      }
+    ],
+    "regime_bias_logic": "Commodity ETF pricing context is most useful for identifying when beta is clean (trend with normal vol) versus when macro/liquidity dominates (volatility extremes). Interpret extremes as risk regime shifts more than directional certainty.",
+    "confirmation_or_conflict_signals": "Confirm with underlying spot/futures curve measures (if available), broad commodity indices, USD trend, and liquidity indicators. Conflicts (ETF uptrend while underlying curve deteriorates) should reduce conviction.",
+    "known_limitations": "ETF/ETN structures can create tracking differences; roll yield may change returns independent of spot; corporate actions and methodology changes can break comparability; data may be adjusted.",
+    "model_usage_notes": "Use pricing context for timing and risk (sizing) and pair with curve/fundamental signals when available. Treat volatility and volume as primary regime diagnostics; avoid attributing causality without external confirmation."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}</code></pre>
+  </div>
+  <script type="application/json" id="methodology_interpretation">
+{
+  "methodology_interpretation": {
+    "signal_id": "commodity_etf_pricing_interpretation",
+    "signal_purpose": "Translate pricing context into guidance for commodity ETFs/ETNs that act as liquid beta to an underlying commodity or basket, focusing on trend persistence vs roll/structure effects and liquidity-driven volatility.",
+    "what_the_signal_measures": "Trend/momentum, realised volatility, volume/liquidity, and 52-week positioning for commodity ETF proxies; interpreted as investable beta plus potential structure effects (roll yield, tracking, collateral rates) depending on product.",
+    "primary_drivers": [
+      "Underlying commodity spot and futures curve dynamics (backwardation/contango effects)",
+      "Macro risk and liquidity conditions impacting commodity beta",
+      "ETF flow dynamics and market maker inventory conditions (reflected via volume/volatility)",
+      "USD and global growth expectations (commodity-cycle sensitivity)",
+      "Product structure differences (ETN credit, collateral yield, roll methodology)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Uptrend with normal volatility and stable volume",
+        "economic_meaning": "Clean beta trend; market functioning normal",
+        "investment_implication": "Use as primary vehicle for directional exposure; size per volatility targets; maintain while trend persists."
+      },
+      {
+        "condition": "Uptrend with very high volatility percentile",
+        "economic_meaning": "Commodity beta is unstable; higher tail risk and gap potential",
+        "investment_implication": "Reduce leverage; prefer smaller, staged adds; treat as tactical exposure until volatility normalises."
+      },
+      {
+        "condition": "High volume percentile with trend break (breakdown)",
+        "economic_meaning": "Risk-off or macro shock with broad participation",
+        "investment_implication": "De-risk quickly; wait for stabilisation and trend repair before re-entry."
+      },
+      {
+        "condition": "52-week high proximity with volatility rising",
+        "economic_meaning": "Extended regime; asymmetry increases if curve/roll turns or macro shocks hit",
+        "investment_implication": "Prefer hold/trim; avoid chase; require consolidation or confirming macro signals."
+      },
+      {
+        "condition": "Mid-range 52-week position with low volatility and flat trend",
+        "economic_meaning": "Carry/roll effects may dominate; directional edge limited",
+        "investment_implication": "Downgrade conviction; defer to fundamentals/curve analysis rather than technicals alone."
+      }
+    ],
+    "regime_bias_logic": "Commodity ETF pricing context is most useful for identifying when beta is clean (trend with normal vol) versus when macro/liquidity dominates (volatility extremes). Interpret extremes as risk regime shifts more than directional certainty.",
+    "confirmation_or_conflict_signals": "Confirm with underlying spot/futures curve measures (if available), broad commodity indices, USD trend, and liquidity indicators. Conflicts (ETF uptrend while underlying curve deteriorates) should reduce conviction.",
+    "known_limitations": "ETF/ETN structures can create tracking differences; roll yield may change returns independent of spot; corporate actions and methodology changes can break comparability; data may be adjusted.",
+    "model_usage_notes": "Use pricing context for timing and risk (sizing) and pair with curve/fundamental signals when available. Treat volatility and volume as primary regime diagnostics; avoid attributing causality without external confirmation."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}
+  </script>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+  © 2026. Commodity ETF — Pricing Interpretation.
+</footer>
+
+</main>
+</body>
+</html>

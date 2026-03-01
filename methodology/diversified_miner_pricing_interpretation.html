@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diversified Miner — Pricing Interpretation</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .callout { border-left: 4px solid #e5e7eb; padding-left: 1rem; color:#334155; }
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    table{width:100%}
+    th,td{border-bottom:1px solid #e5e7eb;padding:.6rem .5rem;vertical-align:top}
+    th{font-weight:600;color:#0f172a}
+  </style>
+
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+  <h1 class="text-3xl font-semibold text-slate-900">Diversified Miner — Pricing Interpretation</h1>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span class='pill'>Asset type: Diversified miner</span>
+    <span class='pill'>Instrument: Equity</span>
+    <span class='pill'>signal_id: diversified_miner_pricing_interpretation</span>
+    <span class='pill'>Framework: Pricing Context overlay</span>
+    <span class='pill'>Version: v1</span>
+  </div>
+
+  <p class="text-slate-600 mt-3 text-sm leading-6">
+    This page defines a lightweight, model-ready interpretation layer for <strong>Diversified Miner</strong> pricing context.
+    It is designed to sit on top of the generic Pricing Context outputs (trend, volatility, liquidity/volume, 52-week position),
+    translating them into asset-specific decision guidance while preserving explainability.
+  </p>
+
+  <div class="box mt-6 text-sm">
+    <p class="font-semibold mb-2">Contents</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><a class='toc' href='#scope'>1. Scope & intent</a></li>
+      <li><a class='toc' href='#measures'>2. What the signal measures</a></li>
+      <li><a class='toc' href='#drivers'>3. Primary drivers</a></li>
+      <li><a class='toc' href='#rules'>4. Interpretation rules</a></li>
+      <li><a class='toc' href='#bias'>5. Regime bias logic</a></li>
+      <li><a class='toc' href='#confirm'>6. Confirmation or conflict signals</a></li>
+      <li><a class='toc' href='#limits'>7. Known limitations</a></li>
+      <li><a class='toc' href='#usage'>8. Model usage notes</a></li>
+      <li><a class='toc' href='#meta'>9. Metadata payload</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="scope" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+  <p class="leading-7">Translate pricing context into guidance for diversified, cash-flowing miners (multi-commodity exposure), distinguishing commodity-beta moves from equity-specific risk and valuation re-rating.</p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="measures" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">2. What the signal measures</h2>
+  <div class="box">
+    <p class="leading-7">Equity technical regime (trend, volatility, volume/liquidity, 52-week positioning) for diversified miners; interpreted as a combination of commodity-beta, equity risk premia, and company-specific rerating dynamics.</p>
+  </div>
+</section>
+
+<section id="drivers" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">3. Primary drivers</h2>
+  <div class="box">
+    <ul class="list-disc pl-6 leading-7">
+      <li>Underlying commodity price baskets and related FX exposures</li><li>Equity risk sentiment and discount-rate changes</li><li>Earnings revision cycles and guidance surprises</li><li>Capital allocation events (dividends, buybacks, capex) and balance-sheet risk perception</li><li>Sector rotation and flow dynamics into/out of resources equities</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="rules" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">4. Interpretation rules</h2>
+  
+<div class="box overflow-x-auto">
+  <table class="text-sm">
+    <thead>
+      <tr>
+        <th style="min-width:220px">Condition</th>
+        <th style="min-width:260px">Economic meaning</th>
+        <th style="min-width:280px">Investment implication</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class='text-slate-900 font-medium'>Uptrend with normal volatility and stable volume</td><td class='text-slate-700'>Constructive rerating/earnings confidence with controlled risk</td><td class='text-slate-700'>Maintain/accumulate; treat pullbacks as adds if commodity backdrop is neutral-to-supportive.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Uptrend with rising volatility and deteriorating volume (thin participation)</td><td class='text-slate-700'>Late-cycle move; risk of reversal or false break increases</td><td class='text-slate-700'>Reduce incremental adds; require confirmation via volume or fundamental catalysts; tighten risk management.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Downtrend with high volatility and large drawdown</td><td class='text-slate-700'>Risk premia repricing; could be commodity shock, earnings downgrade cycle, or sector de-rating</td><td class='text-slate-700'>De-risk; wait for volatility compression and trend stabilisation before re-entry.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Breakout above 200d with elevated volume percentile</td><td class='text-slate-700'>Rotation/flow-supported trend change; higher likelihood of persistence</td><td class='text-slate-700'>Upgrade confidence; allow staged adds with defined risk limits.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Near 52-week highs while volatility rising</td><td class='text-slate-700'>Extended state with increasing path risk (valuation/earnings expectations may be saturated)</td><td class='text-slate-700'>Prefer hold/trim; avoid chasing unless confirmed by strong commodity move or earnings upgrades.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+  <p class="text-sm text-slate-600 mt-3">
+    Implementation note: treat these as <em>overrides/weights</em> applied to the generic pillar states, not as a standalone trading system.
+  </p>
+</section>
+
+<section id="bias" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">5. Regime bias logic</h2>
+  <div class="box">
+    <p class="leading-7">For diversified miners, trend signals are more reliable when supported by participation (volume) and moderate volatility. Volatility expansion often reflects equity risk premium shifts, so interpret it primarily as a sizing/risk control input.</p>
+  </div>
+</section>
+
+<section id="confirm" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">6. Confirmation or conflict signals</h2>
+  <div class="box">
+    <p class="leading-7">Confirm with the relevant commodity basket trends, sector/market breadth, and earnings revision context. Conflicts (e.g., miner breakout while commodity basket weakens) should downgrade conviction.</p>
+  </div>
+</section>
+
+<section id="limits" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">7. Known limitations</h2>
+  <div class="box">
+    <p class="leading-7">Technical regimes may conflate commodity moves and equity risk repricing; corporate actions and index rebalances can distort volume; proxy OHLCV does not capture intraday gap risk around announcements.</p>
+  </div>
+</section>
+
+<section id="usage" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">8. Model usage notes</h2>
+  <div class="box">
+    <p class="leading-7">Use pricing context as a timing overlay on top of fundamental/commodity views. Weight volume-confirmed trend changes higher. Treat volatility spikes around earnings as event-risk rather than persistent regime shifts unless sustained.</p>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="meta" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">9. Metadata payload</h2>
+  <div class="box">
+    <p class="text-sm text-slate-600 mb-3">Embedded, machine-readable JSON payload used by downstream models:</p>
+    <pre class="text-xs overflow-x-auto bg-white border border-slate-200 rounded-lg p-3"><code>{
+  "methodology_interpretation": {
+    "signal_id": "diversified_miner_pricing_interpretation",
+    "signal_purpose": "Translate pricing context into guidance for diversified, cash-flowing miners (multi-commodity exposure), distinguishing commodity-beta moves from equity-specific risk and valuation re-rating.",
+    "what_the_signal_measures": "Equity technical regime (trend, volatility, volume/liquidity, 52-week positioning) for diversified miners; interpreted as a combination of commodity-beta, equity risk premia, and company-specific rerating dynamics.",
+    "primary_drivers": [
+      "Underlying commodity price baskets and related FX exposures",
+      "Equity risk sentiment and discount-rate changes",
+      "Earnings revision cycles and guidance surprises",
+      "Capital allocation events (dividends, buybacks, capex) and balance-sheet risk perception",
+      "Sector rotation and flow dynamics into/out of resources equities"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Uptrend with normal volatility and stable volume",
+        "economic_meaning": "Constructive rerating/earnings confidence with controlled risk",
+        "investment_implication": "Maintain/accumulate; treat pullbacks as adds if commodity backdrop is neutral-to-supportive."
+      },
+      {
+        "condition": "Uptrend with rising volatility and deteriorating volume (thin participation)",
+        "economic_meaning": "Late-cycle move; risk of reversal or false break increases",
+        "investment_implication": "Reduce incremental adds; require confirmation via volume or fundamental catalysts; tighten risk management."
+      },
+      {
+        "condition": "Downtrend with high volatility and large drawdown",
+        "economic_meaning": "Risk premia repricing; could be commodity shock, earnings downgrade cycle, or sector de-rating",
+        "investment_implication": "De-risk; wait for volatility compression and trend stabilisation before re-entry."
+      },
+      {
+        "condition": "Breakout above 200d with elevated volume percentile",
+        "economic_meaning": "Rotation/flow-supported trend change; higher likelihood of persistence",
+        "investment_implication": "Upgrade confidence; allow staged adds with defined risk limits."
+      },
+      {
+        "condition": "Near 52-week highs while volatility rising",
+        "economic_meaning": "Extended state with increasing path risk (valuation/earnings expectations may be saturated)",
+        "investment_implication": "Prefer hold/trim; avoid chasing unless confirmed by strong commodity move or earnings upgrades."
+      }
+    ],
+    "regime_bias_logic": "For diversified miners, trend signals are more reliable when supported by participation (volume) and moderate volatility. Volatility expansion often reflects equity risk premium shifts, so interpret it primarily as a sizing/risk control input.",
+    "confirmation_or_conflict_signals": "Confirm with the relevant commodity basket trends, sector/market breadth, and earnings revision context. Conflicts (e.g., miner breakout while commodity basket weakens) should downgrade conviction.",
+    "known_limitations": "Technical regimes may conflate commodity moves and equity risk repricing; corporate actions and index rebalances can distort volume; proxy OHLCV does not capture intraday gap risk around announcements.",
+    "model_usage_notes": "Use pricing context as a timing overlay on top of fundamental/commodity views. Weight volume-confirmed trend changes higher. Treat volatility spikes around earnings as event-risk rather than persistent regime shifts unless sustained."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}</code></pre>
+  </div>
+  <script type="application/json" id="methodology_interpretation">
+{
+  "methodology_interpretation": {
+    "signal_id": "diversified_miner_pricing_interpretation",
+    "signal_purpose": "Translate pricing context into guidance for diversified, cash-flowing miners (multi-commodity exposure), distinguishing commodity-beta moves from equity-specific risk and valuation re-rating.",
+    "what_the_signal_measures": "Equity technical regime (trend, volatility, volume/liquidity, 52-week positioning) for diversified miners; interpreted as a combination of commodity-beta, equity risk premia, and company-specific rerating dynamics.",
+    "primary_drivers": [
+      "Underlying commodity price baskets and related FX exposures",
+      "Equity risk sentiment and discount-rate changes",
+      "Earnings revision cycles and guidance surprises",
+      "Capital allocation events (dividends, buybacks, capex) and balance-sheet risk perception",
+      "Sector rotation and flow dynamics into/out of resources equities"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Uptrend with normal volatility and stable volume",
+        "economic_meaning": "Constructive rerating/earnings confidence with controlled risk",
+        "investment_implication": "Maintain/accumulate; treat pullbacks as adds if commodity backdrop is neutral-to-supportive."
+      },
+      {
+        "condition": "Uptrend with rising volatility and deteriorating volume (thin participation)",
+        "economic_meaning": "Late-cycle move; risk of reversal or false break increases",
+        "investment_implication": "Reduce incremental adds; require confirmation via volume or fundamental catalysts; tighten risk management."
+      },
+      {
+        "condition": "Downtrend with high volatility and large drawdown",
+        "economic_meaning": "Risk premia repricing; could be commodity shock, earnings downgrade cycle, or sector de-rating",
+        "investment_implication": "De-risk; wait for volatility compression and trend stabilisation before re-entry."
+      },
+      {
+        "condition": "Breakout above 200d with elevated volume percentile",
+        "economic_meaning": "Rotation/flow-supported trend change; higher likelihood of persistence",
+        "investment_implication": "Upgrade confidence; allow staged adds with defined risk limits."
+      },
+      {
+        "condition": "Near 52-week highs while volatility rising",
+        "economic_meaning": "Extended state with increasing path risk (valuation/earnings expectations may be saturated)",
+        "investment_implication": "Prefer hold/trim; avoid chasing unless confirmed by strong commodity move or earnings upgrades."
+      }
+    ],
+    "regime_bias_logic": "For diversified miners, trend signals are more reliable when supported by participation (volume) and moderate volatility. Volatility expansion often reflects equity risk premium shifts, so interpret it primarily as a sizing/risk control input.",
+    "confirmation_or_conflict_signals": "Confirm with the relevant commodity basket trends, sector/market breadth, and earnings revision context. Conflicts (e.g., miner breakout while commodity basket weakens) should downgrade conviction.",
+    "known_limitations": "Technical regimes may conflate commodity moves and equity risk repricing; corporate actions and index rebalances can distort volume; proxy OHLCV does not capture intraday gap risk around announcements.",
+    "model_usage_notes": "Use pricing context as a timing overlay on top of fundamental/commodity views. Weight volume-confirmed trend changes higher. Treat volatility spikes around earnings as event-risk rather than persistent regime shifts unless sustained."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}
+  </script>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+  © 2026. Diversified Miner — Pricing Interpretation.
+</footer>
+
+</main>
+</body>
+</html>
