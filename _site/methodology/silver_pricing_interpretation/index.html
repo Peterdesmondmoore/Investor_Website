@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silver — Pricing Interpretation</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .callout { border-left: 4px solid #e5e7eb; padding-left: 1rem; color:#334155; }
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    table{width:100%}
+    th,td{border-bottom:1px solid #e5e7eb;padding:.6rem .5rem;vertical-align:top}
+    th{font-weight:600;color:#0f172a}
+  </style>
+
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+  <h1 class="text-3xl font-semibold text-slate-900">Silver — Pricing Interpretation</h1>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span class='pill'>Asset: Silver</span>
+    <span class='pill'>Instrument: spot/ETF proxy</span>
+    <span class='pill'>signal_id: silver_pricing_interpretation</span>
+    <span class='pill'>Framework: Pricing Context overlay</span>
+    <span class='pill'>Version: v1</span>
+  </div>
+
+  <p class="text-slate-600 mt-3 text-sm leading-6">
+    This page defines a lightweight, model-ready interpretation layer for <strong>Silver</strong> pricing context.
+    It is designed to sit on top of the generic Pricing Context outputs (trend, volatility, liquidity/volume, 52-week position),
+    translating them into asset-specific decision guidance while preserving explainability.
+  </p>
+
+  <div class="box mt-6 text-sm">
+    <p class="font-semibold mb-2">Contents</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><a class='toc' href='#scope'>1. Scope & intent</a></li>
+      <li><a class='toc' href='#measures'>2. What the signal measures</a></li>
+      <li><a class='toc' href='#drivers'>3. Primary drivers</a></li>
+      <li><a class='toc' href='#rules'>4. Interpretation rules</a></li>
+      <li><a class='toc' href='#bias'>5. Regime bias logic</a></li>
+      <li><a class='toc' href='#confirm'>6. Confirmation or conflict signals</a></li>
+      <li><a class='toc' href='#limits'>7. Known limitations</a></li>
+      <li><a class='toc' href='#usage'>8. Model usage notes</a></li>
+      <li><a class='toc' href='#meta'>9. Metadata payload</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="scope" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+  <p class="leading-7">Translate generic pricing context into asset-specific guidance for silver exposure (spot/ETF proxies), emphasising higher beta, volatility clustering, and squeeze/air-pocket risk relative to gold.</p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="measures" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">2. What the signal measures</h2>
+  <div class="box">
+    <p class="leading-7">Trend/momentum, realised volatility, liquidity/volume behaviour, and 52-week positioning for a silver proxy; interpreted as a higher-convexity, higher-volatility precious metal regime indicator.</p>
+  </div>
+</section>
+
+<section id="drivers" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">3. Primary drivers</h2>
+  <div class="box">
+    <ul class="list-disc pl-6 leading-7">
+      <li>Risk sentiment and liquidity cycles (silver behaves as high-beta precious metal)</li><li>USD and real-rate shocks (directional sensitivity, but often amplified)</li><li>Industrial-demand narrative shifts (growth expectations)</li><li>Positioning/flow dynamics (more prone to sharp squeezes and air pockets)</li><li>Volatility feedback loops (moves often self-reinforcing)</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="rules" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">4. Interpretation rules</h2>
+  
+<div class="box overflow-x-auto">
+  <table class="text-sm">
+    <thead>
+      <tr>
+        <th style="min-width:220px">Condition</th>
+        <th style="min-width:260px">Economic meaning</th>
+        <th style="min-width:280px">Investment implication</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class='text-slate-900 font-medium'>Breakout above 50d/200d with high realised volatility</td><td class='text-slate-700'>Momentum transition occurring in a fragile/high-convexity regime; follow-through can be violent in both directions</td><td class='text-slate-700'>Treat as tactical opportunity with tighter risk; scale-in rather than full size; avoid assuming smooth trend continuation.</td></tr>
+<tr><td class='text-slate-900 font-medium'>High volatility percentile (e.g., >90%) regardless of trend</td><td class='text-slate-700'>Regime instability and gap risk elevated; stop-outs and reversals more likely</td><td class='text-slate-700'>Reduce leverage and position sizing; use wider but fewer stops; avoid over-trading noise.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Volume percentile elevated with trend confirmation</td><td class='text-slate-700'>Participation broadening; move more likely to be persistent (relative to typical silver noise)</td><td class='text-slate-700'>Upgrade confidence modestly; prefer multi-day confirmation rather than single-session spikes.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Trading mid-range within 52-week band while volatility remains high</td><td class='text-slate-700'>Chop/mean-reverting regime with poor signal-to-noise</td><td class='text-slate-700'>Downgrade conviction; wait for either volatility compression or directional break with confirmation.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Downtrend with stabilising volatility and improving 52-week position (rising from lows)</td><td class='text-slate-700'>Base-building probability rising, but still vulnerable to macro shocks</td><td class='text-slate-700'>Allow only small exploratory adds after trend stabilises; require confirmation from trend/momentum turn.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+  <p class="text-sm text-slate-600 mt-3">
+    Implementation note: treat these as <em>overrides/weights</em> applied to the generic pillar states, not as a standalone trading system.
+  </p>
+</section>
+
+<section id="bias" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">5. Regime bias logic</h2>
+  <div class="box">
+    <p class="leading-7">Silver pricing context should be treated as a convexity and regime-instability input. Extremes often reflect positioning and liquidity dynamics rather than stable fundamentals, so interpret large moves as elevated tail-risk, not linear trends.</p>
+  </div>
+</section>
+
+<section id="confirm" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">6. Confirmation or conflict signals</h2>
+  <div class="box">
+    <p class="leading-7">Confirm with gold regime, USD/real-rate context, and broad risk/liquidity indicators. If silver strength diverges from gold and risk is tightening, downgrade confidence unless volume/participation is strong.</p>
+  </div>
+</section>
+
+<section id="limits" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">7. Known limitations</h2>
+  <div class="box">
+    <p class="leading-7">Silver proxies can be dominated by flow/positioning; volatility clustering can create false signals; technical regimes can flip quickly; Yahoo Finance data may contain adjustments.</p>
+  </div>
+</section>
+
+<section id="usage" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">8. Model usage notes</h2>
+  <div class="box">
+    <p class="leading-7">Prioritise multi-week trend confirmation and volatility regime shifts. Treat volatility extremes as risk controls (sizing) more than directional calls. Avoid extrapolating single-day spikes.</p>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="meta" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">9. Metadata payload</h2>
+  <div class="box">
+    <p class="text-sm text-slate-600 mb-3">Embedded, machine-readable JSON payload used by downstream models:</p>
+    <pre class="text-xs overflow-x-auto bg-white border border-slate-200 rounded-lg p-3"><code>{
+  "methodology_interpretation": {
+    "signal_id": "silver_pricing_interpretation",
+    "signal_purpose": "Translate generic pricing context into asset-specific guidance for silver exposure (spot/ETF proxies), emphasising higher beta, volatility clustering, and squeeze/air-pocket risk relative to gold.",
+    "what_the_signal_measures": "Trend/momentum, realised volatility, liquidity/volume behaviour, and 52-week positioning for a silver proxy; interpreted as a higher-convexity, higher-volatility precious metal regime indicator.",
+    "primary_drivers": [
+      "Risk sentiment and liquidity cycles (silver behaves as high-beta precious metal)",
+      "USD and real-rate shocks (directional sensitivity, but often amplified)",
+      "Industrial-demand narrative shifts (growth expectations)",
+      "Positioning/flow dynamics (more prone to sharp squeezes and air pockets)",
+      "Volatility feedback loops (moves often self-reinforcing)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Breakout above 50d/200d with high realised volatility",
+        "economic_meaning": "Momentum transition occurring in a fragile/high-convexity regime; follow-through can be violent in both directions",
+        "investment_implication": "Treat as tactical opportunity with tighter risk; scale-in rather than full size; avoid assuming smooth trend continuation."
+      },
+      {
+        "condition": "High volatility percentile (e.g., >90%) regardless of trend",
+        "economic_meaning": "Regime instability and gap risk elevated; stop-outs and reversals more likely",
+        "investment_implication": "Reduce leverage and position sizing; use wider but fewer stops; avoid over-trading noise."
+      },
+      {
+        "condition": "Volume percentile elevated with trend confirmation",
+        "economic_meaning": "Participation broadening; move more likely to be persistent (relative to typical silver noise)",
+        "investment_implication": "Upgrade confidence modestly; prefer multi-day confirmation rather than single-session spikes."
+      },
+      {
+        "condition": "Trading mid-range within 52-week band while volatility remains high",
+        "economic_meaning": "Chop/mean-reverting regime with poor signal-to-noise",
+        "investment_implication": "Downgrade conviction; wait for either volatility compression or directional break with confirmation."
+      },
+      {
+        "condition": "Downtrend with stabilising volatility and improving 52-week position (rising from lows)",
+        "economic_meaning": "Base-building probability rising, but still vulnerable to macro shocks",
+        "investment_implication": "Allow only small exploratory adds after trend stabilises; require confirmation from trend/momentum turn."
+      }
+    ],
+    "regime_bias_logic": "Silver pricing context should be treated as a convexity and regime-instability input. Extremes often reflect positioning and liquidity dynamics rather than stable fundamentals, so interpret large moves as elevated tail-risk, not linear trends.",
+    "confirmation_or_conflict_signals": "Confirm with gold regime, USD/real-rate context, and broad risk/liquidity indicators. If silver strength diverges from gold and risk is tightening, downgrade confidence unless volume/participation is strong.",
+    "known_limitations": "Silver proxies can be dominated by flow/positioning; volatility clustering can create false signals; technical regimes can flip quickly; Yahoo Finance data may contain adjustments.",
+    "model_usage_notes": "Prioritise multi-week trend confirmation and volatility regime shifts. Treat volatility extremes as risk controls (sizing) more than directional calls. Avoid extrapolating single-day spikes."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}</code></pre>
+  </div>
+  <script type="application/json" id="methodology_interpretation">
+{
+  "methodology_interpretation": {
+    "signal_id": "silver_pricing_interpretation",
+    "signal_purpose": "Translate generic pricing context into asset-specific guidance for silver exposure (spot/ETF proxies), emphasising higher beta, volatility clustering, and squeeze/air-pocket risk relative to gold.",
+    "what_the_signal_measures": "Trend/momentum, realised volatility, liquidity/volume behaviour, and 52-week positioning for a silver proxy; interpreted as a higher-convexity, higher-volatility precious metal regime indicator.",
+    "primary_drivers": [
+      "Risk sentiment and liquidity cycles (silver behaves as high-beta precious metal)",
+      "USD and real-rate shocks (directional sensitivity, but often amplified)",
+      "Industrial-demand narrative shifts (growth expectations)",
+      "Positioning/flow dynamics (more prone to sharp squeezes and air pockets)",
+      "Volatility feedback loops (moves often self-reinforcing)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Breakout above 50d/200d with high realised volatility",
+        "economic_meaning": "Momentum transition occurring in a fragile/high-convexity regime; follow-through can be violent in both directions",
+        "investment_implication": "Treat as tactical opportunity with tighter risk; scale-in rather than full size; avoid assuming smooth trend continuation."
+      },
+      {
+        "condition": "High volatility percentile (e.g., >90%) regardless of trend",
+        "economic_meaning": "Regime instability and gap risk elevated; stop-outs and reversals more likely",
+        "investment_implication": "Reduce leverage and position sizing; use wider but fewer stops; avoid over-trading noise."
+      },
+      {
+        "condition": "Volume percentile elevated with trend confirmation",
+        "economic_meaning": "Participation broadening; move more likely to be persistent (relative to typical silver noise)",
+        "investment_implication": "Upgrade confidence modestly; prefer multi-day confirmation rather than single-session spikes."
+      },
+      {
+        "condition": "Trading mid-range within 52-week band while volatility remains high",
+        "economic_meaning": "Chop/mean-reverting regime with poor signal-to-noise",
+        "investment_implication": "Downgrade conviction; wait for either volatility compression or directional break with confirmation."
+      },
+      {
+        "condition": "Downtrend with stabilising volatility and improving 52-week position (rising from lows)",
+        "economic_meaning": "Base-building probability rising, but still vulnerable to macro shocks",
+        "investment_implication": "Allow only small exploratory adds after trend stabilises; require confirmation from trend/momentum turn."
+      }
+    ],
+    "regime_bias_logic": "Silver pricing context should be treated as a convexity and regime-instability input. Extremes often reflect positioning and liquidity dynamics rather than stable fundamentals, so interpret large moves as elevated tail-risk, not linear trends.",
+    "confirmation_or_conflict_signals": "Confirm with gold regime, USD/real-rate context, and broad risk/liquidity indicators. If silver strength diverges from gold and risk is tightening, downgrade confidence unless volume/participation is strong.",
+    "known_limitations": "Silver proxies can be dominated by flow/positioning; volatility clustering can create false signals; technical regimes can flip quickly; Yahoo Finance data may contain adjustments.",
+    "model_usage_notes": "Prioritise multi-week trend confirmation and volatility regime shifts. Treat volatility extremes as risk controls (sizing) more than directional calls. Avoid extrapolating single-day spikes."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}
+  </script>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+  © 2026. Silver — Pricing Interpretation.
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gold — Pricing Interpretation</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .callout { border-left: 4px solid #e5e7eb; padding-left: 1rem; color:#334155; }
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    table{width:100%}
+    th,td{border-bottom:1px solid #e5e7eb;padding:.6rem .5rem;vertical-align:top}
+    th{font-weight:600;color:#0f172a}
+  </style>
+
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+  <h1 class="text-3xl font-semibold text-slate-900">Gold — Pricing Interpretation</h1>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span class='pill'>Asset: Gold</span>
+    <span class='pill'>Instrument: spot/ETF proxy</span>
+    <span class='pill'>signal_id: gold_pricing_interpretation</span>
+    <span class='pill'>Framework: Pricing Context overlay</span>
+    <span class='pill'>Version: v1</span>
+  </div>
+
+  <p class="text-slate-600 mt-3 text-sm leading-6">
+    This page defines a lightweight, model-ready interpretation layer for <strong>Gold</strong> pricing context.
+    It is designed to sit on top of the generic Pricing Context outputs (trend, volatility, liquidity/volume, 52-week position),
+    translating them into asset-specific decision guidance while preserving explainability.
+  </p>
+
+  <div class="box mt-6 text-sm">
+    <p class="font-semibold mb-2">Contents</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><a class='toc' href='#scope'>1. Scope & intent</a></li>
+      <li><a class='toc' href='#measures'>2. What the signal measures</a></li>
+      <li><a class='toc' href='#drivers'>3. Primary drivers</a></li>
+      <li><a class='toc' href='#rules'>4. Interpretation rules</a></li>
+      <li><a class='toc' href='#bias'>5. Regime bias logic</a></li>
+      <li><a class='toc' href='#confirm'>6. Confirmation or conflict signals</a></li>
+      <li><a class='toc' href='#limits'>7. Known limitations</a></li>
+      <li><a class='toc' href='#usage'>8. Model usage notes</a></li>
+      <li><a class='toc' href='#meta'>9. Metadata payload</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="scope" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+  <p class="leading-7">Translate generic pricing context into asset-specific guidance for gold exposure (spot/ETF proxies), with emphasis on trend persistence, liquidity regimes, and drawdown asymmetry under risk and real-rate shocks.</p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="measures" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">2. What the signal measures</h2>
+  <div class="box">
+    <p class="leading-7">Trend/momentum state, realised volatility regime, liquidity/volume conditions, and price position within the 52-week band for a gold proxy; interpreted primarily as risk-regime and positioning sensitivity rather than pure growth-cycle direction.</p>
+  </div>
+</section>
+
+<section id="drivers" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">3. Primary drivers</h2>
+  <div class="box">
+    <ul class="list-disc pl-6 leading-7">
+      <li>US real rates and rate-volatility shocks (dominant risk factor for gold beta)</li><li>USD trend and global liquidity conditions</li><li>Risk sentiment (flight-to-quality vs risk-on)</li><li>Event risk and macro surprises (inflation, central bank signalling)</li><li>ETF/flows and positioning feedback loops (reflected indirectly via price/volume)</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="rules" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">4. Interpretation rules</h2>
+  
+<div class="box overflow-x-auto">
+  <table class="text-sm">
+    <thead>
+      <tr>
+        <th style="min-width:220px">Condition</th>
+        <th style="min-width:260px">Economic meaning</th>
+        <th style="min-width:280px">Investment implication</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class='text-slate-900 font-medium'>Uptrend (price above 50d and 200d) with normal volatility</td><td class='text-slate-700'>Persistent risk-adjusted momentum; demand is absorbing supply without disorderly repricing</td><td class='text-slate-700'>Maintain/accumulate within risk limits; treat pullbacks as tactical adds unless other macro signals conflict.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Uptrend with high volatility percentile (e.g., top 30%)</td><td class='text-slate-700'>Trend is intact but uncertainty/fragility elevated; outcomes more path-dependent</td><td class='text-slate-700'>Reduce position sizing for new adds; tighten risk controls; avoid levering into late-stage volatility expansion.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Recent breakout above 50d/200d (transition)</td><td class='text-slate-700'>Regime transition; confirmation required to avoid false breakouts</td><td class='text-slate-700'>Upgrade bias only after 1–3 weeks of follow-through or supportive confirmation signals; avoid single-day extrapolation.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Downtrend (price below 50d and 200d)</td><td class='text-slate-700'>Sustained negative momentum; opportunity cost rising vs alternatives</td><td class='text-slate-700'>De-risk or pause adds; require explicit confirmation (e.g., momentum turn, volatility compression) before re-adding.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Trading near 52-week highs (position > ~0.85)</td><td class='text-slate-700'>Late-cycle/extended state; asymmetry increases if macro catalysts reverse</td><td class='text-slate-700'>Prefer hold/trim vs aggressive adds; wait for consolidation unless external signals justify chase.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Deep drawdown from 52-week high (e.g., < -20%) with volatility stabilising</td><td class='text-slate-700'>Capitulation risk may be dissipating; potential base formation</td><td class='text-slate-700'>Consider staged adds only if trend/RSI stabilises; avoid catching falling knives in active downtrend.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+  <p class="text-sm text-slate-600 mt-3">
+    Implementation note: treat these as <em>overrides/weights</em> applied to the generic pillar states, not as a standalone trading system.
+  </p>
+</section>
+
+<section id="bias" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">5. Regime bias logic</h2>
+  <div class="box">
+    <p class="leading-7">Gold price context should be treated as a regime and risk-asymmetry input. Strong trends can persist, but volatility expansion and proximity to extremes increase path risk. Interpret extremes as sensitivity to macro shocks rather than deterministic mean-reversion signals.</p>
+  </div>
+</section>
+
+<section id="confirm" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">6. Confirmation or conflict signals</h2>
+  <div class="box">
+    <p class="leading-7">Confirm with real-rate proxies, USD regime signals, and broad risk sentiment measures. Treat conflicts (e.g., gold uptrend while real rates rising strongly) as lower-conviction unless reinforced by risk-off conditions.</p>
+  </div>
+</section>
+
+<section id="limits" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">7. Known limitations</h2>
+  <div class="box">
+    <p class="leading-7">Proxy choice (spot vs ETF) introduces tracking and flow effects; Yahoo Finance data may have adjustments; technical rules are not a structural model of gold supply/demand and do not include macro state explicitly.</p>
+  </div>
+</section>
+
+<section id="usage" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">8. Model usage notes</h2>
+  <div class="box">
+    <p class="leading-7">Use pricing context as a timing and risk overlay. Prioritise regime transitions (breakout/breakdown) and volatility shifts over single-day moves. Do not infer causal macro drivers from price alone; require external confirmation for high-conviction actions.</p>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="meta" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">9. Metadata payload</h2>
+  <div class="box">
+    <p class="text-sm text-slate-600 mb-3">Embedded, machine-readable JSON payload used by downstream models:</p>
+    <pre class="text-xs overflow-x-auto bg-white border border-slate-200 rounded-lg p-3"><code>{
+  "methodology_interpretation": {
+    "signal_id": "gold_pricing_interpretation",
+    "signal_purpose": "Translate generic pricing context into asset-specific guidance for gold exposure (spot/ETF proxies), with emphasis on trend persistence, liquidity regimes, and drawdown asymmetry under risk and real-rate shocks.",
+    "what_the_signal_measures": "Trend/momentum state, realised volatility regime, liquidity/volume conditions, and price position within the 52-week band for a gold proxy; interpreted primarily as risk-regime and positioning sensitivity rather than pure growth-cycle direction.",
+    "primary_drivers": [
+      "US real rates and rate-volatility shocks (dominant risk factor for gold beta)",
+      "USD trend and global liquidity conditions",
+      "Risk sentiment (flight-to-quality vs risk-on)",
+      "Event risk and macro surprises (inflation, central bank signalling)",
+      "ETF/flows and positioning feedback loops (reflected indirectly via price/volume)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Uptrend (price above 50d and 200d) with normal volatility",
+        "economic_meaning": "Persistent risk-adjusted momentum; demand is absorbing supply without disorderly repricing",
+        "investment_implication": "Maintain/accumulate within risk limits; treat pullbacks as tactical adds unless other macro signals conflict."
+      },
+      {
+        "condition": "Uptrend with high volatility percentile (e.g., top 30%)",
+        "economic_meaning": "Trend is intact but uncertainty/fragility elevated; outcomes more path-dependent",
+        "investment_implication": "Reduce position sizing for new adds; tighten risk controls; avoid levering into late-stage volatility expansion."
+      },
+      {
+        "condition": "Recent breakout above 50d/200d (transition)",
+        "economic_meaning": "Regime transition; confirmation required to avoid false breakouts",
+        "investment_implication": "Upgrade bias only after 1–3 weeks of follow-through or supportive confirmation signals; avoid single-day extrapolation."
+      },
+      {
+        "condition": "Downtrend (price below 50d and 200d)",
+        "economic_meaning": "Sustained negative momentum; opportunity cost rising vs alternatives",
+        "investment_implication": "De-risk or pause adds; require explicit confirmation (e.g., momentum turn, volatility compression) before re-adding."
+      },
+      {
+        "condition": "Trading near 52-week highs (position > ~0.85)",
+        "economic_meaning": "Late-cycle/extended state; asymmetry increases if macro catalysts reverse",
+        "investment_implication": "Prefer hold/trim vs aggressive adds; wait for consolidation unless external signals justify chase."
+      },
+      {
+        "condition": "Deep drawdown from 52-week high (e.g., < -20%) with volatility stabilising",
+        "economic_meaning": "Capitulation risk may be dissipating; potential base formation",
+        "investment_implication": "Consider staged adds only if trend/RSI stabilises; avoid catching falling knives in active downtrend."
+      }
+    ],
+    "regime_bias_logic": "Gold price context should be treated as a regime and risk-asymmetry input. Strong trends can persist, but volatility expansion and proximity to extremes increase path risk. Interpret extremes as sensitivity to macro shocks rather than deterministic mean-reversion signals.",
+    "confirmation_or_conflict_signals": "Confirm with real-rate proxies, USD regime signals, and broad risk sentiment measures. Treat conflicts (e.g., gold uptrend while real rates rising strongly) as lower-conviction unless reinforced by risk-off conditions.",
+    "known_limitations": "Proxy choice (spot vs ETF) introduces tracking and flow effects; Yahoo Finance data may have adjustments; technical rules are not a structural model of gold supply/demand and do not include macro state explicitly.",
+    "model_usage_notes": "Use pricing context as a timing and risk overlay. Prioritise regime transitions (breakout/breakdown) and volatility shifts over single-day moves. Do not infer causal macro drivers from price alone; require external confirmation for high-conviction actions."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}</code></pre>
+  </div>
+  <script type="application/json" id="methodology_interpretation">
+{
+  "methodology_interpretation": {
+    "signal_id": "gold_pricing_interpretation",
+    "signal_purpose": "Translate generic pricing context into asset-specific guidance for gold exposure (spot/ETF proxies), with emphasis on trend persistence, liquidity regimes, and drawdown asymmetry under risk and real-rate shocks.",
+    "what_the_signal_measures": "Trend/momentum state, realised volatility regime, liquidity/volume conditions, and price position within the 52-week band for a gold proxy; interpreted primarily as risk-regime and positioning sensitivity rather than pure growth-cycle direction.",
+    "primary_drivers": [
+      "US real rates and rate-volatility shocks (dominant risk factor for gold beta)",
+      "USD trend and global liquidity conditions",
+      "Risk sentiment (flight-to-quality vs risk-on)",
+      "Event risk and macro surprises (inflation, central bank signalling)",
+      "ETF/flows and positioning feedback loops (reflected indirectly via price/volume)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "Uptrend (price above 50d and 200d) with normal volatility",
+        "economic_meaning": "Persistent risk-adjusted momentum; demand is absorbing supply without disorderly repricing",
+        "investment_implication": "Maintain/accumulate within risk limits; treat pullbacks as tactical adds unless other macro signals conflict."
+      },
+      {
+        "condition": "Uptrend with high volatility percentile (e.g., top 30%)",
+        "economic_meaning": "Trend is intact but uncertainty/fragility elevated; outcomes more path-dependent",
+        "investment_implication": "Reduce position sizing for new adds; tighten risk controls; avoid levering into late-stage volatility expansion."
+      },
+      {
+        "condition": "Recent breakout above 50d/200d (transition)",
+        "economic_meaning": "Regime transition; confirmation required to avoid false breakouts",
+        "investment_implication": "Upgrade bias only after 1–3 weeks of follow-through or supportive confirmation signals; avoid single-day extrapolation."
+      },
+      {
+        "condition": "Downtrend (price below 50d and 200d)",
+        "economic_meaning": "Sustained negative momentum; opportunity cost rising vs alternatives",
+        "investment_implication": "De-risk or pause adds; require explicit confirmation (e.g., momentum turn, volatility compression) before re-adding."
+      },
+      {
+        "condition": "Trading near 52-week highs (position > ~0.85)",
+        "economic_meaning": "Late-cycle/extended state; asymmetry increases if macro catalysts reverse",
+        "investment_implication": "Prefer hold/trim vs aggressive adds; wait for consolidation unless external signals justify chase."
+      },
+      {
+        "condition": "Deep drawdown from 52-week high (e.g., < -20%) with volatility stabilising",
+        "economic_meaning": "Capitulation risk may be dissipating; potential base formation",
+        "investment_implication": "Consider staged adds only if trend/RSI stabilises; avoid catching falling knives in active downtrend."
+      }
+    ],
+    "regime_bias_logic": "Gold price context should be treated as a regime and risk-asymmetry input. Strong trends can persist, but volatility expansion and proximity to extremes increase path risk. Interpret extremes as sensitivity to macro shocks rather than deterministic mean-reversion signals.",
+    "confirmation_or_conflict_signals": "Confirm with real-rate proxies, USD regime signals, and broad risk sentiment measures. Treat conflicts (e.g., gold uptrend while real rates rising strongly) as lower-conviction unless reinforced by risk-off conditions.",
+    "known_limitations": "Proxy choice (spot vs ETF) introduces tracking and flow effects; Yahoo Finance data may have adjustments; technical rules are not a structural model of gold supply/demand and do not include macro state explicitly.",
+    "model_usage_notes": "Use pricing context as a timing and risk overlay. Prioritise regime transitions (breakout/breakdown) and volatility shifts over single-day moves. Do not infer causal macro drivers from price alone; require external confirmation for high-conviction actions."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}
+  </script>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+  © 2026. Gold — Pricing Interpretation.
+</footer>
+
+</main>
+</body>
+</html>

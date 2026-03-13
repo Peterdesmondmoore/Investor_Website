@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Developer Miner — Pricing Interpretation</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Merriweather", serif; }
+    h1, h2, h3 { font-family: "Inter", sans-serif; }
+    .container { max-width: 980px; }
+    .rule { height: 1px; background: linear-gradient(90deg, #e5e7eb, transparent); }
+    .box { border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; background: #fafafa; }
+    .pill { display:inline-block; padding:.15rem .55rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; font-size:.75rem; }
+    a.toc { text-decoration: none; }
+    a.toc:hover { text-decoration: underline; }
+    .callout { border-left: 4px solid #e5e7eb; padding-left: 1rem; color:#334155; }
+    code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
+    table{width:100%}
+    th,td{border-bottom:1px solid #e5e7eb;padding:.6rem .5rem;vertical-align:top}
+    th{font-weight:600;color:#0f172a}
+  </style>
+
+</head>
+<body class="bg-white text-slate-800">
+<main class="container mx-auto px-5 py-10">
+
+<header class="mb-10">
+  <h1 class="text-3xl font-semibold text-slate-900">Developer Miner — Pricing Interpretation</h1>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <span class='pill'>Asset type: Developer-stage miner</span>
+    <span class='pill'>Instrument: Equity</span>
+    <span class='pill'>signal_id: developer_miner_pricing_interpretation</span>
+    <span class='pill'>Framework: Pricing Context overlay</span>
+    <span class='pill'>Version: v1</span>
+  </div>
+
+  <p class="text-slate-600 mt-3 text-sm leading-6">
+    This page defines a lightweight, model-ready interpretation layer for <strong>Developer Miner</strong> pricing context.
+    It is designed to sit on top of the generic Pricing Context outputs (trend, volatility, liquidity/volume, 52-week position),
+    translating them into asset-specific decision guidance while preserving explainability.
+  </p>
+
+  <div class="box mt-6 text-sm">
+    <p class="font-semibold mb-2">Contents</p>
+    <ul class="list-disc pl-6 leading-7">
+      <li><a class='toc' href='#scope'>1. Scope & intent</a></li>
+      <li><a class='toc' href='#measures'>2. What the signal measures</a></li>
+      <li><a class='toc' href='#drivers'>3. Primary drivers</a></li>
+      <li><a class='toc' href='#rules'>4. Interpretation rules</a></li>
+      <li><a class='toc' href='#bias'>5. Regime bias logic</a></li>
+      <li><a class='toc' href='#confirm'>6. Confirmation or conflict signals</a></li>
+      <li><a class='toc' href='#limits'>7. Known limitations</a></li>
+      <li><a class='toc' href='#usage'>8. Model usage notes</a></li>
+      <li><a class='toc' href='#meta'>9. Metadata payload</a></li>
+    </ul>
+  </div>
+</header>
+
+<section id="scope" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">1. Scope & intent</h2>
+  <p class="leading-7">Translate pricing context into guidance for pre-cashflow or early-stage developers, where price often reflects financing probability, project milestones, and sentiment-driven optionality rather than steady fundamentals.</p>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="measures" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">2. What the signal measures</h2>
+  <div class="box">
+    <p class="leading-7">Equity technical regime for developer-stage miners (trend, volatility, liquidity/volume, 52-week positioning); interpreted as a proxy for risk appetite, financing access expectations, and optionality repricing.</p>
+  </div>
+</section>
+
+<section id="drivers" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">3. Primary drivers</h2>
+  <div class="box">
+    <ul class="list-disc pl-6 leading-7">
+      <li>Financing conditions and risk appetite (liquidity availability)</li><li>Project milestone updates (DFS, permitting, offtake, construction)</li><li>Commodity price expectations (optionality sensitivity)</li><li>Dilution risk perception and capital structure events</li><li>Retail/sentiment-driven flows (often amplified by low liquidity)</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="rules" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">4. Interpretation rules</h2>
+  
+<div class="box overflow-x-auto">
+  <table class="text-sm">
+    <thead>
+      <tr>
+        <th style="min-width:220px">Condition</th>
+        <th style="min-width:260px">Economic meaning</th>
+        <th style="min-width:280px">Investment implication</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class='text-slate-900 font-medium'>High volatility percentile with low/unstable volume</td><td class='text-slate-700'>Noise-dominated tape; price discovery weak; gap risk elevated</td><td class='text-slate-700'>Downgrade confidence; avoid acting on single-week moves; require multi-week confirmation and liquidity checks.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Breakout above 50d/200d with strong volume percentile</td><td class='text-slate-700'>Sentiment/flow regime shift; potential milestone or financing optimism</td><td class='text-slate-700'>Allow tactical adds but cap sizing; require confirmation from news catalysts or follow-through weeks.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Downtrend with repeated failed rallies (below 200d)</td><td class='text-slate-700'>Financing/milestone disappointment priced; optionality being discounted</td><td class='text-slate-700'>Avoid/exit unless there is a clear catalyst; do not average down without external confirmation.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Trading near 52-week lows with volatility compressing</td><td class='text-slate-700'>Optionality may be approaching floor; selling pressure easing</td><td class='text-slate-700'>Only small exploratory positions; wait for trend turn or catalyst; treat as high-risk optionality exposure.</td></tr>
+<tr><td class='text-slate-900 font-medium'>Sudden volume spike without trend confirmation</td><td class='text-slate-700'>Event-driven trading or speculation; outcome uncertain</td><td class='text-slate-700'>Do not extrapolate; wait for post-event stabilisation and trend confirmation before changing core stance.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+  <p class="text-sm text-slate-600 mt-3">
+    Implementation note: treat these as <em>overrides/weights</em> applied to the generic pillar states, not as a standalone trading system.
+  </p>
+</section>
+
+<section id="bias" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">5. Regime bias logic</h2>
+  <div class="box">
+    <p class="leading-7">Developer-miner pricing context should be treated primarily as an optionality and funding-regime signal. Extremes often represent shifts in financing probability and risk appetite; technical signals are less reliable without volume and catalyst confirmation.</p>
+  </div>
+</section>
+
+<section id="confirm" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">6. Confirmation or conflict signals</h2>
+  <div class="box">
+    <p class="leading-7">Confirm with project milestone calendar/news, balance-sheet runway, broader risk sentiment, and the underlying commodity’s regime. Conflicts (e.g., breakout with no catalyst and weak liquidity) lower confidence materially.</p>
+  </div>
+</section>
+
+<section id="limits" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">7. Known limitations</h2>
+  <div class="box">
+    <p class="leading-7">Low liquidity increases slippage and gap risk; OHLCV may mask intraday air pockets; corporate actions (placements, consolidations) distort history; sample windows can be unstable due to regime breaks.</p>
+  </div>
+</section>
+
+<section id="usage" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">8. Model usage notes</h2>
+  <div class="box">
+    <p class="leading-7">Use as a risk and timing overlay, not a standalone decision rule. Prioritise multi-week confirmation, volume participation, and catalyst validation. Apply stricter position sizing and stop discipline than for cash-flowing miners.</p>
+  </div>
+</section>
+
+<div class="rule mb-10"></div>
+
+<section id="meta" class="mb-10">
+  <h2 class="text-2xl font-semibold mb-3">9. Metadata payload</h2>
+  <div class="box">
+    <p class="text-sm text-slate-600 mb-3">Embedded, machine-readable JSON payload used by downstream models:</p>
+    <pre class="text-xs overflow-x-auto bg-white border border-slate-200 rounded-lg p-3"><code>{
+  "methodology_interpretation": {
+    "signal_id": "developer_miner_pricing_interpretation",
+    "signal_purpose": "Translate pricing context into guidance for pre-cashflow or early-stage developers, where price often reflects financing probability, project milestones, and sentiment-driven optionality rather than steady fundamentals.",
+    "what_the_signal_measures": "Equity technical regime for developer-stage miners (trend, volatility, liquidity/volume, 52-week positioning); interpreted as a proxy for risk appetite, financing access expectations, and optionality repricing.",
+    "primary_drivers": [
+      "Financing conditions and risk appetite (liquidity availability)",
+      "Project milestone updates (DFS, permitting, offtake, construction)",
+      "Commodity price expectations (optionality sensitivity)",
+      "Dilution risk perception and capital structure events",
+      "Retail/sentiment-driven flows (often amplified by low liquidity)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "High volatility percentile with low/unstable volume",
+        "economic_meaning": "Noise-dominated tape; price discovery weak; gap risk elevated",
+        "investment_implication": "Downgrade confidence; avoid acting on single-week moves; require multi-week confirmation and liquidity checks."
+      },
+      {
+        "condition": "Breakout above 50d/200d with strong volume percentile",
+        "economic_meaning": "Sentiment/flow regime shift; potential milestone or financing optimism",
+        "investment_implication": "Allow tactical adds but cap sizing; require confirmation from news catalysts or follow-through weeks."
+      },
+      {
+        "condition": "Downtrend with repeated failed rallies (below 200d)",
+        "economic_meaning": "Financing/milestone disappointment priced; optionality being discounted",
+        "investment_implication": "Avoid/exit unless there is a clear catalyst; do not average down without external confirmation."
+      },
+      {
+        "condition": "Trading near 52-week lows with volatility compressing",
+        "economic_meaning": "Optionality may be approaching floor; selling pressure easing",
+        "investment_implication": "Only small exploratory positions; wait for trend turn or catalyst; treat as high-risk optionality exposure."
+      },
+      {
+        "condition": "Sudden volume spike without trend confirmation",
+        "economic_meaning": "Event-driven trading or speculation; outcome uncertain",
+        "investment_implication": "Do not extrapolate; wait for post-event stabilisation and trend confirmation before changing core stance."
+      }
+    ],
+    "regime_bias_logic": "Developer-miner pricing context should be treated primarily as an optionality and funding-regime signal. Extremes often represent shifts in financing probability and risk appetite; technical signals are less reliable without volume and catalyst confirmation.",
+    "confirmation_or_conflict_signals": "Confirm with project milestone calendar/news, balance-sheet runway, broader risk sentiment, and the underlying commodity’s regime. Conflicts (e.g., breakout with no catalyst and weak liquidity) lower confidence materially.",
+    "known_limitations": "Low liquidity increases slippage and gap risk; OHLCV may mask intraday air pockets; corporate actions (placements, consolidations) distort history; sample windows can be unstable due to regime breaks.",
+    "model_usage_notes": "Use as a risk and timing overlay, not a standalone decision rule. Prioritise multi-week confirmation, volume participation, and catalyst validation. Apply stricter position sizing and stop discipline than for cash-flowing miners."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}</code></pre>
+  </div>
+  <script type="application/json" id="methodology_interpretation">
+{
+  "methodology_interpretation": {
+    "signal_id": "developer_miner_pricing_interpretation",
+    "signal_purpose": "Translate pricing context into guidance for pre-cashflow or early-stage developers, where price often reflects financing probability, project milestones, and sentiment-driven optionality rather than steady fundamentals.",
+    "what_the_signal_measures": "Equity technical regime for developer-stage miners (trend, volatility, liquidity/volume, 52-week positioning); interpreted as a proxy for risk appetite, financing access expectations, and optionality repricing.",
+    "primary_drivers": [
+      "Financing conditions and risk appetite (liquidity availability)",
+      "Project milestone updates (DFS, permitting, offtake, construction)",
+      "Commodity price expectations (optionality sensitivity)",
+      "Dilution risk perception and capital structure events",
+      "Retail/sentiment-driven flows (often amplified by low liquidity)"
+    ],
+    "interpretation_rules": [
+      {
+        "condition": "High volatility percentile with low/unstable volume",
+        "economic_meaning": "Noise-dominated tape; price discovery weak; gap risk elevated",
+        "investment_implication": "Downgrade confidence; avoid acting on single-week moves; require multi-week confirmation and liquidity checks."
+      },
+      {
+        "condition": "Breakout above 50d/200d with strong volume percentile",
+        "economic_meaning": "Sentiment/flow regime shift; potential milestone or financing optimism",
+        "investment_implication": "Allow tactical adds but cap sizing; require confirmation from news catalysts or follow-through weeks."
+      },
+      {
+        "condition": "Downtrend with repeated failed rallies (below 200d)",
+        "economic_meaning": "Financing/milestone disappointment priced; optionality being discounted",
+        "investment_implication": "Avoid/exit unless there is a clear catalyst; do not average down without external confirmation."
+      },
+      {
+        "condition": "Trading near 52-week lows with volatility compressing",
+        "economic_meaning": "Optionality may be approaching floor; selling pressure easing",
+        "investment_implication": "Only small exploratory positions; wait for trend turn or catalyst; treat as high-risk optionality exposure."
+      },
+      {
+        "condition": "Sudden volume spike without trend confirmation",
+        "economic_meaning": "Event-driven trading or speculation; outcome uncertain",
+        "investment_implication": "Do not extrapolate; wait for post-event stabilisation and trend confirmation before changing core stance."
+      }
+    ],
+    "regime_bias_logic": "Developer-miner pricing context should be treated primarily as an optionality and funding-regime signal. Extremes often represent shifts in financing probability and risk appetite; technical signals are less reliable without volume and catalyst confirmation.",
+    "confirmation_or_conflict_signals": "Confirm with project milestone calendar/news, balance-sheet runway, broader risk sentiment, and the underlying commodity’s regime. Conflicts (e.g., breakout with no catalyst and weak liquidity) lower confidence materially.",
+    "known_limitations": "Low liquidity increases slippage and gap risk; OHLCV may mask intraday air pockets; corporate actions (placements, consolidations) distort history; sample windows can be unstable due to regime breaks.",
+    "model_usage_notes": "Use as a risk and timing overlay, not a standalone decision rule. Prioritise multi-week confirmation, volume participation, and catalyst validation. Apply stricter position sizing and stop discipline than for cash-flowing miners."
+  },
+  "methodology_interpretation_model": "models/gemini-3-flash-preview",
+  "methodology_interpretation_generated_at": "2026-03-01T00:00:00Z",
+  "methodology_interpretation_prompt_version": "v1"
+}
+  </script>
+</section>
+
+<footer class="text-sm text-slate-500 border-t pt-6 mt-10">
+  © 2026. Developer Miner — Pricing Interpretation.
+</footer>
+
+</main>
+</body>
+</html>
