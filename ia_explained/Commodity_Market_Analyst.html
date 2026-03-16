@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Commodity Market Analyst - Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="../images/Favicon.png" />
+  <meta name="description" content="How the Commodity Market Analyst is built in Investor Anatomy." />
+
+  <style>
+    :root{
+      --bg:#06070a;
+      --text:#e8ecf6;
+      --muted:#a7b0c5;
+      --border:rgba(255,255,255,.10);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+              radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+              radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6;
+      --accent2:#3b82f6;
+      --gold:#fbbf24;
+      --radius:20px;
+      --max:1100px;
+    }
+
+    * { box-sizing:border-box; }
+    html,body { height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    .bg{
+      position:fixed; inset:0;
+      background:var(--glow);
+      pointer-events:none;
+      filter:saturate(1.05);
+    }
+
+    .grain{
+      position:fixed; inset:-20%;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      opacity:.10;
+      mix-blend-mode:overlay;
+      pointer-events:none;
+      transform:rotate(8deg);
+    }
+
+    .wrap { max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative; }
+
+    header{
+      position:sticky; top:0; z-index:20;
+      backdrop-filter: blur(10px);
+      background:rgba(6,7,10,.55);
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+
+    .nav{
+      max-width:var(--max); margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;
+    }
+
+    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text)}
+    .logo{
+      width:34px; height:34px;
+      display:grid; place-items:center;
+    }
+
+    .nav a.link{
+      color:var(--muted);
+      text-decoration:none;
+      font-weight:600;
+      font-size:14px;
+      padding:10px 12px;
+      border-radius:12px;
+    }
+    .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
+
+    .hero{padding:30px 0 18px; display:grid; grid-template-columns:1fr; gap:18px; align-items:start}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .hero .left{padding:26px}
+
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px; color:var(--text)}
+    h1 .gradient-text{
+      background:linear-gradient(135deg, #fbbf24 0%, #e5e7eb 35%, #3b82f6 70%, #8b5cf6 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      display:inline;
+    }
+    p{margin:0; color:var(--muted); font-size:16px; line-height:1.55}
+
+    .metrics{margin-top:18px; display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
+    @media (max-width: 900px){ .metrics{grid-template-columns:repeat(2, 1fr);} }
+    .metric{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+    }
+    .metric-k{color:var(--muted); font-size:12px; font-weight:750; letter-spacing:.2px}
+    .metric-v{margin-top:6px; font-size:18px; font-weight:900; letter-spacing:-.2px}
+    .metric-s{margin-top:2px; color:var(--muted); font-size:12px}
+
+    section{margin-top:18px}
+    .section-title{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:20px 0 10px}
+    .section-title h2{margin:0; font-size:18px; letter-spacing:.2px}
+    .section-title .hint{color:var(--muted); font-size:13px}
+
+    .visual-card{padding:18px}
+    .visual-card.full-width{
+      width:100vw;
+      margin-left:calc(50% - 50vw);
+      margin-right:calc(50% - 50vw);
+      border-radius:0;
+      border-left:0;
+      border-right:0;
+      padding:18px 20px 24px;
+    }
+
+    .sankey-shell{
+      position:relative;
+      border:1px solid rgba(125, 211, 252, 0.16);
+      border-radius:18px;
+      background:radial-gradient(circle at top, rgba(8,145,178,0.16), transparent 28%), linear-gradient(180deg, #050b14 0%, #07111f 100%);
+      overflow:hidden;
+      box-shadow:0 18px 50px rgba(0,0,0,.35);
+    }
+    .sankey-toolbar{
+      display:flex;
+      justify-content:flex-end;
+      padding:14px;
+      border-bottom:1px solid rgba(125, 211, 252, 0.16);
+      background:rgba(0,0,0,.16);
+    }
+    .sankey-filter{
+      background:#0f172a;
+      color:#e6eef8;
+      border:1px solid rgba(125, 211, 252, 0.16);
+      border-radius:8px;
+      padding:8px 10px;
+      font-size:13px;
+    }
+    .sankey-wrap{ width:100%; overflow:hidden; }
+    .sankey-wrap svg{
+      display:block;
+      width:100%;
+      height:auto;
+      min-width:0;
+    }
+    .sankey-tooltip{
+      position:absolute;
+      left:0;
+      top:0;
+      z-index:30;
+      max-width:320px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(125, 211, 252, 0.22);
+      background:linear-gradient(180deg, rgba(9, 17, 31, 0.96), rgba(5, 12, 24, 0.96));
+      box-shadow:0 14px 28px rgba(0, 0, 0, 0.42);
+      color:var(--text);
+      pointer-events:none;
+      opacity:0;
+      transform:translate3d(0, 0, 0) scale(0.98);
+      transition:opacity .14s ease, transform .14s ease;
+    }
+    .sankey-tooltip.show{
+      opacity:1;
+      transform:translate3d(0, 0, 0) scale(1);
+    }
+    .sankey-tooltip .tip-title{
+      margin:0 0 4px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.2px;
+      color:#f8fbff;
+    }
+    .sankey-tooltip .tip-body{
+      margin:0;
+      font-size:11px;
+      line-height:1.4;
+      color:var(--muted);
+    }
+    .click-ring{
+      fill:none;
+      stroke-width:1.4;
+      stroke-dasharray:0;
+      opacity:.36;
+      transform-box:fill-box;
+      transform-origin:center;
+      filter:drop-shadow(0 0 4px currentColor);
+      animation:clickPulse 2.9s cubic-bezier(.4,0,.2,1) infinite;
+      pointer-events:none;
+    }
+    @keyframes clickPulse{
+      0%{
+        opacity:.26;
+        stroke-width:1.2;
+        stroke-dashoffset:0;
+        transform:scale(1);
+      }
+      45%{
+        opacity:.62;
+        stroke-width:2.1;
+        stroke-dashoffset:-1;
+        transform:scale(1.02);
+      }
+      100%{
+        opacity:.16;
+        stroke-width:.9;
+        stroke-dashoffset:-2;
+        transform:scale(1.04);
+      }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .click-ring{animation:none; opacity:.6}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grain"></div>
+
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">
+        <div class="logo" aria-hidden="true">
+          <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div>
+          <div><strong>Investor Anatomy</strong></div>
+          <div>Commodity Market Analyst</div>
+        </div>
+      </a>
+
+      <nav style="display:flex; gap:6px; align-items:center;">
+        <a class="link" href="https://investoranatomy.com" aria-label="Back to Investor Anatomy home">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero" id="overview">
+      <div class="card left" style="padding:26px">
+        <h1>The <span class="gradient-text">Commodity Market Analyst</span> integrates macro regime context, pricing signals, positioning, and narrative flow into one cross-metal framework.</h1>
+        <p>
+          It is built as a modular analyst system across Gold, Silver, Copper, and Lithium. Each module combines deterministic
+          regime structure with tactical signal overlays to separate core trend from short-term noise.
+        </p>
+        <div class="metrics" aria-label="Key metrics">
+          <div class="metric">
+            <div class="metric-k">Markets</div>
+            <div class="metric-v">4</div>
+            <div class="metric-s">Gold, Silver, Copper, Lithium</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Core modules</div>
+            <div class="metric-v">8+</div>
+            <div class="metric-s">Regime, pricing, CoT, media, research</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Update cycle</div>
+            <div class="metric-v">Daily</div>
+            <div class="metric-s">Signal refresh and narrative updates</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Framework type</div>
+            <div class="metric-v">Hybrid</div>
+            <div class="metric-s">Deterministic + AI interpretation</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Time to brief</div>
+            <div class="metric-v">&lt; 5 min</div>
+            <div class="metric-s">Condensed analyst outputs</div>
+          </div>
+          <div class="metric">
+            <div class="metric-k">Audit trail</div>
+            <div class="metric-v">100%</div>
+            <div class="metric-s">Signals to interpretation traceability</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section id="visual" class="card visual-card full-width">
+      <div class="section-title">
+        <h2>Commodity Market Analyst : Model Lineage</h2>
+      </div>
+
+      <div class="sankey-shell" aria-label="Commodity market analyst sankey diagram">
+        <div class="sankey-toolbar">
+          <label for="commodityFilter" class="hint" style="margin-right:8px;">Model:</label>
+          <select id="commodityFilter" class="sankey-filter">
+            <option value="all">All Commodities</option>
+            <option value="Silver">Silver</option>
+            <option value="Gold">Gold</option>
+            <option value="Lithium">Lithium</option>
+            <option value="Copper">Copper</option>
+          </select>
+        </div>
+      <div class="sankey-wrap">
+          <svg id="commoditySankey" viewBox="0 0 1460 1320" role="img" aria-label="Commodity signal flow from sources to market analyst outputs"></svg>
+        </div>
+        <div id="sankeyTooltip" class="sankey-tooltip" aria-hidden="true">
+          <p class="tip-title"></p>
+          <p class="tip-body"></p>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const newsSources = [
+        "EIN News - Mining (Gold)",
+        "Mining.com",
+        "World Gold Council - Research",
+        "CME Group - Metals Video",
+        "Bank for International Settlements",
+        "CFTC",
+        "The Silver Institute",
+        "Yahoo Finance",
+      ];
+
+      const rssFeedBaseUrl = "https://investoranatomy.com/rss_feed.html";
+      const newsSourceMeta = {
+        "EIN News - Mining (Gold)": {
+          query: "EIN News mining",
+          description: "Track high-frequency metals and mining wire headlines focused on projects, policy, and supply developments.",
+        },
+        "Mining.com": {
+          query: "Mining.com",
+          description: "Capture global mining-industry reporting on operations, projects, production trends, and capital activity.",
+        },
+        "World Gold Council - Research": {
+          query: "World Gold Council",
+          description: "Ingest World Gold Council research on gold demand, central-bank behavior, and market structure.",
+        },
+        "CME Group - Metals Video": {
+          query: "CME Group",
+          description: "Monitor CME metals-market video briefings for futures price action, volatility, and positioning context.",
+        },
+        "Bank for International Settlements": {
+          query: "Bank for International Settlements",
+          description: "Track BIS publications and commentary for central-bank, liquidity, and macro-financial policy signals.",
+        },
+        "CFTC": {
+          query: "CFTC",
+          description: "Monitor CFTC releases for market-structure, regulatory, and positioning-related developments.",
+        },
+        "The Silver Institute": {
+          query: "Silver Institute",
+          description: "Track Silver Institute updates on silver supply, industrial demand, investment demand, and market balances.",
+        },
+        "Yahoo Finance": {
+          query: "Yahoo Finance",
+          description: "Capture broad market and company headlines that shape metals sentiment and near-term risk tone.",
+        },
+      };
+
+      const silverSignalInputs = [
+        { name: "Real Interest Rate Trend Signal Monitor", href: "https://investoranatomy.com/signal_monitor/real_interest_rate_trend_signal_monitor.html" },
+        { name: "Federal Reserve Liquidity Composite Signal Monitor", href: "https://investoranatomy.com/signal_monitor/federal_reserve_liquidity_composite_signal_monitor.html" },
+        { name: "M2 Money Supply Signal Monitor", href: "https://investoranatomy.com/signal_monitor/m2_money_supply_signal_monitor.html" },
+        { name: "Explicit Neutral Rate R Proxy Signal Monitor", href: "https://investoranatomy.com/signal_monitor/explicit_neutral_rate_r_proxy_signal_monitor.html" },
+        { name: "Usd Index Signal Monitor", href: "https://investoranatomy.com/signal_monitor/usd_index_signal_monitor.html" },
+        { name: "Usd Individual Market Analysis Monitor", href: "https://investoranatomy.com/signal_monitor/usd_individual_market_analysis_monitor.html" },
+        { name: "Inflation Term Structure Signal Monitor", href: "https://investoranatomy.com/signal_monitor/inflation_term_structure_signal_monitor.html" },
+        { name: "Market Implied Inflation Signal Monitor", href: "https://investoranatomy.com/signal_monitor/market_implied_inflation_signal_monitor.html" },
+        { name: "Policy Relevant Inflation Pce Signal Monitor", href: "https://investoranatomy.com/signal_monitor/policy_relevant_inflation_pce_signal_monitor.html" },
+        { name: "Silver Individual Market Analysis Monitor", href: "https://investoranatomy.com/signal_monitor/silver_individual_market_analysis_monitor.html" },
+        { name: "Cross Sector Positioning Monitor", href: "https://investoranatomy.com/signal_monitor/cross_sector_positioning_monitor.html" },
+        { name: "Specs Vs Hedgers Divergence Reversal Risk Monitor", href: "https://investoranatomy.com/signal_monitor/specs_vs_hedgers_divergence_reversal_risk_monitor.html" },
+        { name: "Hedger Pressure Indicator Monitor", href: "https://investoranatomy.com/signal_monitor/hedger_pressure_indicator_monitor.html" },
+        { name: "Squeeze Exhaustion Risk Indicators Monitor", href: "https://investoranatomy.com/signal_monitor/squeeze_exhaustion_risk_indicators_monitor.html" },
+        { name: "Financial Stress Index Signal Monitor", href: "https://investoranatomy.com/signal_monitor/financial_stress_index_signal_monitor.html" },
+        { name: "Financial Stress Composite Signal Monitor", href: "https://investoranatomy.com/signal_monitor/financial_stress_composite_signal_monitor.html" },
+        { name: "Market Volatility Vix Signal Monitor", href: "https://investoranatomy.com/signal_monitor/market_volatility_vix_signal_monitor.html" },
+        { name: "Silver Slv Pricing Monitor", href: "https://investoranatomy.com/signal_monitor/silver_slv_pricing_monitor.html" },
+      ];
+
+      const cotSignalSet = new Set([
+        "Silver Individual Market Analysis Monitor",
+        "Cross Sector Positioning Monitor",
+        "Specs Vs Hedgers Divergence Reversal Risk Monitor",
+        "Hedger Pressure Indicator Monitor",
+        "Squeeze Exhaustion Risk Indicators Monitor",
+      ]);
+
+      const yFinanceSignalSet = new Set([
+        "Market Volatility Vix Signal Monitor",
+        "Silver Slv Pricing Monitor",
+      ]);
+
+      const analystDirectSignals = new Set([
+        "Silver Slv Pricing Monitor",
+        "Silver Individual Market Analysis Monitor",
+      ]);
+
+      const commodities = ["Silver", "Gold", "Lithium", "Copper"];
+
+      const nodeLinks = {
+        "Silver News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_7D.html",
+        "Silver News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_48H.html",
+        "Silver News Compression": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_Compression_7D.html",
+        "Silver Daily": "https://investoranatomy.com/silver_news",
+        "Gold News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_7D.html",
+        "Gold News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_48H.html",
+        "Copper News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Copper_News_Signal_7D.html",
+        "Copper News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Copper_News_Signal_48H.html",
+        "Lithium News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Lithium_News_Signal_7D.html",
+        "Lithium News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Lithium_News_Signal_48H.html",
+        "Silver Market Analyst": "https://investoranatomy.com/Podcast_Silver.html",
+        "Gold Market Analyst": "https://investoranatomy.com/Podcast_Gold.html",
+        "Copper Market Analyst": "https://investoranatomy.com/Podcast_Copper.html",
+        "Lithium Market Analyst": "https://investoranatomy.com/Podcast_Lithium.html",
+      };
+
+      const palette = {
+        panel: "#0b1728",
+        text: "#e6eef8",
+        link: "#67e8f9",
+        flow: "rgba(103, 232, 249, 0.18)",
+        newsFlow: "rgba(103, 232, 249, 0.42)",
+        silver: "rgba(192, 198, 208, 0.60)",
+        gold: "rgba(250, 204, 21, 0.52)",
+        lithium: "rgba(129, 140, 248, 0.52)",
+        copper: "rgba(251, 146, 60, 0.56)",
+        yfinance: "rgba(16, 185, 129, 0.42)",
+      };
+
+      const columnX = { source: 50, enrich: 420, news: 700, compression: 1030, analyst: 1265 };
+      const nodeWidth = 18;
+      const nodeHeight = 22;
+      const reportGap = 16;
+      const sourceGap = 42;
+      const rowBase = { Silver: 110, Gold: 260, Lithium: 410, Copper: 560 };
+      const chartWidth = 1460;
+
+      function getSignalSource(name) {
+        if (cotSignalSet.has(name)) return "COT";
+        if (yFinanceSignalSet.has(name)) return "YFinance";
+        return "FRED";
+      }
+
+      function getNewsSourceRssUrl(name) {
+        const meta = newsSourceMeta[name] || {};
+        const query = meta.query || name;
+        return rssFeedBaseUrl + "?q=" + encodeURIComponent(query);
+      }
+
+      function getCommodityColor(commodity, alpha) {
+        if (commodity === "Silver") return "rgba(192, 198, 208, " + alpha + ")";
+        if (commodity === "Gold") return "rgba(250, 204, 21, " + alpha + ")";
+        if (commodity === "Lithium") return "rgba(129, 140, 248, " + alpha + ")";
+        if (commodity === "Copper") return "rgba(251, 146, 60, " + alpha + ")";
+        return "rgba(103, 232, 249, " + alpha + ")";
+      }
+
+      function getNodeFill(node) {
+        if (node.type === "source") return "rgba(103, 232, 249, 0.92)";
+        if (node.type === "data-source") {
+          if (node.id === "COT") return "rgba(251, 191, 36, 0.95)";
+          if (node.id === "YFinance") return "rgba(16, 185, 129, 0.95)";
+          return "rgba(59, 130, 246, 0.95)";
+        }
+        if (node.type === "signal") {
+          if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.9)";
+          if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.9)";
+          return "rgba(59, 130, 246, 0.9)";
+        }
+        if (node.type === "enrich") return "rgba(103, 232, 249, 0.92)";
+        if (node.type === "research") return "rgba(148, 163, 184, 0.92)";
+        if (node.type === "regime" && node.commodity) return getCommodityColor(node.commodity, 0.9);
+        if (node.type === "regime") return "rgba(125, 211, 252, 0.88)";
+        if (node.commodity) return getCommodityColor(node.commodity, node.href ? 0.92 : 0.62);
+        return "rgba(15,23,42,0.9)";
+      }
+
+      function getNodeRingStroke(node) {
+        if (node.type === "data-source") {
+          if (node.id === "COT") return "rgba(251, 191, 36, 0.75)";
+          if (node.id === "YFinance") return "rgba(16, 185, 129, 0.75)";
+          return "rgba(59, 130, 246, 0.75)";
+        }
+        if (node.type === "signal") {
+          if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.8)";
+          if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.8)";
+          return "rgba(59, 130, 246, 0.8)";
+        }
+        if (node.commodity) return getCommodityColor(node.commodity, 0.8);
+        return "rgba(103, 232, 249, 0.75)";
+      }
+
+      function buildNodes() {
+        const newsSourceNodes = newsSources.map((name, index) => ({
+          id: name,
+          name,
+          x: columnX.source,
+          y: 70 + index * sourceGap,
+          type: "source",
+          href: getNewsSourceRssUrl(name),
+        }));
+        const dedupeY = Math.round((newsSourceNodes[0].y + newsSourceNodes[newsSourceNodes.length - 1].y) / 2);
+
+        const silverSignalsStartY = Math.max(180, 70 + newsSources.length * sourceGap - 10);
+        const signalGroupOrder = ["FRED", "COT", "YFinance"];
+        const silverSignalNodes = [];
+        const signalSourceNodes = [];
+        let groupCursorY = silverSignalsStartY;
+
+        signalGroupOrder.forEach((groupName) => {
+          const groupItems = silverSignalInputs.filter((item) => getSignalSource(item.name) === groupName);
+          if (!groupItems.length) return;
+
+          const groupStartY = groupCursorY;
+          groupItems.forEach((item, index) => {
+            silverSignalNodes.push({
+              id: item.name,
+              name: item.name,
+              x: columnX.enrich,
+              y: groupCursorY + index * sourceGap,
+              type: "signal",
+              commodity: "Silver",
+              href: item.href,
+              sourceGroup: groupName,
+            });
+          });
+
+          const groupEndY = groupCursorY + (groupItems.length - 1) * sourceGap;
+          signalSourceNodes.push({
+            id: groupName,
+            name: groupName,
+            x: columnX.source,
+            y: groupStartY + (groupEndY - groupStartY) / 2,
+            type: "data-source",
+            commodity: "Silver",
+          });
+
+          groupCursorY = groupEndY + sourceGap + 18;
+        });
+
+        const baseNodes = [
+          ...newsSourceNodes,
+          ...signalSourceNodes,
+          ...silverSignalNodes,
+          { id: "Deduplicate and Enrich", name: "Deduplicate and Enrich", x: columnX.enrich, y: dedupeY, type: "enrich" },
+        ];
+
+        const commodityNodes = commodities.flatMap((commodity) => {
+          const baseY = rowBase[commodity];
+          const centerOffset = (nodeHeight + reportGap) / 2;
+          const standard = [
+            {
+              id: commodity + " News - 7 Days",
+              name: commodity + " News - 7 Days",
+              x: columnX.news,
+              y: baseY,
+              commodity,
+              href: nodeLinks[commodity + " News - 7 Days"],
+            },
+            {
+              id: commodity + " News - 2 Days",
+              name: commodity + " News - 2 Days",
+              x: columnX.news,
+              y: baseY + nodeHeight + reportGap,
+              commodity,
+              href: nodeLinks[commodity + " News - 2 Days"],
+            },
+            {
+              id: commodity + " News Compression",
+              name: commodity + " News Compression",
+              x: columnX.compression,
+              y: baseY + centerOffset,
+              commodity,
+              href: nodeLinks[commodity + " News Compression"],
+            },
+            {
+              id: commodity + " Market Analyst",
+              name: commodity + " Market Analyst",
+              x: columnX.analyst,
+              y: baseY + centerOffset,
+              commodity,
+              href: nodeLinks[commodity + " Market Analyst"],
+            },
+          ];
+
+          if (commodity !== "Silver") return standard;
+          return [
+            ...standard,
+            {
+              id: "Silver Research",
+              name: "Silver Research",
+              x: columnX.compression,
+              y: baseY + centerOffset - 100,
+              commodity: "Silver",
+              type: "research",
+              href: "https://investoranatomy.com/signal_report/Silver_Research_Analyst.html",
+            },
+            {
+              id: "Silver Regime Framework",
+              name: "Silver Regime Framework",
+              x: columnX.compression,
+              y: baseY + centerOffset - 62,
+              commodity: "Silver",
+              type: "regime",
+            },
+            {
+              id: "Silver Regime State",
+              name: "Silver Regime State",
+              x: columnX.news,
+              y: baseY + (nodeHeight + reportGap) * 2,
+              commodity: "Silver",
+              type: "regime",
+              href: "https://investoranatomy.com/signal_report/Silver_Regime_State.html",
+            },
+            {
+              id: "Silver Daily",
+              name: "Silver Daily",
+              x: columnX.analyst,
+              y: baseY + centerOffset + nodeHeight + reportGap,
+              commodity: "Silver",
+              href: nodeLinks["Silver Daily"],
+            },
+            {
+              id: "Signal Change Monitor",
+              name: "Signal Change Monitor",
+              x: columnX.news,
+              y: baseY + (nodeHeight + reportGap) * 3,
+              commodity: "Silver",
+              type: "regime",
+            },
+          ];
+        });
+
+        return baseNodes.concat(commodityNodes);
+      }
+
+      function buildLinks() {
+        return [
+          ...newsSources.map((source) => ({ source, target: "Deduplicate and Enrich", value: 1, kind: "news-source" })),
+          ...silverSignalInputs.map((item) => ({
+            source: getSignalSource(item.name),
+            target: item.name,
+            commodity: "Silver",
+            kind: getSignalSource(item.name) === "COT"
+              ? "cot-source"
+              : getSignalSource(item.name) === "YFinance"
+                ? "yfinance-source"
+                : "fred-source",
+          })),
+          ...silverSignalInputs.map((item) => ({
+            source: item.name, target: "Silver Regime State", value: 1, commodity: "Silver", kind: "silver-signal",
+            signalSource: getSignalSource(item.name),
+          })),
+          ...silverSignalInputs.map((item) => ({
+            source: item.name, target: "Signal Change Monitor", value: 1, commodity: "Silver", kind: "silver-signal",
+            signalSource: getSignalSource(item.name),
+          })),
+          ...silverSignalInputs
+            .filter((item) => analystDirectSignals.has(item.name))
+            .map((item) => ({
+              source: item.name,
+              target: "Silver Market Analyst",
+              commodity: "Silver",
+              kind: "analyst-direct",
+              signalSource: getSignalSource(item.name),
+            })),
+          ...commodities.flatMap((commodity) => {
+            if (commodity === "Silver") {
+              return [
+                { source: "Deduplicate and Enrich", target: "Silver News - 7 Days", commodity },
+                { source: "Deduplicate and Enrich", target: "Silver News - 2 Days", commodity },
+                { source: "Silver News - 7 Days", target: "Silver News Compression", commodity },
+                { source: "Silver News Compression", target: "Silver Market Analyst", commodity },
+                { source: "Silver Research", target: "Silver Market Analyst", commodity, kind: "regime" },
+                { source: "Silver Regime Framework", target: "Silver Market Analyst", commodity, kind: "regime" },
+                { source: "Silver Regime State", target: "Silver Market Analyst", commodity, kind: "regime" },
+                { source: "Silver Market Analyst", target: "Silver Daily", commodity: "Silver" },
+                { source: "Market Volatility Vix Signal Monitor", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+                { source: "Silver Slv Pricing Monitor", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+                { source: "Silver Regime State", target: "Silver Daily", commodity: "Silver", kind: "regime" },
+                { source: "Signal Change Monitor", target: "Silver Daily", commodity: "Silver", kind: "regime" },
+                { source: "Silver News - 2 Days", target: "Silver Daily", commodity: "Silver" },
+              ];
+            }
+
+            return [
+              { source: "Deduplicate and Enrich", target: commodity + " News - 7 Days", commodity },
+              { source: "Deduplicate and Enrich", target: commodity + " News - 2 Days", commodity },
+              { source: commodity + " News - 7 Days", target: commodity + " News Compression", commodity },
+              { source: commodity + " News Compression", target: commodity + " Market Analyst", commodity },
+            ];
+          }),
+        ];
+      }
+
+      function getLinkColor(link) {
+        if (link.kind === "news-source") return palette.newsFlow;
+        if (link.kind === "fred-source") return "rgba(59, 130, 246, 0.35)";
+        if (link.kind === "cot-source") return "rgba(251, 191, 36, 0.42)";
+        if (link.kind === "yfinance-source") return palette.yfinance;
+        if (link.kind === "silver-signal") {
+          if (link.signalSource === "COT") return "rgba(251, 191, 36, 0.52)";
+          if (link.signalSource === "YFinance") return "rgba(16, 185, 129, 0.52)";
+          return "rgba(59, 130, 246, 0.48)";
+        }
+        if (link.kind === "analyst-direct") {
+          if (link.signalSource === "COT") return "rgba(251, 191, 36, 0.78)";
+          if (link.signalSource === "YFinance") return "rgba(16, 185, 129, 0.78)";
+          return "rgba(59, 130, 246, 0.72)";
+        }
+        if (link.commodity === "Silver") return palette.silver;
+        if (link.commodity === "Gold") return palette.gold;
+        if (link.commodity === "Lithium") return palette.lithium;
+        if (link.commodity === "Copper") return palette.copper;
+        return palette.flow;
+      }
+
+      const svg = document.getElementById("commoditySankey");
+      const filterSelect = document.getElementById("commodityFilter");
+      const sankeyShell = document.querySelector(".sankey-shell");
+      const tooltip = document.getElementById("sankeyTooltip");
+      if (!svg || !filterSelect || !sankeyShell || !tooltip) return;
+
+      const tooltipTitle = tooltip.querySelector(".tip-title");
+      const tooltipBody = tooltip.querySelector(".tip-body");
+      if (!tooltipTitle || !tooltipBody) return;
+
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const XLINK_NS = "http://www.w3.org/1999/xlink";
+
+      function make(tag, attrs) {
+        const el = document.createElementNS(SVG_NS, tag);
+        Object.keys(attrs || {}).forEach((key) => el.setAttribute(key, attrs[key]));
+        return el;
+      }
+
+      function wrapNodeLabel(text, maxChars) {
+        const words = (text || "").split(/\s+/).filter(Boolean);
+        if (!words.length) return [""];
+
+        const lines = [];
+        let current = "";
+
+        words.forEach((word) => {
+          if (!current) {
+            if (word.length > maxChars) {
+              lines.push(word.slice(0, maxChars - 1) + "...");
+            } else {
+              current = word;
+            }
+            return;
+          }
+
+          const candidate = current + " " + word;
+          if (candidate.length <= maxChars) {
+            current = candidate;
+            return;
+          }
+
+          lines.push(current);
+          if (word.length > maxChars) {
+            lines.push(word.slice(0, maxChars - 1) + "...");
+            current = "";
+          } else {
+            current = word;
+          }
+        });
+
+        if (current) lines.push(current);
+        if (lines.length <= 2) return lines;
+
+        let second = lines.slice(1).join(" ");
+        if (second.length > maxChars) second = second.slice(0, maxChars - 1).trimEnd() + "...";
+        return [lines[0], second];
+      }
+
+      function estimateLabelWidth(lines) {
+        const maxLen = lines.reduce((acc, line) => Math.max(acc, line.length), 0);
+        return Math.max(110, Math.min(430, Math.round(maxLen * 6.2 + 16)));
+      }
+
+      function getNodeDisplayName(node) {
+        if (node.type === "signal") return (node.name || "").replace(/\s+Monitor$/i, "");
+        return node.name || "";
+      }
+
+      const nodeObjectiveByName = {
+        "Real Interest Rate Trend Signal Monitor": "Track 10Y real-yield deviation from trend to flag accommodative vs restrictive real-rate pressure.",
+        "Federal Reserve Liquidity Composite Signal Monitor": "Measure system liquidity by combining M2, Fed balance sheet, reserves, and reverse-repo dynamics.",
+        "M2 Money Supply Signal Monitor": "Monitor money-supply growth and short-run momentum to identify liquidity acceleration or contraction.",
+        "Explicit Neutral Rate R Proxy Signal Monitor": "Approximate the market-implied neutral policy rate regime using real-rate and term-premium context.",
+        "Usd Index Signal Monitor": "Detect broad USD strengthening or weakening regimes that influence global commodity pricing pressure.",
+        "Usd Individual Market Analysis Monitor": "Translate USD futures positioning into crowding, unwind, and reversal-risk diagnostics.",
+        "Inflation Term Structure Signal Monitor": "Track inflation term-structure shifts across breakevens and real yields to classify reflation vs disinflation.",
+        "Market Implied Inflation Signal Monitor": "Summarize forward inflation expectations from TIPS breakevens and momentum structure.",
+        "Policy Relevant Inflation Pce Signal Monitor": "Track headline and core PCE inflation pressure in a policy-relevant composite.",
+        "Silver Individual Market Analysis Monitor": "Translate Silver futures CoT positioning into tactical crowding and reversal-risk signals.",
+        "Cross Sector Positioning Monitor": "Aggregate CoT positioning breadth across sectors to identify crowding and hedger-pressure concentration.",
+        "Specs Vs Hedgers Divergence Reversal Risk Monitor": "Measure speculative vs hedger divergence breadth to surface reversal-risk regimes.",
+        "Hedger Pressure Indicator Monitor": "Quantify commercial hedger pressure to infer supply-expansion vs shortage-stress conditions.",
+        "Squeeze Exhaustion Risk Indicators Monitor": "Aggregate squeeze and trend-exhaustion breadth flags across futures markets.",
+        "Financial Stress Index Signal Monitor": "Track STLFSI stress conditions to detect risk-off pressure and systemic strain.",
+        "Financial Stress Composite Signal Monitor": "Blend stress index, credit spreads, and curve slope into a unified financial-stress regime signal.",
+        "Market Volatility Vix Signal Monitor": "Track VIX regime and momentum as a tactical risk-sentiment and volatility-pressure gauge.",
+        "Silver Slv Pricing Monitor": "Track SLV pricing trend and momentum to anchor Silver tactical direction.",
+        "Silver News Compression": "Compress Silver narrative flow into a concise signal layer for analyst synthesis.",
+        "Gold News Compression": "Compress Gold narrative flow into a concise signal layer for analyst synthesis.",
+        "Lithium News Compression": "Compress Lithium narrative flow into a concise signal layer for analyst synthesis.",
+        "Copper News Compression": "Compress Copper narrative flow into a concise signal layer for analyst synthesis.",
+        "Silver Regime Framework": "Define the structural Silver regime lens used to interpret tactical and macro signals.",
+        "Silver Regime State": "Classify the current Silver regime state for decision framing and weighting.",
+        "Signal Change Monitor": "Track signal transition pressure using the same upstream Silver inputs that feed regime-state classification.",
+        "Silver Research": "Inject thematic Silver research context to complement quantitative signal layers.",
+        "Silver Market Analyst": "Synthesize Silver macro, positioning, pricing, and narrative layers into a final analyst view.",
+        "Silver Daily": "Produce the daily Silver briefing by combining analyst synthesis, tactical pricing/volatility, regime state, and latest 2-day news.",
+        "Gold Market Analyst": "Synthesize Gold macro, positioning, pricing, and narrative layers into a final analyst view.",
+        "Lithium Market Analyst": "Synthesize Lithium macro, positioning, pricing, and narrative layers into a final analyst view.",
+        "Copper Market Analyst": "Synthesize Copper macro, positioning, pricing, and narrative layers into a final analyst view.",
+      };
+
+      function getNodeObjective(node) {
+        if (nodeObjectiveByName[node.name]) return nodeObjectiveByName[node.name];
+        const commodityName = (node.name || "").split(" ")[0] || "Commodity";
+        if (node.type === "source") {
+          const meta = newsSourceMeta[node.name];
+          if (meta && meta.description) return meta.description;
+          return "Provide external commodity-news inputs to the enrichment layer.";
+        }
+        if (node.type === "enrich") return "Deduplicate, normalize, and enrich incoming news before compression.";
+        if (node.type === "data-source") {
+          if (node.id === "FRED") return "Provide macroeconomic time-series used by the FRED-driven Silver signal stack.";
+          if (node.id === "COT") return "Provide commitment-of-traders positioning data used by the CoT signal stack.";
+          if (node.id === "YFinance") return "Provide market-pricing and volatility feeds used by the YFinance signal stack.";
+          return "Provide source data for downstream signal generation.";
+        }
+        if (node.type === "signal") return "Generate a Silver monitor signal for downstream regime and analyst synthesis.";
+        if (node.name.indexOf("News - 7 Days") !== -1) return "Summarize the last 7 days of " + commodityName + " narrative flow.";
+        if (node.name.indexOf("News - 2 Days") !== -1) return "Highlight the most recent 48-hour changes in " + commodityName + " narrative flow.";
+        if (node.name.indexOf("News Compression") !== -1) return "Compress recent news into a concise decision-ready signal.";
+        if (node.name.indexOf("Regime Framework") !== -1) return "Define the structural regime lens applied to interpretation.";
+        if (node.name.indexOf("Regime State") !== -1) return "Classify current regime state to anchor analyst judgment.";
+        if (node.name.indexOf("Research") !== -1) return "Inject deeper research context alongside market and news signals.";
+        if (node.name.indexOf("Market Analyst") !== -1) return "Integrate signals, regime context, and compressed news into final analyst output.";
+        return "Provide context within the commodity analyst workflow.";
+      }
+
+      function positionTooltip(evt, targetEl) {
+        const shellRect = sankeyShell.getBoundingClientRect();
+        let left = 16;
+        let top = 16;
+
+        if (evt && typeof evt.clientX === "number" && typeof evt.clientY === "number") {
+          left = evt.clientX - shellRect.left + 14;
+          top = evt.clientY - shellRect.top + 14;
+        } else if (targetEl) {
+          const targetRect = targetEl.getBoundingClientRect();
+          left = targetRect.left - shellRect.left + targetRect.width + 12;
+          top = targetRect.top - shellRect.top + targetRect.height / 2;
+        }
+
+        tooltip.style.left = left + "px";
+        tooltip.style.top = top + "px";
+
+        const tipRect = tooltip.getBoundingClientRect();
+        const maxLeft = shellRect.width - tipRect.width - 12;
+        const maxTop = shellRect.height - tipRect.height - 12;
+
+        let clampedLeft = Math.min(left, maxLeft);
+        let clampedTop = Math.min(top, maxTop);
+        if (clampedLeft < 12) clampedLeft = 12;
+        if (clampedTop < 12) clampedTop = 12;
+
+        if (left > maxLeft && targetEl) {
+          const targetRect = targetEl.getBoundingClientRect();
+          clampedLeft = targetRect.left - shellRect.left - tipRect.width - 12;
+          if (clampedLeft < 12) clampedLeft = 12;
+        }
+
+        tooltip.style.left = Math.round(clampedLeft) + "px";
+        tooltip.style.top = Math.round(clampedTop) + "px";
+      }
+
+      function showTooltip(node, evt, targetEl) {
+        tooltipTitle.textContent = getNodeDisplayName(node);
+        tooltipBody.textContent = getNodeObjective(node);
+        tooltip.classList.add("show");
+        tooltip.setAttribute("aria-hidden", "false");
+        positionTooltip(evt, targetEl);
+      }
+
+      function hideTooltip() {
+        tooltip.classList.remove("show");
+        tooltip.setAttribute("aria-hidden", "true");
+      }
+
+      function bindTooltipEvents(el, node) {
+        el.addEventListener("pointerenter", function (evt) { showTooltip(node, evt, el); });
+        el.addEventListener("pointermove", function (evt) { positionTooltip(evt, el); });
+        el.addEventListener("pointerleave", hideTooltip);
+        el.addEventListener("mouseenter", function (evt) { showTooltip(node, evt, el); });
+        el.addEventListener("mousemove", function (evt) { positionTooltip(evt, el); });
+        el.addEventListener("mouseleave", hideTooltip);
+      }
+
+      function draw(filterValue) {
+        const filter = filterValue === "all" ? null : filterValue;
+        const nodes = buildNodes();
+        const links = buildLinks();
+        const nodeById = Object.fromEntries(nodes.map((n) => [n.id, n]));
+        svg.textContent = "";
+        hideTooltip();
+
+        function isLinkVisible(link) {
+          if (!filter) return true;
+          if (link.commodity === filter) return true;
+          if (!link.commodity && link.kind === "news-source") return true;
+          return false;
+        }
+
+        const visibleLinks = links.filter(isLinkVisible);
+        const visibleNodeIds = new Set();
+        visibleLinks.forEach((link) => {
+          visibleNodeIds.add(link.source);
+          visibleNodeIds.add(link.target);
+        });
+        if (filter) {
+          nodes.forEach((node) => {
+            if (node.commodity === filter) visibleNodeIds.add(node.id);
+          });
+        }
+
+        const maxY = Math.max.apply(null, nodes.map((n) => n.y + nodeHeight));
+        const chartHeight = Math.max(1320, maxY + 100);
+        svg.setAttribute("viewBox", "0 0 " + chartWidth + " " + chartHeight);
+
+        svg.appendChild(make("rect", { x: 0, y: 0, width: chartWidth, height: chartHeight, fill: palette.panel, rx: 0 }));
+
+        visibleLinks.forEach((link) => {
+          const source = nodeById[link.source];
+          const target = nodeById[link.target];
+          if (!source || !target) return;
+
+          const x1 = source.x + nodeWidth;
+          const y1 = source.y + nodeHeight / 2;
+          const x2 = target.x;
+          const y2 = target.y + nodeHeight / 2;
+          const cx1 = x1 + (x2 - x1) * 0.35;
+          const cx2 = x1 + (x2 - x1) * 0.65;
+
+          const path = make("path", {
+            d: "M " + x1 + " " + y1 + " C " + cx1 + " " + y1 + ", " + cx2 + " " + y2 + ", " + x2 + " " + y2,
+            stroke: getLinkColor(link),
+            "stroke-width": 2.4,
+            opacity: 1,
+            fill: "none",
+            "stroke-linecap": "round",
+          });
+          svg.appendChild(path);
+        });
+
+        nodes.forEach((node) => {
+          if (filter && !visibleNodeIds.has(node.id)) return;
+          const fill = getNodeFill(node);
+          const textFill = palette.text;
+          const displayName = getNodeDisplayName(node);
+          const labelLines = wrapNodeLabel(displayName, 30);
+          const labelX = node.x + nodeWidth + 10;
+          const labelLineHeight = 12;
+          const labelBoxWidth = estimateLabelWidth(labelLines);
+          const labelBoxHeight = Math.max(nodeHeight, labelLines.length * labelLineHeight + 4);
+
+          const group = make("g", { opacity: 1 });
+          if (node.href) group.style.cursor = "pointer";
+
+          group.appendChild(make("rect", {
+            x: node.x, y: node.y, width: nodeWidth, height: nodeHeight, rx: 5, fill,
+          }));
+
+          if (node.href) {
+            const ring = make("rect", {
+              x: node.x - 6,
+              y: node.y - 4,
+              width: nodeWidth + 12 + labelBoxWidth,
+              height: labelBoxHeight + 8,
+              rx: 10,
+              stroke: getNodeRingStroke(node),
+              class: "click-ring",
+            });
+            ring.style.animationDelay = ((node.y % 17) / 10).toFixed(2) + "s";
+            group.appendChild(ring);
+          }
+
+          const text = make("text", {
+            x: labelX,
+            y: node.y + nodeHeight / 2 - ((labelLines.length - 1) * labelLineHeight) / 2 + 4,
+            "font-size": 12,
+            fill: textFill,
+          });
+          labelLines.forEach((line, index) => {
+            const tspan = make("tspan", {
+              x: labelX,
+              dy: index === 0 ? 0 : labelLineHeight,
+            });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          group.appendChild(text);
+
+          if (node.href) {
+            const anchor = make("a", { href: node.href, target: "_blank" });
+            anchor.setAttributeNS(XLINK_NS, "xlink:href", node.href);
+            anchor.appendChild(group);
+            bindTooltipEvents(anchor, node);
+            anchor.addEventListener("focus", function (evt) { showTooltip(node, evt, anchor); });
+            anchor.addEventListener("blur", hideTooltip);
+            svg.appendChild(anchor);
+          } else {
+            bindTooltipEvents(group, node);
+            svg.appendChild(group);
+          }
+        });
+      }
+
+      filterSelect.addEventListener("change", function () {
+        draw(filterSelect.value);
+      });
+
+      draw(filterSelect.value);
+    })();
+  </script>
+</body>
+</html>
