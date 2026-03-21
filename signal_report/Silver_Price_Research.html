@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .summary-box,
+    .table-box {
+      overflow-x: auto;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .market-report table,
+    .ia-gemini-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .market-report th,
+    .market-report td,
+    .ia-gemini-table th,
+    .ia-gemini-table td {
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      text-align: left;
+      white-space: nowrap;
+      color: #0f172a !important;
+      background: #ffffff;
+    }
+
+    .market-report th,
+    .ia-gemini-table th {
+      font-weight: 600;
+      font-size: 0.76rem;
+      background: #e5e7eb !important;
+    }
+
+    .market-report tbody tr:nth-child(even) td,
+    .ia-gemini-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .market-report table a,
+    .ia-gemini-table a {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    .market-report table a:hover,
+    .ia-gemini-table a:hover {
+      color: #1e40af;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Silver Price Research</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Silver Price Research</h1>
+      <p class="subtitle">Institution-level institutional silver target extraction from IA researcher PDFs, with historical target tracking and synthesis.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-03-21</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Research Synthesis</h2><div class="box summary-box market-report"><div class="market-report"><p><strong>Research Synthesis:</strong></p><ul><li>No new extractable institution rows were produced in this run.</li><li>Processed PDF count: 0.</li><li>Total rows retained in master history: 15.</li><li>Run status: controlled no-new-document mode (No unarchived PDFs found or no valid rows returned.).</li></ul></div></div></section>
+
+<section class="section"><h2 class="section-title">Institutional Silver Targets</h2><div class="box chart-box"><img src="/images/Silver_Price_Research_Targets.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Prior rows are muted. Current run rows are highlighted.</p></div></section>
+
+<section class="section"><details class="details" open><summary class="expand-summary"><span>Extracted Data</span><span class="chevron">▸</span></summary><div class="expand-inner open"><div class="box table-box market-report"><div class="market-report"><p><strong>No New PDFs Detected - Showing Latest Historical Target Rows</strong></p><ul><li>Processed PDFs this run: 0</li><li>Failed PDFs this run: 0</li><li>Rows in current run snapshot: 0</li><li>Run snapshot JSONL: C:\Users\peter\OneDrive\Documents\GitHub\Data\IA_Researcher\Silver\silver_institution_targets_run_20260321_091337.jsonl</li></ul><table class="dataframe ia-gemini-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Publication Date</th>
+      <th>Institution</th>
+      <th>Institution Type</th>
+      <th>Forecast Horizon</th>
+      <th>Target Available</th>
+      <th>Price Target (USD/oz)</th>
+      <th>Target Type</th>
+      <th>Base Case</th>
+      <th>Bull Case</th>
+      <th>Bear Case</th>
+      <th>Scenario Basis</th>
+      <th>Source</th>
+      <th>Source Domain</th>
+      <th>Confidence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2026-03-12</td>
+      <td>BMO</td>
+      <td>bank</td>
+      <td>2026 avg</td>
+      <td>True</td>
+      <td>75.00</td>
+      <td>point_forecast</td>
+      <td>75.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2026 average</td>
+      <td><a href="https://economics.bmo.com/media/filer_public/c5/00/c5000653-bb9b-4a5a-8454-fa1282d0c7b5/commoditiesoutlook.pdf" target="_blank" rel="noopener">Commodities Outlook</a></td>
+      <td>economics.bmo.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-03-12</td>
+      <td>Fitch Solutions</td>
+      <td>research_house</td>
+      <td>2026 avg</td>
+      <td>True</td>
+      <td>93.00</td>
+      <td>point_forecast</td>
+      <td>93.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2026 average</td>
+      <td><a href="https://www.reuters.com/world/india/gold-steady-dipbuying-offsets-firm-dollar-us-inflation-woes-2026-03-12/" target="_blank" rel="noopener">Gold steady, dip-buying offsets firm dollar, US inflation woes</a></td>
+      <td>reuters.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-02-23</td>
+      <td>World Gold Council</td>
+      <td>industry_body</td>
+      <td>None</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>no_numeric_target</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td><a href="https://www.gold.org/download/file/20573/WMM_23_February_A_Silver_Lining_Playbook.pdf" target="_blank" rel="noopener">WMM 23 February A Silver Lining Playbook</a></td>
+      <td>gold.org</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-02-10</td>
+      <td>The Silver Institute</td>
+      <td>industry_body</td>
+      <td>None</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>no_numeric_target</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td><a href="https://silverinstitute.org/global-silver-investment-to-remain-strong-in-2026-against-the-backdrop-of-a-sixth-consecutive-annual-market-deficit/" target="_blank" rel="noopener">Global Silver Investment to Remain Strong in 2026</a></td>
+      <td>silverinstitute.org</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-02-04</td>
+      <td>Reuters</td>
+      <td>news_poll</td>
+      <td>2026 avg</td>
+      <td>True</td>
+      <td>79.50</td>
+      <td>survey_average</td>
+      <td>79.50</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Reuters poll average</td>
+      <td><a href="https://www.reuters.com/business/finance/analysts-ramp-up-gold-forecasts-global-uncertainties-mount-2026-02-04/" target="_blank" rel="noopener">Analysts ramp up gold forecasts as global uncertainties mount</a></td>
+      <td>reuters.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-02-02</td>
+      <td>J.P. Morgan</td>
+      <td>bank</td>
+      <td>range-based guidance</td>
+      <td>True</td>
+      <td>77.50</td>
+      <td>range_midpoint</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>midpoint of range guidance</td>
+      <td><a href="https://www.reuters.com/world/africa/jp-morgan-sees-gold-6300-an-ounce-by-year-end-robust-centralbank-investor-demand-2026-02-02/" target="_blank" rel="noopener">JP Morgan sees gold $6,300 an ounce by year-end, robust central bank investor demand</a></td>
+      <td>reuters.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-01-27</td>
+      <td>Citi</td>
+      <td>bank</td>
+      <td>0–3m</td>
+      <td>True</td>
+      <td>150.00</td>
+      <td>point_forecast</td>
+      <td>150.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Short-term upgrade</td>
+      <td><a href="https://www.reuters.com/business/gold-silver-rise-near-record-highs-lingering-safe-haven-demand-2026-01-27/" target="_blank" rel="noopener">Gold, silver rise near record highs on lingering safe-haven demand</a></td>
+      <td>reuters.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-01-20</td>
+      <td>LBMA</td>
+      <td>industry_body</td>
+      <td>2026 avg</td>
+      <td>True</td>
+      <td>79.57</td>
+      <td>survey_average</td>
+      <td>79.57</td>
+      <td>165.0</td>
+      <td>42.0</td>
+      <td>LBMA survey average</td>
+      <td><a href="https://www.lbma.org.uk/forecast-survey-2026/at-a-glance" target="_blank" rel="noopener">Forecast Survey 2026: At a Glance</a></td>
+      <td>lbma.org.uk</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-01-08</td>
+      <td>CME Group</td>
+      <td>exchange</td>
+      <td>None</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>no_numeric_target</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td><a href="https://www.cmegroup.com/articles/2026/precious-metals-outlook-2026-market-dynamics-following-a-record-breaking-year.html" target="_blank" rel="noopener">Precious Metals Outlook 2026</a></td>
+      <td>cmegroup.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2026-01-07</td>
+      <td>Goldman Sachs</td>
+      <td>bank</td>
+      <td>None</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>no_numeric_target</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td><a href="https://cfsrating.com/media/dnmddpne/precious-comment_-silver_-extreme-price-action-likely-to-persist-on-thin-london-inventories.pdf" target="_blank" rel="noopener">Precious Comment: Silver: Extreme Price Action Likely to Persist</a></td>
+      <td>cfsrating.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2025-12-31</td>
+      <td>Sprott</td>
+      <td>asset_manager</td>
+      <td>None</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>no_numeric_target</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td><a href="https://sprott.com/insights/gold-silver-outlook-2026/" target="_blank" rel="noopener">Gold &amp; Silver Outlook 2026</a></td>
+      <td>sprott.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2025-12-08</td>
+      <td>ING</td>
+      <td>bank</td>
+      <td>2026 avg</td>
+      <td>True</td>
+      <td>55.00</td>
+      <td>point_forecast</td>
+      <td>55.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2026 average</td>
+      <td><a href="https://think.ing.com/articles/silver-volatility-in-2026/" target="_blank" rel="noopener">Silver volatility in 2026</a></td>
+      <td>think.ing.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2025-10-30</td>
+      <td>WisdomTree</td>
+      <td>asset_manager</td>
+      <td>6m (Q3 2026)</td>
+      <td>True</td>
+      <td>62.00</td>
+      <td>point_forecast</td>
+      <td>62.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Point target by Q3 2026</td>
+      <td><a href="https://www.wisdomtree.eu/api/sitecore/pdf/getblogpdf?id=dc416e42-3489-46ef-9145-7731911683ef" target="_blank" rel="noopener">WisdomTree Blog: Silver Lining</a></td>
+      <td>wisdomtree.eu</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2025-10-22</td>
+      <td>UBS</td>
+      <td>bank</td>
+      <td>Jun 2026</td>
+      <td>True</td>
+      <td>55.00</td>
+      <td>point_forecast</td>
+      <td>55.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Point target by Jun 2026</td>
+      <td><a href="https://www.ubs.com/global/en/wealthmanagement/insights/chief-investment-office/house-view/daily/2025/latest-22102025.html" target="_blank" rel="noopener">House View Daily</a></td>
+      <td>ubs.com</td>
+      <td>high</td>
+    </tr>
+    <tr>
+      <td>2022-07-11</td>
+      <td>London Metal Exchange</td>
+      <td>exchange</td>
+      <td>None</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>no_numeric_target</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td><a href="https://www.lme.com/metals/precious/lmeprecious" target="_blank" rel="noopener">LME Precious</a></td>
+      <td>lme.com</td>
+      <td>high</td>
+    </tr>
+  </tbody>
+</table><div style="margin-top:1rem;"><details><summary>Prompt</summary><pre style="white-space:pre-wrap; line-height:1.35; margin-top:0.6rem;">﻿Goal
+Identify institutional price targets for [Silver] over the next 6–12 months.
+
+Sources to prioritise
+- Bank commodity outlooks (Goldman Sachs, BMO, Citi, ING, UBS, JP Morgan)
+- Commodity specialists (Sprott, WisdomTree)
+- Industry bodies (Silver Institute, World Gold Council)
+- Exchange research (CME, LME)
+- Major institutional research notes
+
+Output requirements
+Return a table with:
+Institution
+Publication date
+Price target
+Forecast horizon
+Base case / bull case / bear case
+Key drivers cited
+Link to research
+
+Exclude retail blogs and opinion pieces.
+</pre></details></div></div></div></div></details></section>
+  <div class="disclaimer">
+    The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+  </div>
+</main>
+</body>
+</html>

@@ -389,6 +389,8 @@
         { name: "Financial Stress Composite Signal Monitor", href: "https://investoranatomy.com/signal_monitor/financial_stress_composite_signal_monitor.html" },
         { name: "Market Volatility Vix Signal Monitor", href: "https://investoranatomy.com/signal_monitor/market_volatility_vix_signal_monitor.html" },
         { name: "Silver Slv Pricing Monitor", href: "https://investoranatomy.com/signal_monitor/silver_slv_pricing_monitor.html" },
+        { name: "Metals Comparative Signal", href: "https://investoranatomy.com/signal_report/Metals_Comparative_Signal.html" },
+        { name: "SLV ETF Flow Signal", href: "https://investoranatomy.com/signal_report/SLV_ETF_Flow_Signal.html" },
       ];
 
       const cotSignalSet = new Set([
@@ -402,11 +404,18 @@
       const yFinanceSignalSet = new Set([
         "Market Volatility Vix Signal Monitor",
         "Silver Slv Pricing Monitor",
+        "Metals Comparative Signal",
+      ]);
+
+      const blackrockSignalSet = new Set([
+        "SLV ETF Flow Signal",
       ]);
 
       const analystDirectSignals = new Set([
         "Silver Slv Pricing Monitor",
         "Silver Individual Market Analysis Monitor",
+        "Metals Comparative Signal",
+        "SLV ETF Flow Signal",
       ]);
 
       const commodities = ["Silver", "Gold", "Lithium", "Copper"];
@@ -439,6 +448,7 @@
         lithium: "rgba(129, 140, 248, 0.52)",
         copper: "rgba(251, 146, 60, 0.56)",
         yfinance: "rgba(16, 185, 129, 0.42)",
+        blackrock: "rgba(236, 72, 153, 0.50)",
       };
 
       const columnX = { source: 50, enrich: 420, news: 700, compression: 1030, analyst: 1265 };
@@ -452,6 +462,7 @@
       function getSignalSource(name) {
         if (cotSignalSet.has(name)) return "COT";
         if (yFinanceSignalSet.has(name)) return "YFinance";
+        if (blackrockSignalSet.has(name)) return "Blackrock ETF";
         return "FRED";
       }
 
@@ -474,11 +485,13 @@
         if (node.type === "data-source") {
           if (node.id === "COT") return "rgba(251, 191, 36, 0.95)";
           if (node.id === "YFinance") return "rgba(16, 185, 129, 0.95)";
+          if (node.id === "Blackrock ETF") return "rgba(236, 72, 153, 0.95)";
           return "rgba(59, 130, 246, 0.95)";
         }
         if (node.type === "signal") {
           if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.9)";
           if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.9)";
+          if (node.sourceGroup === "Blackrock ETF") return "rgba(236, 72, 153, 0.9)";
           return "rgba(59, 130, 246, 0.9)";
         }
         if (node.type === "enrich") return "rgba(103, 232, 249, 0.92)";
@@ -493,11 +506,13 @@
         if (node.type === "data-source") {
           if (node.id === "COT") return "rgba(251, 191, 36, 0.75)";
           if (node.id === "YFinance") return "rgba(16, 185, 129, 0.75)";
+          if (node.id === "Blackrock ETF") return "rgba(236, 72, 153, 0.78)";
           return "rgba(59, 130, 246, 0.75)";
         }
         if (node.type === "signal") {
           if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.8)";
           if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.8)";
+          if (node.sourceGroup === "Blackrock ETF") return "rgba(236, 72, 153, 0.82)";
           return "rgba(59, 130, 246, 0.8)";
         }
         if (node.commodity) return getCommodityColor(node.commodity, 0.8);
@@ -516,7 +531,7 @@
         const dedupeY = Math.round((newsSourceNodes[0].y + newsSourceNodes[newsSourceNodes.length - 1].y) / 2);
 
         const silverSignalsStartY = Math.max(180, 70 + newsSources.length * sourceGap - 10);
-        const signalGroupOrder = ["FRED", "COT", "YFinance"];
+        const signalGroupOrder = ["FRED", "COT", "YFinance", "Blackrock ETF"];
         const silverSignalNodes = [];
         const signalSourceNodes = [];
         let groupCursorY = silverSignalsStartY;
@@ -659,6 +674,8 @@
               ? "cot-source"
               : getSignalSource(item.name) === "YFinance"
                 ? "yfinance-source"
+                : getSignalSource(item.name) === "Blackrock ETF"
+                  ? "blackrock-source"
                 : "fred-source",
           })),
           ...silverSignalInputs.map((item) => ({
@@ -691,6 +708,8 @@
                 { source: "Silver Market Analyst", target: "Silver Daily", commodity: "Silver" },
                 { source: "Market Volatility Vix Signal Monitor", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
                 { source: "Silver Slv Pricing Monitor", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+                { source: "Metals Comparative Signal", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+                { source: "SLV ETF Flow Signal", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "Blackrock ETF" },
                 { source: "Silver Regime State", target: "Silver Daily", commodity: "Silver", kind: "regime" },
                 { source: "Signal Change Monitor", target: "Silver Daily", commodity: "Silver", kind: "regime" },
                 { source: "Silver News - 2 Days", target: "Silver Daily", commodity: "Silver" },
@@ -712,14 +731,17 @@
         if (link.kind === "fred-source") return "rgba(59, 130, 246, 0.35)";
         if (link.kind === "cot-source") return "rgba(251, 191, 36, 0.42)";
         if (link.kind === "yfinance-source") return palette.yfinance;
+        if (link.kind === "blackrock-source") return palette.blackrock;
         if (link.kind === "silver-signal") {
           if (link.signalSource === "COT") return "rgba(251, 191, 36, 0.52)";
           if (link.signalSource === "YFinance") return "rgba(16, 185, 129, 0.52)";
+          if (link.signalSource === "Blackrock ETF") return "rgba(236, 72, 153, 0.58)";
           return "rgba(59, 130, 246, 0.48)";
         }
         if (link.kind === "analyst-direct") {
           if (link.signalSource === "COT") return "rgba(251, 191, 36, 0.78)";
           if (link.signalSource === "YFinance") return "rgba(16, 185, 129, 0.78)";
+          if (link.signalSource === "Blackrock ETF") return "rgba(236, 72, 153, 0.82)";
           return "rgba(59, 130, 246, 0.72)";
         }
         if (link.commodity === "Silver") return palette.silver;
@@ -817,6 +839,8 @@
         "Financial Stress Composite Signal Monitor": "Blend stress index, credit spreads, and curve slope into a unified financial-stress regime signal.",
         "Market Volatility Vix Signal Monitor": "Track VIX regime and momentum as a tactical risk-sentiment and volatility-pressure gauge.",
         "Silver Slv Pricing Monitor": "Track SLV pricing trend and momentum to anchor Silver tactical direction.",
+        "Metals Comparative Signal": "Track cross-metal relative performance and rotation pressure to contextualize Silver within the broader metals complex.",
+        "SLV ETF Flow Signal": "Track SLV ETF net flow regime as a direct read on investment demand pressure for Silver.",
         "Silver News Compression": "Compress Silver narrative flow into a concise signal layer for analyst synthesis.",
         "Gold News Compression": "Compress Gold narrative flow into a concise signal layer for analyst synthesis.",
         "Lithium News Compression": "Compress Lithium narrative flow into a concise signal layer for analyst synthesis.",
@@ -845,6 +869,7 @@
           if (node.id === "FRED") return "Provide macroeconomic time-series used by the FRED-driven Silver signal stack.";
           if (node.id === "COT") return "Provide commitment-of-traders positioning data used by the CoT signal stack.";
           if (node.id === "YFinance") return "Provide market-pricing and volatility feeds used by the YFinance signal stack.";
+          if (node.id === "Blackrock ETF") return "Provide ETF flow data stream used to track SLV investment-demand shifts.";
           return "Provide source data for downstream signal generation.";
         }
         if (node.type === "signal") return "Generate a Silver monitor signal for downstream regime and analyst synthesis.";

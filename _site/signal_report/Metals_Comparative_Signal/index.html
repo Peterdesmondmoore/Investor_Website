@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .summary-box,
+    .table-box {
+      overflow-x: auto;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .market-report table,
+    .ia-gemini-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .market-report th,
+    .market-report td,
+    .ia-gemini-table th,
+    .ia-gemini-table td {
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      text-align: left;
+      white-space: nowrap;
+      color: #0f172a !important;
+      background: #ffffff;
+    }
+
+    .market-report th,
+    .ia-gemini-table th {
+      font-weight: 600;
+      font-size: 0.76rem;
+      background: #e5e7eb !important;
+    }
+
+    .market-report tbody tr:nth-child(even) td,
+    .ia-gemini-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .market-report table a,
+    .ia-gemini-table a {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    .market-report table a:hover,
+    .ia-gemini-table a:hover {
+      color: #1e40af;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Metals Comparative Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Metals Comparative Signal</h1>
+      <p class="subtitle">Cross-metal relative valuation and z-score dashboard for precious and base metals.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-03-16</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given Silver (Z: 5.214), Gold (Z: 4.668), and Copper (Z: 2.402) remain in "Overbought" territory, this setup aligns with Downward-biased price paths and Elevated volatility, where the dominant risk is Mean reversion, not Trend continuation.
+        </li>
+        <li>The metals complex is in a synchronized Extreme Overbought regime, with Zinc serving as the sole bullish outlier.</li>
+        <li>Conviction Band: Extreme; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Far; Revision Sensitivity: Low.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Z-scores exceeding 2.0 trigger a "Strong Sell" classification, identifying overbought conditions (source table).</li>
+        <li>Values between 1.0 and 2.0 indicate "Above average" pricing, triggering a "Sell" signal (source table).</li>
+        <li>Negative Z-scores below -0.75 trigger a "Buy" signal based on "Below average" relative valuation (source table).</li>
+        <li>Latest comparative observation: 2026-03-16.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Silver (<a href="https://investoranatomy.com/signal_report/Silver_Pricing_Signal/" target="_blank">1</a>) and Gold (<a href="https://investoranatomy.com/signal_report/Gold_Pricing_Signal/" target="_blank">2</a>) drive the signal with extreme Z-scores (>4.5), indicating severe price-to-mean stretching.</li>
+        <li>Copper (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">3</a>), Platinum, and Aluminium are clustered in the "Strong Sell" zone, confirming broad-based metals overvaluation.</li>
+        <li>Gold-Oil ratios have reached the 96th percentile, highlighting precious metal expensive-ness relative to energy inputs.</li>
+        <li>Conditional Invalidation: Broad Z-score normalization (reversion to <1.0) without a corresponding price decline.</li>
+        <li>Stability: Signal is deteriorating as prices have begun retreating from early-March peaks.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Mean reversion lower across precious and base metals as overbought extremes exhaust.</li>
+        <li>Most plausible upside risk: Geopolitical or liquidity shocks driving a "melt-up" in safe-haven precious metals.</li>
+        <li>Most plausible downside risk: Liquidation of crowded long positions leads to a synchronized, high-volatility correction.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Tactical (weeks); Z-score extremes of this magnitude typically resolve through short-term price adjustments.</li>
+        <li>Aggregation Weight Hint: High; extreme statistical deviations usually dominate macro sentiment and positioning flows (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">4</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs Pricing and Sentiment dimensions of the global macro cycle.</li>
+        <li>Economic mechanism: Extreme price stretching implies speculative exhaustion and potential "blow-off top" dynamics.</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Typically interacts with USD strength and real yield signals to determine the catalyst for reversal.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>Persistent Overbought regime (duration > 3 weeks based on history).</li>
+    <li>Direction of change: Weakening (prices currently rolling over from record highs).</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Z-scores capture historical relative stretching but do not account for fundamental regime shifts in demand.</li>
+    <li>Zinc and Palladium divergence suggests idiosyncratic supply/demand factors may offset broad sector trends.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Metals Comparative Dashboard, 2026-03-16.</li>
+        <li>Silver and Gold Z-scores are the most influential drivers of the current "Strong Sell" cluster.</li>
+        <li>Public datasets on global exchange inventory levels would improve supply-side reliability.</li>
+    </ul>
+
+</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Include underlying rolling-window duration for Z-score calculations to assess mean-reversion speed.</li>
+</ul>
+--></div></section>
+
+<section class="section"><h2 class="section-title">Metals Comparative Dashboard</h2><div class="box chart-box"><img src="/images/metals_comparative_chart.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Ratios and z-scores from yfinance futures proxies.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Source Data Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><h3>Latest Signal Classification</h3>
+<table border="1" class="dataframe ia-gemini-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Metal</th>
+      <th>Price</th>
+      <th>ZScore</th>
+      <th>Signal</th>
+      <th>Reason</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Zinc</td>
+      <td>111.6562</td>
+      <td>-0.816</td>
+      <td>BUY</td>
+      <td>Below average</td>
+    </tr>
+    <tr>
+      <td>Palladium</td>
+      <td>1525.0000</td>
+      <td>1.090</td>
+      <td>SELL</td>
+      <td>Above average</td>
+    </tr>
+    <tr>
+      <td>Aluminium</td>
+      <td>3366.2500</td>
+      <td>2.922</td>
+      <td>STRONG SELL</td>
+      <td>Overbought</td>
+    </tr>
+    <tr>
+      <td>Copper</td>
+      <td>5.7435</td>
+      <td>2.402</td>
+      <td>STRONG SELL</td>
+      <td>Overbought</td>
+    </tr>
+    <tr>
+      <td>Gold</td>
+      <td>4991.2998</td>
+      <td>4.668</td>
+      <td>STRONG SELL</td>
+      <td>Overbought</td>
+    </tr>
+    <tr>
+      <td>Platinum</td>
+      <td>2034.6000</td>
+      <td>2.550</td>
+      <td>STRONG SELL</td>
+      <td>Overbought</td>
+    </tr>
+    <tr>
+      <td>Silver</td>
+      <td>77.6850</td>
+      <td>5.214</td>
+      <td>STRONG SELL</td>
+      <td>Overbought</td>
+    </tr>
+  </tbody>
+</table>
+<h3>Recent Price History (15 rows)</h3>
+<table border="1" class="dataframe ia-gemini-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Ticker</th>
+      <th>Date</th>
+      <th>Gold</th>
+      <th>Silver</th>
+      <th>Platinum</th>
+      <th>Palladium</th>
+      <th>Copper</th>
+      <th>Aluminium</th>
+      <th>Zinc</th>
+      <th>Oil</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th></th>
+      <td>2026-02-24</td>
+      <td>5155.7998</td>
+      <td>87.457</td>
+      <td>2181.1001</td>
+      <td>1813.5</td>
+      <td>5.9230</td>
+      <td>3020.75</td>
+      <td>113.2969</td>
+      <td>65.63</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-02-25</td>
+      <td>5206.3999</td>
+      <td>90.939</td>
+      <td>2325.6001</td>
+      <td>1834.1</td>
+      <td>5.9795</td>
+      <td>3081.75</td>
+      <td>113.1719</td>
+      <td>65.42</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-02-26</td>
+      <td>5176.5000</td>
+      <td>86.998</td>
+      <td>2230.7000</td>
+      <td>1748.6</td>
+      <td>5.9470</td>
+      <td>3071.75</td>
+      <td>113.4219</td>
+      <td>65.21</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-02-27</td>
+      <td>5230.5000</td>
+      <td>92.682</td>
+      <td>2365.6001</td>
+      <td>1792.2</td>
+      <td>6.0045</td>
+      <td>3044.25</td>
+      <td>113.8594</td>
+      <td>67.02</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-02</td>
+      <td>5294.3999</td>
+      <td>88.284</td>
+      <td>2311.8999</td>
+      <td>1762.6</td>
+      <td>5.8945</td>
+      <td>3109.25</td>
+      <td>113.1562</td>
+      <td>71.23</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-03</td>
+      <td>5107.3999</td>
+      <td>82.923</td>
+      <td>2074.8000</td>
+      <td>1635.0</td>
+      <td>5.7735</td>
+      <td>3165.75</td>
+      <td>113.1094</td>
+      <td>74.56</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-04</td>
+      <td>5120.2002</td>
+      <td>82.633</td>
+      <td>2154.7000</td>
+      <td>1667.8</td>
+      <td>5.8550</td>
+      <td>3279.75</td>
+      <td>112.9062</td>
+      <td>74.66</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-05</td>
+      <td>5065.2998</td>
+      <td>81.687</td>
+      <td>2130.0000</td>
+      <td>1620.2</td>
+      <td>5.7530</td>
+      <td>3215.75</td>
+      <td>112.4219</td>
+      <td>81.01</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-06</td>
+      <td>5146.1001</td>
+      <td>83.816</td>
+      <td>2142.3999</td>
+      <td>1631.7</td>
+      <td>5.7570</td>
+      <td>3327.50</td>
+      <td>112.5625</td>
+      <td>90.90</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-09</td>
+      <td>5091.5000</td>
+      <td>84.032</td>
+      <td>2169.6001</td>
+      <td>1662.2</td>
+      <td>5.8005</td>
+      <td>3292.00</td>
+      <td>112.4844</td>
+      <td>94.77</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-10</td>
+      <td>5229.7002</td>
+      <td>89.083</td>
+      <td>2235.0000</td>
+      <td>1668.7</td>
+      <td>5.9040</td>
+      <td>3322.00</td>
+      <td>112.5781</td>
+      <td>83.45</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-11</td>
+      <td>5167.3999</td>
+      <td>85.065</td>
+      <td>2205.0000</td>
+      <td>1624.4</td>
+      <td>5.8455</td>
+      <td>3369.50</td>
+      <td>112.1250</td>
+      <td>87.25</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-12</td>
+      <td>5115.7998</td>
+      <td>84.670</td>
+      <td>2160.0000</td>
+      <td>1621.9</td>
+      <td>5.8245</td>
+      <td>3464.00</td>
+      <td>111.5625</td>
+      <td>95.73</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-13</td>
+      <td>5052.5000</td>
+      <td>80.914</td>
+      <td>2036.6000</td>
+      <td>1554.1</td>
+      <td>5.7145</td>
+      <td>3383.25</td>
+      <td>111.5625</td>
+      <td>98.71</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-16</td>
+      <td>4991.2998</td>
+      <td>77.685</td>
+      <td>2034.6000</td>
+      <td>1525.0</td>
+      <td>5.7435</td>
+      <td>3366.25</td>
+      <td>111.6562</td>
+      <td>97.64</td>
+    </tr>
+  </tbody>
+</table>
+<h3>Recent Ratio History (15 rows)</h3>
+<table border="1" class="dataframe ia-gemini-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Ticker</th>
+      <th>Date</th>
+      <th>Gold_Silver_Ratio</th>
+      <th>Gold_Silver_Ratio_Percentile</th>
+      <th>Gold_Oil_Ratio</th>
+      <th>Gold_Oil_Ratio_Percentile</th>
+      <th>Copper_Gold_Ratio</th>
+      <th>Copper_Gold_Ratio_Percentile</th>
+      <th>Zinc_Copper_Ratio</th>
+      <th>Zinc_Copper_Ratio_Percentile</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th></th>
+      <td>2026-02-24</td>
+      <td>58.9524</td>
+      <td>23.8458</td>
+      <td>78.5586</td>
+      <td>99.5647</td>
+      <td>0.0011</td>
+      <td>0.2487</td>
+      <td>19.1283</td>
+      <td>0.3272</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-02-25</td>
+      <td>57.2516</td>
+      <td>20.6125</td>
+      <td>79.5842</td>
+      <td>99.6269</td>
+      <td>0.0011</td>
+      <td>0.2332</td>
+      <td>18.9266</td>
+      <td>0.1870</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-02-26</td>
+      <td>59.5014</td>
+      <td>25.2448</td>
+      <td>79.3820</td>
+      <td>99.5958</td>
+      <td>0.0011</td>
+      <td>0.2643</td>
+      <td>19.0721</td>
+      <td>0.2805</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-02-27</td>
+      <td>56.4349</td>
+      <td>19.4777</td>
+      <td>78.0439</td>
+      <td>99.4404</td>
+      <td>0.0011</td>
+      <td>0.2176</td>
+      <td>18.9623</td>
+      <td>0.2181</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-02</td>
+      <td>59.9701</td>
+      <td>26.3174</td>
+      <td>74.3282</td>
+      <td>98.8497</td>
+      <td>0.0011</td>
+      <td>0.0466</td>
+      <td>19.1969</td>
+      <td>0.4519</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-03</td>
+      <td>61.5921</td>
+      <td>30.8721</td>
+      <td>68.5005</td>
+      <td>98.3056</td>
+      <td>0.0011</td>
+      <td>0.0933</td>
+      <td>19.5911</td>
+      <td>0.7946</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-04</td>
+      <td>61.9631</td>
+      <td>31.7426</td>
+      <td>68.5802</td>
+      <td>98.3212</td>
+      <td>0.0011</td>
+      <td>0.1865</td>
+      <td>19.2837</td>
+      <td>0.4986</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-05</td>
+      <td>62.0086</td>
+      <td>31.8358</td>
+      <td>62.5268</td>
+      <td>97.7460</td>
+      <td>0.0011</td>
+      <td>0.1399</td>
+      <td>19.5414</td>
+      <td>0.7323</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-06</td>
+      <td>61.3976</td>
+      <td>30.3591</td>
+      <td>56.6128</td>
+      <td>97.3263</td>
+      <td>0.0011</td>
+      <td>0.0622</td>
+      <td>19.5523</td>
+      <td>0.7635</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-09</td>
+      <td>60.5900</td>
+      <td>28.3072</td>
+      <td>53.7248</td>
+      <td>96.9843</td>
+      <td>0.0011</td>
+      <td>0.1710</td>
+      <td>19.3922</td>
+      <td>0.5921</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-10</td>
+      <td>58.7059</td>
+      <td>23.3639</td>
+      <td>62.6687</td>
+      <td>97.7771</td>
+      <td>0.0011</td>
+      <td>0.0777</td>
+      <td>19.0681</td>
+      <td>0.2649</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-11</td>
+      <td>60.7465</td>
+      <td>28.7735</td>
+      <td>59.2252</td>
+      <td>97.6527</td>
+      <td>0.0011</td>
+      <td>0.1244</td>
+      <td>19.1814</td>
+      <td>0.4207</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-12</td>
+      <td>60.4205</td>
+      <td>27.7165</td>
+      <td>53.4399</td>
+      <td>96.8910</td>
+      <td>0.0011</td>
+      <td>0.1554</td>
+      <td>19.1540</td>
+      <td>0.3428</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-13</td>
+      <td>62.4428</td>
+      <td>32.7064</td>
+      <td>51.1853</td>
+      <td>96.1138</td>
+      <td>0.0011</td>
+      <td>0.1088</td>
+      <td>19.5227</td>
+      <td>0.6700</td>
+    </tr>
+    <tr>
+      <th></th>
+      <td>2026-03-16</td>
+      <td>64.2505</td>
+      <td>37.8983</td>
+      <td>51.1194</td>
+      <td>96.0672</td>
+      <td>0.0012</td>
+      <td>0.2798</td>
+      <td>19.4405</td>
+      <td>0.6232</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+  <div class="disclaimer">
+    The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+  </div>
+</main>
+</body>
+</html>
