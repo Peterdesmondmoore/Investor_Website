@@ -299,16 +299,6 @@
       </div>
 
       <div class="sankey-shell" aria-label="Commodity market analyst sankey diagram">
-        <div class="sankey-toolbar">
-          <label for="commodityFilter" class="hint" style="margin-right:8px;">Model:</label>
-          <select id="commodityFilter" class="sankey-filter">
-            <option value="all">All Commodities</option>
-            <option value="Silver">Silver</option>
-            <option value="Gold">Gold</option>
-            <option value="Lithium">Lithium</option>
-            <option value="Copper">Copper</option>
-          </select>
-        </div>
       <div class="sankey-wrap">
           <svg id="commoditySankey" viewBox="0 0 1460 1320" role="img" aria-label="Commodity signal flow from sources to market analyst outputs"></svg>
         </div>
@@ -418,23 +408,14 @@
         "SLV ETF Flow Signal",
       ]);
 
-      const commodities = ["Silver", "Gold", "Lithium", "Copper"];
+      const commodities = ["Silver"];
 
       const nodeLinks = {
         "Silver News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_7D.html",
         "Silver News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_48H.html",
         "Silver News Compression": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_Compression_7D.html",
-        "Silver Daily": "https://investoranatomy.com/silver_news",
-        "Gold News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_7D.html",
-        "Gold News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_48H.html",
-        "Copper News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Copper_News_Signal_7D.html",
-        "Copper News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Copper_News_Signal_48H.html",
-        "Lithium News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Lithium_News_Signal_7D.html",
-        "Lithium News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Lithium_News_Signal_48H.html",
-        "Silver Market Analyst": "https://investoranatomy.com/Podcast_Silver.html",
-        "Gold Market Analyst": "https://investoranatomy.com/Podcast_Gold.html",
-        "Copper Market Analyst": "https://investoranatomy.com/Podcast_Copper.html",
-        "Lithium Market Analyst": "https://investoranatomy.com/Podcast_Lithium.html",
+        "Silver Day Trader": "https://investoranatomy.com/silver_news",
+        "Silver Market Analyst": "https://investoranatomy.com/signal_report/silver_market_analyst/",
       };
 
       const palette = {
@@ -451,13 +432,13 @@
         blackrock: "rgba(236, 72, 153, 0.50)",
       };
 
-      const columnX = { source: 50, enrich: 420, news: 700, compression: 1030, analyst: 1265 };
+      const columnX = { source: 40, enrich: 280, news: 520, compression: 760, analyst: 1000, terminal: 1240 };
       const nodeWidth = 18;
       const nodeHeight = 22;
       const reportGap = 16;
       const sourceGap = 42;
-      const rowBase = { Silver: 110, Gold: 260, Lithium: 410, Copper: 560 };
-      const chartWidth = 1460;
+      const rowBase = { Silver: 110 };
+      const chartWidth = 1420;
 
       function getSignalSource(name) {
         if (cotSignalSet.has(name)) return "COT";
@@ -636,24 +617,34 @@
               id: "Silver Regime State",
               name: "Silver Regime State",
               x: columnX.news,
-              y: baseY + (nodeHeight + reportGap) * 2,
+              y: baseY + (nodeHeight + reportGap) * 8,
               commodity: "Silver",
               type: "regime",
               href: "https://investoranatomy.com/signal_report/Silver_Regime_State.html",
             },
             {
-              id: "Silver Daily",
-              name: "Silver Daily",
-              x: columnX.analyst,
+              id: "Silver Day Trader",
+              name: "Silver Day Trader",
+              x: columnX.terminal,
               y: baseY + centerOffset + nodeHeight + reportGap,
               commodity: "Silver",
-              href: nodeLinks["Silver Daily"],
+              type: "endpoint-day-trader",
+              href: nodeLinks["Silver Day Trader"],
+            },
+            {
+              id: "Silver Outlook",
+              name: "Silver Outlook",
+              x: columnX.terminal,
+              y: baseY + centerOffset,
+              commodity: "Silver",
+              type: "endpoint-outlook",
+              href: "file:///C:/Users/peter/OneDrive/Documents/GitHub/Investor_Website/Podcast_Silver.html",
             },
             {
               id: "Signal Change Monitor",
               name: "Signal Change Monitor",
               x: columnX.news,
-              y: baseY + (nodeHeight + reportGap) * 3,
+              y: baseY + (nodeHeight + reportGap) * 9,
               commodity: "Silver",
               type: "regime",
             },
@@ -695,34 +686,22 @@
               kind: "analyst-direct",
               signalSource: getSignalSource(item.name),
             })),
-          ...commodities.flatMap((commodity) => {
-            if (commodity === "Silver") {
-              return [
-                { source: "Deduplicate and Enrich", target: "Silver News - 7 Days", commodity },
-                { source: "Deduplicate and Enrich", target: "Silver News - 2 Days", commodity },
-                { source: "Silver News - 7 Days", target: "Silver News Compression", commodity },
-                { source: "Silver News Compression", target: "Silver Market Analyst", commodity },
-                { source: "Silver Research", target: "Silver Market Analyst", commodity, kind: "regime" },
-                { source: "Silver Regime Framework", target: "Silver Market Analyst", commodity, kind: "regime" },
-                { source: "Silver Regime State", target: "Silver Market Analyst", commodity, kind: "regime" },
-                { source: "Silver Market Analyst", target: "Silver Daily", commodity: "Silver" },
-                { source: "Market Volatility Vix Signal Monitor", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
-                { source: "Silver Slv Pricing Monitor", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
-                { source: "Metals Comparative Signal", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
-                { source: "SLV ETF Flow Signal", target: "Silver Daily", commodity: "Silver", kind: "analyst-direct", signalSource: "Blackrock ETF" },
-                { source: "Silver Regime State", target: "Silver Daily", commodity: "Silver", kind: "regime" },
-                { source: "Signal Change Monitor", target: "Silver Daily", commodity: "Silver", kind: "regime" },
-                { source: "Silver News - 2 Days", target: "Silver Daily", commodity: "Silver" },
-              ];
-            }
-
-            return [
-              { source: "Deduplicate and Enrich", target: commodity + " News - 7 Days", commodity },
-              { source: "Deduplicate and Enrich", target: commodity + " News - 2 Days", commodity },
-              { source: commodity + " News - 7 Days", target: commodity + " News Compression", commodity },
-              { source: commodity + " News Compression", target: commodity + " Market Analyst", commodity },
-            ];
-          }),
+          { source: "Deduplicate and Enrich", target: "Silver News - 7 Days", commodity: "Silver" },
+          { source: "Deduplicate and Enrich", target: "Silver News - 2 Days", commodity: "Silver" },
+          { source: "Silver News - 7 Days", target: "Silver News Compression", commodity: "Silver" },
+          { source: "Silver News Compression", target: "Silver Market Analyst", commodity: "Silver" },
+          { source: "Silver Research", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
+          { source: "Silver Regime Framework", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
+          { source: "Silver Regime State", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
+          { source: "Silver Market Analyst", target: "Silver Day Trader", commodity: "Silver" },
+          { source: "Silver Market Analyst", target: "Silver Outlook", commodity: "Silver", kind: "regime" },
+          { source: "Market Volatility Vix Signal Monitor", target: "Silver Day Trader", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+          { source: "Silver Slv Pricing Monitor", target: "Silver Day Trader", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+          { source: "Metals Comparative Signal", target: "Silver Day Trader", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+          { source: "SLV ETF Flow Signal", target: "Silver Day Trader", commodity: "Silver", kind: "analyst-direct", signalSource: "Blackrock ETF" },
+          { source: "Silver Regime State", target: "Silver Day Trader", commodity: "Silver", kind: "regime" },
+          { source: "Signal Change Monitor", target: "Silver Day Trader", commodity: "Silver", kind: "regime" },
+          { source: "Silver News - 2 Days", target: "Silver Day Trader", commodity: "Silver" },
         ];
       }
 
@@ -752,10 +731,9 @@
       }
 
       const svg = document.getElementById("commoditySankey");
-      const filterSelect = document.getElementById("commodityFilter");
       const sankeyShell = document.querySelector(".sankey-shell");
       const tooltip = document.getElementById("sankeyTooltip");
-      if (!svg || !filterSelect || !sankeyShell || !tooltip) return;
+      if (!svg || !sankeyShell || !tooltip) return;
 
       const tooltipTitle = tooltip.querySelector(".tip-title");
       const tooltipBody = tooltip.querySelector(".tip-body");
@@ -850,7 +828,8 @@
         "Signal Change Monitor": "Track signal transition pressure using the same upstream Silver inputs that feed regime-state classification.",
         "Silver Research": "Inject thematic Silver research context to complement quantitative signal layers.",
         "Silver Market Analyst": "Synthesize Silver macro, positioning, pricing, and narrative layers into a final analyst view.",
-        "Silver Daily": "Produce the daily Silver briefing by combining analyst synthesis, tactical pricing/volatility, regime state, and latest 2-day news.",
+        "Silver Day Trader": "Produce the intraday Silver brief by combining analyst synthesis, tactical pricing/volatility, regime state, and latest 2-day news.",
+        "Silver Outlook": "Provide the forward-looking Silver outlook synthesized from the Silver Market Analyst output.",
         "Gold Market Analyst": "Synthesize Gold macro, positioning, pricing, and narrative layers into a final analyst view.",
         "Lithium Market Analyst": "Synthesize Lithium macro, positioning, pricing, and narrative layers into a final analyst view.",
         "Copper Market Analyst": "Synthesize Copper macro, positioning, pricing, and narrative layers into a final analyst view.",
@@ -941,32 +920,12 @@
         el.addEventListener("mouseleave", hideTooltip);
       }
 
-      function draw(filterValue) {
-        const filter = filterValue === "all" ? null : filterValue;
+      function draw() {
         const nodes = buildNodes();
         const links = buildLinks();
         const nodeById = Object.fromEntries(nodes.map((n) => [n.id, n]));
         svg.textContent = "";
         hideTooltip();
-
-        function isLinkVisible(link) {
-          if (!filter) return true;
-          if (link.commodity === filter) return true;
-          if (!link.commodity && link.kind === "news-source") return true;
-          return false;
-        }
-
-        const visibleLinks = links.filter(isLinkVisible);
-        const visibleNodeIds = new Set();
-        visibleLinks.forEach((link) => {
-          visibleNodeIds.add(link.source);
-          visibleNodeIds.add(link.target);
-        });
-        if (filter) {
-          nodes.forEach((node) => {
-            if (node.commodity === filter) visibleNodeIds.add(node.id);
-          });
-        }
 
         const maxY = Math.max.apply(null, nodes.map((n) => n.y + nodeHeight));
         const chartHeight = Math.max(1320, maxY + 100);
@@ -974,7 +933,7 @@
 
         svg.appendChild(make("rect", { x: 0, y: 0, width: chartWidth, height: chartHeight, fill: palette.panel, rx: 0 }));
 
-        visibleLinks.forEach((link) => {
+        links.forEach((link) => {
           const source = nodeById[link.source];
           const target = nodeById[link.target];
           if (!source || !target) return;
@@ -998,7 +957,6 @@
         });
 
         nodes.forEach((node) => {
-          if (filter && !visibleNodeIds.has(node.id)) return;
           const fill = getNodeFill(node);
           const textFill = palette.text;
           const displayName = getNodeDisplayName(node);
@@ -1060,11 +1018,7 @@
         });
       }
 
-      filterSelect.addEventListener("change", function () {
-        draw(filterSelect.value);
-      });
-
-      draw(filterSelect.value);
+      draw();
     })();
   </script>
 </body>

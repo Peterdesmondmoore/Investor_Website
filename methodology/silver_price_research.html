@@ -1,0 +1,55 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Methodology: Silver Price Research</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #1f2937; }
+    h1, h2 { color: #111827; }
+    code { background: #f3f4f6; padding: 0.1rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Methodology: Silver Price Research</h1>
+
+  <h2>Objective</h2>
+  <p>Convert IA silver deep-research PDFs into structured institution-level target data, preserve history over time, and generate an interpretable silver target outlook.</p>
+
+  <h2>Input Sources</h2>
+  <ul>
+    <li>Research PDFs dropped into <code>Data/IA_Researcher/Silver</code>.</li>
+    <li>Gemini extraction prompt for institution-level silver targets and scenario fields.</li>
+    <li>Retained historical rows from <code>silver_institution_targets_master.jsonl</code>.</li>
+  </ul>
+
+  <h2>Transformation Logic</h2>
+  <ul>
+    <li>Extract full PDF text and call Gemini to return strict JSONL rows.</li>
+    <li>Validate schema, coerce supported numeric/date fields, and reject malformed lines.</li>
+    <li>Deduplicate institution/publication entries and append only new rows to master history.</li>
+    <li>Classify active numeric targets, split recent versus prior context windows, and compute KPI/dispersion metrics.</li>
+    <li>Generate report visuals and synthesis from retained dataset (not only current-run rows).</li>
+  </ul>
+
+  <h2>Output Interpretation</h2>
+  <ul>
+    <li>KPI and chart focus on extracted publication-date targets, not realised spot silver prices.</li>
+    <li>Recent rows (latest window) drive the primary interpretation; older rows provide context.</li>
+    <li>Rows with <code>target_available=false</code> are retained for coverage context but are excluded from numeric target distribution plots.</li>
+  </ul>
+
+  <h2>Limitations</h2>
+  <ul>
+    <li>Coverage depends on available research PDFs and the fidelity of source documents.</li>
+    <li>Comparability can vary across target types (point forecasts, survey averages, range midpoints).</li>
+    <li>Extraction quality is model-dependent and can degrade on low-quality scans or ambiguous language.</li>
+  </ul>
+
+  <h2>Downstream Consumers</h2>
+  <ul>
+    <li><strong>Silver Market Analyst</strong> consumes this signal as <code>silver_price_research</code> for strategic (12M) context.</li>
+    <li>Signal history and report pages use this output as a persisted silver research reference stream.</li>
+  </ul>
+</body>
+</html>
