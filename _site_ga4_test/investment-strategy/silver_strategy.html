@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Silver Structural Deficit Strategy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #3b82f6; /* Strategy accent: brand blue */
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --text-main: #f1f5f9;
+      --text-soft: #94a3b8;
+      --border-subtle: #1f2937;
+      --danger: #ef4444;
+      --positive: #22c55e;
+      --warn: #fbbf24;
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .header-center {
+      text-align: center;
+      align-items: center;
+    }
+
+    .eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .tabs {
+      margin-top: 16px;
+    }
+
+    .tab-list {
+      display: inline-flex;
+      gap: 8px;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .tab-button {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .tab-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .tab-panel {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .pill-hot {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--danger);
+    }
+
+    .pill-oppty {
+      border-color: rgba(74, 222, 128, 0.7);
+      color: var(--positive);
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    .section {
+      margin-top: 14px;
+    }
+
+    .section h3 {
+      font-size: 0.9rem;
+      margin: 0 0 6px;
+    }
+
+    .section p {
+      font-size: 0.8rem;
+      margin: 0 0 8px;
+      color: var(--text-soft);
+    }
+
+    .table-wrapper {
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    thead {
+      background: #020617;
+    }
+
+    th, td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .col-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .risk-low { color: var(--positive); }
+    .risk-medium { color: var(--warn); }
+    .risk-high { color: var(--danger); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--text-soft);
+    }
+
+    .tag-positive { color: var(--positive); border-color: rgba(34, 197, 94, 0.5); }
+    .tag-warn { color: var(--warn); border-color: rgba(250, 204, 21, 0.5); }
+    .tag-risk { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+
+
+    .tag-neutral { color: var(--text-soft); border-color: rgba(148, 163, 184, 0.5); }
+    .tag-info { color: var(--accent); border-color: rgba(59, 130, 246, 0.5); }
+    .tag-negative { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+    .tag-role { color: #c084fc; border-color: rgba(192, 132, 252, 0.55); }
+
+    .pill-warn { border-color: rgba(250, 204, 21, 0.6); color: var(--warn); }
+    .pill-positive { border-color: rgba(34, 197, 94, 0.6); color: var(--positive); }
+    .pill-negative { border-color: rgba(248, 113, 113, 0.6); color: var(--danger); }
+    .pill-info { border-color: rgba(59, 130, 246, 0.6); color: var(--accent); }
+    .pill-role { border-color: rgba(192, 132, 252, 0.6); color: #c084fc; }
+
+    ul.bullet-tight {
+      padding-left: 18px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    a {
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #fbbf24;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-two {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+  <!-- Reference: investment-strategy/Operating_Model/Investment_Strategy_Specification.md for compliance updates. -->
+  <nav>
+    <div class="nav-inner">
+      <div>Silver Structural Deficit Strategy</div>
+      <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">
+        &larr; Back to dashboard
+      </a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <header class="header">
+      <div class="eyebrow">Strategy Overview</div>
+      <h1>Capitalising on the Silver Structural Deficit</h1>
+      <p class="subtitle">
+        A rules-based real-asset strategy designed to capture the multi-year re-pricing potential
+        created by silver's persistent supply/demand imbalance and dual role as both industrial
+        metal and monetary asset.
+      </p>
+      <div class="meta-row">
+        <div class="chip"><span class="chip-dot"></span>Asset: Silver</div>
+        <div class="chip">Strategy Type: Directional / Structural Real Asset</div>
+        <div class="chip">Instruments: Physical bullion &amp; SLV</div>
+        <div class="chip">Horizon: 2025-2030+ (structural)</div>
+        <div class="chip">Role: Real asset &amp; macro hedge</div>
+        <div class="chip">Prior version: Oct 2025</div>
+        <div class="chip">Update: Jan 2026</div>
+        <div class="chip">As of: 2026-01-15 (baseline Oct 2025)</div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-button active" data-tab="overview">Overview &amp; Allocation</button>
+        <button class="tab-button" data-tab="macro">Macro, Scenarios &amp; Risk</button>
+        <button class="tab-button" data-tab="updates">Strategy Updates</button>
+        <button class="tab-button" data-tab="spec">Specification</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-panel active">
+        <main class="layout">
+          <!-- LEFT: CORE THESIS -->
+          <section class="card" aria-labelledby="core-thesis-heading">
+            <div class="card-title-row">
+              <h2 id="core-thesis-heading">Core Investment Thesis</h2>
+              <span class="pill pill-oppty">Structural imbalance</span>
+            </div>
+            <p>
+              The strategy is built on silver's unique dual identity: an indispensable industrial
+              commodity and a timeless monetary asset. This duality places silver at the intersection
+              of powerful secular drivers - the green energy transition, electrification and renewed
+              demand for hard assets in an era of fiscal dominance and geopolitical risk.
+            </p>
+
+            <div class="section">
+              <h3>High-Level Strategy &amp; Rationale</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Structural demand super-cycle:</strong> Industrial demand is anchored by
+                  photovoltaics, EVs, 5G and AI infrastructure. This demand is highly
+                  price-inelastic because silver's properties are functionally unique.
+                </li>
+                <li>
+                  <strong>Monetary asset resurgence:</strong> In a world of persistent inflation and
+                  policy uncertainty, silver's role as a portfolio diversifier and tangible store of
+                  value is reasserting itself alongside gold.
+                </li>
+                <li>
+                  <strong>Constrained and inelastic supply:</strong> Over 70% of mine supply comes as
+                  a by-product of base metal mining, so supply is weakly sensitive to the silver
+                  price itself, even as visible inventories (LBMA/COMEX) are drained.
+                </li>
+                <li>
+                  <strong>Multi-year structural deficit:</strong> Since 2021, the market has run a
+                  deep and widening deficit, with cumulative shortfalls projected to reach nearly
+                  3 billion ounces by 2030 if current trends persist.
+                </li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Timelines &amp; Execution</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Deployment (2025-2026):</strong> Build the position via disciplined
+                  dollar-cost averaging, absorbing price volatility while the structural deficit is
+                  still under-appreciated.
+                </li>
+                <li>
+                  <strong>Holding period (2026-2030+):</strong> Maintain the strategic allocation as
+                  cumulative deficits deepen, above-ground inventories tighten and the market
+                  undergoes a regime re-pricing.
+                </li>
+                <li>
+                  <strong>Implementation simplicity:</strong> Two primary vehicles - physical bullion
+                  and a large, physically-backed ETF (SLV) - keep the rule set transparent and
+                  machine-readable.
+                </li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Strategic Objectives</h3>
+              <ul class="bullet-tight">
+                <li>Capture the long-horizon real-asset risk premium in a structurally tight market.</li>
+                <li>Exploit the interaction between industrial deficits and monetary demand shocks.</li>
+                <li>Provide a diversifying hedge against inflation, policy error and currency risk.</li>
+                <li>Maintain a simple framework that can be interrogated and stress-tested by a model.</li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Strategy Phase (Jan 2026)</h3>
+              <div class="tag-row">
+                <span class="tag tag-warn">Post-repricing</span>
+                <span class="tag tag-warn">Volatility management</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- RIGHT: DEPLOYMENT & ALLOCATION -->
+          <aside class="card" aria-labelledby="deployment-heading">
+            <div class="card-title-row">
+              <h2 id="deployment-heading">Deployment Plan &amp; Allocation Bands</h2>
+              <span class="pill">No leverage, no derivatives</span>
+            </div>
+            <p>
+              Capital is deployed in phases, with allocation bands reflecting the relative roles of
+              physical bullion and liquid ETF exposure. The framework mirrors the mid-cap strategy's
+              emphasis on phased entry and bounded tilts.
+            </p>
+
+            <div class="section">
+              <h3>Capital Deployment Phases</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Phase</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Phase 1 - Initial core (0-6 months)</td>
+                      <td>Establish foundational exposure across physical bullion and SLV via DCA.</td>
+                    </tr>
+                    <tr>
+                      <td>Phase 2 - Reinforcement (6-18 months)</td>
+                      <td>Add on weakness when macro shocks temporarily pressure price but the
+                        deficit thesis remains intact.</td>
+                    </tr>
+                    <tr>
+                      <td>Phase 3 - Managed exposure (18+ months)</td>
+                      <td>Maintain target bands; rebalance within ranges using volatility-aware rules.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Suggested Asset Allocation Bands</h3>
+              <p>Allocation bands mirror the original silver core strategy while making ranges explicit.</p>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Investment</th>
+                      <th>Category</th>
+                      <th class="col-right">Target Allocation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Physical bullion (bars &amp; coins)</td>
+                      <td>Core preservation</td>
+                      <td class="col-right">40-60%</td>
+                    </tr>
+                    <tr>
+                      <td>iShares Silver Trust (SLV)</td>
+                      <td>Core liquid</td>
+                      <td class="col-right">30-50%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p style="font-size:0.75rem; margin-top:6px;">
+                Bands provide flexibility around a 100% silver sleeve; exact portfolio sizing is set
+                at the total-portfolio level.
+              </p>
+            </div>
+
+            <div class="section">
+              <h3>Portfolio Structure (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Element</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Allocation framework</td>
+                      <td>Accumulation-phase sizing</td>
+                      <td>Managed-exposure sizing</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                    <tr>
+                      <td>Rebalancing logic</td>
+                      <td>Price weakness accumulation</td>
+                      <td>Volatility-aware rebalancing</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </aside>
+        </main>
+
+        <!-- SECOND ROW: STRUCTURAL DEFICIT DATA -->
+        <section class="card" style="margin-top:20px;" aria-labelledby="deficit-heading">
+          <div class="card-title-row">
+            <h2 id="deficit-heading">Anatomy of the Structural Deficit</h2>
+            <span class="pill pill-hot">Multi-decade imbalance</span>
+          </div>
+          <p>
+            The tables below translate the original silver strategy data into a format that can be
+            directly interrogated by a model. They summarise both historical context and projected
+            supply/demand balances through 2030.
+          </p>
+
+          <div class="section">
+            <h3>Historical Supply &amp; Demand (1950-2024)</h3>
+            <p>
+              This data shows silver's evolution from a monetary/photographic metal to a modern
+              industrial and investment asset, highlighting the emergence of persistent deficits in
+              recent years. Figures are in million ounces.
+            </p>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Mine prod.</th>
+                    <th>Scrap</th>
+                    <th>Total supply</th>
+                    <th>Industrial</th>
+                    <th>Photography</th>
+                    <th>Jewelry/silverware</th>
+                    <th>Coin/investment</th>
+                    <th>Total demand</th>
+                    <th>Balance</th>
+                    <th>Cumulative balance (from 2021)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1950</td><td>203.2</td><td>45.3</td><td>248.5</td><td>150.0</td><td>75.0</td><td>100.0</td><td>25.0</td><td>350.0</td><td class="risk-high">-101.5</td><td>N/A</td>
+                  </tr>
+                  <tr>
+                    <td>1970</td><td>300.9</td><td>55.9</td><td>356.8</td><td>350.0</td><td>160.0</td><td>140.0</td><td>20.0</td><td>670.0</td><td class="risk-high">-313.2</td><td>N/A</td>
+                  </tr>
+                  <tr>
+                    <td>1990</td><td>533.5</td><td>118.0</td><td>651.5</td><td>208.0</td><td>218.0</td><td>184.0</td><td>15.0</td><td>625.0</td><td class="risk-low">+26.5</td><td>N/A</td>
+                  </tr>
+                  <tr>
+                    <td>2010</td><td>759.4</td><td>215.1</td><td>974.5</td><td>487.0</td><td>72.7</td><td>213.9</td><td>245.7</td><td>1019.3</td><td class="risk-high">-44.8</td><td>N/A</td>
+                  </tr>
+                  <tr>
+                    <td>2020</td><td>784.4</td><td>169.5</td><td>953.9</td><td>517.5</td><td>27.8</td><td>196.4</td><td>201.2</td><td>942.9</td><td class="risk-low">+11.0</td><td>N/A</td>
+                  </tr>
+                  <tr>
+                    <td>2021</td><td>822.6</td><td>173.0</td><td>995.6</td><td>571.3</td><td>28.6</td><td>229.4</td><td>278.7</td><td>1108.0</td><td class="risk-high">-112.4</td><td class="risk-high">-112.4</td>
+                  </tr>
+                  <tr>
+                    <td>2022</td><td>837.7</td><td>180.6</td><td>1018.3</td><td>556.5</td><td>27.5</td><td>234.1</td><td>332.9</td><td>1151.0</td><td class="risk-high">-132.7</td><td class="risk-high">-245.1</td>
+                  </tr>
+                  <tr>
+                    <td>2023</td><td>842.1</td><td>183.0</td><td>1025.1</td><td>654.4</td><td>26.0</td><td>203.9</td><td>262.0</td><td>1146.3</td><td class="risk-high">-121.2</td><td class="risk-high">-366.3</td>
+                  </tr>
+                  <tr>
+                    <td>2024</td><td>819.7</td><td>193.9</td><td>1013.6</td><td>680.5</td><td>25.0</td><td>262.9</td><td>190.9</td><td>1159.3</td><td class="risk-high">-145.7</td><td class="risk-high">-512.0</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="font-size:0.75rem; margin-top:6px;">Source: Synthesised from The Silver Institute's World Silver Surveys and archival data.</p>
+          </div>
+
+          <div class="section">
+            <h3>Projected Supply &amp; Demand (2021-2030)</h3>
+            <p>
+              Projections indicate that the structural deficit is likely to widen materially through
+              2030, with industrial demand outpacing modest supply growth. Figures are in million
+              ounces.
+            </p>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>2021 (A)</th>
+                    <th>2024 (E)</th>
+                    <th>2026 (P)</th>
+                    <th>2028 (P)</th>
+                    <th>2030 (P)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Total supply</td>
+                    <td>997.2</td>
+                    <td>1,030.0</td>
+                    <td>1,061.1</td>
+                    <td>1,093.2</td>
+                    <td>1,126.2</td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left:22px;">Industrial fabrication</td>
+                    <td>508.2</td>
+                    <td>680.5</td>
+                    <td>750.3</td>
+                    <td>827.2</td>
+                    <td>912.0</td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left:22px;">Jewelry &amp; silverware</td>
+                    <td>224.1</td>
+                    <td>245.0</td>
+                    <td>254.9</td>
+                    <td>265.2</td>
+                    <td>275.9</td>
+                  </tr>
+                  <tr>
+                    <td style="padding-left:22px;">Physical investment</td>
+                    <td>278.7</td>
+                    <td>290.0</td>
+                    <td>325.8</td>
+                    <td>366.1</td>
+                    <td>411.4</td>
+                  </tr>
+                  <tr>
+                    <td>Total demand</td>
+                    <td>1,011.0</td>
+                    <td>1,215.5</td>
+                    <td>1,331.0</td>
+                    <td>1,458.5</td>
+                    <td>1,599.3</td>
+                  </tr>
+                  <tr>
+                    <td>Market balance (deficit)</td>
+                    <td class="risk-high">(13.8)</td>
+                    <td class="risk-high">(185.5)</td>
+                    <td class="risk-high">(269.9)</td>
+                    <td class="risk-high">(365.3)</td>
+                    <td class="risk-high">(473.0)</td>
+                  </tr>
+                  <tr>
+                    <td>Cumulative deficit (from 2021)</td>
+                    <td class="risk-high">(13.8)</td>
+                    <td class="risk-high">(564.6)</td>
+                    <td class="risk-high">(1,061.6)</td>
+                    <td class="risk-high">(1,842.2)</td>
+                    <td class="risk-high">(2,897.1)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="font-size:0.75rem; margin-top:6px;">Source: Institutional analysis based on The Silver Institute and Metals Focus. (A) = actual, (E) = estimate, (P) = projection.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- MACRO / RISK TAB -->
+      <div id="tab-macro" class="tab-panel">
+        <section class="layout" style="margin-top:20px;">
+          <section class="card" aria-labelledby="macro-heading">
+            <div class="card-title-row">
+              <h2 id="macro-heading">Macro Regimes &amp; Scenario Logic</h2>
+              <span class="pill pill-hot">Regime-sensitive</span>
+            </div>
+            <p>
+              The silver strategy is explicitly linked to macro regimes and scenarios. Rather than
+              using short-term price action, it anchors on structural fundamentals, policy stance,
+              growth conditions and the interaction of real yields and the US dollar.
+            </p>
+
+            <div class="section">
+              <h3>Macro State (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Indicator</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Policy rate trend</td>
+                      <td>Restrictive to neutral</td>
+                      <td>Neutral to gradual easing</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Real yields level</td>
+                      <td>Elevated (positive, rising)</td>
+                      <td>Elevated (positive, flat-to-declining)</td>
+                      <td class="col-right">Slightly strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>USD trend</td>
+                      <td>Strong / peaking</td>
+                      <td>Moderating / weaker bias</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Macro regime impact</td>
+                      <td>Moderately supportive</td>
+                      <td>Supportive but volatile</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Demand Assumptions (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Driver</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Industrial demand</td>
+                      <td>+2% to +4% YoY growth</td>
+                      <td>0% to +2% YoY growth</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                    <tr>
+                      <td>Solar PV silver intensity</td>
+                      <td>Stable</td>
+                      <td>Declining (thrifting observed)</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                    <tr>
+                      <td>Investment demand</td>
+                      <td>Episodic, regime-dependent</td>
+                      <td>Elevated, flow-driven</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Net demand balance</td>
+                      <td>Persistent deficit</td>
+                      <td>Persistent deficit</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Supply Assumptions (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Driver</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Mine supply growth</td>
+                      <td>0% to +1% YoY</td>
+                      <td>0% to +1% YoY</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Byproduct share of supply</td>
+                      <td>~70%</td>
+                      <td>~70%</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Recycling response</td>
+                      <td>Limited, price-elastic</td>
+                      <td>Increased but insufficient</td>
+                      <td class="col-right">Slightly strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Structural deficit</td>
+                      <td>~80-120 Moz annual</td>
+                      <td>~80-120 Moz annual</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Price Level Context (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Spot price level</td>
+                      <td>~USD 48-52/oz</td>
+                      <td>~USD 70-75/oz</td>
+                      <td class="col-right">Rebased</td>
+                    </tr>
+                    <tr>
+                      <td>Percent repricing</td>
+                      <td>N/A</td>
+                      <td>+35% to +45% vs prior baseline</td>
+                      <td class="col-right">Rebased</td>
+                    </tr>
+                    <tr>
+                      <td>Valuation state</td>
+                      <td>Undervalued vs structure</td>
+                      <td>Fair-to-expensive vs history</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Favourable Regimes for Silver</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Disinflation with easing bias:</strong> Inflation slows, real yields
+                  stabilise or fall and policy turns more accommodative, supporting monetary demand.
+                </li>
+                <li>
+                  <strong>Orderly growth slowdown:</strong> Growth cools but avoids a deep global
+                  recession, so industrial offtake remains robust while liquidity conditions improve.
+                </li>
+                <li>
+                  <strong>Green transition acceleration:</strong> Upside surprises in solar, grid and
+                  EV build-out drive stronger-than-expected industrial demand.
+                </li>
+                <li>
+                  <strong>Risk-off in financial assets:</strong> Equity or credit stress episodes send
+                  flows into monetary metals, particularly when the gold/silver ratio begins to
+                  compress from elevated levels.
+                </li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Challenging Regimes for Silver</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Deep, synchronous recession:</strong> A sharp contraction in industrial
+                  activity temporarily overwhelms the deficit story and pressures prices.
+                </li>
+                <li>
+                  <strong>Persistently high real rates &amp; strong USD:</strong> A hawkish Fed and tight
+                  financial conditions raise the opportunity cost of holding non-yielding assets.
+                </li>
+                <li>
+                  <strong>Technological substitution shock:</strong> A credible substitute for silver
+                  in key industrial applications scales quickly.
+                </li>
+                <li>
+                  <strong>Paper market overshoots:</strong> Large, leveraged futures positioning
+                  temporarily disconnects paper pricing from physical fundamentals.
+                </li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Scenario Descriptions (2025-2029)</h3>
+              <p style="font-size:0.8rem;">
+                The strategy defines three scenarios with updated probabilities for direct model use.
+              </p>
+              <ul class="bullet-tight" style="margin-top:4px;">
+                <li>
+                  <strong>Base case - 55%:</strong> Industrial demand slows but remains positive,
+                  investment flows support prices and silver advances modestly from an elevated base.
+                </li>
+                <li>
+                  <strong>Bull - 20%:</strong> Deficit conditions persist while easing policy and USD
+                  weakness accelerate investment inflows into a tight physical market.
+                </li>
+                <li>
+                  <strong>Bear - 25%:</strong> Industrial demand softens and flow reversal triggers a
+                  deeper drawdown despite structural deficits.
+                </li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Scenario Probabilities (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Base case</td>
+                      <td>60%</td>
+                      <td>55%</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                    <tr>
+                      <td>Bull case</td>
+                      <td>25%</td>
+                      <td>20%</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                    <tr>
+                      <td>Bear case</td>
+                      <td>15%</td>
+                      <td>25%</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Scenario Price Paths (12M)</h3>
+              <p style="font-size:0.8rem;">
+                Updated 12-month price paths reflect the repriced starting level and higher volatility
+                assumptions.
+              </p>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Prior (12M)</th>
+                      <th>Updated (12M)</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Base case</td>
+                      <td>+10% to +15%</td>
+                      <td>+5% to +12%</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                    <tr>
+                      <td>Bull case</td>
+                      <td>+25% to +35%</td>
+                      <td>+20% to +30%</td>
+                      <td class="col-right">Rebased</td>
+                    </tr>
+                    <tr>
+                      <td>Bear case</td>
+                      <td>-10% to -20%</td>
+                      <td>-20% to -35%</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Return Expectations (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Expected annual return</td>
+                      <td>+12% to +18%</td>
+                      <td>+6% to +12%</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                    <tr>
+                      <td>Return distribution</td>
+                      <td>Positively skewed</td>
+                      <td>Fat-tailed, higher dispersion</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Volatility &amp; Drawdowns (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Prior</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Annualized volatility</td>
+                      <td>25% to 35%</td>
+                      <td>35% to 50%</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Peak-to-trough drawdown</td>
+                      <td>-20% to -30%</td>
+                      <td>-30% to -45%</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <aside class="card" aria-labelledby="risk-heading">
+            <div class="card-title-row">
+              <h2 id="risk-heading">Key Risks &amp; Intended Use by a Model</h2>
+              <span class="pill pill-hot">Equity-like volatility</span>
+            </div>
+            <p>
+              The silver sleeve accepts commodity-like volatility and drawdown risk in exchange for
+              structural upside. Risk is managed through sizing at the total-portfolio level and
+              clarity around the key failure modes of the thesis.
+            </p>
+
+            <div class="section">
+              <h3>Key Risks</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Risk</th>
+                      <th>Channel</th>
+                      <th class="col-right">Mitigation focus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Mean reversion / flow reversal</td>
+                      <td>Positioning unwinds compress price despite structural deficit.</td>
+                      <td class="col-right">Use tighter position limits and volatility-aware bands.</td>
+                    </tr>
+                    <tr>
+                      <td>Industrial demand contraction</td>
+                      <td>Industrial offtake weakens while thrifting accelerates.</td>
+                      <td class="col-right">Lower near-term growth assumptions; track demand mix.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Intended Use by a Model</h3>
+              <ul class="bullet-tight">
+                <li>
+                  Maintain the structural deficit assumption unless supply exceeds demand for two
+                  consecutive periods.
+                </li>
+                <li>
+                  Apply higher volatility bands (approximately 1.5x prior assumptions).
+                </li>
+                <li>
+                  Enforce tighter position limits post-repricing.
+                </li>
+                <li>
+                  Scenario probabilities override price momentum signals.
+                </li>
+                <li>
+                  Classify the strategy as regime-dependent, not trend-following.
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </section>
+      </div>
+
+      <!-- STRATEGY UPDATES TAB -->
+      <div id="tab-updates" class="tab-panel">
+        <section class="card" style="margin-top:20px;">
+          <div class="card-title-row">
+            <h2>Strategy Updates (Jan 2026 Baseline)</h2>
+            <span class="pill">Change set: SILVER_STRAT_CHG_2026_01</span>
+          </div>
+          <p>
+            January 2026 is treated as the baseline update versus the October 2025 strategy version.
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Section</th>
+                  <th>Prior (Oct 2025)</th>
+                  <th>Jan 2026 Update</th>
+                  <th class="col-right">Classification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Macro state</td>
+                  <td>Restrictive to neutral; strong USD; real yields rising</td>
+                  <td>Neutral to easing; USD moderating; real yields flat-to-declining</td>
+                  <td class="col-right">Strengthened</td>
+                </tr>
+                <tr>
+                  <td>Demand assumptions</td>
+                  <td>Industrial +2% to +4%; PV intensity stable</td>
+                  <td>Industrial 0% to +2%; PV thrifting observed</td>
+                  <td class="col-right">Weakened</td>
+                </tr>
+                <tr>
+                  <td>Supply assumptions</td>
+                  <td>Mine supply 0% to +1%; byproduct ~70%</td>
+                  <td>Recycling response higher but insufficient; base supply unchanged</td>
+                  <td class="col-right">Slightly strengthened</td>
+                </tr>
+                <tr>
+                  <td>Price level context</td>
+                  <td>~USD 48-52/oz; undervalued</td>
+                  <td>~USD 70-75/oz; fair-to-expensive</td>
+                  <td class="col-right">Rebased</td>
+                </tr>
+                <tr>
+                  <td>Scenario probabilities</td>
+                  <td>Base 60 / Bull 25 / Bear 15</td>
+                  <td>Base 55 / Bull 20 / Bear 25</td>
+                  <td class="col-right">Reweighted</td>
+                </tr>
+                <tr>
+                  <td>Return expectations</td>
+                  <td>+12% to +18%</td>
+                  <td>+6% to +12%</td>
+                  <td class="col-right">Weakened</td>
+                </tr>
+                <tr>
+                  <td>Volatility &amp; drawdowns</td>
+                  <td>25% to 35%; drawdown -20% to -30%</td>
+                  <td>35% to 50%; drawdown -30% to -45%</td>
+                  <td class="col-right">Strengthened</td>
+                </tr>
+                <tr>
+                  <td>Portfolio structure</td>
+                  <td>Accumulation sizing; weakness buys</td>
+                  <td>Managed exposure; volatility-aware rebalancing</td>
+                  <td class="col-right">Reweighted</td>
+                </tr>
+                <tr>
+                  <td>Strategy phase</td>
+                  <td>Accumulation</td>
+                  <td>Post-repricing / volatility management</td>
+                  <td class="col-right">Rebased</td>
+                </tr>
+                <tr>
+                  <td>Risk emphasis</td>
+                  <td>Thesis non-realisation; policy hawkishness</td>
+                  <td>Mean reversion, flow reversal; industrial demand contraction</td>
+                  <td class="col-right">Reweighted</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- SPECIFICATION TAB -->
+      <div id="tab-spec" class="tab-panel">
+        <section style="margin-top:20px;">
+          <section class="card" aria-labelledby="spec-heading" style="width:100%;">
+            <div class="card-title-row">
+              <h2 id="spec-heading">Specification Summary</h2>
+              <span class="pill">Governance view</span>
+            </div>
+            <p>
+              This tab provides a compact view aligned to the Investment Strategy Specification
+              standard, referencing existing content where available and flagging items not yet
+              explicitly defined on this page.
+            </p>
+            <div class="section">
+              <h3>1. Strategy metadata</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Strategy name</td>
+                      <td>Formal title used to identify the strategy and its version.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Asset / theme</td>
+                      <td>Primary asset class or thematic exposure targeted by the strategy.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategy type</td>
+                      <td>Classification of approach (core/tactical/relative value/thematic).</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Primary objective</td>
+                      <td>Primary intent (growth, income, diversification, convexity, hedging).</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>As-of date</td>
+                      <td>Date the assumptions and spot anchors are valid for.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Original baseline date</td>
+                      <td>Prior reference date used for change comparisons.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Review cadence</td>
+                      <td>Planned update frequency (monthly/quarterly/event-driven).</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>2. Investment universe &amp; horizon</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Eligible asset classes</td>
+                      <td>Allowed instruments (equities, ETFs, futures, options, physical).</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Geographic scope</td>
+                      <td>Regions or countries eligible for exposure.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Sector constraints</td>
+                      <td>Industry or sub-sector limitations for holdings.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Instrument eligibility rules</td>
+                      <td>Liquidity, listing venue, currency, and leverage constraints.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategic horizon</td>
+                      <td>Multi-year investment window for the core thesis.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tactical horizon</td>
+                      <td>Shorter-term holding window for tactical sleeve.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Expected holding period per sleeve</td>
+                      <td>Typical holding duration by sleeve.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>3. Core thesis &amp; mispricing</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Primary thesis statement</td>
+                      <td>Single statement explaining drivers, mispricing, and persistence.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Structural drivers</td>
+                      <td>Named drivers with mechanism, duration, sensitivity, effects.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Why mispricing persists</td>
+                      <td>Short-term noise and structural reasons for mispricing.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>4. Portfolio structure</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Sleeve definitions</td>
+                      <td>Core and tactical sleeve roles and risk intent.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Allocation bands</td>
+                      <td>Target ranges, hard limits, and breach conditions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Rebalancing rules</td>
+                      <td>Explicit triggers and frequency for rebalancing.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Instrument roles</td>
+                      <td>Role, primary risk, correlation intent, and inclusion rationale.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>5. Deployment &amp; execution framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Entry strategy</td>
+                      <td>Rules for staged vs lump-sum entry and triggers.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Scaling rules</td>
+                      <td>Explicit add/trim/pause/stop conditions.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Exit strategy</td>
+                      <td>Structural exit signals and invalidation triggers.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>6. Scenario framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Scenario definitions</td>
+                      <td>Macro, demand, supply, policy assumptions per scenario.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario probabilities</td>
+                      <td>Explicit weights with rationale and shift conditions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Price / valuation paths</td>
+                      <td>Spot anchor, range, terminal assumptions, path dependency.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>7. Return &amp; risk assumptions</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Return expectations</td>
+                      <td>Asset- and sleeve-level returns with probability weights.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Volatility &amp; drawdowns</td>
+                      <td>Ranges and peak-to-trough assumptions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Correlation assumptions</td>
+                      <td>Within-strategy and cross-asset correlations by regime.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>8. Risk framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Key risks</td>
+                      <td>Risk name, transmission channel, affected assets, mitigation.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Thesis invalidation</td>
+                      <td>Conditions to reduce, pause, or terminate strategy.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>8. Monitoring inputs</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Quantitative signals</td>
+                      <td>Price levels, volatility, inventories, spreads.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Fundamental indicators</td>
+                      <td>Demand growth, supply growth, capex cycle, pipelines.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Event-driven triggers</td>
+                      <td>Policy, earnings, geopolitics, disruptions.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>9. Updates &amp; versioning</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Update log</td>
+                      <td>Record date, variable changed, old vs new, and reason.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Re-baselining rules</td>
+                      <td>Explicit triggers for when to rebase assumptions.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>10. Model use &amp; integration</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Model consumption rules</td>
+                      <td>How models should treat assumptions and bands.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Agent responsibilities</td>
+                      <td>Who monitors inputs and flags probability shifts.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Integration context</td>
+                      <td>How this strategy plugs into portfolio and risk systems.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>11. Page structure &amp; compliance</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Tab structure</td>
+                      <td>Include Strategy, Strategy Updates, and Specification tabs.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategy updates table</td>
+                      <td>Present prior vs updated values with dates in headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Baseline-only updates</td>
+                      <td>When no prior version exists, label as Baseline (Month YYYY).</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification tab</td>
+                      <td>Include a compliance table aligned to the standard.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spec reference comment</td>
+                      <td>HTML comment references the specification file path.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>12. Style &amp; formatting guide</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Header hierarchy</td>
+                      <td>Title, descriptor, and metadata chips in a single header block.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Metadata chips</td>
+                      <td>Include as-of and baseline dates in the chip row.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tab navigation</td>
+                      <td>Tabs styled consistently with active state and spacing.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Section cards</td>
+                      <td>Major sections appear in card containers with consistent padding.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Table styling</td>
+                      <td>Consistent header styling, row spacing, and full-width layout.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario tables</td>
+                      <td>Scenario tables include clear Bear/Base/Bull headings.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification table</td>
+                      <td>Three-column compliance table (Field / Definition / Status).</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Notes and captions</td>
+                      <td>Notes appear above/below tables in subdued text.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Card grid layout</td>
+                      <td>Card grids support 2-3 cards per row with wrapping.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scrollable tables</td>
+                      <td>Wide tables use a horizontal scroll wrapper.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Typography</td>
+                      <td>Consistent heading and body text hierarchy.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Color accents</td>
+                      <td>Accent colors used sparingly for chips, tabs, headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spacing</td>
+                      <td>Consistent vertical spacing between sections and tables.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Responsiveness</td>
+                      <td>Layout remains readable on tablet and mobile.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tag color taxonomy</td>
+                      <td>Tags use a consistent color meaning across tables and cards.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>13. Constraints &amp; disclaimers</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Leverage policy</td>
+                      <td>No implicit leverage unless explicitly stated.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Forecasting disclaimer</td>
+                      <td>Assumptions are conditional and revisable.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Decision disclaimer</td>
+                      <td>Outputs inform decisions; they are not decisions.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+
+    <div class="footer">
+      Disclaimer: This information is for informational purposes only and does not constitute
+      financial advice or a recommendation to buy or sell any security. All investment strategies
+      and investments involve risk of loss. Please conduct your own research and consult with a
+      financial professional before making any investment decisions. Projections are illustrative and
+      not guaranteed.
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const buttons = document.querySelectorAll('.tab-button');
+      const panels = document.querySelectorAll('.tab-panel');
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-tab');
+          buttons.forEach(function (b) { b.classList.remove('active'); });
+          panels.forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          const panel = document.getElementById('tab-' + target);
+          if (panel) {
+            panel.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+

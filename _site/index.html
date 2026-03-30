@@ -1192,6 +1192,11 @@
     }
   </style>
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    window.IA_MONITORING_CONFIG = {
+      ga4MeasurementId: "G-TEST1234"
+    };
+  </script>
 </head>
 <body>
   <div data-include-nav></div>
@@ -1317,8 +1322,62 @@
     <div data-include-footer></div>
 </div>
 <script src="/shared/layout-loader.js"></script>
+  <script src="/js/monitoring.js"></script>
   <script src="insights_carousel.js"></script>
   <script>
+    (function () {
+      if (!window.IA_MONITOR || typeof window.IA_MONITOR.init !== "function") return;
+      window.IA_MONITOR.init({
+        page: "index",
+        ga4MeasurementId: (window.IA_MONITORING_CONFIG && window.IA_MONITORING_CONFIG.ga4MeasurementId) || ""
+      });
+    })();
+
+    (function () {
+      function track(eventName, params) {
+        if (!window.IA_MONITOR || typeof window.IA_MONITOR.track !== "function") return;
+        window.IA_MONITOR.track(eventName, params || {});
+      }
+
+      document.addEventListener("click", function (evt) {
+        const insightsLink = evt.target.closest(".insights-link-animated");
+        if (insightsLink) {
+          track("insights_cta_click", {
+            target_href: insightsLink.getAttribute("href") || ""
+          });
+          return;
+        }
+
+        const carouselButton = evt.target.closest("#carousel-button");
+        if (carouselButton) {
+          track("carousel_report_click", {
+            target_href: carouselButton.getAttribute("data-monitor-target") || ""
+          });
+          return;
+        }
+
+        const prevArrow = evt.target.closest("#carousel-prev");
+        if (prevArrow) {
+          track("carousel_nav_click", { direction: "prev" });
+          return;
+        }
+
+        const nextArrow = evt.target.closest("#carousel-next");
+        if (nextArrow) {
+          track("carousel_nav_click", { direction: "next" });
+          return;
+        }
+
+        const authButton = evt.target.closest("#login-btn, #logout-btn");
+        if (authButton) {
+          track("nav_auth_click", {
+            action: authButton.id === "logout-btn" ? "logout" : "login",
+            target_href: authButton.getAttribute("href") || ""
+          });
+        }
+      }, true);
+    })();
+
     // FEATURED INSIGHTS CAROUSEL DATA (sourced from insights_carousel.json)
     try {
       let carouselItems = [];
@@ -1377,8 +1436,10 @@
           metaEl.textContent = item.meta || "";
           if (item.url) {
             const href = item.url.startsWith("/") || item.url.startsWith("http") ? item.url : `/${item.url}`;
+            buttonEl.setAttribute("data-monitor-target", href);
             buttonEl.onclick = () => { window.location.href = href; };
           } else {
+            buttonEl.setAttribute("data-monitor-target", "");
             buttonEl.onclick = null;
           }
           renderDots();

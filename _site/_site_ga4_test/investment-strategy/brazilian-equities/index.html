@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Brazilian Equities - Coiled Spring Strategy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #3b82f6; /* Strategy accent: brand blue */
+      --accent-soft: rgba(59, 130, 246, 0.16);
+      --text-main: #f1f5f9;
+      --text-soft: #94a3b8;
+      --border-subtle: #1f2937;
+      --danger: #ef4444;
+      --positive: #22c55e;
+      --warn: #fbbf24;
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.6rem);
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: var(--text-soft);
+      font-size: 0.95rem;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .tabs {
+      margin-top: 16px;
+    }
+
+    .tab-list {
+      display: inline-flex;
+      gap: 8px;
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .tab-button {
+      border: none;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .tab-button:hover {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+    }
+
+    .tab-button.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+
+    .tab-panel {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 18px 18px 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .pill-hot {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: var(--danger);
+    }
+
+    .pill-oppty {
+      border-color: rgba(74, 222, 128, 0.7);
+      color: var(--positive);
+    }
+
+    .card p {
+      margin: 0 0 10px;
+      font-size: 0.86rem;
+      color: var(--text-soft);
+    }
+
+    .section {
+      margin-top: 14px;
+    }
+
+    .section h3 {
+      font-size: 0.9rem;
+      margin: 0 0 6px;
+    }
+
+    .section p {
+      font-size: 0.8rem;
+      margin: 0 0 8px;
+      color: var(--text-soft);
+    }
+
+    .table-wrapper {
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    thead {
+      background: #020617;
+    }
+
+    th, td {
+      padding: 7px 10px;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-weight: 500;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .col-right {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .risk-low { color: var(--positive); }
+    .risk-medium { color: var(--warn); }
+    .risk-high { color: var(--danger); }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--text-soft);
+    }
+
+    .tag-positive { color: var(--positive); border-color: rgba(34, 197, 94, 0.5); }
+    .tag-warn { color: var(--warn); border-color: rgba(250, 204, 21, 0.5); }
+    .tag-risk { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+
+
+    .tag-neutral { color: var(--text-soft); border-color: rgba(148, 163, 184, 0.5); }
+    .tag-info { color: var(--accent); border-color: rgba(59, 130, 246, 0.5); }
+    .tag-negative { color: var(--danger); border-color: rgba(248, 113, 113, 0.5); }
+    .tag-role { color: #c084fc; border-color: rgba(192, 132, 252, 0.55); }
+
+    .pill-warn { border-color: rgba(250, 204, 21, 0.6); color: var(--warn); }
+    .pill-positive { border-color: rgba(34, 197, 94, 0.6); color: var(--positive); }
+    .pill-negative { border-color: rgba(248, 113, 113, 0.6); color: var(--danger); }
+    .pill-info { border-color: rgba(59, 130, 246, 0.6); color: var(--accent); }
+    .pill-role { border-color: rgba(192, 132, 252, 0.6); color: #c084fc; }
+
+    ul.bullet-tight {
+      padding-left: 18px;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      margin: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    a {
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #fbbf24;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-two {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .grid-four {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid-four {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .grid-four {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .grid-three-fixed {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .performance-note {
+      font-size: 0.75rem;
+      margin-top: 6px;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+  <!-- Reference: investment-strategy/Operating_Model/Investment_Strategy_Specification.md for compliance updates. -->
+  <nav>
+    <div class="nav-inner">
+      <div>Brazilian Equities Strategy - "Coiled Spring"</div>
+      <a href="https://sensational-stroopwafel-d10a4c.netlify.app/" class="home-link">
+        &larr; Back to dashboard
+      </a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <header class="header">
+      <div class="eyebrow">Strategy Overview</div>
+      <h1>Brazilian Equities: A Coiled Spring</h1>
+      <p class="subtitle">
+        A detailed strategy designed to capitalise on deep market pessimism and an asymmetric
+        upside opportunity unlocked by a credible fiscal and monetary transition.
+      </p>
+      <div class="meta-row">
+        <div class="chip"><span class="chip-dot"></span>Asset Theme: EM Equities - Brazil</div>
+        <div class="chip">Strategy Type: Core + Satellite (Barbell)</div>
+        <div class="chip">Horizon: 2026-2030</div>
+        <div class="chip">Instruments: EWZ, ITUB, NU, XP, EBR, SBS, VALE, PBR</div>
+        <div class="chip">As of: 2026-01-10 (baseline Nov 2025)</div>
+        <div class="chip">Change set: BRA_EQ_CS_2026_01</div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab-list">
+        <button class="tab-button active" data-tab="overview">Overview &amp; Allocation</button>
+        <button class="tab-button" data-tab="macro">Scenarios, Performance &amp; Risk</button>
+        <button class="tab-button" data-tab="updates">Strategy Updates</button>
+        <button class="tab-button" data-tab="spec">Specification</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview" class="tab-panel active">
+        <main class="layout">
+          <!-- LEFT: CORE THESIS -->
+          <section class="card" aria-labelledby="core-thesis-heading">
+            <div class="card-title-row">
+              <h2 id="core-thesis-heading">Core Investment Thesis</h2>
+              <span class="pill pill-oppty">Asymmetric upside</span>
+            </div>
+            <p>
+              The Brazilian equity market currently trades at valuations that reflect deep
+              macroeconomic pessimism and restrictive monetary policy. This has created a
+              <strong>"coiled spring"</strong> dynamic in which a credible fiscal and political
+              reset could unlock a powerful multi-year re-rating.
+            </p>
+
+            <div class="section">
+              <h3>Primary Conditions</h3>
+              <ul class="bullet-tight">
+                <li>Valuation discount vs history persists.</li>
+                <li>Policy credibility required for multiple expansion.</li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>High-level strategy &amp; rationale</h3>
+              <p>
+                The core investment thesis is predicated on a sequence of events: a political
+                resolution that restores fiscal discipline, enabling monetary normalisation and,
+                ultimately, the rotation of domestic capital from high-yield fixed income into
+                equities.
+              </p>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Political &amp; fiscal catalyst:</strong> A credible fiscal consolidation
+                  program following the October 2026 general election anchors long-term inflation
+                  expectations and stabilises the debt path.
+                </li>
+                <li>
+                  <strong>Monetary normalisation:</strong> Fiscal credibility allows the Banco
+                  Central do Brasil (BCB) to transition from a highly restrictive stance to a
+                  sustained easing cycle.
+                </li>
+                <li>
+                  <strong>Domestic capital rotation:</strong> Lower rates trigger a powerful shift
+                  from high-yielding fixed income into deeply undervalued Brazilian equities,
+                  driving broad-based multiple expansion.
+                </li>
+              </ul>
+              <p>
+                The current valuation discount offers a substantial margin of safety if this
+                sequence unfolds, with the upside concentrated in domestically sensitive sectors.
+              </p>
+            </div>
+
+            <div class="section">
+              <h3>Deployment &amp; drawdown strategy</h3>
+              <ul class="bullet-tight">
+                <li>
+                  <strong>Phase 1 - Present to mid-2026:</strong> Deploy ~50% of target weight at
+                  attractive valuations, emphasising diversified market ETF exposure and defensive,
+                  high-quality companies.
+                </li>
+                <li>
+                  <strong>Phase 2 - H2 2026 and post-election:</strong> Move to full allocation
+                  (100% of target weight) following a market-positive outcome that provides a clear
+                  path to fiscal consolidation; rotate incrementally into domestic cyclicals (e.g.
+                  financials).
+                </li>
+                <li>
+                  <strong>Drawdown triggers:</strong> Reduce exposure if there is a definitive
+                  breakdown in fiscal reform, a sharp collapse in key commodities (oil, iron ore) or
+                  a severe global risk-off event that changes the structural thesis.
+                </li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h3>Strategy Phase (Jan 2026)</h3>
+              <div class="tag-row">
+                <span class="tag tag-warn">Accumulation / Hold</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- RIGHT: BARBELL STRUCTURE -->
+          <aside class="card" aria-labelledby="structure-heading">
+            <div class="card-title-row">
+              <h2 id="structure-heading">"Barbell" Portfolio Structure</h2>
+              <span class="pill">Diversification + cyclicals</span>
+            </div>
+            <p>
+              The strategy blends a diversified core ETF sleeve with targeted overweights in
+              high-conviction sectors and issuers, balancing broad market participation with
+              focused upside to a domestic re-rating.
+            </p>
+
+            <div class="section">
+              <h3>Strategic sleeves &amp; indicative bands</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Pillar</th>
+                      <th>Description</th>
+                      <th class="col-right">Target share</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Core exposure</td>
+                      <td>
+                        Broad Brazil equity beta via a large-cap ETF; captures the overall
+                        market re-rating and behavioural shift from pessimism to pragmatism.
+                      </td>
+                      <td class="col-right">40%</td>
+                    </tr>
+                    <tr>
+                      <td>Sector overweights</td>
+                      <td>
+                        Concentrated ADR positions expressing high-conviction sector views
+                        (financials, utilities, energy, commodities) best placed to benefit from
+                        the macro and policy transition.
+                      </td>
+                      <td class="col-right">60%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="performance-note">
+                These bands apply within the dedicated Brazilian equities sleeve; overall
+                portfolio sizing is set at the total multi-asset level.
+              </p>
+            </div>
+          </aside>
+        </main>
+
+        <!-- SUGGESTED ASSET ALLOCATION -->
+        <section class="card" style="margin-top:20px;" aria-labelledby="allocation-heading">
+          <div class="card-title-row">
+            <h2 id="allocation-heading">Suggested Asset Allocation</h2>
+            <span class="pill pill-oppty">Barbell implementation</span>
+          </div>
+          <p>
+            The allocation reflects a 40% core ETF exposure and 60% in sector overweights, mirroring
+            the original strategy design and preserving all issuer-level bands.
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Investment</th>
+                  <th>Ticker</th>
+                  <th>Category</th>
+                  <th class="col-right">Target allocation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>iShares MSCI Brazil ETF</td>
+                  <td>EWZ</td>
+                  <td><span class="tag tag-positive">Core exposure</span></td>
+                  <td class="col-right">40%</td>
+                </tr>
+                <tr>
+                  <td>Itau Unibanco</td>
+                  <td>ITUB</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">10%</td>
+                </tr>
+                <tr>
+                  <td>Nu Holdings</td>
+                  <td>NU</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">10%</td>
+                </tr>
+                <tr>
+                  <td>XP Inc.</td>
+                  <td>XP</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">5%</td>
+                </tr>
+                <tr>
+                  <td>Eletrobras</td>
+                  <td>EBR</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">8%</td>
+                </tr>
+                <tr>
+                  <td>SABESP</td>
+                  <td>SBS</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">7%</td>
+                </tr>
+                <tr>
+                  <td>Vale</td>
+                  <td>VALE</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">12%</td>
+                </tr>
+                <tr>
+                  <td>Petrobras</td>
+                  <td>PBR</td>
+                  <td><span class="tag tag-warn">Sector overweight</span></td>
+                  <td class="col-right">8%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="performance-note">
+            The total Brazilian sleeve allocation sums to 100%. Integration into the broader
+            portfolio is handled separately within your asset-allocation process.
+          </p>
+        </section>
+
+        <!-- PRIME INVESTMENT CANDIDATES -->
+        <section class="card" style="margin-top:20px;" aria-labelledby="candidates-heading">
+          <div class="card-title-row">
+            <h2 id="candidates-heading">Prime Investment Candidates</h2>
+            <span class="pill">Curated barbell line-up</span>
+          </div>
+          <p>
+            The original investment theses for each holding are preserved below and reframed into a
+            consistent candidate grid for clarity and model interrogation.
+          </p>
+          <div class="grid-three-fixed" style="margin-top:12px;">
+            <!-- EWZ -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>iShares MSCI Brazil ETF (EWZ)</h2>
+                <span class="pill pill-oppty">Core exposure</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Core diversified exposure to the Brazilian large-cap market; captures overall
+                market beta and the general re-rating as pessimism fades and policy credibility
+                improves.
+              </p>
+            </article>
+
+            <!-- ITUB -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Itau Unibanco (ITUB)</h2>
+                <span class="pill pill-warn">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Leading private bank poised to benefit from loan growth, lower funding costs and
+                normalising credit spreads in a recovery, with strong operational leverage to a
+                domestic upcycle.
+              </p>
+            </article>
+
+            <!-- NU -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Nu Holdings (NU)</h2>
+                <span class="pill pill-warn">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                High-growth fintech leader capturing the structural shift to digital banking and
+                financial inclusion, with potential to compound value as rates fall and credit
+                demand expands.
+              </p>
+            </article>
+
+            <!-- XP -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>XP Inc. (XP)</h2>
+                <span class="pill pill-warn">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Leading investment platform and direct beneficiary of capital markets recovery,
+                IPO activity and a rotation of household savings from deposits into listed assets.
+              </p>
+            </article>
+
+            <!-- EBR -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Eletrobras (EBR)</h2>
+                <span class="pill pill-warn">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Largest utility in Latin America, offering defensive cash flows with exposure to
+                infrastructure investment and potential efficiency gains under a more market-friendly
+                governance framework.
+              </p>
+            </article>
+
+            <!-- SBS -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>SABESP (SBS)</h2>
+                <span class="pill pill-warn">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Defensive sanitation utility with inflation-linked revenues and a potential
+                privatisation catalyst, aligning long-term infrastructure needs with improved
+                capital allocation.
+              </p>
+            </article>
+
+            <!-- VALE -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Vale (VALE)</h2>
+                <span class="pill pill-warn">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Global commodities exposure (iron ore, nickel) providing a partial hedge against
+                domestic-only risks, with a historically attractive dividend profile tied to
+                global industrial cycles.
+              </p>
+            </article>
+
+            <!-- PBR -->
+            <article class="card" style="box-shadow:none;">
+              <div class="card-title-row">
+                <h2>Petrobras (PBR)</h2>
+                <span class="pill pill-warn">Sector overweight</span>
+              </div>
+              <p class="section">
+                <strong>Investment thesis:</strong>
+                Leveraged to global oil prices with high dividend potential, balanced against
+                ongoing political and governance risk inherent in a partially state-controlled
+                champion.
+              </p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- SCENARIOS / PERFORMANCE / RISK TAB -->
+      <div id="tab-macro" class="tab-panel">
+        <section class="layout" style="margin-top:20px;">
+          <!-- SCENARIO FRAMEWORK & PERFORMANCE -->
+          <section class="card" aria-labelledby="scenarios-heading">
+            <div class="card-title-row">
+              <h2 id="scenarios-heading">Scenario Framework &amp; Ibovespa Performance</h2>
+              <span class="pill pill-hot">Election &amp; reform path</span>
+            </div>
+            <p>
+              The strategy uses three scenarios with updated probabilities and Ibovespa targets,
+              while preserving the illustrative annual return paths to 2030 for model ingestion.
+            </p>
+
+            <div class="section">
+              <h3>Macro State (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Indicator</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Inflation</td>
+                      <td>4.5-5.5% YoY (projected)</td>
+                      <td>4.3% YoY (observed)</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Policy rate (Selic)</td>
+                      <td>Peak ~15%, easing assumed post-2026</td>
+                      <td>15.0% current; easing expected 2026 with terminal ~11-12%</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>GDP growth</td>
+                      <td>2.0-3.0% medium-term</td>
+                      <td>1.5-2.5% medium-term</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                    <tr>
+                      <td>Fiscal balance</td>
+                      <td>Framework introduced; consolidation assumed</td>
+                      <td>Persistent primary deficits; 2026 target ~0.25% GDP surplus</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Demand Assumptions</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Driver</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Foreign equity flows</td>
+                      <td>Neutral to mildly positive</td>
+                      <td>ETF inflows observed; global underweight persists</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Domestic equity demand</td>
+                      <td>Weak</td>
+                      <td>Continued domestic outflows to fixed income</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Net demand bias</td>
+                      <td>Slightly positive</td>
+                      <td>Moderately positive, foreign-led</td>
+                      <td class="col-right">Reweighted</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Supply Assumptions</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Driver</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Equity issuance</td>
+                      <td>Low</td>
+                      <td>Low</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Corporate actions</td>
+                      <td>Neutral</td>
+                      <td>Select buybacks (large-cap issuers)</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Price Level Context</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ibovespa anchor</td>
+                      <td>~150,000</td>
+                      <td>~163,000</td>
+                      <td class="col-right">Rebased</td>
+                    </tr>
+                    <tr>
+                      <td>Banks (ITUB) P/E</td>
+                      <td>~10x</td>
+                      <td>~9-10x</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Commodities (VALE) P/E</td>
+                      <td>~8-9x</td>
+                      <td>~6-7x forward</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Energy (PBR) P/E</td>
+                      <td>~6x</td>
+                      <td>~4-5x forward</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Overall market</td>
+                      <td>Single-digit P/E</td>
+                      <td>Single-digit P/E</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Scenario Probabilities</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Bear</td>
+                      <td>25%</td>
+                      <td>25%</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Base</td>
+                      <td>50%</td>
+                      <td>50%</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Bull</td>
+                      <td>25%</td>
+                      <td>25%</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Scenario Price Paths (Ibovespa 2030)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Bear</td>
+                      <td>~120,000</td>
+                      <td>~120,000</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Base</td>
+                      <td>~200,000</td>
+                      <td>190,000-210,000</td>
+                      <td class="col-right">Rebased</td>
+                    </tr>
+                    <tr>
+                      <td>Bull</td>
+                      <td>~250,000+</td>
+                      <td>230,000-260,000</td>
+                      <td class="col-right">Rebased</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Return Expectations (Annualised, Local)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Bear</td>
+                      <td>-2% to 0%</td>
+                      <td>-2% to 0%</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Base</td>
+                      <td>5-8%</td>
+                      <td>4-7%</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                    <tr>
+                      <td>Bull</td>
+                      <td>10-14%</td>
+                      <td>9-13%</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                    <tr>
+                      <td>Dividend yield (index)</td>
+                      <td>~7-8%</td>
+                      <td>~7-8%</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Volatility &amp; Drawdowns</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Previous</th>
+                      <th>Updated</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Expected annual volatility</td>
+                      <td>25-30%</td>
+                      <td>24-28%</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                    <tr>
+                      <td>Peak-to-trough drawdown</td>
+                      <td>35-45%</td>
+                      <td>35-40%</td>
+                      <td class="col-right">Strengthened</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Bear scenario -->
+            <div class="section">
+              <h3>Bear scenario - 25% probability</h3>
+              <p>
+                <strong>Assumptions:</strong> Political actors fail to address the fiscal
+                imbalance. A populist outcome or post-election gridlock prevents meaningful fiscal
+                adjustment. The debt-to-GDP ratio deteriorates, triggering sovereign downgrade risk
+                and a crisis of confidence. To defend the currency, the BCB is forced to maintain
+                punishingly high interest rates, resulting in stagflation.
+              </p>
+              <p>
+                <strong>Driver:</strong> Failure to implement fiscal consolidation invalidates the
+                premise for monetary easing and equity market re-rating.
+              </p>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th class="col-right">Target / annual return</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ibovespa level (2030)</td>
+                      <td class="col-right risk-high">120,000</td>
+                    </tr>
+                    <tr>
+                      <td>2026 return</td>
+                      <td class="col-right risk-high">-2%</td>
+                    </tr>
+                    <tr>
+                      <td>2027 return</td>
+                      <td class="col-right risk-high">-1%</td>
+                    </tr>
+                    <tr>
+                      <td>2028 return</td>
+                      <td class="col-right risk-medium">0%</td>
+                    </tr>
+                    <tr>
+                      <td>2029 return</td>
+                      <td class="col-right risk-medium">0%</td>
+                    </tr>
+                    <tr>
+                      <td>2030 return</td>
+                      <td class="col-right risk-high">-1%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Base scenario -->
+            <div class="section">
+              <h3>Base scenario - 50% probability</h3>
+              <p>
+                <strong>Assumptions:</strong> A market-friendly or pragmatically constrained
+                outcome emerges from the 2026 election. The new administration implements a
+                credible fiscal adjustment program sufficient to stabilise the debt-to-GDP ratio.
+                Renewed credibility allows the BCB to deliver a steady, sustained easing cycle.
+                GDP growth stabilises around 1.5-2.5% per year and inflation converges toward
+                target.
+              </p>
+              <p>
+                <strong>Driver:</strong> Pragmatic fiscal adjustment post-election, enabling a
+                durable monetary easing path and re-rating of equities as domestic capital rotates
+                out of fixed income.
+              </p>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th class="col-right">Target / annual return</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ibovespa level (2030)</td>
+                      <td class="col-right risk-low">190,000 - 210,000</td>
+                    </tr>
+                    <tr>
+                      <td>2026 return</td>
+                      <td class="col-right risk-low">+2%</td>
+                    </tr>
+                    <tr>
+                      <td>2027 return</td>
+                      <td class="col-right risk-low">+25%</td>
+                    </tr>
+                    <tr>
+                      <td>2028 return</td>
+                      <td class="col-right risk-low">+20%</td>
+                    </tr>
+                    <tr>
+                      <td>2029 return</td>
+                      <td class="col-right risk-low">+15%</td>
+                    </tr>
+                    <tr>
+                      <td>2030 return</td>
+                      <td class="col-right risk-low">+10%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Bull scenario -->
+            <div class="section">
+              <h3>Bull scenario - 25% probability</h3>
+              <p>
+                <strong>Assumptions:</strong> A strong pro-reform mandate emerges from the 2026
+                election. Robust fiscal consolidation and deeper structural reforms are implemented
+                swiftly. Fiscal credibility improves dramatically, allowing the BCB to deliver
+                faster and deeper easing. Brazil regains investment-grade status, unlocking a
+                powerful surge in foreign investment.
+              </p>
+              <p>
+                <strong>Driver:</strong> Strong pro-reform mandate, rapid consolidation and
+                ratings upgrades catalyse a powerful re-rating across Brazilian assets.
+              </p>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th class="col-right">Target / annual return</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Ibovespa level (2030)</td>
+                      <td class="col-right risk-low">230,000 - 260,000</td>
+                    </tr>
+                    <tr>
+                      <td>2026 return</td>
+                      <td class="col-right risk-low">+5%</td>
+                    </tr>
+                    <tr>
+                      <td>2027 return</td>
+                      <td class="col-right risk-low">+35%</td>
+                    </tr>
+                    <tr>
+                      <td>2028 return</td>
+                      <td class="col-right risk-low">+25%</td>
+                    </tr>
+                    <tr>
+                      <td>2029 return</td>
+                      <td class="col-right risk-low">+20%</td>
+                    </tr>
+                    <tr>
+                      <td>2030 return</td>
+                      <td class="col-right risk-low">+15%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <p class="performance-note">
+              Scenario probabilities and Ibovespa targets reflect the Jan 2026 calibration; annual
+              return paths remain illustrative and are intended for stress-testing rather than
+              point forecasts.
+            </p>
+          </section>
+
+          <!-- RISKS & MODEL USE -->
+          <aside class="card" aria-labelledby="risk-heading">
+            <div class="card-title-row">
+              <h2 id="risk-heading">Strategic Risk Assessment &amp; Model Use</h2>
+              <span class="pill pill-hot">Macro, political &amp; FX</span>
+            </div>
+            <p>
+              The six key risks defined in the original material are preserved here, alongside
+              guidance on how a model should interpret and monitor the Brazilian sleeve.
+            </p>
+
+            <div class="section">
+              <h3>Risk Emphasis (Jan 2026)</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Detail</th>
+                      <th class="col-right">Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Primary risk</td>
+                      <td>Fiscal slippage / debt trajectory</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Secondary risks</td>
+                      <td>Political volatility (2026 election); external risk-off / commodity shock</td>
+                      <td class="col-right">Unchanged</td>
+                    </tr>
+                    <tr>
+                      <td>Inflation risk</td>
+                      <td>High to moderate</td>
+                      <td class="col-right">Weakened</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Key risks</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Risk</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Fiscal dominance (High)</td>
+                      <td>
+                        The most material risk. Failure by the post-2026 government to implement a
+                        credible consolidation plan would undermine the case for easing and
+                        invalidate the core re-rating premise.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Political instability (High)</td>
+                      <td>
+                        The 2026 election is a binary risk event. Brazil's polarised environment
+                        raises the risk of instability, disrupted governance and stalled reform
+                        momentum.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Monetary policy error (Medium)</td>
+                      <td>
+                        The BCB may ease prematurely (reigniting inflation) or maintain an
+                        excessively restrictive stance (choking recovery), either of which could
+                        delay or derail the equity re-rating.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Global commodity shock (Medium)</td>
+                      <td>
+                        Heavy market concentration in Vale and Petrobras leaves the index exposed
+                        to a sharp, sustained downturn in global commodity prices.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Currency volatility (High)</td>
+                      <td>
+                        BRL volatility can significantly erode or negate returns for USD-based
+                        investors, even if local equities perform strongly.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>External headwinds (Medium)</td>
+                      <td>
+                        A "higher-for-longer" rate environment in developed markets or a sharp
+                        global slowdown could trigger capital flight from EM, regardless of
+                        domestic fundamentals.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>Intended use by a model</h3>
+              <ul class="bullet-tight">
+                <li>Anchor simulations to Ibovespa ~163,000.</li>
+                <li>Use updated scenario price bands and keep probability weights unchanged.</li>
+                <li>Flag invalidation if inflation &gt; 6% YoY for 2 consecutive quarters.</li>
+                <li>Flag invalidation if Selic remains >=15% beyond Q4 2026 or primary deficit &gt; 2% GDP annually.</li>
+                <li>Treat all metrics as illustrative.</li>
+              </ul>
+            </div>
+          </aside>
+        </section>
+      </div>
+
+      <!-- STRATEGY UPDATES TAB -->
+      <div id="tab-updates" class="tab-panel">
+        <section class="card" style="margin-top:20px;">
+          <div class="card-title-row">
+            <h2>Strategy Updates (Jan 2026 Calibration)</h2>
+            <span class="pill">Change set: BRA_EQ_CS_2026_01</span>
+          </div>
+          <p>
+            January 2026 updates refine macro inputs and scenario bands while keeping the core thesis intact.
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Section</th>
+                  <th>Previous (November 2025)</th>
+                  <th>Updated (January 2026)</th>
+                  <th class="col-right">Classification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Macro state</td>
+                  <td>Inflation 4.5-5.5%; easing assumed post-2026; GDP 2.0-3.0%</td>
+                  <td>Inflation 4.3%; easing expected 2026; GDP 1.5-2.5%</td>
+                  <td class="col-right">Reweighted</td>
+                </tr>
+                <tr>
+                  <td>Demand assumptions</td>
+                  <td>Neutral foreign flows; weak domestic demand</td>
+                  <td>ETF inflows observed; domestic outflows persist</td>
+                  <td class="col-right">Reweighted</td>
+                </tr>
+                <tr>
+                  <td>Supply assumptions</td>
+                  <td>Low issuance; neutral actions</td>
+                  <td>Low issuance; select buybacks</td>
+                  <td class="col-right">Strengthened</td>
+                </tr>
+                <tr>
+                  <td>Price level context</td>
+                  <td>Ibovespa ~150,000</td>
+                  <td>Ibovespa ~163,000</td>
+                  <td class="col-right">Rebased</td>
+                </tr>
+                <tr>
+                  <td>Scenario probabilities</td>
+                  <td>25 / 50 / 25</td>
+                  <td>25 / 50 / 25</td>
+                  <td class="col-right">Unchanged</td>
+                </tr>
+                <tr>
+                  <td>Scenario price paths</td>
+                  <td>Bear ~120k; Base ~200k; Bull ~250k+</td>
+                  <td>Bear ~120k; Base 190-210k; Bull 230-260k</td>
+                  <td class="col-right">Rebased</td>
+                </tr>
+                <tr>
+                  <td>Return expectations</td>
+                  <td>Base 5-8%; Bull 10-14%</td>
+                  <td>Base 4-7%; Bull 9-13%</td>
+                  <td class="col-right">Weakened</td>
+                </tr>
+                <tr>
+                  <td>Volatility &amp; drawdowns</td>
+                  <td>Vol 25-30%; drawdown 35-45%</td>
+                  <td>Vol 24-28%; drawdown 35-40%</td>
+                  <td class="col-right">Strengthened</td>
+                </tr>
+                <tr>
+                  <td>Portfolio structure</td>
+                  <td>Core 40% / Satellite 60%</td>
+                  <td>Core 40% / Satellite 60%</td>
+                  <td class="col-right">Unchanged</td>
+                </tr>
+                <tr>
+                  <td>Strategy phase</td>
+                  <td>Early accumulation</td>
+                  <td>Accumulation / Hold</td>
+                  <td class="col-right">Reweighted</td>
+                </tr>
+                <tr>
+                  <td>Risk emphasis</td>
+                  <td>Fiscal slippage primary; inflation risk high</td>
+                  <td>Fiscal slippage primary; inflation risk moderate</td>
+                  <td class="col-right">Weakened</td>
+                </tr>
+                <tr>
+                  <td>Model instructions</td>
+                  <td>Baseline inputs</td>
+                  <td>Anchor to 163k; invalidation flags added</td>
+                  <td class="col-right">Updated</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- SPECIFICATION TAB -->
+      <div id="tab-spec" class="tab-panel">
+        <section style="margin-top:20px;">
+          <section class="card" aria-labelledby="spec-heading" style="width:100%;">
+            <div class="card-title-row">
+              <h2 id="spec-heading">Specification Summary</h2>
+              <span class="pill">Governance view</span>
+            </div>
+            <p>
+              This tab provides a compact view aligned to the Investment Strategy Specification
+              standard, referencing existing content where available and flagging items not yet
+              explicitly defined on this page.
+            </p>
+            <div class="section">
+              <h3>1. Strategy metadata</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Strategy name</td>
+                      <td>Formal title used to identify the strategy and its version.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Asset / theme</td>
+                      <td>Primary asset class or thematic exposure targeted by the strategy.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategy type</td>
+                      <td>Classification of approach (core/tactical/relative value/thematic).</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Primary objective</td>
+                      <td>Primary intent (growth, income, diversification, convexity, hedging).</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>As-of date</td>
+                      <td>Date the assumptions and spot anchors are valid for.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Original baseline date</td>
+                      <td>Prior reference date used for change comparisons.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Review cadence</td>
+                      <td>Planned update frequency (monthly/quarterly/event-driven).</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>2. Investment universe &amp; horizon</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Eligible asset classes</td>
+                      <td>Allowed instruments (equities, ETFs, futures, options, physical).</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Geographic scope</td>
+                      <td>Regions or countries eligible for exposure.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Sector constraints</td>
+                      <td>Industry or sub-sector limitations for holdings.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Instrument eligibility rules</td>
+                      <td>Liquidity, listing venue, currency, and leverage constraints.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategic horizon</td>
+                      <td>Multi-year investment window for the core thesis.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tactical horizon</td>
+                      <td>Shorter-term holding window for tactical sleeve.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Expected holding period per sleeve</td>
+                      <td>Typical holding duration by sleeve.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>3. Core thesis &amp; mispricing</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Primary thesis statement</td>
+                      <td>Single statement explaining drivers, mispricing, and persistence.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Structural drivers</td>
+                      <td>Named drivers with mechanism, duration, sensitivity, effects.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Why mispricing persists</td>
+                      <td>Short-term noise and structural reasons for mispricing.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>4. Portfolio structure</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Sleeve definitions</td>
+                      <td>Core and tactical sleeve roles and risk intent.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Allocation bands</td>
+                      <td>Target ranges, hard limits, and breach conditions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Rebalancing rules</td>
+                      <td>Explicit triggers and frequency for rebalancing.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Instrument roles</td>
+                      <td>Role, primary risk, correlation intent, and inclusion rationale.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>5. Deployment &amp; execution framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Entry strategy</td>
+                      <td>Rules for staged vs lump-sum entry and triggers.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Scaling rules</td>
+                      <td>Explicit add/trim/pause/stop conditions.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Exit strategy</td>
+                      <td>Structural exit signals and invalidation triggers.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>6. Scenario framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Scenario definitions</td>
+                      <td>Macro, demand, supply, policy assumptions per scenario.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario probabilities</td>
+                      <td>Explicit weights with rationale and shift conditions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Price / valuation paths</td>
+                      <td>Spot anchor, range, terminal assumptions, path dependency.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>7. Return &amp; risk assumptions</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Return expectations</td>
+                      <td>Asset- and sleeve-level returns with probability weights.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Volatility &amp; drawdowns</td>
+                      <td>Ranges and peak-to-trough assumptions.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Correlation assumptions</td>
+                      <td>Within-strategy and cross-asset correlations by regime.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>8. Risk framework</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Key risks</td>
+                      <td>Risk name, transmission channel, affected assets, mitigation.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Thesis invalidation</td>
+                      <td>Conditions to reduce, pause, or terminate strategy.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>8. Monitoring inputs</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Quantitative signals</td>
+                      <td>Price levels, volatility, inventories, spreads.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Fundamental indicators</td>
+                      <td>Demand growth, supply growth, capex cycle, pipelines.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Event-driven triggers</td>
+                      <td>Policy, earnings, geopolitics, disruptions.</td>
+                      <td>Part met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>9. Updates &amp; versioning</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Update log</td>
+                      <td>Record date, variable changed, old vs new, and reason.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Re-baselining rules</td>
+                      <td>Explicit triggers for when to rebase assumptions.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>10. Model use &amp; integration</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Model consumption rules</td>
+                      <td>How models should treat assumptions and bands.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Agent responsibilities</td>
+                      <td>Who monitors inputs and flags probability shifts.</td>
+                      <td>Not met</td>
+                    </tr>
+                    <tr>
+                      <td>Integration context</td>
+                      <td>How this strategy plugs into portfolio and risk systems.</td>
+                      <td>Not met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>11. Page structure &amp; compliance</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Tab structure</td>
+                      <td>Include Strategy, Strategy Updates, and Specification tabs.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Strategy updates table</td>
+                      <td>Present prior vs updated values with dates in headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Baseline-only updates</td>
+                      <td>When no prior version exists, label as Baseline (Month YYYY).</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification tab</td>
+                      <td>Include a compliance table aligned to the standard.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spec reference comment</td>
+                      <td>HTML comment references the specification file path.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>12. Style &amp; formatting guide</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Header hierarchy</td>
+                      <td>Title, descriptor, and metadata chips in a single header block.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Metadata chips</td>
+                      <td>Include as-of and baseline dates in the chip row.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tab navigation</td>
+                      <td>Tabs styled consistently with active state and spacing.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Section cards</td>
+                      <td>Major sections appear in card containers with consistent padding.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Table styling</td>
+                      <td>Consistent header styling, row spacing, and full-width layout.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scenario tables</td>
+                      <td>Scenario tables include clear Bear/Base/Bull headings.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Specification table</td>
+                      <td>Three-column compliance table (Field / Definition / Status).</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Notes and captions</td>
+                      <td>Notes appear above/below tables in subdued text.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Card grid layout</td>
+                      <td>Card grids support 2-3 cards per row with wrapping.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Scrollable tables</td>
+                      <td>Wide tables use a horizontal scroll wrapper.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Typography</td>
+                      <td>Consistent heading and body text hierarchy.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Color accents</td>
+                      <td>Accent colors used sparingly for chips, tabs, headers.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Spacing</td>
+                      <td>Consistent vertical spacing between sections and tables.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Responsiveness</td>
+                      <td>Layout remains readable on tablet and mobile.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Tag color taxonomy</td>
+                      <td>Tags use a consistent color meaning across tables and cards.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="section">
+              <h3>13. Constraints &amp; disclaimers</h3>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Definition</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Leverage policy</td>
+                      <td>No implicit leverage unless explicitly stated.</td>
+                      <td>Part met</td>
+                    </tr>
+                    <tr>
+                      <td>Forecasting disclaimer</td>
+                      <td>Assumptions are conditional and revisable.</td>
+                      <td>Met</td>
+                    </tr>
+                    <tr>
+                      <td>Decision disclaimer</td>
+                      <td>Outputs inform decisions; they are not decisions.</td>
+                      <td>Met</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+
+    <div class="footer">
+      Disclaimer: This information is for informational purposes only and does not constitute
+      financial advice or a recommendation to buy or sell any security. All investment strategies
+      and investments involve risk of loss. Please conduct your own research and consult with a
+      financial professional before making any investment decisions. Projections are illustrative
+      and not guaranteed.
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const buttons = document.querySelectorAll('.tab-button');
+      const panels = document.querySelectorAll('.tab-panel');
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-tab');
+          buttons.forEach(function (b) { b.classList.remove('active'); });
+          panels.forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          const panel = document.getElementById('tab-' + target);
+          if (panel) {
+            panel.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
