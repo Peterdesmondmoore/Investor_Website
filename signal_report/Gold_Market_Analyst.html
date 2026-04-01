@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Gold Market Analyst</div>
         <div class="page-title">The Gold Market Analyst combines price diagnostics, positioning regimes, research synthesis, media monitoring, and macro signal interpretation into a coherent market context.</div>
         <div class="hero-inject market-report"><div class="ia-report-block" id="gold-macro-outlook">
@@ -143,37 +209,37 @@
 
   <h3>Regime Assessment</h3>
   <p>
-    Current conditions align with the <strong>Liquidity-Driven Safe Haven Expansion</strong> regime (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">14</a>).
-    Dominant drivers include a expansionary liquidity backdrop (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">11</a>) and elevated financial stress indicators (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>). While structural support is moderate, the regime faces a persistent conflict from a restrictive real interest rate trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).
+    Current conditions align with the <strong>Liquidity Expansion (G1)</strong> regime (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">1</a>). 
+    Dominant drivers include expanding money supply, a supportive Federal Reserve liquidity composite, and elevated financial stress which serves as a hedge-driven tailwind (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">4</a>).
   </p>
 
   <h3>1-Month Outlook (Tactical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Neutral / Volatile (<a href="https://investoranatomy.com/signal_monitor/gold_pricing_monitor.html" target="_blank">13</a>)</li>
-    <li><strong>Probability:</strong> Up: 0.65, Down: 0.35</li>
-    <li><strong>Primary Influences:</strong> 7-day news compression indicates negative pressure in investment flows and macro conditions, though this is partially offset by heightened geopolitical risk (<a href="https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_Compression_7D/" target="_blank">12</a>). Tactical positioning is currently in a "Spec_Long_Unwind" state, creating a near-term drag on price sponsorship (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">10</a>).</li>
-    <li><strong>Volatility Profile:</strong> High (93rd percentile realized volatility) (<a href="https://investoranatomy.com/signal_monitor/gold_pricing_monitor.html" target="_blank">13</a>)</li>
+    <li><strong>Directional Bias:</strong> Neutral (Tactical Liquidation) (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">1</a>)</li>
+    <li><strong>Probability:</strong> Up: 0.65, Down: 0.35 (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">1</a>)</li>
+    <li><strong>Primary Influences:</strong> 7-day news compression indicates a mixed tactical environment with high geopolitical risk offset by a short-term price breakdown (<a href="https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_Compression_7D/" target="_blank">5</a>). Positioning data confirms a "Speculative Long Unwind" regime, reflecting a persistent withdrawal of sponsorship (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">6</a>).</li>
+    <li><strong>Volatility Profile:</strong> Medium (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">1</a>)</li>
   </ul>
 
   <h3>3-Month Outlook (Cyclical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Bullish (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">14</a>)</li>
-    <li><strong>Probability:</strong> Up: 0.75, Down: 0.25</li>
-    <li><strong>Structural Drivers:</strong> Cyclical strength is anchored in the expansion of M2 money supply (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>) and broader Federal Reserve liquidity support (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">11</a>), which historically offsets real rate headwinds in expansionary regimes.</li>
+    <li><strong>Directional Bias:</strong> Bullish (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">1</a>)</li>
+    <li><strong>Probability:</strong> Up: 0.75, Down: 0.25 (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">1</a>)</li>
+    <li><strong>Structural Drivers:</strong> Sustained expansion in M2 money supply and the broader Federal Reserve liquidity composite provide a robust structural floor for the cyclical horizon (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
   </ul>
 
   <h3>12-Month Outlook (Strategic)</h3>
   <ul>
-    <li><strong>Regime Persistence:</strong> High (Long-term structural)</li>
-    <li><strong>Historical Outcome Bias:</strong> Bullish</li>
-    <li><strong>Research Context:</strong> Research context suggests a structural shift in central bank reserves and a persistent "debasement trade" will likely support prices through 2026 (<a href="https://investoranatomy.com/investment-strategy/gold-strategy/" target="_blank">15</a>). Institutional analysts anticipate price targets in the $4,500–$5,000/oz range as Western investor participation broadens via ETF inflows (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">16</a>).</li>
+    <li><strong>Regime Persistence:</strong> High (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">7</a>)</li>
+    <li><strong>Historical Outcome Bias:</strong> Positive Skew / Bullish (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">7</a>)</li>
+    <li><strong>Research Context:</strong> Research themes suggest a structural "debasement trade" supported by central bank reserve diversification and persistent fiscal dominance, with price targets converging between $4,500/oz and $5,000/oz (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">7</a>).</li>
   </ul>
 
   <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
   <ul>
-    <li><strong>Real Rate vs. Liquidity:</strong> Positive real yields remain a structural headwind, requiring continued liquidity expansion to sustain the bullish regime (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
-    <li><strong>Positioning Divergence:</strong> A conflict exists between the current speculative long liquidation in futures and the underlying physical shortage/central bank demand (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">14</a>).</li>
-    <li><strong>Invalidation Trigger:</strong> A shift in central bank behavior to net selling or a failure of M2 momentum to offset USD strength would invalidate the current Liquidity Expansion thesis (<a href="https://investoranatomy.com/investment-strategy/gold-strategy/" target="_blank">15</a>).</li>
+    <li>USD Index strengthening and momentum present a direct headwind to gold's FX-adjusted performance (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">8</a>).</li>
+    <li>Real interest rate restrictiveness remains a primary conflict, as rising yields increase the opportunity cost of non-yielding assets (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">9</a>).</li>
+    <li><strong>Invalidation Trigger:</strong> A breach of the USD Z-score above +2.0 or a confirmed shift from net accumulation to net selling by major emerging market central banks (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">7</a>).</li>
   </ul>
 </div></div>
       </div>
@@ -182,7 +248,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -195,13 +262,13 @@
 
         <div class="panels">
           <div class="panel" role="tabpanel" id="panel-price" aria-labelledby="tab-price" hidden><div class="panel-title">Price Signal Decoder</div><div class="panel-body"><h1>GLDM - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-03-31</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 251 rows</li>
-<li><strong>Last close:</strong> 89.34</li>
-<li><strong>Day change:</strong> 3.49%</li>
+<li><strong>Last close:</strong> 92.69</li>
+<li><strong>Day change:</strong> 3.77%</li>
 <li><strong>Composite view:</strong> Trim</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -220,15 +287,15 @@
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 6990666.00</li>
-<li><strong>Volume percentile:</strong> 80.00%</li>
-<li><strong>Volume z-score:</strong> 0.21</li>
+<li><strong>Latest volume:</strong> 7562500.00</li>
+<li><strong>Volume percentile:</strong> 81.92%</li>
+<li><strong>Volume z-score:</strong> 0.29</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Mid-range within 52-week band</li>
-<li><strong>Position within 52-week range:</strong> 0.60</li>
-<li><strong>Drawdown from 52-week high:</strong> -16.32%</li>
+<li><strong>Position within 52-week range:</strong> 0.67</li>
+<li><strong>Drawdown from 52-week high:</strong> -13.19%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -249,10 +316,10 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>0.30%</td></tr>
-<tr><td>1M</td><td>-13.12%</td></tr>
-<tr><td>3M</td><td>0.72%</td></tr>
-<tr><td>6M</td><td>20.45%</td></tr>
+<tr><td>1W</td><td>6.45%</td></tr>
+<tr><td>1M</td><td>-12.18%</td></tr>
+<tr><td>3M</td><td>8.03%</td></tr>
+<tr><td>6M</td><td>22.25%</td></tr>
 <tr><td>12M</td><td>n/a</td></tr>
 </tbody>
 </table>
@@ -272,7 +339,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <tbody>
 <tr><td>2022-02-23</td><td>0.50</td></tr>
 </tbody>
-</table></div><div class="panel-media"><figure class="media"><img src="/images/Gold_Pricing_Dashboard.png" alt="Gold price trend" /><div class="media-cap">Gold price momentum and trend diagnostics</div></figure></div></div>
+</table></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Gold_Pricing_Dashboard.png" alt="Gold price trend" /><div class="media-cap">Gold price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Gold Positioning Analyst</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -346,8 +413,8 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
         <li>Additional metrics like 10Y Real TIPS Yields and the Broad USD Index would improve regime confirmation.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_GOLD_Diagnostics.png" alt="Gold CoT diagnostics" /><div class="media-cap">Gold CoT diagnostics (example)</div></figure></div></div>
-<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Gold News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Gold | <strong>As of:</strong> 2026-03-27</p><p><strong>Composite news score:</strong> -0.4500 | <strong>Signal breadth:</strong> 0.5000 | <strong>Overall state:</strong> Transition</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> 7292adc5d6573bf2b13f048ce4c81318dd594f10240a4850abbf1ce5b54ed30c</p><p><strong>Previous hash:</strong> 2473a6e478ec2cadc1af8135edc1e5bddd3687f101c2dc1cacbb854580947b65 | <strong>Change hash:</strong> 015d13906315ded6c03ca890199ece40256b8c08cc6eaa4edb748e4b784f1460</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">16</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Investment &amp; Financial Markets</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8500</td><td style="padding:8px; border-bottom:1px solid #1f2937;">11</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Geopolitical Risk</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">5</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Macro &amp; Monetary Conditions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">5</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Regulatory &amp; Policy</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.5000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Physical Market Structure</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.6000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr></tbody></table></div></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_GOLD_Diagnostics.png" alt="Gold CoT diagnostics" /><div class="media-cap">Gold CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Gold News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Gold | <strong>As of:</strong> 2026-04-01</p><p><strong>Composite news score:</strong> 0.5700 | <strong>Signal breadth:</strong> 0.5700 | <strong>Overall state:</strong> Mixed</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> 8f4028d00f79512ab379b4e1bd9536aee1438e5c2d23bb8a0f8d86209133fa79</p><p><strong>Previous hash:</strong> d0e43030057d64f1bc226499f43af2f08fa97aa7a16cd2f5a362d408dc9fb992 | <strong>Change hash:</strong> 055b8657ebbfe12b8fc41ef3a1974b559bc302e466aa1d2ccd17218bded063d3</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">24</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Investment &amp; Financial Markets</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Short</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8500</td><td style="padding:8px; border-bottom:1px solid #1f2937;">5</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Geopolitical Risk</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Macro &amp; Monetary Conditions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.7500</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Corporate &amp; Capital Actions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Short</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.6000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Price Recap / Live Rates</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Short</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Regulatory &amp; Policy</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.7000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr></tbody></table></div></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Gold Research Analyst</div><div class="panel-body"><div class="asset-forward-view"
      data-as-of-date="2026-03-21"
      data-horizon-min-months="6"
@@ -594,31 +661,31 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     <tbody>
       <tr>
         <th>Macro Regime</th>
-        <td>Liquidity-Driven Safe Haven Expansion</td>
+        <td>Expansionary (Liquidity Dominant) (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">2</a>)</td>
       </tr>
       <tr>
         <th>Regime Strength</th>
-        <td>Moderate</td>
+        <td>High (Stress Buffered) (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">4</a>)</td>
       </tr>
       <tr>
         <th>Liquidity Regime</th>
-        <td>Expansion (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">2</a>)</td>
+        <td>Expansion (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">2</a>)</td>
       </tr>
       <tr>
         <th>Real Rate Regime</th>
-        <td>Headwind (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)</td>
+        <td>Headwind (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">6</a>)</td>
       </tr>
       <tr>
         <th>USD Regime</th>
-        <td>Neutral (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>)</td>
+        <td>Strengthening (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">7</a>)(<a href="https://investoranatomy.com/signal_monitor/usd_individual_market_analysis_monitor.html" target="_blank">8</a>)</td>
       </tr>
       <tr>
         <th>Inflation Regime</th>
-        <td>Neutral (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">7</a>)</td>
+        <td>Neutral (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">9</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">11</a>)</td>
       </tr>
       <tr>
         <th>Stress State</th>
-        <td>Elevated (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>)</td>
+        <td>Elevated (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">4</a>)</td>
       </tr>
     </tbody>
   </table>
@@ -630,11 +697,11 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
         <tbody>
           <tr>
             <th>1M</th>
-            <td>Neutral / Volatile (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>)</td>
+            <td>Neutral (Tactical Liquidation) (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">12</a>)(<a href="https://investoranatomy.com/signal_monitor/gold_pricing_monitor.html" target="_blank">13</a>)</td>
           </tr>
           <tr>
             <th>3M</th>
-            <td>Bullish (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">11</a>)</td>
+            <td>Bullish (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">2</a>)</td>
           </tr>
         </tbody>
       </table>
@@ -643,23 +710,51 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     <div class="ia-panel">
       <h3>Stress &amp; Conflict Flags</h3>
       <ul class="ia-list">
-        <li><strong>Dominant Forces:</strong> Liquidity Expansion, Elevated Financial Stress</li>
-        <li><strong>Conflicts:</strong> Real Rate Headwind vs Liquidity Expansion, Spec Long Unwind vs Physical Shortage Pressure</li>
+        <li><strong>Dominant Forces:</strong> Liquidity Expansion, Systemic Stress Hedge, Physical Shortage Pressure (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">14</a>)</li>
+        <li><strong>Conflicts:</strong> Real Rate Restrictiveness, Speculative Long Unwind, USD Momentum</li>
       </ul>
     </div>
   </div>
-</div></div></div>
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Verify the conflict between Gold Pricing breakdown (confirmatory) and the structural Liquidity Expansion regime.</li>
+  <li>Monitor if the USD Z-score breaches +2.0, which would trigger USD Conditioning Rule 3 despite current Stress Override.</li>
+</ul>
+--></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Gold Market Analyst - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -696,6 +791,9 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> US Growth and Business Cycle</div>
         <div class="page-title">Synthesises key growth-related indicators (capex, production, durables, housing, yield-curve and monetary signals) into a cohesive assessment of the current US economic expansion, slowdown or contraction.</div>
         <div class="hero-inject market-report"><div class="market-report">
@@ -144,38 +210,39 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Regime: Expansionary / Risk-Positive</li>
-    <li>Regime Confidence Index: High Confidence</li>
-    <li>Status: The regime is stable and strengthening.</li>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>Stability: Fragile</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>High-weight leading indicators are aligned in expansion.</li>
-    <li>The Housing Lead signal (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>) and Capex Intent signal (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>) both show high conviction and expanding momentum.</li>
-    <li>Durable Goods ex-Transportation (<a href="https://investoranatomy.com/signal_report/Durable_Goods_Ex_Transportation/" target="_blank">3</a>) was downweighted due to a lack of observation data and low interpretation confidence.</li>
-    <li>Coincident signals are stabilizing above contractionary thresholds.</li>
+    <li>High-weight forward-looking indicators have shifted into expansionary territory.</li>
+    <li>The Housing Lead Signal (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>) and Capex Intent Signal (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>) both reflect strengthening cyclical momentum.</li>
+    <li>Monetary conditions are supportive, with the neutral rate proxy showing deepening policy accommodation (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">3</a>).</li>
+    <li>The Durable Goods ex-Transportation Signal (<a href="https://investoranatomy.com/signal_report/Durable_Goods_Ex_Transportation/" target="_blank">4</a>) was downweighted due to low interpretation confidence and missing core data.</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Leading metrics align with a deeply accommodative stance gap in the Explicit Neutral Rate proxy (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>).</li>
-    <li>Yield Curve Slope (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">5</a>) and US Treasury Yield Curve (<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">6</a>) both confirm a transition away from restrictive inversion.</li>
-    <li>Tensions exist in Industrial Production (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">7</a>), which remains in a Neutral regime despite positive momentum.</li>
-    <li>These tensions do not overturn the regime call as leading indicators typically precede real-sector production shifts.</li>
+    <li>Forward investment intent aligns with high-conviction expansion in housing starts and permits (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>).</li>
+    <li>Tensions exist as real-sector output remains modest. Industrial Production (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">5</a>) is currently failing to breach expansion thresholds.</li>
+    <li>Treasury term structures are characterized as Flat or Neutral (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">7</a>), indicating the broader economy has not yet converged with the lead signals.</li>
+    <li>The regime remains transitional because these lagging and concurrent signals haven't confirmed the expansion.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant scenario: Sustained cyclical expansion driven by robust core business investment and housing demand.</li>
-    <li>Primary upside risk: Building permit authorizations accelerate to match current strength in housing starts (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
-    <li>Primary downside risk: Rising 30-year mortgage rates trigger rapid demand destruction in the housing sector (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
+    <li>Dominant Scenario: Early-cycle expansion supported by rising capital expenditure and housing demand.</li>
+    <li>Primary Upside Risk: Industrial Production growth exceeding 2% YoY, confirming a broad-based recovery (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">5</a>).</li>
+    <li>Primary Downside Risk: Resurgent mortgage rates triggering demand destruction in the housing sector (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>The Capex Intent composite Z-score falling below the 0.75 expansion threshold (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>).</li>
-    <li>A move in the Treasury yield spread below 0%, re-signaling restrictive curve inversion (<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">6</a>).</li>
+    <li>The Housing Lead composite falling below the 0.75 expansion threshold (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
+    <li>A move in the monetary stance gap above -0.50, signaling a shift toward restrictive policy (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">3</a>).</li>
+    <li>Yield curve re-inversion signaled by a spread falling below 0% (<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">7</a>).</li>
   </ul>
 
 </div>
@@ -183,7 +250,8 @@
 <!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
 <h3>Missing Content / Critical Improvements</h3>
 <ul>
-  <li>Observation values (YoY_pct, 3M_pct) for Durable Goods ex-Transportation (ADXTNO) are missing, preventing its contribution to the expansionary weight.</li>
+  <li>Durable Goods ex-Transportation Signal (ADXTNO) requires YoY and 3-month momentum values to provide a valid confirmation of Capex Intent.</li>
+  <li>Latest observation dates for several real-economy signals lag the market-implied monetary signals by 60+ days, increasing transition risk uncertainty.</li>
 </ul>
 --></div>
       </div>
@@ -192,7 +260,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -273,7 +342,7 @@
   <li>Observation values for ADXTNO (YoY_pct, 3M_pct, YoY_z) are missing from the input table, preventing a definitive regime classification.</li>
   <li>Latest observation date is missing; providing the FRED release date is required to assess Data Freshness.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/US_Durable_Goods_Ex_Trans_Signal_chart_mpl.png" alt="Durable Goods ex-Transportation Signal" /><div class="media-cap">Durable Goods ex-Transportation Signal</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Durable_Goods_Ex_Trans_Signal_chart_mpl.png" alt="Durable Goods ex-Transportation Signal" /><div class="media-cap">Durable Goods ex-Transportation Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-yield_curve_slope_signal" aria-labelledby="tab-yield_curve_slope_signal" hidden><div class="panel-title">Yield Curve Slope Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -281,71 +350,73 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement (mandatory):</strong>
-            Given a YC_Composite of 0.6506 and aligned positive z-scores in T10Y2Y and T10Y3M, this setup aligns with Range-biased price paths and Normal volatility, where the dominant risk is Trend continuation toward a steepening regime, not mean reversion to inversion (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).
+            <strong>Configuration statement:</strong>
+            Given T10Y2Y and T10Y3M Z-scores of 0.49 and 0.67 respectively, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is a Regime shift toward steepening, not mean reversion.
         </li>
-        <li>The signal remains in a persistent Flat/Neutral regime, currently testing the upper bound of mid-cycle stability (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+        <li>The signal is currently classified as Flat/Neutral, characterized by mid-cycle stability or policy transition. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Near; Revision Sensitivity: Low.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Regime classification uses a Composite Z-score where values between -0.50 and 0.50 indicate mid-cycle stability (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Regime shifts to "Steepening" (Z > 0.75) require two consecutive months of confirmation to filter noise (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>A conflict between T10Y2Y and T10Y3M components explicitly triggers low signal confidence (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Yield Curve Slope Signal: Latest observation 2026-03-31 (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
+        <li>Composite Z between -0.50 and 0.50 reflects a Flat or Neutral curve indicating mid-cycle stability. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>A Steepening regime (Z > 0.75) requires two consecutive monthly confirmations to filter noise. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Conflict between the T10Y2Y and T10Y3M components is used to downgrade signal confidence. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Latest observation date: 2026-03-31.</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the T10Y3M component (Z: 0.747), which is less than 0.01 points from the steepening threshold (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Momentum is positive, with the composite rising from 0.113 in December 2024 to 0.650 in March 2026 (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Internal alignment is high; both curve segments are positive, suggesting a consistent market view on term premiums (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: Composite Z falling below -0.50 for two consecutive months (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>The regime shows high persistence, having remained in the Flat/Neutral zone for over 18 months (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
+        <li>The primary driver is the steady ascent of the YC_Composite (0.58), which has moved from negative territory into a positive neutral stance. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Momentum is currently stabilizing at the upper bound of the neutral range, led by the T10Y3M component (Z: 0.67). (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Internal coherence is high as both yield curve segments are directionally aligned.</li>
+        <li>Conditional Invalidation: Two consecutive months where the YC_Composite exceeds the 0.75 threshold. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Signal stability is high, with the neutral regime persisting for 18 consecutive months.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base Case dominant: Continued transition toward a "Steepening" regime as term premiums normalize.</li>
-        <li>Upside risk: Rapid economic acceleration trigger leading to a confirmed "Risk-on" expansionary bias.</li>
-        <li>Downside risk: Sudden Federal Reserve hawkishness flattening the curve and delaying the exit from the neutral zone.</li>
+        <li>Base case dominant: Continued mid-cycle stability as the curve remains below the 0.75 expansionary threshold.</li>
+        <li>Most plausible upside risk: Early transition to a "Risk-on" expansionary regime if long-term growth expectations outpace short-term rates.</li>
+        <li>Most plausible downside risk: A return to inversion if restrictive policy or recessionary fears compress the term structure.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months), reflecting the methodology's identified 2-6 quarter lead time for macro shifts (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: Medium, given the high confidence but current status within a neutral range.</li>
+        <li>Time Horizon: Cyclical (months), as yield curve regimes typically lead macro outcomes by 2–6 quarters. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: Medium; while a critical macro anchor, the signal is currently in a non-directional transition phase.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the pricing of the Treasury term structure and long-term growth expectations (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Implied mechanism: Rising long-term rates relative to short-term policy suggests easing restrictive conditions (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Cycle position: Mid-cycle transition toward early-cycle expansionary bias.</li>
-        <li>Interacts with credit spreads and volatility signals to confirm broad financial regime shifts (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
+        <li>This signal informs the global growth and pricing dimension by measuring the relationship between policy rates and growth/inflation expectations. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>The upward direction of the Z-score implies a gradual normalization of the term structure and easing of restrictive pressures.</li>
+        <li>Cycle position: Mid-cycle transition.</li>
+        <li>Interacts with credit spreads and volatility signals to confirm the probability of recession or recovery. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-        <li>Regime persistence: Persistent Flat/Neutral state since late 2024 (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Direction of change: Strengthening toward a Steepening/Expansionary regime.</li>
+    <li>Persistent Flat/Neutral regime in place since late 2024.</li>
+    <li>The recent trend shows a strengthening bias toward a positive breakout/steepening.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-        <li>Distorted by QE/QT activities and Treasury issuance liquidity effects (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Lagging indicator properties may delay recognition of immediate shocks (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
+    <li>The signal is a lagging indicator and can be distorted by central bank balance sheet operations (QE/QT). (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+    <li>Constant-maturity yield revisions may impact the precision of threshold breaches. (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Yield Curve Slope Signal (Latest: 2026-03-31) (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Most influential: T10Y3M (0.71) and YC_Composite (0.6506) (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>).</li>
-        <li>Public datasets: FRED High Yield Spreads and VIX Index for multi-signal confirmation.</li>
+        <li>Yield Curve Slope Signal (2026-03-31). (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">1</a>)</li>
+        <li>Dominant datapoints: T10Y3M (0.60) and T10Y2Y (0.51).</li>
+        <li>External reference: Credit Spreads Signal and VIX Market Volatility would improve reliability of the regime confirmation.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Yield_Curve_Slope_signal_chart_mpl.png" alt="Yield Curve Slope Signal" /><div class="media-cap">Yield Curve Slope Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Yield_Curve_Slope_signal_chart_mpl.png" alt="Yield Curve Slope Signal" /><div class="media-cap">Yield Curve Slope Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-u_s_treasury_yield_curve_signal" aria-labelledby="tab-u_s_treasury_yield_curve_signal" hidden><div class="panel-title">U.S. Treasury Yield Curve Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -416,7 +487,7 @@
         <li>Public datasets like the VIX or High Yield Credit Spreads would improve interpretation of systemic stress levels.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Treasury_Yield_Curve_Signal_chart_mpl.png" alt="U.S. Treasury Yield Curve Signal" /><div class="media-cap">U.S. Treasury Yield Curve Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Treasury_Yield_Curve_Signal_chart_mpl.png" alt="U.S. Treasury Yield Curve Signal" /><div class="media-cap">U.S. Treasury Yield Curve Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-industrial_production_signal" aria-labelledby="tab-industrial_production_signal" hidden><div class="panel-title">Industrial Production Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -491,7 +562,7 @@
         <li>ISM New Orders and Capital Goods Orders would improve the confirmation of trend exhaustion or expansion.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Industrial_Production_YoY.png" alt="Industrial Production Signal" /><div class="media-cap">Industrial Production Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Industrial_Production_YoY.png" alt="Industrial Production Signal" /><div class="media-cap">Industrial Production Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-housing_lead_signal" aria-labelledby="tab-housing_lead_signal" hidden><div class="panel-title">Housing Lead Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -565,7 +636,7 @@
         <li>Durable Goods ex-Transportation (<a href="https://investoranatomy.com/signal_report/Durable_Goods_Ex_Transportation/" target="_blank">3</a>) would provide additional confirmation of cyclical goods demand.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Housing_Lead_signal_chart_mpl.png" alt="Housing Lead Signal" /><div class="media-cap">Housing Lead Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Housing_Lead_signal_chart_mpl.png" alt="Housing Lead Signal" /><div class="media-cap">Housing Lead Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-capex_intent_signal" aria-labelledby="tab-capex_intent_signal" hidden><div class="panel-title">Capex Intent Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -637,7 +708,7 @@
         <li>Comparison with ISM New Orders or regional Fed manufacturing surveys would improve depth.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Capex_Intent_signal_chart_mpl.png" alt="Capex Intent Signal" /><div class="media-cap">Capex Intent Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Capex_Intent_signal_chart_mpl.png" alt="Capex Intent Signal" /><div class="media-cap">Capex Intent Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-explicit_neutral_rate_r_proxy_signal" aria-labelledby="tab-explicit_neutral_rate_r_proxy_signal" hidden><div class="panel-title">Explicit Neutral Rate (r*) Proxy Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -646,82 +717,103 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given a negative stance gap of -0.75 and a rising neutral drift, this setup aligns with
-            Upward-biased price paths and Indeterminate volatility,
-            where the dominant risk is Regime shift, not mean reversion.
+            Given a stance_gap of -0.70, a policy_real_proxy of 1.34, and a rising neutral_drift, this setup aligns with
+            Upward-biased price paths and Compressed volatility,
+            where the dominant risk is Trend continuation, not Mean reversion (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).
         </li>
-        <li>The signal currently identifies an Accommodative regime as the policy rate remains significantly below the market-implied neutral rate (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
+        <li>The signal is currently in an Accommodative regime, indicating policy is significantly below the market-implied neutral rate (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Stance Gap: Values ≤ -0.50 indicate an accommodative policy stance, supporting growth and risk assets (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Neutral Drift: Drift > +0.10 indicates a rising neutral rate context, supporting a "higher for longer" policy narrative (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Regime Bias: Negative stance gap values correspond to an accommodative/expansionary macro regime (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Explicit Neutral Rate (r*) Proxy Signal: Latest observation 2026-03-27.</li>
+        <li>A stance_gap below -0.50 defines an Accommodative policy stance, implying support for growth and risk assets (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>A neutral_drift above +0.10 indicates a rising neutral rate context, which supports a "higher for longer" narrative (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Negative/falling stance_gap values characterize an expansionary economic regime (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Explicit Neutral Rate (r*) Proxy Signal (2026-03-31).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the stance gap of -0.75, which has widened (moved further below -0.50) throughout March, deepening the accommodative signal (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Neutral drift has shifted to "Rising" (r* proxy increased from 1.72 to 2.08 since late February), which effectively reduces the restrictiveness of the current policy rate (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: A contraction in the stance gap to > -0.50, shifting the regime back to "Near neutral."</li>
-        <li>The signal shows persistent directional movement away from the neutral threshold, suggesting a strengthening trend in policy accommodation (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>The primary driver is the widening gap between the rising rstar_proxy (2.04) and the stable policy_real_proxy (1.34) (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Momentum is strengthening as the stance_gap moved from -0.48 to -0.70 over the last 21 days (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>There are no internal tensions; both the level and recent drift confirm an accommodative environment.</li>
+        <li>Conditional Invalidation: The stance_gap rising above -0.50 (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>The signal shows high persistence, maintaining an accommodative classification since early March (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Continued support for risk assets as the stance gap remains deeply accommodative.</li>
-        <li>Upside risk: Rising neutral rates (r*) allow for higher policy rates without inducing economic contraction.</li>
-        <li>Downside risk: Sharp drop in market-implied r* (falling drift) would increase the effective restrictiveness of the current stance.</li>
+        <li>Base case dominant: Expansion continues as policy remains supportive relative to market-neutral levels.</li>
+        <li>Most plausible upside risk: Accelerating growth if the neutral rate continues to rise faster than policy adjustments.</li>
+        <li>Most plausible downside risk: Inflation persistence forcing a rapid policy real proxy increase that closes the gap.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months); reflects the transmission of real interest rate gaps into broader economic activity.</li>
-        <li>Aggregation Weight Hint: Medium; current signals are internally consistent but rely on market-implied proxies that include risk premia (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Time Horizon: Cyclical (months) as the signal reflects mid-term policy alignment vs. market structure (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; while the signal is clear, the medium conviction reflects inherent market-implied risk premia.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the Liquidity and Monetary Conditions dimension by measuring policy "tightness" relative to a floating neutral anchor (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Economic mechanism: Accommodative gaps typically signal easing financial conditions and a tailwind for private credit demand.</li>
+        <li>Informs the Liquidity and Monetary Conditions dimension by quantifying policy restrictiveness (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>The implied economic mechanism is a policy tailwind, where low real rates relative to neutral stimulate demand and risk-taking.</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with inflation momentum and economic slack signals to validate if the accommodative stance is generating inflationary pressure or filling an output gap.</li>
+        <li>Typically interacts with inflation momentum and economic slack indicators to validate if accommodation is generating overheating (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Newly re-entered Accommodative regime (transitioned from Near Neutral on 2026-03-06).</li>
-    <li>Direction of change: Strengthening (stance gap is becoming more negative).</li>
+    <li>Persistent Accommodative regime; successfully transitioned from "Near neutral" on March 10th (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening (accommodation is deepening).</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Market-implied r* contains liquidity and risk premia which may skew the perceived neutral level (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-    <li>The 10-year horizon of the proxy may mismatch near-term policy adjustments (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    <li>Market-implied r* contains liquidity and risk premia that may distort the pure neutral rate estimate (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    <li>10-year horizon may mismatch near-term policy cycles (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Explicit Neutral Rate (r*) Proxy Signal: Latest 2026-03-27 (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
-        <li>Most influential: Stance Gap (-0.75) and r* Proxy (2.08).</li>
-        <li>Cross-referencing with 10-Year Term Premia and Federal Funds Effective Rate would improve interpretation depth.</li>
+        <li>Explicit Neutral Rate (r*) Proxy Signal (latest observation: 2026-03-31) (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Most influential: stance_gap (-0.70) and neutral_drift (Rising).</li>
+        <li>Secondary datasets: 10-Year TIPS Real Yields and 10-Year Breakeven Inflation (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/Explicit_Neutral_Rate_Proxy.png" alt="Explicit Neutral Rate (r*) Proxy Signal" /><div class="media-cap">Explicit Neutral Rate (r*) Proxy Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Explicit_Neutral_Rate_Proxy.png" alt="Explicit Neutral Rate (r*) Proxy Signal" /><div class="media-cap">Explicit Neutral Rate (r*) Proxy Signal</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - US Growth and Business Cycle - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -758,6 +850,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

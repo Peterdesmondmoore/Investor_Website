@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Lithium Market Analyst</div>
         <div class="page-title">The Lithium Market Analyst combines price diagnostics, positioning regimes, research synthesis, media monitoring, and macro signal interpretation into a coherent market context.</div>
         <div class="hero-inject market-report"><div class="ia-report-block" id="lithium-hydroxide-macro-outlook">
@@ -143,49 +209,48 @@
 
   <h3>Regime Assessment</h3>
   <p>
-    Current conditions align with the <strong>Conflicted / Low-Confidence Macro (L7)</strong> regime.
-    Dominant drivers include internal macro divergence between expansionary liquidity (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">2</a>) and real interest rate headwinds (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>), coupled with elevated systemic stress levels.
+    Current conditions align with the <strong>Macro Tailwind (Liquidity + USD Support)</strong> regime, though internal confidence is tempered by significant structural conflicts. Dominant drivers include aggressive liquidity expansion (M2 and r* proxy) and extreme speculative short crowding, which are currently being offset by a strengthening USD and elevated financial stress markers (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">7</a>).
   </p>
 
   <h3>1-Month Outlook (Tactical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Bullish</li>
-    <li><strong>Probability:</strong> Up: 0.50, Down: 0.50</li>
-    <li><strong>Primary Influences:</strong> Positioning (CoT) signals indicate an extreme speculative short crowding state (z-score -2.22) that has persisted for seven weeks, creating significant short-covering and squeeze risk (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>). 7-day news compression indicates a bullish narrative impulse (score 1.14) driven by strengthening fundamentals in supply and mining sectors (<a href="https://investoranatomy.com/signal_report/Podcast_Lithium_News_Signal_Compression_7D/" target="_blank">5</a>).</li>
-    <li><strong>Composite Pricing &amp; Volatility Signals:</strong> Composite pricing signals indicate a neutral and transitional state, characterized by high dispersion between leading miners/producers and lagging development-stage assets (<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">6</a>).</li>
-    <li><strong>Positioning / CoT Signals:</strong> Speculative net interest is extremely short at -42.5%, while commercial hedgers are approaching extreme long positions, increasing mean-reversion pressure (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
-    <li><strong>Volatility Profile:</strong> High</li>
+    <li><strong>Directional Bias:</strong> Neutral / Bearish</li>
+    <li><strong>Probability:</strong> Up: 0.58, Down: 0.42</li>
+    <li><strong>Primary Influences:</strong> Tactical bias is weighed down by a strengthening USD regime and elevated volatility, which historically cap risk appetite for cyclicals (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>). However, 7-day news compression indicates a transitional state with emerging corporate and supply-side strength (<a href="https://investoranatomy.com/signal_report/Podcast_Lithium_News_Signal_Compression_7D/" target="_blank">12</a>).</li>
+    <li><strong>Composite Pricing &amp; Volatility Signals:</strong> Pricing exhibits significant divergence; operationally established producers are showing improving directionality above technical averages, while project developers remain highly dispersed and fragile (<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">11</a>).</li>
+    <li><strong>Positioning / CoT Signals:</strong> Speculative positioning is in a state of extreme short crowding (Z-score -2.22), which has persisted for seven weeks, signaling high non-linear upside convexity via a potential short squeeze (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">8</a>).</li>
+    <li><strong>Volatility Profile:</strong> High; characterized by high-tension positioning and elevated financial stress (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">7</a>).</li>
   </ul>
 
   <h3>3-Month Outlook (Cyclical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Neutral</li>
-    <li><strong>Probability:</strong> Up: 0.50, Down: 0.50</li>
-    <li><strong>Macro Drivers:</strong> The deterministic regime state indicates a clash between expansionary money supply (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>) and restrictive real rate positioning (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>). Systematic stress indicators (VIX and Financial Stress Index) remain in elevated territory, tempering cyclical upside (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">7</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">8</a>).</li>
-    <li><strong>Confirmation / Tension Signals:</strong> Inflation term-structure and market-implied expectations remain neutral (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">9</a>), while the USD index provides no clear trend support or headwind (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_monitor/usd_individual_market_analysis_monitor.html" target="_blank">11</a>).</li>
+    <li><strong>Directional Bias:</strong> Bullish</li>
+    <li><strong>Probability:</strong> Up: 0.66, Down: 0.34</li>
+    <li><strong>Macro Drivers:</strong> The cyclical outlook is driven by the dominance of liquidity expansion and accommodative implied neutral rate (r*) proxies, which are expected to support reflationary assets once near-term financial stress abates (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>).</li>
+    <li><strong>Confirmation / Tension Signals:</strong> Tensions persist between supportive liquidity and real-rate headwinds (10Y Real Yield > 6M Trend), suggesting that price appreciation may be conditional on a stabilization of real yields (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
   </ul>
 
   <h3>12-Month Outlook (Strategic)</h3>
   <ul>
-    <li><strong>Regime Persistence:</strong> Anticipated transition toward a market deficit by late 2026.</li>
-    <li><strong>Historical Outcome Bias:</strong> Bullish</li>
-    <li><strong>Structural Context (from provided inputs only):</strong> Long-term demand is increasingly underpinned by Energy Stationary Storage (ESS) and grid-scale infrastructure, projected to offset passenger EV growth moderate (JPM Lithium Upgrade). Strategic supply discipline is evident as producers signal that idle capacity restarts remain contingent on spodumene prices stabilizing between $1,200 and $1,500/t (JPM Lithium Upgrade). While a global lithium chemicals surplus may persist through 2026, the gap is expected to narrow significantly toward 109,000 metric tons (COMMODITIES 2026: Lithium carbonate surplus to narrow).</li>
+    <li><strong>Regime Persistence:</strong> Expected persistence of the recovery phase as the market transitions from surplus toward deficit.</li>
+    <li><strong>Historical Outcome Bias:</strong> Bullish (High Confidence).</li>
+    <li><strong>Structural Context (from provided inputs only):</strong> Long-term demand is anchored by a structural shift toward Energy Stationary Storage (ESS), with demand from grid-scale infrastructure projected to grow 40-55% YoY. Strategic upside is supported by producer discipline, with major miners signaling they will not restart idle capacity until spodumene prices consistently exceed $1,200/t.</li>
   </ul>
 
   <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
   <ul>
-    <li><strong>Liquidity Divergence:</strong> A material conflict exists between expansionary M2 growth and the Federal Reserve liquidity composite, creating uncertainty in 3-month funding conditions (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">12</a>).</li>
-    <li><strong>Positioning Exhaustion:</strong> Tactical bullishness is highly dependent on a speculative squeeze; a return to negative 4-week flows would invalidate the 1-month bias (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
-    <li><strong>Regime Transition Risk:</strong> Prices falling back toward $800/t spodumene would indicate the ESS-driven structural recovery has stalled (JPM Lithium Upgrade).</li>
+    <li><strong>Liquidity vs. FX Conflict:</strong> Structural liquidity support is currently being countered by USD strength and elevated VIX levels, creating high-frequency volatility and capping near-term breakouts (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>).</li>
+    <li><strong>Positioning vs. Trend:</strong> Extreme speculative short crowding creates a floor for prices, but narrow participation among developers suggests the broader equity cohort remains fragile (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">11</a>).</li>
+    <li><strong>Invalidation Trigger:</strong> A return of 4-week speculative flows to significant negative territory or a breach of the $800/t level in spodumene would invalidate the current recovery thesis (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">8</a>).</li>
   </ul>
 </div>
 
 <!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
 <h3>Missing Content / Critical Improvements</h3>
 <ul>
-  <li>M2 Money Supply revision window and reporting lag (February data analyzed in March) remains a material gap for current liquidity assessment.</li>
-  <li>Lithium spot benchmark price data not provided; relying exclusively on Hydroxide futures CoT and equity pricing.</li>
-  <li>Internal conflict between the St. Louis Fed Financial Stress Index (Stressed) and the Financial Stress Composite (Neutral) requires more frequent component-level data to resolve.</li>
+  <li>Verification of USD Strengthening vs. Elevated Financial Stress interaction; current rules prioritize Stress as a downside driver, creating conflict with the Liquidity Tailwind.</li>
+  <li>Revision sensitivity for the r* Proxy and M2 momentum is not currently quantified, impacting the timing confidence for the 3M Bullish transition.</li>
+  <li>Spodumene spot benchmark tracking is required to confirm miner restart thresholds mentioned in qualitative inputs.</li>
 </ul>
 --></div>
       </div>
@@ -194,7 +259,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -211,7 +277,7 @@
 
   <div class="ia-panel">
     <h3>Executive Summary</h3>
-    <p>The lithium pricing regime is currently fragmented, exhibiting a significant performance gap between established producers and development-stage assets (<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">1</a>). While the Miner cohort has transitioned toward an improving directional trend characterized by strong short-term momentum, broader participation across the sector remains constrained (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>). Technology and Project cohorts continue to show deteriorating or flat pricing characteristics relative to their 52-week ranges, despite marginal daily gains (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). This lack of internal consistency suggests a narrow, producer-led environment rather than a broad-based sector recovery (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">6</a>). Observed behavior is transitional as the gap between leading producers and lagging developers remains established (<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">1</a>).</p>
+    <p>Observed pricing behavior in the lithium sector currently demonstrates significant divergence between established producers and developmental projects (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>). Producers are characterized by improving directionality, with several entities trading above their 200-day technical averages (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>). Conversely, the project developer cohort shows high dispersion, as some entities trade near 52-week lows while others exhibit strong 6-month momentum (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>). Realized volatility remains in the normal to high range across most observed cohorts (<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). Participation in recent price strength is narrowing toward operationally established producers and specific niche cleantech developers (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>). The overall regime is transitional and lacks internal consistency between producers and development-stage assets (<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>).</p>
   </div>
 
   <div class="ia-grid ia-grid-3">
@@ -219,10 +285,10 @@
       <h3>Miners / Producers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>Improving</td></tr>
+          <tr><th>Directionality</th><td>Improving (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>)</td></tr>
           <tr><th>Breadth</th><td>Moderate</td></tr>
-          <tr><th>Persistence</th><td>Emerging</td></tr>
-          <tr><th>Dispersion</th><td>High</td></tr>
+          <tr><th>Persistence</th><td>Established (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>)</td></tr>
+          <tr><th>Dispersion</th><td>Low (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)</td></tr>
         </tbody>
       </table>
     </div>
@@ -231,10 +297,10 @@
       <h3>Projects / Developers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>Mixed</td></tr>
-          <tr><th>Breadth</th><td>Narrow</td></tr>
-          <tr><th>Persistence</th><td>Short-lived</td></tr>
-          <tr><th>Dispersion</th><td>High</td></tr>
+          <tr><th>Directionality</th><td>Mixed (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>)</td></tr>
+          <tr><th>Breadth</th><td>Moderate</td></tr>
+          <tr><th>Persistence</th><td>Emerging (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)</td></tr>
+          <tr><th>Dispersion</th><td>High (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)</td></tr>
         </tbody>
       </table>
     </div>
@@ -243,10 +309,10 @@
       <h3>Technology / Processing</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>Deteriorating</td></tr>
+          <tr><th>Directionality</th><td>Mixed / Flat (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)</td></tr>
           <tr><th>Breadth</th><td>Narrow</td></tr>
-          <tr><th>Persistence</th><td>Fading</td></tr>
-          <tr><th>Dispersion</th><td>Low</td></tr>
+          <tr><th>Persistence</th><td>Fading / Short-lived (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)</td></tr>
+          <tr><th>Dispersion</th><td>High (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)</td></tr>
         </tbody>
       </table>
     </div>
@@ -254,7 +320,7 @@
 
   <div class="ia-panel" style="margin-top:12px;">
     <h3>Cross-Cohort Alignment</h3>
-    <p>Pricing across the lithium sector is currently divergent, with the Miner/Producer cohort acting as the leading indicator following recent technical breakouts (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>). The Project and Technology cohorts are lagging significantly, with several assets remaining in established downtrends or trading near 52-week lows (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). High dispersion between cohorts indicates that current pricing strength is concentrated in large-scale producers rather than flowing through to the broader development pipeline (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">6</a>).</p>
+    <p>Cohorts are currently <strong>Divergent</strong>. The leading cohort consists of established Producers (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>) and specific high-momentum Developers (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>), which are trading above key technical thresholds. The lagging cohort is composed of project developers and technology-focused entities that remain in established downtrends or are trading near 52-week lows (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>).</p>
   </div>
 </div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank" rel="noopener" class="report-btn">IA Lithium Pricing Model</a></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Lithium Positioning Analyst</div><div class="panel-body"><div class="market-report">
@@ -329,8 +395,8 @@
         <li>Additional reliability would be provided by monitoring lithium spot benchmark prices and EV production data.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_LITHIUM_Diagnostics.png" alt="Lithium CoT diagnostics" /><div class="media-cap">Lithium CoT diagnostics (example)</div></figure></div></div>
-<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Lithium News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Lithium | <strong>As of:</strong> 2026-03-28</p><p><strong>Composite news score:</strong> 1.1400 | <strong>Signal breadth:</strong> 1.0000 | <strong>Overall state:</strong> Bullish</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> 1c14b7f68249c75ea21d5bd2afa084c9ac53e8fd3a13e8c537e9e5749e0ed040</p><p><strong>Previous hash:</strong> 25493d1afdf6cfca68f1a882e5d6ad6a7c15dd24f1abf925326ea82fcf4e9ebb | <strong>Change hash:</strong> 6f030eb8cfdb5d90ea213adac286e18201bf824f917bab924eb7ef22221358ef</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr></tbody></table></div></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_LITHIUM_Diagnostics.png" alt="Lithium CoT diagnostics" /><div class="media-cap">Lithium CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Lithium News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Lithium | <strong>As of:</strong> 2026-04-01</p><p><strong>Composite news score:</strong> 0.2000 | <strong>Signal breadth:</strong> 0.6700 | <strong>Overall state:</strong> Transition</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> 52d385d2bd16b6ff30679ab0a51627f3d79f4abf4743a2df71d825e406afa1a6</p><p><strong>Previous hash:</strong> b0dc21dc86a100bc3c8c497f68161702fcc1e3c9bc8472663cca0e44078e6b34 | <strong>Change hash:</strong> cb24d0231ca52d9566d64bb7faaa3021c960e3baa862ae96f5c2f64c8f7fdbd6</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Corporate &amp; Capital Actions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Physical Market Structure</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.7000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr></tbody></table></div></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Lithium Research Analyst</div><div class="panel-body"><div class="asset-forward-view"
      data-as-of-date="2026-03-21"
      data-horizon-min-months="6"
@@ -532,97 +598,96 @@
 </div></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Lithium Signal Interpreter</div><div class="panel-body">### Lithium Regime State — Deterministic Summary
 
-<table style="width:100%; border-collapse: collapse; font-family: sans-serif; font-size: 14px;">
-  <thead>
-    <tr style="background-color: #f2f2f2; border-bottom: 2px solid #ccc;">
-      <th style="padding: 10px; text-align: left;">Regime Component</th>
-      <th style="padding: 10px; text-align: left;">Deterministic State</th>
-      <th style="padding: 10px; text-align: center;">Citations</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 10px;"><strong>Macro Liquidity Regime</strong></td>
-      <td style="padding: 10px;">Expansion</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>)</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 10px;"><strong>Real Rate Positioning</strong></td>
-      <td style="padding: 10px;">Headwind</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 10px;"><strong>USD Condition</strong></td>
-      <td style="padding: 10px;">Neutral</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_monitor/usd_individual_market_analysis_monitor.html" target="_blank">6</a>)</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 10px;"><strong>Inflation Context</strong></td>
-      <td style="padding: 10px;">Neutral</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">11</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">12</a>)</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 10px;"><strong>Systemic Stress Level</strong></td>
-      <td style="padding: 10px;">Elevated</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>)</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 10px;"><strong>Flows & Positioning</strong></td>
-      <td style="padding: 10px;">Crowded Short / Squeeze Risk</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">7</a>)</td>
-    </tr>
-    <tr style="border-bottom: 2px solid #ccc;">
-      <td style="padding: 10px;"><strong>Market Pricing</strong></td>
-      <td style="padding: 10px;">Neutral / Transitional</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">13</a>)</td>
-    </tr>
-    <tr style="background-color: #f9f9f9; border-bottom: 1px solid #eee;">
-      <td style="padding: 10px;"><strong>1-Month Directional Bias</strong></td>
-      <td style="padding: 10px;"><strong>Bullish</strong></td>
-      <td style="padding: 10px; text-align: center;">-</td>
-    </tr>
-    <tr style="background-color: #f9f9f9; border-bottom: 2px solid #ccc;">
-      <td style="padding: 10px;"><strong>3-Month Directional Bias</strong></td>
-      <td style="padding: 10px;"><strong>Neutral</strong></td>
-      <td style="padding: 10px; text-align: center;">-</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee; color: #666; font-size: 12px;">
-      <td style="padding: 10px;">Liquidity Conflict Flag</td>
-      <td style="padding: 10px;">Yes (Fed vs M2)</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>)</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee; color: #666; font-size: 12px;">
-      <td style="padding: 10px;">USD Conflict Flag</td>
-      <td style="padding: 10px;">Yes (Index vs Flows)</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_monitor/usd_individual_market_analysis_monitor.html" target="_blank">6</a>)</td>
-    </tr>
-    <tr style="color: #666; font-size: 12px;">
-      <td style="padding: 10px;">Stress Conflict Flag</td>
-      <td style="padding: 10px;">Yes (Index vs Composite)</td>
-      <td style="padding: 10px; text-align: center;">(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)</td>
-    </tr>
-  </tbody>
-</table>
+<div class="ia-report-block">
+  <table class="ia-table">
+    <thead>
+      <tr>
+        <th colspan="2">Lithium Regime State — Deterministic Summary</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="width: 30%;"><strong>Macro Regime</strong></td>
+        <td><strong>Liquidity Expansion / Stress Suppressed</strong> (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>Liquidity Regime</strong></td>
+        <td>Expansion (M2 Bullish, r* Proxy Accommodative) (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>Real Rate Regime</strong></td>
+        <td>Headwind (10Y Real Yield > 6M Trend) (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>USD Regime</strong></td>
+        <td>Strengthening (Level > 12M MA, Positioning Long Build) (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>Inflation Regime</strong></td>
+        <td>Neutral (Stable Breakevens, PCE Neutral) (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">7</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">15</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>Stress Override</strong></td>
+        <td>Elevated (VIX Stressed, Financial Stress Index Bearish) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">11</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>Flow & Positioning</strong></td>
+        <td>Crowded Short / Squeeze Risk (Spec Z -2.22, Hedger Shortage Pressure Rising) (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">12</a>)(<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">13</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>1-Month Horizon Bias</strong></td>
+        <td>Neutral / Bearish (Stress/USD Dominance vs Squeeze potential) (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>)(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>3-Month Horizon Bias</strong></td>
+        <td>Bullish (Liquidity Expansion Dominance) (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>)</td>
+      </tr>
+      <tr>
+        <td><strong>Internal Conflict Flags</strong></td>
+        <td>Yes (Liquidity Components, USD Strength vs Stress, Positioning Extremes) (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 <!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
 <h3>Missing Content / Critical Improvements</h3>
 <ul>
-  <li>M2 Money Supply revision window and reporting lag (February data analyzed in March) remains a material gap for current liquidity assessment.</li>
-  <li>Lithium spot benchmark price data not provided; relying exclusively on Hydroxide futures CoT and equity pricing.</li>
-  <li>Internal conflict between the St. Louis Fed Financial Stress Index (Stressed) and the Financial Stress Composite (Neutral) requires more frequent component-level data to resolve.</li>
+  <li>Verification of Rule 5.3: USD Strengthening vs Stress Elevated. Per rules, directional bias is usually reduced, but Stress logic dominates. High conflict noted.</li>
+  <li>Revision sensitivity for r* Proxy and M2 momentum is unknown; requires timing metadata for higher confidence in transition calls.</li>
 </ul>
 --></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Lithium Market Analyst - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -659,6 +724,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

@@ -1,6 +1,13 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Silver Market Analyst - Investor Anatomy</title>
@@ -662,38 +669,38 @@
         "Yahoo Finance",
       ];
 
-      const rssFeedBaseUrl = "https://investoranatomy.com/rss_feed.html";
+      const rssFeedFallbackUrl = "https://investoranatomy.com/rss_feed.html";
       const newsSourceMeta = {
         "EIN News - Mining (Gold)": {
-          query: "EIN News mining",
+          rssUrl: "https://mining.einnews.com/rss/RTz1oPsRZsCpdz10",
           description: "Track high-frequency metals and mining wire headlines focused on projects, policy, and supply developments.",
         },
         "Mining.com": {
-          query: "Mining.com",
+          rssUrl: "https://www.mining.com/feed/",
           description: "Capture global mining-industry reporting on operations, projects, production trends, and capital activity.",
         },
         "World Gold Council - Research": {
-          query: "World Gold Council",
+          rssUrl: "https://www.gold.org/rss/research",
           description: "Ingest World Gold Council research on gold demand, central-bank behavior, and market structure.",
         },
         "CME Group - Metals Video": {
-          query: "CME Group",
+          rssUrl: "https://www.cmegroup.com/rss/metals-video-commentary.rss",
           description: "Monitor CME metals-market video briefings for futures price action, volatility, and positioning context.",
         },
         "Bank for International Settlements": {
-          query: "Bank for International Settlements",
+          rssUrl: "https://www.bis.org/doclist/all_statistics.rss",
           description: "Track BIS publications and commentary for central-bank, liquidity, and macro-financial policy signals.",
         },
         "CFTC": {
-          query: "CFTC",
+          rssUrl: "https://www.cftc.gov/RSS/RSSGP/rssgp.xml",
           description: "Monitor CFTC releases for market-structure, regulatory, and positioning-related developments.",
         },
         "The Silver Institute": {
-          query: "Silver Institute",
+          rssUrl: "https://silverinstitute.org/category/news/feed/",
           description: "Track Silver Institute updates on silver supply, industrial demand, investment demand, and market balances.",
         },
         "Yahoo Finance": {
-          query: "Yahoo Finance",
+          rssUrl: "https://finance.yahoo.com/news/",
           description: "Capture broad market and company headlines that shape metals sentiment and near-term risk tone.",
         },
       };
@@ -788,8 +795,8 @@
 
       function getNewsSourceRssUrl(name) {
         const meta = newsSourceMeta[name] || {};
-        const query = meta.query || name;
-        return rssFeedBaseUrl + "?q=" + encodeURIComponent(query);
+        if (meta.rssUrl) return meta.rssUrl;
+        return rssFeedFallbackUrl + "?q=" + encodeURIComponent(name);
       }
 
       function getCommodityColor(commodity, alpha) {

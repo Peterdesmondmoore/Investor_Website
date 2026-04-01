@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Global Growth and Economic Cycle</div>
         <div class="page-title">Aggregates commodity positioning, cycle momentum proxies, and metals-led demand signals to assess the current global growth and economic cycle regime.</div>
         <div class="hero-inject market-report"><div class="market-report">
@@ -151,31 +217,31 @@
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>Speculative sponsorship is decaying in core assets, notably Gold (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>) and Copper (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">2</a>).</li>
-    <li>The high-weight cyclical demand tailwind in metals is weakening (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">3</a>).</li>
-    <li>High-weight tactical stress exists in Lithium due to extreme short crowding (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
-    <li>The Rates flow proxy was downweighted due to internal conflict and mixed signals (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">5</a>).</li>
+    <li>A high-weight cyclical tailwind in metals demand (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>) conflicts with tactical speculative liquidation across key proxies.</li>
+    <li>Aggressive long reduction in Gold (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">2</a>) and capitulation in Palladium (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">3</a>) indicate fading sponsorship for current price levels.</li>
+    <li>Lithium holds high-weight status due to extreme short crowding, signalling significant reversal risk (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Rates sector flow momentum was downweighted due to internal conflict and mixed interpretation confidence (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">5</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Gold (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>) and Palladium (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">6</a>) align in active speculative liquidation.</li>
-    <li>Tension exists as Silver (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">7</a>) and Platinum (<a href="https://investoranatomy.com/signal_report/Platinum_CoT_Signals/" target="_blank">8</a>) show emerging long sponsorship.</li>
-    <li>These tensions do not overturn the regime because major volume drivers show fading conviction (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Speculative sponsorship reinforces price paths in Silver (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">6</a>) and Platinum (<a href="https://investoranatomy.com/signal_report/Platinum_CoT_Signals/" target="_blank">7</a>), where flows are improving.</li>
+    <li>Significant tension exists as Copper speculators withdraw sponsorship (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">8</a>) while structural demand residuals remain positive (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+    <li>These tensions prevent a higher confidence call, as tactical de-leveraging currently offsets cyclical expansionary signals.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant Scenario: Continued price consolidation as speculators reduce over-extended positions.</li>
-    <li>Primary Upside Risk: Non-linear short squeeze in Lithium or Silver if price stabilizes (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
-    <li>Primary Downside Risk: Accelerated long liquidation if gold or copper break technical support (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Dominant scenario: Price consolidation as speculative flows move toward neutral (<a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals/" target="_blank">9</a>).</li>
+    <li>Primary upside risk: Non-linear short-covering cascade in Lithium (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Primary downside risk: Accelerated long liquidation in Gold if price breaks technical support (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>Metals demand tailwind z-score falling below 0.75 into neutral territory (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">3</a>).</li>
-    <li>Speculator z-scores in Gold falling below -2.0, shifting the market to crowded short (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-    <li>A multi-week reversal of speculative flows in Platinum or Silver into negative territory (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">7</a>).</li>
+    <li>Lithium speculative z-score returning to neutral, resolving high-tension squeeze risks (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Copper demand residual z-score falling below 0.75, invalidating the expansionary tailwind (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+    <li>A sustained transition to positive absolute flow in the Rates sector (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">5</a>).</li>
   </ul>
 
 </div></div>
@@ -185,7 +251,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -274,7 +341,7 @@
         <li>Additional metrics like 10Y Real TIPS Yields and the Broad USD Index would improve regime confirmation.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_GOLD_Diagnostics.png" alt="GOLD - Individual Market Analysis" /><div class="media-cap">GOLD - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_GOLD_Diagnostics.png" alt="GOLD - Individual Market Analysis" /><div class="media-cap">GOLD - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-silver_individual_market_analysis" aria-labelledby="tab-silver_individual_market_analysis" hidden><div class="panel-title">SILVER - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -348,7 +415,7 @@
         <li>Public datasets: 10-year TIPS real yields and USD Index (DXY).</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_SILVER_Diagnostics.png" alt="SILVER - Individual Market Analysis" /><div class="media-cap">SILVER - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_SILVER_Diagnostics.png" alt="SILVER - Individual Market Analysis" /><div class="media-cap">SILVER - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-platinum_individual_market_analysis" aria-labelledby="tab-platinum_individual_market_analysis" hidden><div class="panel-title">Platinum - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -422,7 +489,7 @@
         <li>Global Manufacturing PMI and Palladium positioning would improve interpretation depth.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_PLATINUM_Diagnostics.png" alt="Platinum - Individual Market Analysis" /><div class="media-cap">Platinum - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_PLATINUM_Diagnostics.png" alt="Platinum - Individual Market Analysis" /><div class="media-cap">Platinum - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-palladium_individual_market_analysis" aria-labelledby="tab-palladium_individual_market_analysis" hidden><div class="panel-title">Palladium - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -495,7 +562,7 @@
         <li>LME Warehouse stock levels and South African production reports would improve reliability.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_PALLADIUM_Diagnostics.png" alt="Palladium - Individual Market Analysis" /><div class="media-cap">Palladium - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_PALLADIUM_Diagnostics.png" alt="Palladium - Individual Market Analysis" /><div class="media-cap">Palladium - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-copper_individual_market_analysis" aria-labelledby="tab-copper_individual_market_analysis" hidden><div class="panel-title">Copper - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -574,7 +641,7 @@
 <ul>
   <li>Verification of "Typical Update Frequency" for Copper CoT to confirm Data Freshness.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_CoT_COPPER_Diagnostics.png" alt="Copper - Individual Market Analysis" /><div class="media-cap">Copper - Individual Market Analysis</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_CoT_COPPER_Diagnostics.png" alt="Copper - Individual Market Analysis" /><div class="media-cap">Copper - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-lithium_hydroxide_individual_market_analysis" aria-labelledby="tab-lithium_hydroxide_individual_market_analysis" hidden><div class="panel-title">Lithium Hydroxide - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -647,7 +714,7 @@
         <li>Additional reliability would be provided by monitoring lithium spot benchmark prices and EV production data.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_LITHIUM_HYDROXIDE_Diagnostics.png" alt="Lithium Hydroxide - Individual Market Analysis" /><div class="media-cap">Lithium Hydroxide - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_LITHIUM_HYDROXIDE_Diagnostics.png" alt="Lithium Hydroxide - Individual Market Analysis" /><div class="media-cap">Lithium Hydroxide - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-crude_oil_individual_market_analysis" aria-labelledby="tab-crude_oil_individual_market_analysis" hidden><div class="panel-title">Crude Oil - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -725,7 +792,7 @@
 <ul>
   <li>Physical inventory levels (backwardation/contango) are referenced in the methodology but missing from the numeric input.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_OIL_Diagnostics.png" alt="Crude Oil - Individual Market Analysis" /><div class="media-cap">Crude Oil - Individual Market Analysis</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_OIL_Diagnostics.png" alt="Crude Oil - Individual Market Analysis" /><div class="media-cap">Crude Oil - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-forward_indicators_of_economic_cycles_momentum_of_flows" aria-labelledby="tab-forward_indicators_of_economic_cycles_momentum_of_flows" hidden><div class="panel-title">Forward Indicators of Economic Cycles (Momentum of Flows)</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -798,7 +865,7 @@
         <li>Additional data: <a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">Credit Conditions</a> and <a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">Fed Liquidity</a> for funding context.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Sector_Flow_Momentum.png" alt="Forward Indicators of Economic Cycles (Momentum of Flows)" /><div class="media-cap">Forward Indicators of Economic Cycles (Momentum of Flows)</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Sector_Flow_Momentum.png" alt="Forward Indicators of Economic Cycles (Momentum of Flows)" /><div class="media-cap">Forward Indicators of Economic Cycles (Momentum of Flows)</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-energy_adjusted_metals_tailwind_signal" aria-labelledby="tab-energy_adjusted_metals_tailwind_signal" hidden><div class="panel-title">Energy-Adjusted Metals Tailwind Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -807,81 +874,101 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given copper at 5.34 and a z-score of 1.06, this setup aligns with
+            Given a Metals Tailwind z-score of 1.157 and a prevailing Demand_Tailwind classification, this setup aligns with
             Upward-biased price paths and Indeterminate volatility,
-            where the dominant risk is Trend continuation, not mean reversion.
+            where the dominant risk is Trend continuation, not Mean reversion.
         </li>
-        <li>The signal remains in a Demand_Tailwind regime, indicating idiosyncratic strength in industrial metals demand (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+        <li>The signal remains in a persistent expansionary state, indicating that copper pricing is rich relative to its macro-financial controls. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>A z-score > 0.75 identifies a Demand Tailwind, implying copper is rich relative to macro controls (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-        <li>The model regresses Copper futures on WTI Crude Oil and the broad trade-weighted USD index (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-        <li>Residuals measure the pricing excess or deficit after stripping out energy costs and currency fluctuations (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+        <li>Regime identification: A z-score above 0.75 defines a Demand_Tailwind, implying underlying demand strength or inventory tightness. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>Macro isolation: The model regresses copper prices on oil and the USD to extract a residual representing idiosyncratic demand. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>Energy-Adjusted Metals Tailwind Signal (Latest observation: 2026-03-31). (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is a positive Copper_Residual of 1.04, maintaining the expansionary demand regime (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-        <li>Momentum is currently weakening as the z-score dropped from 2.82 to 1.06 in the latest period (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-        <li>Conflict could arise if oil supply shocks or USD liquidity spikes distort the underlying regression (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: The z-score falls below the 0.75 threshold into Neutral territory (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+        <li>The primary driver is a positive Copper_Residual of 1.118, which triggers the Demand_Tailwind regime rule. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>Momentum has moderated from extreme levels (z-score > 2.8) in early 2026 but maintains expansionary persistence. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: An idiosyncratic USD liquidity spike or the z-score falling below 0.75. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>The signal has shown multi-quarter persistence in the positive regime, suggesting a durable industrial expansion. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Persistent industrial demand maintains the tailwind despite rising energy inputs.</li>
-        <li>Upside risk: Inventory tightness accelerates pricing beyond energy/USD baseline.</li>
-        <li>Downside risk: Sudden industrial slowdown triggers a move toward the neutral threshold.</li>
+        <li>Base case dominant: Continued industrial expansion supported by idiosyncratic metals demand.</li>
+        <li>Upside risk: Supply-side inventory depletion accelerating the price-macro divergence.</li>
+        <li>Downside risk: A sharp contraction in global industrial production neutralizing the demand tailwind.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months) based on industrial demand cycles defined in the methodology (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: High, as the signal effectively isolates idiosyncratic demand from macro noise.</li>
+        <li>Time Horizon: Cyclical (months) as the signal tracks medium-term industrial demand trends.</li>
+        <li>Aggregation Weight Hint: High, due to the high conviction and sustained regime persistence.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs global industrial demand and metals-led pricing dynamics.</li>
-        <li>Implies an expansionary demand impulse and potential inventory tightness in the metals complex.</li>
+        <li>Dimension: Global Demand and Industrial Pricing.</li>
+        <li>Economic Mechanism: Implies an expansionary demand impulse where metals outpace general energy and currency-driven inflation. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with Industrial Production to confirm real-economy demand strength (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">2</a>).</li>
+        <li>Interacts with Industrial Production and PMI New Orders to confirm broad cyclical strength. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>This regime has persisted since August 2025, representing a sustained period of idiosyncratic copper strength.</li>
-    <li>Direction of change: Weakening, as the z-score is mean-reverting from extreme highs toward the neutral boundary.</li>
+    <li>The Demand_Tailwind regime is persistent, having been maintained since late 2025.</li>
+    <li>Direction of change: Stabilising at lower but still expansionary z-score levels.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Sensitivity to oil supply versus demand shocks may impact the regression accuracy (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
-    <li>Potential non-stationarity in price levels and futures contract roll discontinuities (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+    <li>Highly sensitive to the type of oil shock (supply vs. demand). (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+    <li>Potential risk from non-stationarity in underlying price levels. (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Latest observation: March 31, 2026. Data freshness is Fresh.</li>
-        <li>Most influential datapoint: Copper_Residual (1.0438) and the Metals_Tailwind z-score (1.0615).</li>
-        <li>PMI New Orders or freight indices would improve depth for demand validation (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+        <li>Energy-Adjusted Metals Tailwind Signal (2026-03-31). (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>Influential datapoints: Copper Residual (1.118), Metals Tailwind Z-Score (1.157). (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>)</li>
+        <li>Industrial Production and PMI New Orders would improve cross-validation.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Metals_Tailwind_signal_chart_mpl.png" alt="Energy-Adjusted Metals Tailwind Signal" /><div class="media-cap">Energy-Adjusted Metals Tailwind Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Metals_Tailwind_signal_chart_mpl.png" alt="Energy-Adjusted Metals Tailwind Signal" /><div class="media-cap">Energy-Adjusted Metals Tailwind Signal</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Global Growth and Economic Cycle - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -918,6 +1005,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

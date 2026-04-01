@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Cross Asset Positioning and Sentiment Analyst</div>
         <div class="page-title">Synthesises positioning, flow, and sentiment signals across asset classes to identify regime conditions, crowding risks, and macro-relevant inflection points.</div>
         <div class="hero-inject market-report"><div class="market-report">
@@ -145,39 +211,37 @@
   <p><strong>Regime Assessment:</strong></p>
   <ul>
     <li>Regime: Defensive / Risk-Negative</li>
-    <li>Regime Confidence Index: High Confidence</li>
-    <li>Stability: Fragile</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The primary driver is the Market Volatility (VIX) Signal, currently in a Stressed regime with a z-score of 3.08 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>Dynamic weighting prioritizes this High-Weight, High-Confidence signal over mixed tactical data.</li>
-    <li>Breadth of positioning extremes across 366 markets signals systemic instability (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Low macro divergence indicates a dangerous consensus in prevailing trends (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">3</a>).</li>
-    <li>Nasdaq-100 (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">4</a>) and Fed Fund (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">5</a>) signals were downweighted due to Mixed Confidence and Internal Conflict flags.</li>
+    <li>The primary driver is the persistent "STRESSED" regime in market volatility (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>High-weighted alignment between speculators and hedgers suggests a strong consensus for the current price path (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">2</a>).</li>
+    <li>Portfolio-level stability is deteriorating as the breadth of extreme positioning reaches multi-month highs (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">3</a>).</li>
+    <li>Nasdaq-100 signals were downweighted due to internal conflicts and mixed interpretation confidence (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">4</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Alignment: Volatility stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>) reinforces 4-week "Long Reduction" in the Russell E-Mini (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">6</a>).</li>
-    <li>Alignment: High cross-sector speculative crowding (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">7</a>) matches the deteriorating Portfolio Early Warning Index (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Tension: Speculators in the E-Mini S&P 500 continue to build long positions despite falling prices (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">8</a>).</li>
-    <li>Tensions do not overturn the regime call as the high-weight VIX signal dictates the risk-negative threshold.</li>
+    <li>VIX stress and Russell 2000 long reductions reinforce a broad de-risking narrative (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">5</a>).</li>
+    <li>Tensions exist in the S&P 500, where rising positioning momentum suggests potential bottoming risk (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>These tensions do not overturn the regime because high-weighted volatility and breadth indicators remain in stress zones.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant scenario: Active long liquidation and market contraction driven by elevated hedging costs.</li>
-    <li>Primary upside risk: Volatility mean-reversion triggered by price stabilization.</li>
-    <li>Primary downside risk: Transition to Crisis regime if VIX exceeds 45 or z-score stays above 2.0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Dominant scenario: Continued risk-off sentiment and high hedging costs.</li>
+    <li>Primary upside risk: A shift to "Normal" volatility if the VIX falls below 20 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Primary downside risk: Transition to systemic "CRISIS" if volatility z-scores exceed 2.0 sustainably (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>VIX dropping below 20 or the MVS z-score falling below 1.0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>The Early Warning Index moving below -0.5, indicating a shift to a subdued risk environment (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Speculative 4-week flow in the Russell E-Mini reversing to a "Long Build" posture (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>Volatility z-score falling below 1.0 while the VIX index drops below 20 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>The Early Warning Index exceeding 0.50, triggering an elevated stress regime (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">3</a>).</li>
+    <li>A reversal in Russell 2000 flows to a sustained "Long Build" configuration (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">5</a>).</li>
   </ul>
 
 </div></div>
@@ -187,7 +251,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -212,72 +277,72 @@
     <ul>
         <li>
             <strong>Configuration statement (mandatory):</strong>
-            Given a VIX level of 31.05 and an MVS z-score of 3.08, this setup aligns with
+            Given a VIX of 24.82 and an MVS z-score of 1.65, this setup aligns with
             Downward-biased price paths and Elevated volatility,
-            where the dominant risk is Long liquidation, not mean reversion.
+            where the dominant risk is Long liquidation, not mean reversion. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)
         </li>
-        <li>The signal is currently in a STRESSED regime, reflecting high market fear and a tightening of risk appetite (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Moderate; Revision Sensitivity: Low.</li>
+        <li>The signal is in a persistent STRESSED regime, reflecting high market fear and active liquidation pressure. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>A VIX value ≥ 30 or an MVS z-score ≥ 1.0 defines a STRESSED regime, necessitating defensive positioning (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Rising values indicate a transition toward risk-off conditions and market contraction (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Risk-off signals are validated by widening Credit Spreads (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">2</a>) and tightening Liquidity (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
-        <li>Market Volatility (VIX) Signal, latest observation: 2026-03-27 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>STRESSED regime is triggered when the VIX is &ge;30 or the MVS z-score is &ge;1.0. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Rising values signal a transition toward risk-off conditions and market contraction. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Percentile ranks are used for cross-era stability while absolute levels provide intuitive thresholding. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Latest observation date: 2026-04-01. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the VIX level (31.05) and its standardized z-score (3.08), both well above stress thresholds (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Momentum is strongly positive, with the MVS z-score rising from 1.19 to 3.08 over the last month (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>No internal offsets are present; all sub-metrics (level, percentiles, and momentum) indicate high stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: The MVS z-score falling below 1.0 or VIX dropping below 20.</li>
-        <li>History shows a persistent deterioration from a "Normal" regime in early February to a sustained "Stressed" state since March 2nd (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>The primary driver is the MVS z-score (1.65), which remains significantly above the 1.0 threshold for STRESSED conditions. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Though the z-score has moderated from a peak of 3.15 (Mar 06), the regime remains stable in the STRESSED zone. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Active liquidation and high precautionary hedging characterize the current market environment. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: The MVS z-score falling below 1.0 while VIX drops below 20. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>History shows persistent stress; the signal has remained in the STRESSED regime since March 2, 2026. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Dominant base case: Continued market contraction driven by active liquidation and expensive downside protection.</li>
-        <li>Most plausible upside risk: Volatility mean-reversion triggered by a sudden stabilization in realized price variance.</li>
-        <li>Most plausible downside risk: Transition to a CRISIS regime if the MVS z-score remains above 2.0 for five consecutive days or VIX exceeds 45 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Base Case dominant: Continued risk-off sentiment and high hedging costs driven by elevated implied variance.</li>
+        <li>Upside risk: A shift to a "NORMAL" regime if VIX stays below 20 and realized volatility collapses.</li>
+        <li>Downside risk: Transition to CRISIS if MVS z-score &ge;2.0 is sustained for five consecutive days.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks). The VIX measures forward-looking 30-day uncertainty (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: High. Volatility is a critical "risk thermometer" for cross-asset capital allocation.</li>
+        <li>Time Horizon: Tactical (weeks) based on short-term equity risk sentiment and tail-risk expectations. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: High; extreme regimes serve as a critical thermometer for cross-asset risk-off contagion.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the Sentiment and Risk Appetite macro dimensions.</li>
-        <li>The economic mechanism is a tightening of risk appetite, where high hedging costs force deleveraging.</li>
-        <li>Cycle position: Not determined by this methodology.</li>
-        <li>Interacts with credit spreads and liquidity to confirm systemic stress transitions (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
+        <li>Informs risk sentiment and systemic liquidity dimensions. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>The economic mechanism is a Volatility Risk Premium expansion, making downside protection expensive and constraining risk appetite. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Typically interacts with widening Credit Spreads and tightening Federal Reserve liquidity to confirm broad risk-off regimes. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>The signal is in a persistent STRESSED regime that has been in place for approximately 25 days (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>The recent direction of change is strengthening (rising stress levels).</li>
+    <li>Regime is persistent, having been newly entered on March 2nd and maintained for over four weeks. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+    <li>Direction of change: Stabilising at high levels after an initial spike in early March. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Month-end snapshots may miss rapid intramonth volatility spikes (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>Structural shifts in the baseline VIX level can occur over decades, impacting absolute threshold reliability (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Month-end snapshots may miss intramonth volatility bursts. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+    <li>Absolute VIX levels can undergo structural shifts over long-term decades. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Market Volatility (VIX) Signal, latest observation: 2026-03-27 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Most influential: VIX (31.05) and MVS_z (3.08).</li>
-        <li>Additional data: CBOE Skew Index and S&P 500 Realized Volatility.</li>
+        <li>Latest observation (2026-04-01): VIX 24.82, MVS_z 1.65, STRESSED regime. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Most influential: MVS_z level and the persistent breach of the 1.0 threshold. (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)</li>
+        <li>Additional metrics like High Yield OAS (Credit Spreads) and USD would improve macro-regime depth.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Market_Volatility_MVS_signal_chart_mpl.png" alt="Market Volatility (VIX) Signal" /><div class="media-cap">Market Volatility (VIX) Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Market_Volatility_MVS_signal_chart_mpl.png" alt="Market Volatility (VIX) Signal" /><div class="media-cap">Market Volatility (VIX) Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-hedger_pressure_indicator" aria-labelledby="tab-hedger_pressure_indicator" hidden><div class="panel-title">Hedger Pressure Indicator</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -351,7 +416,7 @@
         <li>Integration with physical inventory data and spot-futures basis would improve interpretation reliability.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Hedger_Pressure_Indicators.png" alt="Hedger Pressure Indicator" /><div class="media-cap">Hedger Pressure Indicator</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Hedger_Pressure_Indicators.png" alt="Hedger Pressure Indicator" /><div class="media-cap">Hedger Pressure Indicator</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-portfolio_level_early_warning_system" aria-labelledby="tab-portfolio_level_early_warning_system" hidden><div class="panel-title">Portfolio-Level Early Warning System</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -425,7 +490,7 @@
         <li>Public data: VIX Index and Corporate Credit Spreads (HY/IG).</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Early_Warning_System.png" alt="Portfolio-Level Early Warning System" /><div class="media-cap">Portfolio-Level Early Warning System</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Early_Warning_System.png" alt="Portfolio-Level Early Warning System" /><div class="media-cap">Portfolio-Level Early Warning System</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-specs_vs_hedgers_divergence_reversal_risk" aria-labelledby="tab-specs_vs_hedgers_divergence_reversal_risk" hidden><div class="panel-title">Specs vs Hedgers Divergence: Reversal Risk</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -502,7 +567,7 @@
 <ul>
   <li>Revision window cannot be assessed from provided content; specify if CoT data undergoes historical revisions in this pipeline.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Divergence_Reversal_Risk.png" alt="Specs vs Hedgers Divergence: Reversal Risk" /><div class="media-cap">Specs vs Hedgers Divergence: Reversal Risk</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Divergence_Reversal_Risk.png" alt="Specs vs Hedgers Divergence: Reversal Risk" /><div class="media-cap">Specs vs Hedgers Divergence: Reversal Risk</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-cross_sector_positioning" aria-labelledby="tab-cross_sector_positioning" hidden><div class="panel-title">Cross-Sector Positioning</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -575,7 +640,7 @@
         <li>Revision window cannot be assessed from provided content.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Sector_Positioning_Stacked.png" alt="Cross-Sector Positioning" /><div class="media-cap">Cross-Sector Positioning</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Sector_Positioning_Stacked.png" alt="Cross-Sector Positioning" /><div class="media-cap">Cross-Sector Positioning</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-fed_fund_individual_market_analysis" aria-labelledby="tab-fed_fund_individual_market_analysis" hidden><div class="panel-title">Fed Fund - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -655,7 +720,7 @@
 <ul>
   <li>Update frequency for Fed Fund CoT data is not explicitly defined in the methodology, preventing "Fresh" classification.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_FED_FUNDS_Diagnostics.png" alt="Fed Fund - Individual Market Analysis" /><div class="media-cap">Fed Fund - Individual Market Analysis</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_FED_FUNDS_Diagnostics.png" alt="Fed Fund - Individual Market Analysis" /><div class="media-cap">Fed Fund - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-nasdaq_individual_market_analysis" aria-labelledby="tab-nasdaq_individual_market_analysis" hidden><div class="panel-title">Nasdaq - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -728,7 +793,7 @@
         <li>Public Datasets: VXN (Nasdaq Volatility) and 10-Year Real Yields would provide better context for positioning reversals.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_NASDAQ_Diagnostics.png" alt="Nasdaq - Individual Market Analysis" /><div class="media-cap">Nasdaq - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_NASDAQ_Diagnostics.png" alt="Nasdaq - Individual Market Analysis" /><div class="media-cap">Nasdaq - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-emini_sp500_individual_market_analysis" aria-labelledby="tab-emini_sp500_individual_market_analysis" hidden><div class="panel-title">EMINI S&amp;P 500 - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -800,7 +865,7 @@
         <li>VIX Futures and Earnings Volatility data would improve reliability. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_SP500_Diagnostics.png" alt="EMINI S&amp;P 500 - Individual Market Analysis" /><div class="media-cap">EMINI S&amp;P 500 - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_SP500_Diagnostics.png" alt="EMINI S&amp;P 500 - Individual Market Analysis" /><div class="media-cap">EMINI S&amp;P 500 - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-russell_e_mini_individual_market_analysis" aria-labelledby="tab-russell_e_mini_individual_market_analysis" hidden><div class="panel-title">Russell E-mini - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -873,7 +938,7 @@
         <li>Credit Spreads and Federal Reserve Bank Lending Standards would provide critical confirmation of the implied credit-stress mechanism.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Russell_Diagnostics.png" alt="Russell E-mini - Individual Market Analysis" /><div class="media-cap">Russell E-mini - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Russell_Diagnostics.png" alt="Russell E-mini - Individual Market Analysis" /><div class="media-cap">Russell E-mini - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-squeeze_exhaustion_risk_indicators" aria-labelledby="tab-squeeze_exhaustion_risk_indicators" hidden><div class="panel-title">Squeeze &amp; Exhaustion Risk Indicators</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -952,18 +1017,38 @@
 <ul>
   <li>Revision window cannot be assessed from provided content; require release/pull timing metadata.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Squeeze_Exhaustion_Risk.png" alt="Squeeze &amp; Exhaustion Risk Indicators" /><div class="media-cap">Squeeze &amp; Exhaustion Risk Indicators</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Squeeze_Exhaustion_Risk.png" alt="Squeeze &amp; Exhaustion Risk Indicators" /><div class="media-cap">Squeeze &amp; Exhaustion Risk Indicators</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Cross Asset Positioning and Sentiment Analyst - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -1000,6 +1085,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

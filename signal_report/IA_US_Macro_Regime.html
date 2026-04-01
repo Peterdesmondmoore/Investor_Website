@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,49 +201,49 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> US Macro Regime State, Momentum and Transition Risk</div>
         <div class="page-title">An integrated view of regime conditions, momentum shifts, structural tensions, and transition risks</div>
         <div class="hero-inject market-report"><div class="market-report">
 
   <p><strong>Macro Regime Assessment:</strong></p>
   <ul>
-    <li>The environment is defined by a <strong>Transitional / Fragile Balance</strong>. Robust cyclical growth in the United States contrasts with defensive cross-asset positioning and extreme sentiment saturation.</li>
-    <li>Stability is fragile. Momentum is currently accelerating as underlying fundamental support solidifies, though speculative appetite remains exhausted.</li>
-    <li>Primary tensions involve high-weight expansionary trade signals competing with stressed volatility regimes and crowded positioning.</li>
-    <li>The primary risk is a policy surprise; persistent growth may challenge disinflationary narratives while extreme FX positioning leaves liquidity vulnerable.</li>
-    <li>Asset class guidance is neutral across equities, rates, and the USD, with mixed commodity outlooks.</li>
-    <li>Confidence is strengthening due to broadening thematic alignment and the elimination of conflicting thematic signals.</li>
+    <li>The environment is defined by a fragile balance between robust global trade demand and deteriorating real-economy fundamentals.</li>
+    <li>Stability is fragile and momentum is decelerating as thematic cohesion narrows.</li>
+    <li>Key tensions exist between extreme speculative crowding in commodities and structural stress in labor and credit.</li>
+    <li>Primary risks include transition to systemic crisis if volatility sustains high z-scores or if credit spreads exceed 6.5%.</li>
+    <li>Risk assets face a defensive tilt as late-phase exhaustion meets structural real-economy headwinds.</li>
+    <li>Regime confidence is low, with rising transition risk toward a defensive or crisis-oriented state.</li>
   </ul>
 
   <p style="margin-top:0.75rem;"></p>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The regime is driven by high-weight conflicts between defensive cross-asset sentiment (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">1</a>) and expansionary global trade demand (<a href="https://investoranatomy.com/signal_report/ia_global_trade_demand/" target="_blank">2</a>).</li>
-    <li>Dynamic weighting prioritizes the "High" aggregation weights of these two signals. While US growth is expansionary (<a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank">3</a>), the prevalence of "Transitional" labels across inflation (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">4</a>), liquidity (<a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank">5</a>), and labor (<a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank">6</a>) dictates the final classification.</li>
-    <li>Credit conditions (<a href="https://investoranatomy.com/signal_report/ia_us_credit_conditions/" target="_blank">7</a>) were downweighted due to low conviction and weight hints.</li>
+    <li>High-weight expansionary pressure in global trade (<a href="https://investoranatomy.com/signal_report/ia_global_trade_demand/" target="_blank">1</a>) is neutralized by transitional signals across all other major themes.</li>
+    <li>Dynamic weighting prioritizes robust speculative appetite (<a href="https://investoranatomy.com/signal_report/ia_global_trade_demand/" target="_blank">1</a>) and anchored inflation (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">2</a>) while noting low internal alignment.</li>
+    <li>Wage growth was downweighted due to lagged data, and US inflation signals were tempered by internal label-to-z-score conflicts (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Leading indicators for business investment and housing reinforce the expansionary growth narrative (<a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank">3</a>).</li>
-    <li>Tensions exist between accelerating bank credit and elevated systemic financial stress (<a href="https://investoranatomy.com/signal_report/ia_us_credit_conditions/" target="_blank">7</a>), as well as M2 expansion versus bearish real rate trends (<a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank">5</a>).</li>
-    <li>Extreme speculative saturation in FX and metals aligns with fading directional momentum (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">4</a>), yet fundamental supports prevent an immediate breakdown.</li>
+    <li>Strong alignment exists between speculative appetite and energy supply stress (<a href="https://investoranatomy.com/signal_report/ia_global_trade_demand/" target="_blank">1</a>).</li>
+    <li>Significant tensions persist between tactical labor strength and structural underemployment (<a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank">5</a>).</li>
+    <li>Divergence between accelerating money supply and persistent real interest rate restrictiveness (<a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank">3</a>) maintains the fragile balance.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li><strong>Dominant Scenario:</strong> Range-bound consolidation as conflicting forces of fundamental growth and speculative exhaustion seek equilibrium.</li>
-    <li><strong>Primary Upside Risk:</strong> Re-acceleration of expansion if speculative positioning resets without a price correction.</li>
-    <li><strong>Primary Downside Risk:</strong> Non-linear long liquidation in USD or gold if global liquidity conditions pivot sharply.</li>
+    <li>Dominant Case: Price consolidation and range-bound persistence as speculative flows reach saturation limits (<a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank">8</a>).</li>
+    <li>Upside Risk: Early-cycle expansion driven by housing recovery and industrial production growth (<a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank">4</a>).</li>
+    <li>Downside Risk: Credit-led stress triggered by high-yield spreads breaching the 6.5% threshold (<a href="https://investoranatomy.com/signal_report/ia_us_credit_conditions/" target="_blank">6</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>VIX dropping below 20 or the volatility z-score falling below 1.0 (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">1</a>).</li>
-    <li>Capex Intent composite Z-score falling below the 0.75 expansion threshold (<a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank">3</a>).</li>
-    <li>3-month annualized CPI reading exceeding the year-over-year rate (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">4</a>).</li>
+    <li>A volatility z-score falling below 1.0 while the VIX index drops below 20 (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">7</a>).</li>
+    <li>A PCE Composite breach exceeding the 0.75 threshold into a hot regime (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">2</a>).</li>
+    <li>Federal Reserve Liquidity Composite breaching the ±0.75 boundary (<a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank">3</a>).</li>
   </ul>
 
 </div></div>
@@ -187,7 +253,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -206,83 +273,83 @@
         <div class="panels">
           <div class="panel is-active" role="tabpanel" id="panel-Macro_Regime_Assessment" aria-labelledby="tab-Macro_Regime_Assessment"><div class="panel-title">Macro Regime Assessment</div><div class="panel-body"><div class="market-report">
 <h2>Regime Assessment • Layer 1</h2>
-<p>The macro environment is currently defined by a <strong>Transitional</strong> / <strong>Fragile</strong> Balance, where robust cyclical growth in the United States is increasingly at odds with defensive cross-asset positioning and extreme sentiment saturation. While leading indicators for business investment and housing remain <strong>expansionary</strong>, systemic <strong>liquidity</strong> and credit conditions have shifted into a <strong>neutral</strong>, <strong>fragile</strong> state. Global markets exhibit significant positioning stretch, particularly in foreign exchange and metals, limiting further directional momentum. Labour markets are showing early signs of cyclical stress despite stable structural foundations. This regime is characterized by high internal tension between strong fundamental growth and exhausted speculative appetite. Investors should prepare for range-bound consolidation or volatility spikes as these conflicting forces seek a new equilibrium. The stability of this balance is low, with risks skewed toward a risk-negative transition if volatility persists or <strong>liquidity</strong> tightens further.</p>
+<p>The global macro environment is currently characterized by a <strong>fragile</strong> balance as multiple themes transition between regimes. While global trade demand remains robust, supported by high speculative appetite and energy supply constraints, domestic US indicators suggest growing instability. <strong>Inflation</strong> remains range-bound but anchored, while <strong>liquidity</strong> conditions are caught between accelerating money supply and restrictive real rates. The labor market and credit conditions are showing signs of structural stress, with rising underemployment and widening spreads. This creates a high-tension environment where speculative risk-on sentiment in commodities and trade conflicts with deteriorating fundamentals in the real economy. Consequently, the regime is defined by price consolidation and heightened sensitivity to policy shifts. Stability is assessed as <strong>fragile</strong> due to extreme positioning crowding and the lack of confirmation from lagging economic indicators, suggesting a pivot toward either expansion or stress is imminent.</p>
 <h3>Dominant Drivers</h3>
 <ul>
-<li>macro_theme_cross_asset_positioning_sentiment: Risk-Negative</li><li>macro_theme_us_growth_business_cycle: <strong>Expansionary</strong> / Risk-Positive</li><li>macro_theme_global_trade_demand: <strong>Risk-On</strong></li><li>macro_theme_us_inflation_price_dynamics: Dis<strong>inflationary</strong></li>
+<li>macro_theme_global_trade_demand: Upward-biased speculative appetite and energy supply stress</li><li>macro_theme_us_inflation_price_dynamics: Range-bound PCE persistence and anchored expectations</li><li>macro_theme_us_liquidity_monetary_conditions: M2 acceleration vs real interest rate restrictiveness</li><li>macro_theme_us_growth_business_cycle: Strengthening cyclical housing and capex lead signals</li>
 </ul>
 <h3>Key Tensions</h3>
 <ul>
-<li>Robust US cyclical expansion vs. defensive cross-asset positioning extremes</li><li>Extreme speculative saturation in FX and metals vs. fading directional momentum</li><li>Improving bank credit availability vs. elevated systemic financial <strong>stress</strong> scores</li>
+<li>Speculative risk-on breadth vs. defensive cross-asset positioning and sentiment</li><li>Accelerating broad money supply vs. persistent real interest rate restrictiveness</li><li>Robust private credit velocity vs. deteriorating broad funding stability</li><li>Tactical claims strength vs. structural labor market underemployment and churn weakness</li>
 </ul>
 <h3>Primary Risks</h3>
 <ul>
-<li>Non-linear long liquidation in USD or gold if global liquidity pivots</li><li>Volatility mean-reversion (VIX > 45) triggering a shift to a Crisis regime</li><li>Rapid demand destruction in housing if mortgage rates continue to rise</li>
+<li>Transition to systemic 'CRISIS' if volatility z-scores exceed 2.0 sustainably</li><li>Resurgent mortgage rates triggering demand destruction in the housing sector</li><li>Cost-push shock triggered by PPI acceleration exceeding CPI rates</li><li>Manufacturing weakness spreading to the service sector triggering accelerated layoffs</li>
 </ul>
 <h3>Scenario Balance</h3>
 <ul>
-<li><strong>Base Case</strong>: Range-bound consolidation and continued transitional fragility</li><li><strong>Alternative</strong> 1: Re-acceleration of expansion if speculative positioning resets without a price crash</li><li><strong>Alternative</strong> 2: Transition to Credit-Led Stress if systemic stress z-scores breach critical thresholds</li>
+<li><strong>Base Case</strong>: Range-bound persistence with price consolidation and speculative saturation</li><li><strong>Alternative</strong> 1: Early-cycle expansion driven by housing and industrial production recovery</li><li><strong>Alternative</strong> 2: Credit-led stress triggered by high-yield spread widening beyond 6.5%</li>
 </ul>
 <h3>What Would Change the Regime</h3>
 <ul>
-<li>VIX dropping <strong>below</strong> 20 or MVS z-score falling <strong>below</strong> 1.0</li><li>Capex Intent composite Z-score falling <strong>below</strong> the 0.75 expansion threshold</li><li>Private credit impulse falling <strong>below</strong> 0.75 for two consecutive months</li><li>3-month annualized CPI reading exceeding the YoY rate</li>
+<li>Volatility z-score falling <strong>below</strong> 1.0 while the VIX index drops <strong>below</strong> 20</li><li>PCE Composite exceeding the 0.75 threshold into a 'HOT' regime</li><li>Federal Reserve Liquidity Composite breach of ±0.75</li><li>High-yield spreads falling more than 50 basis points over a three-month window</li>
 </ul>
 </div><div class="market-report">
 <h2>Regime Change • Layer 1</h2>
-<p>Over the last seven days, the <strong>Transitional</strong> / <strong>Fragile</strong> Balance regime has seen a significant strengthening in confidence, with the Regime Confidence Index rising by 20 points. This improvement is underpinned by a broadening of thematic alignment, as the alignment ratio increased by 0.11 and conflicting themes were eliminated. While the environment remains fundamentally <strong>fragile</strong>, the <strong>easing</strong> of internal tensions and accelerating momentum suggest that the immediate risk of a negative regime <strong>transition</strong> is decr<strong>easing</strong>. Investors should note that while speculative saturation persists, the underlying fundamental support for the current expansionary drivers has solidified, reducing near-term volatility risks.</p>
+<p>Over the past 11 days, the &#x27;<strong>Transitional</strong> / <strong>Fragile</strong> Balance&#x27; regime has seen a notable deterioration in internal cohesion. Regime confidence has dropped by 10 points, falling into the &#x27;Low&#x27; category, while the alignment ratio has narrowed significantly from 0.67 to 0.56. This narrowing breadth is driven by a loss of supporting themes and an increase in structural tensions, particularly within the labor market and credit funding stability. With momentum <strong>decelerating</strong> and tensions rising, the probability of a regime <strong>transition</strong> is <strong>increasing</strong>. Investors should note that while the headline label remains unchanged, the underlying fragility has intensified, raising the risk of a shift toward a more defensive or crisis-oriented state.</p>
 </div><div class="market-report">
 <h2>Regime Phase & Transition Risk • Layer 2</h2>
-<p>The macro environment has entered an early phase of a <strong>transition</strong>al regime, characterized by a fragile balance between robust cyclical growth and exhausted speculative positioning. While the regime confidence index has accelerated recently due to broadening thematic alignment and easing internal tensions, the underlying structure remains fragile. Momentum is currently strengthening as fundamental expansionary drivers in the United States offset defensive sentiment. However, the risk of a policy surprise remains two-sided; persistent growth could challenge the <strong>disinflation</strong>ary narrative, while extreme positioning in foreign exchange and metals leaves the market vulnerable to liquidity shifts. Investors should monitor volatility thresholds and credit impulse closely, as the current stability depends on continued liquidity neutrality and the successful absorption of speculative crowding without a broader price correction.</p>
-<ul>Phase: <strong>Early</strong></ul>
+<p>The current macro environment is in a <strong>late</strong>-stage fragile phase, where the equilibrium between speculative enthusiasm and deteriorating fundamentals is reaching an exhaustion point. While forward-looking indicators in housing and capital expenditure suggest early-cycle potential, these signals are increasingly undermined by structural labor market stress and tightening credit conditions. Momentum is <strong>decelerating</strong> as regime confidence and internal alignment decline, significantly raising the risk of a <strong>transition</strong> toward a defensive or crisis-oriented state. Policy surprise risk remains two-sided; persistent real rate restrictiveness conflicts with accelerating money supply, leaving central banks caught between a softening labor market and range-bound inflation. Investors should prepare for heightened volatility as this fragile balance faces increasing pressure from rising credit spreads and extreme speculative crowding in global trade themes.</p>
+<ul>Phase: <strong>Late</strong></ul>
 <ul>Phase Confidence: <strong>Medium</strong></ul>
 <h3>Policy Surprise Risk</h3>
 <p>Direction: Two-sided</p>
 <ul>
-<li>Divergence between producer and consumer price indices creates uncertainty in the disinflationary path</li><li>Robust US cyclical expansion may force a more restrictive stance if labor markets re-tighten</li><li>Systemic liquidity is in a <strong>neutral</strong>/fragile state, sensitive to changes in ON RRP drainage or QT pace</li><li>Extreme positioning in FX (EUR/USD/JPY) leaves markets vulnerable to any shift in central bank rhetoric</li>
+<li>Divergence between accelerating M2 money supply and persistent real interest rate restrictiveness</li><li>Inflation expectations remain anchored but PCE z-scores are in a sensitive transition range</li><li>Labor market signals are split between stable claims and <strong>bearish</strong> turnover/underemployment</li><li>Credit conditions have entered a tightening regime despite robust private credit velocity</li><li>Real-sector output remains modest with industrial production failing to breach expansion thresholds</li>
 </ul>
 <h3>Momentum Evidence</h3>
 <ul>
-<li>Regime Confidence Index increased by 20 points over the last seven days</li><li>Alignment ratio improved to 0.77 as conflicting thematic signals were eliminated</li><li>Internal tensions are easing as fundamental support for expansionary drivers solidifies</li><li>Leading indicators for US growth and global trade remain in robust expansionary territory</li>
+<li>Regime Confidence Index (RCI) <strong>dropped</strong> by 10 points to a low of 37</li><li>Alignment ratio narrowed from 0.67 to 0.56, indicating a loss of thematic cohesion</li><li>Internal tensions are <strong>rising</strong> between tactical labor strength and structural underemployment</li><li>Speculative positioning in global trade and metals is reaching exhaustion limits</li><li>Transition risk direction is explicitly classified as increasing over the 11-day window</li>
 </ul>
 <h3>Tension Summary</h3>
 <ul>
-<li>Robust US cyclical expansion vs. defensive cross-asset positioning extremes</li><li>Extreme speculative saturation in FX and metals vs. fading directional momentum</li><li>Improving bank credit availability vs. elevated systemic financial <strong>stress</strong> scores</li><li>M2 expansion vs. <strong>bearish</strong> real interest rate trends</li>
+<li>Speculative risk-on appetite in commodities vs defensive cross-asset positioning</li><li>Cyclical housing and capex recovery vs stagnant industrial production</li><li>Tactical labor market strength vs structural underemployment and churn weakness</li><li>Robust private credit velocity vs deteriorating broad funding stability</li><li>Accelerating broad money supply vs persistent real interest rate restrictiveness</li>
 </ul>
 <h3>What to Watch Next</h3>
 <ul>
-<li>VIX dropping <strong>below</strong> 20 or MVS z-score falling <strong>below</strong> 1.0</li><li>3-month annualized CPI reading exceeding the YoY rate</li><li>Private credit impulse falling <strong>below</strong> 0.75 for two consecutive months</li><li>EUR Speculator z-scores moving <strong>above</strong> -1.0 to signal short covering</li><li>Capex Intent composite Z-score falling <strong>below</strong> the 0.75 expansion threshold</li><li>10-year real yields falling <strong>below</strong> 1.77%</li><li>Market Tone Z-score declining <strong>below</strong> the 1.0 threshold</li>
+<li>High-yield spreads breaching the 6.5% threshold</li><li>Volatility z-scores exceeding 2.0 sustainably</li><li>PCE Composite exceeding 0.75 into a 'HOT' regime</li><li>Housing Lead composite falling <strong>below</strong> the 0.75 expansion threshold</li><li>M2 3-month momentum reversing to <strong>below</strong> -1.0%</li><li>Underemployment z-score dropping <strong>below</strong> +0.75</li><li>VIX index rising sustainably <strong>above</strong> 20</li><li>Copper demand residual z-score falling <strong>below</strong> 0.75</li>
 </ul>
 </div><div class="market-report">
 <h2>Asset Class Implications • Layer 3</h2>
-<p>The regime reflects a fragile equilibrium where strong cyclical growth is offset by exhausted speculative positioning, suggesting a balanced but cautious asset-class posture.</p>
-<p>Postures are neutral due to the early-phase transitional nature of the regime and the high fragility of the current balance. While momentum is accelerating, the extreme speculative saturation and potential for volatility mean-reversion necessitate a focus on capital preservation.</p>
+<p>The macro environment is in a late-phase fragile state where decelerating momentum and deteriorating internal cohesion suggest a shift toward capital preservation as speculative exhaustion meets structural real-economy stress.</p>
+<p>The defensive posture is driven by the late-phase exhaustion of speculative themes and increasing transition risk toward a credit-led stress scenario. Fragility is high as decelerating momentum and narrowing thematic alignment reduce the regime's stability, warranting caution across risk assets.</p>
 </div><div class="market-report">
 <h2>Regime Metrics</h2>
 <ul>Assessment: Transitional / Fragile Balance</ul>
-<ul>Confidence: Medium</ul>
-<ul>Alignment Ratio: 0.7777777777777778 (Total: 9, Supporting: 7, Mixed: 2, Conflicting: 0)</ul>
+<ul>Confidence: Low</ul>
+<ul>Alignment Ratio: 0.5555555555555556 (Total: 9, Supporting: 5, Mixed: 2, Conflicting: 2)</ul>
 </div><div class="market-report">
-<ul>Lookback (days): 7</ul>
-<ul>Transition Risk: <strong>Decreasing</strong></ul>
+<ul>Lookback (days): 11</ul>
+<ul>Transition Risk: <strong>Increasing</strong></ul>
 <p>Confidence & Momentum</p>
-<ul>RCI Change: 20</ul>
-<ul>RCI Momentum: Strengthening</ul>
-<ul>Momentum Signal: <strong>Accelerating</strong></ul>
+<ul>RCI Change: <strong>-</strong>10</ul>
+<ul>RCI Momentum: <strong>Weakening</strong></ul>
+<ul>Momentum Signal: <strong>Decelerating</strong></ul>
 <p>Stability & Tensions</p>
 <ul>Stability Change: <strong>No change</strong></ul>
-<ul>Tension Trend: <strong>Easing</strong></ul>
-<ul>Transition Direction: <strong>Decreasing</strong></ul>
+<ul>Tension Trend: Rising</ul>
+<ul>Transition Direction: <strong>Increasing</strong></ul>
 <p>Alignment Dynamics</p>
-<ul>Alignment Change: 0.1111111111111112</ul>
-<ul>Alignment Trend: Broadening</ul>
-<ul>Supporting Themes Δ: 1</ul>
-<ul>Conflicting Themes Δ: -2</ul>
+<ul>Alignment Change: -0.111111111111111</ul>
+<ul>Alignment Trend: Narrowing</ul>
+<ul>Supporting Themes Δ: -1</ul>
+<ul>Conflicting Themes Δ: 0</ul>
 </div><div class="market-report">
 <p>Asset-Class Implications</p>
-<ul>Equities: <strong>Neutral</strong></ul>
-<ul>Rates: <strong>Neutral</strong></ul>
+<ul>Equities: <strong>Defensive</strong></ul>
+<ul>Rates: <strong>Flattening</strong></ul>
 <ul>Commodities: <strong>Mixed</strong></ul>
-<ul>USD: <strong>Neutral</strong></ul>
+<ul>USD: <strong>Risk-Off</strong></ul>
 </div></div></div>
 <div class="panel" role="tabpanel" id="panel-Cross_Asset_Positioning_Sentiment_Analyst" aria-labelledby="tab-Cross_Asset_Positioning_Sentiment_Analyst" hidden><div class="panel-title">Cross Asset Positioning &amp; Sentiment Analyst</div><div class="panel-body"><div class="market-report">
 
@@ -291,39 +358,37 @@
   <p><strong>Regime Assessment:</strong></p>
   <ul>
     <li>Regime: Defensive / Risk-Negative</li>
-    <li>Regime Confidence Index: High Confidence</li>
-    <li>Stability: Fragile</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The primary driver is the Market Volatility (VIX) Signal, currently in a Stressed regime with a z-score of 3.08 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>Dynamic weighting prioritizes this High-Weight, High-Confidence signal over mixed tactical data.</li>
-    <li>Breadth of positioning extremes across 366 markets signals systemic instability (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Low macro divergence indicates a dangerous consensus in prevailing trends (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">3</a>).</li>
-    <li>Nasdaq-100 (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">4</a>) and Fed Fund (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">5</a>) signals were downweighted due to Mixed Confidence and Internal Conflict flags.</li>
+    <li>The primary driver is the persistent "STRESSED" regime in market volatility (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>High-weighted alignment between speculators and hedgers suggests a strong consensus for the current price path (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">2</a>).</li>
+    <li>Portfolio-level stability is deteriorating as the breadth of extreme positioning reaches multi-month highs (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">3</a>).</li>
+    <li>Nasdaq-100 signals were downweighted due to internal conflicts and mixed interpretation confidence (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">4</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Alignment: Volatility stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>) reinforces 4-week "Long Reduction" in the Russell E-Mini (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">6</a>).</li>
-    <li>Alignment: High cross-sector speculative crowding (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">7</a>) matches the deteriorating Portfolio Early Warning Index (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Tension: Speculators in the E-Mini S&P 500 continue to build long positions despite falling prices (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">8</a>).</li>
-    <li>Tensions do not overturn the regime call as the high-weight VIX signal dictates the risk-negative threshold.</li>
+    <li>VIX stress and Russell 2000 long reductions reinforce a broad de-risking narrative (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">5</a>).</li>
+    <li>Tensions exist in the S&P 500, where rising positioning momentum suggests potential bottoming risk (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>These tensions do not overturn the regime because high-weighted volatility and breadth indicators remain in stress zones.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant scenario: Active long liquidation and market contraction driven by elevated hedging costs.</li>
-    <li>Primary upside risk: Volatility mean-reversion triggered by price stabilization.</li>
-    <li>Primary downside risk: Transition to Crisis regime if VIX exceeds 45 or z-score stays above 2.0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Dominant scenario: Continued risk-off sentiment and high hedging costs.</li>
+    <li>Primary upside risk: A shift to "Normal" volatility if the VIX falls below 20 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Primary downside risk: Transition to systemic "CRISIS" if volatility z-scores exceed 2.0 sustainably (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>VIX dropping below 20 or the MVS z-score falling below 1.0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>The Early Warning Index moving below -0.5, indicating a shift to a subdued risk environment (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Speculative 4-week flow in the Russell E-Mini reversing to a "Long Build" posture (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>Volatility z-score falling below 1.0 while the VIX index drops below 20 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>The Early Warning Index exceeding 0.50, triggering an elevated stress regime (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">3</a>).</li>
+    <li>A reversal in Russell 2000 flows to a sustained "Long Build" configuration (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">5</a>).</li>
   </ul>
 
 </div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
@@ -333,38 +398,39 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Regime: Expansionary / Risk-Positive</li>
-    <li>Regime Confidence Index: High Confidence</li>
-    <li>Status: The regime is stable and strengthening.</li>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>Stability: Fragile</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>High-weight leading indicators are aligned in expansion.</li>
-    <li>The Housing Lead signal (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>) and Capex Intent signal (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>) both show high conviction and expanding momentum.</li>
-    <li>Durable Goods ex-Transportation (<a href="https://investoranatomy.com/signal_report/Durable_Goods_Ex_Transportation/" target="_blank">3</a>) was downweighted due to a lack of observation data and low interpretation confidence.</li>
-    <li>Coincident signals are stabilizing above contractionary thresholds.</li>
+    <li>High-weight forward-looking indicators have shifted into expansionary territory.</li>
+    <li>The Housing Lead Signal (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>) and Capex Intent Signal (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>) both reflect strengthening cyclical momentum.</li>
+    <li>Monetary conditions are supportive, with the neutral rate proxy showing deepening policy accommodation (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">3</a>).</li>
+    <li>The Durable Goods ex-Transportation Signal (<a href="https://investoranatomy.com/signal_report/Durable_Goods_Ex_Transportation/" target="_blank">4</a>) was downweighted due to low interpretation confidence and missing core data.</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Leading metrics align with a deeply accommodative stance gap in the Explicit Neutral Rate proxy (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>).</li>
-    <li>Yield Curve Slope (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">5</a>) and US Treasury Yield Curve (<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">6</a>) both confirm a transition away from restrictive inversion.</li>
-    <li>Tensions exist in Industrial Production (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">7</a>), which remains in a Neutral regime despite positive momentum.</li>
-    <li>These tensions do not overturn the regime call as leading indicators typically precede real-sector production shifts.</li>
+    <li>Forward investment intent aligns with high-conviction expansion in housing starts and permits (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>).</li>
+    <li>Tensions exist as real-sector output remains modest. Industrial Production (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">5</a>) is currently failing to breach expansion thresholds.</li>
+    <li>Treasury term structures are characterized as Flat or Neutral (<a href="https://investoranatomy.com/signal_report/Yield_Curve_Slope/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">7</a>), indicating the broader economy has not yet converged with the lead signals.</li>
+    <li>The regime remains transitional because these lagging and concurrent signals haven't confirmed the expansion.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant scenario: Sustained cyclical expansion driven by robust core business investment and housing demand.</li>
-    <li>Primary upside risk: Building permit authorizations accelerate to match current strength in housing starts (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
-    <li>Primary downside risk: Rising 30-year mortgage rates trigger rapid demand destruction in the housing sector (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
+    <li>Dominant Scenario: Early-cycle expansion supported by rising capital expenditure and housing demand.</li>
+    <li>Primary Upside Risk: Industrial Production growth exceeding 2% YoY, confirming a broad-based recovery (<a href="https://investoranatomy.com/signal_report/Industrial_Production/" target="_blank">5</a>).</li>
+    <li>Primary Downside Risk: Resurgent mortgage rates triggering demand destruction in the housing sector (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>The Capex Intent composite Z-score falling below the 0.75 expansion threshold (<a href="https://investoranatomy.com/signal_report/Capex_Intent/" target="_blank">2</a>).</li>
-    <li>A move in the Treasury yield spread below 0%, re-signaling restrictive curve inversion (<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">6</a>).</li>
+    <li>The Housing Lead composite falling below the 0.75 expansion threshold (<a href="https://investoranatomy.com/signal_report/Housing_Lead/" target="_blank">1</a>).</li>
+    <li>A move in the monetary stance gap above -0.50, signaling a shift toward restrictive policy (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">3</a>).</li>
+    <li>Yield curve re-inversion signaled by a spread falling below 0% (<a href="https://investoranatomy.com/signal_report/US_Treasury_Yield_Curve/" target="_blank">7</a>).</li>
   </ul>
 
 </div>
@@ -372,7 +438,8 @@
 <!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
 <h3>Missing Content / Critical Improvements</h3>
 <ul>
-  <li>Observation values (YoY_pct, 3M_pct) for Durable Goods ex-Transportation (ADXTNO) are missing, preventing its contribution to the expansionary weight.</li>
+  <li>Durable Goods ex-Transportation Signal (ADXTNO) requires YoY and 3-month momentum values to provide a valid confirmation of Capex Intent.</li>
+  <li>Latest observation dates for several real-economy signals lag the market-implied monetary signals by 60+ days, increasing transition risk uncertainty.</li>
 </ul>
 --></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
 <div class="panel" role="tabpanel" id="panel-US_Inflation_and_Price_Dynamics" aria-labelledby="tab-US_Inflation_and_Price_Dynamics" hidden><div class="panel-title">US Inflation and Price Dynamics</div><div class="panel-body"><div class="market-report">
@@ -381,39 +448,39 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Regime Label: Transitional / Fragile Balance.</li>
-    <li>Regime Confidence Index: Medium Confidence.</li>
-    <li>The regime is fragile due to deteriorating stability in headline inflation momentum.</li>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: High Confidence</li>
+    <li>The regime is fragile due to extreme threshold proximity across core indicators.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The headline inflation signal has entered a transition band, moving toward a disinflationary regime (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>High-weight indicators for policy inflation and market-priced expectations remain strictly Neutral (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>).</li>
-    <li>Dynamic weighting prioritized high-confidence Neutral signals from PCE and term structure over conflicted disinflationary data (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">4</a>).</li>
-    <li>Wage pressure signals were downweighted due to low interpretation confidence and lagged quarterly inputs (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal/" target="_blank">5</a>).</li>
+    <li>The assessment is driven by a high-weight cluster of Neutral signals, including Policy-Relevant Inflation (PCE) (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>), Market Implied Inflation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">2</a>), and the Inflation Term-Structure (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">3</a>).</li>
+    <li>Dynamic weighting prioritizes these signals due to their high interpretation confidence and Medium aggregation weights.</li>
+    <li>The US Inflation Signal (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">4</a>) was downweighted because of low interpretation confidence and internal conflict between its label and its z-score.</li>
+    <li>Wage Growth and Inflation (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal/" target="_blank">5</a>) was downweighted due to low aggregation weight and lagged data inputs.</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Breakeven rates and the term structure align, showing well-anchored long-term inflation compensation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">4</a>).</li>
-    <li>A primary tension exists between the COOL regime label in the inflation signal and its current transition-zone z-score (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>Producer and consumer price divergence remains within historical norms, contradicting the disinflationary impulse in headline data (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">6</a>).</li>
-    <li>Tensions do not overturn the regime call as most cyclical signals maintain stable neutral classifications.</li>
+    <li>High alignment exists between market-based expectations (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">2</a>) and realized policy-relevant data (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>), both confirming range-bound pricing.</li>
+    <li>The CPI vs PPI Divergence signal (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">6</a>) reinforces stability by showing producer-to-consumer price gaps within historical noise thresholds.</li>
+    <li>Tension exists where the US Inflation Signal (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">4</a>) flags a "COOL" regime, but its composite z-score of 0.03 lies within the methodology’s defined transition range.</li>
+    <li>Tensions do not overturn the call as Neutral signals exhibit superior stability and higher conviction bands (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant Scenario: Persistent transition toward disinflation as headline momentum compresses toward zero (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>Primary Upside Risk: Sudden reversal in energy or supply chain costs triggering a momentum spike (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>Primary Downside Risk: Cyclical demand collapse forcing a confirmed shift into a deep COOL regime (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+    <li>Dominant scenario: Range-bound persistence as inflation oscillates slightly above the 2% target with anchored expectations.</li>
+    <li>Primary upside risk: A cost-push shock triggered by PPI acceleration exceeding CPI rates (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">6</a>).</li>
+    <li>Primary downside risk: A disinflationary collapse in demand indicated by a sharp decline in M2 momentum (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">7</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>A 3-month annualized CPI reading exceeding the YoY rate would invalidate the disinflationary bias (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>PCE composite scores moving above 0.75 or below -0.75 would force a regime exit from Neutrality (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>).</li>
-    <li>A divergence z-score exceeding 1.0 would signal a transition to a high-pressure cost-push regime (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">6</a>).</li>
+    <li>A move in the PCE Composite exceeding the 0.75 threshold into a "HOT" regime (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>).</li>
+    <li>Three-month annualized CPI momentum rising above the Year-over-Year rate (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">4</a>).</li>
+    <li>A transition in Market Implied Inflation to a "FALLING" regime, signaled by a z-score below -0.5 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">2</a>).</li>
   </ul>
 
 </div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
@@ -423,85 +490,41 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Regime: Transitional / Fragile Balance.</li>
-    <li>Regime Confidence Index: Medium Confidence.</li>
-    <li>The regime is fragile.</li>
+    <li><strong>Transitional / Fragile Balance</strong></li>
+    <li>Regime Confidence Index: <strong>Medium Confidence</strong></li>
+    <li>The regime is <strong>fragile</strong> due to diverging cyclical momentum between monetary aggregates and real cost of capital.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The headline Federal Reserve Liquidity Composite is Neutral at 0.042 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
-    <li>M2 money supply growth has shifted to Bullish with strong 1.66% momentum (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>).</li>
-    <li>Bearish real interest rate trends create a restrictive cost-of-capital headwind (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
-    <li>Dynamic weighting balances the expansionary money supply against restrictive real yields.</li>
-    <li>Tactical SOFR positioning is downweighted as it reflects short-term flow rather than structural liquidity (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>The assessment is driven by the offset between accelerating broad money supply (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>) and persistent real interest rate restrictiveness (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>).</li>
+    <li>The Federal Reserve Liquidity Composite acts as a primary cyclical anchor, currently holding a stable Neutral state (0.035) (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
+    <li>Tactical signals, such as the bullish build in 3-month SOFR flows (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">4</a>), were downweighted as they lack the structural weight of the 10-year real yield trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Stabilisation of Fed Assets and steady M2 growth reinforce the Neutral composite anchor (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
-    <li>Tactical SOFR "Long Build" flow aligns with rising M2 liquidity momentum (<a href="https://investoranatomy.com/signal_report/SOF_3M_CoT_Signals/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>).</li>
-    <li>Tension exists between M2 expansion and the BEARISH real rate trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
-    <li>Tensions do not overturn the regime because the aggregate Liquidity Composite remains far from expansion thresholds (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    <li>Internal alignment exists between Fed Liquidity (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>) and 5-year SOFR positioning (<a href="https://investoranatomy.com/signal_report/SOF_5Y_CoT_Signals/" target="_blank">5</a>), both indicating a "Normal" environment without extreme speculative crowding.</li>
+    <li>A primary tension exists between the Bullish transition in M2 momentum (1.66%) (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>) and the Bearish stance of real yields remaining above their 6-month trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>).</li>
+    <li>These tensions do not overturn the regime because neither side has achieved a high-conviction breakout; the neutral liquidity baseline absorbs these opposing forces (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant: Continued neutral liquidity as ON RRP drainage offsets balance sheet contraction.</li>
-    <li>Primary upside risk: M2 YoY growth accelerates above 6.0%, triggering an expansionary regime (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>).</li>
-    <li>Primary downside risk: Systemic liquidity withdrawal via renewed aggressive QT or a TGA spike (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    <li><strong>Dominant Scenario:</strong> Range-bound liquidity conditions as balance sheet contraction is offset by falling reverse repo usage (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
+    <li><strong>Primary Upside Risk:</strong> Aggressive expansion if M2 Year-over-Year growth exceeds 6.0% (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    <li><strong>Primary Downside Risk:</strong> Monetary stagnation if real yields push significantly higher than 1.85%, increasing capital costs (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>A move in the Composite Score (LC) above 0.75 or below -0.75 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
-    <li>M2 Year-over-Year growth dropping below 2.0% (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>).</li>
-    <li>10-year real yields falling below 1.77%, removing the restrictive trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
+    <li>A Federal Reserve Liquidity Composite breach of &plusmn;0.75, signalling systemic expansion or withdrawal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
+    <li>A decline in the 10-year real yield below 1.77%, removing the restrictive Bearish bias (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>).</li>
+    <li>A reversal in M2 3-month momentum to below -1.0% (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
   </ul>
 
 </div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
 <div class="panel" role="tabpanel" id="panel-US_Credit_Conditions" aria-labelledby="tab-US_Credit_Conditions" hidden><div class="panel-title">US Credit Conditions</div><div class="panel-body"><div class="market-report">
-
-  <p style="margin-top:0.75rem;"></p>
-
-  <p><strong>Regime Assessment:</strong></p>
-  <ul>
-    <li>Regime: Transitional / Fragile Balance</li>
-    <li>Regime Confidence Index: Low Confidence</li>
-    <li>Stability: Fragile</li>
-  </ul>
-
-  <p><strong>Why This Regime:</strong></p>
-  <ul>
-    <li>High-weight private credit acceleration (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">4</a>) suggests an expansionary environment.</li>
-    <li>This is directly countered by a high-weight bearish systemic stress signal (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>).</li>
-    <li>The transitional label reflects the conflict between cyclical credit velocity and tactical risk-off sentiment.</li>
-    <li>Credit conditions were downweighted due to mixed signals and internal conflict between volatility and spreads (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">3</a>).</li>
-  </ul>
-
-  <p><strong>Alignment & Tensions:</strong></p>
-  <ul>
-    <li>Corporate spreads and aggregate stress levels both remain within neutral historical ranges (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">2</a>).</li>
-    <li>Acute tension exists between accelerating bank credit (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">4</a>) and elevated financial stress Z-scores (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>).</li>
-    <li>Tensions do not overturn the regime because neither driver has yet forced corporate spreads out of neutral (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
-  </ul>
-
-  <p><strong>Scenario Balance:</strong></p>
-  <ul>
-    <li>Dominant scenario: A fragile neutral state where credit availability offsets rising liquidity concerns.</li>
-    <li>Primary upside risk: A return to expansionary easing triggered by volatility compression and sustained loan demand.</li>
-    <li>Primary downside risk: A shift to risk-negative conditions if systemic stress causes corporate spreads to widen.</li>
-  </ul>
-
-  <p><strong>What Would Change the Regime:</strong></p>
-  <ul>
-    <li>Private credit impulse falling below 0.75 for two consecutive months (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">4</a>).</li>
-    <li>A 3-month high-yield spread increase exceeding 50 basis points (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
-    <li>The financial stress robust Z-score falling and sustaining below the 0.5 threshold (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>).</li>
-  </ul>
-
-</div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_us_credit_conditions/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
-<div class="panel" role="tabpanel" id="panel-US_Labour_Market" aria-labelledby="tab-US_Labour_Market" hidden><div class="panel-title">US Labour Market</div><div class="panel-body"><div class="market-report">
 
   <p style="margin-top:0.75rem;"></p>
 
@@ -514,45 +537,74 @@
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>Primary drivers include stable structural levels alongside rising cyclical stress indicators.</li>
-    <li>Employment composition maintains high-weight neutral levels and high interpretation confidence (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
-    <li>Labor market tightness remains balanced, supporting the neutral baseline (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">2</a>).</li>
-    <li>However, underemployment stress has reached a cycle high, indicating emerging slack (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>).</li>
-    <li>Job flows have shifted to negative net creation for the first time this cycle (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>).</li>
-    <li>Explicit slack gap and employment diffusion were downweighted due to low confidence and internal conflict flags (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">6</a>).</li>
+    <li>A High-weight expansion in private credit velocity (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">4</a>) is countered by High-weight tactical stress spikes (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>).</li>
+    <li>Credit spreads have breached the momentum threshold, transitioning into a newly entered Tightening regime (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+    <li>The Credit Conditions signal was downweighted due to internal conflict between equity volatility and corporate spreads (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">3</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Composition, tightness, and weekly hours align in neutral regimes, suggesting headline resilience (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">7</a>).</li>
-    <li>Persistent bearish consumer sentiment aligns with rising underemployment risk to signal demand headwinds (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>).</li>
-    <li>Negative job flows conflict with firming jobless claims momentum (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">9</a>).</li>
-    <li>Tensions remain high because structural employment indicators have not yet mirrored worsening cyclical flows.</li>
+    <li>The Financial Stress Index (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>) and widening HY spreads (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>) reinforce a shift toward risk-negative conditions.</li>
+    <li>Primary tension exists between robust cyclical credit creation (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">4</a>) and deteriorating broad funding stability (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">2</a>).</li>
+    <li>Tensions do not overturn the regime call as high-weight indicators are currently balanced between expansionary flows and tightening risk premia.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>The dominant scenario is a gradual transition toward a defensive, slack-driven labor regime.</li>
-    <li>Primary upside risk: A re-tightening of the market triggered by a sharp rise in worker confidence and quits rates (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">2</a>).</li>
-    <li>Primary downside risk: A shift to a defensive regime triggered by broadening sectoral job losses and contracting payrolls (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>).</li>
+    <li>Dominant scenario: Continued spread widening as default risk reprices higher amid elevated systemic stress (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">5</a>).</li>
+    <li>Primary upside risk: Stabilization of funding markets and mean reversion to a Normal regime (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+    <li>Primary downside risk: Transition to a "Stressed" regime if high-yield spreads exceed 6.5% (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>The underemployment z-score dropping below +0.75, signalling an abatement of cyclical stress (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>).</li>
-    <li>A composite job flows z-score falling below -0.75, confirming a broader economic slowdown (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>).</li>
-    <li>The labor momentum composite crossing the 0.75 tightening threshold based on firming payroll growth (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">9</a>).</li>
+    <li>High-yield spreads falling more than 50 basis points over a three-month window (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">1</a>).</li>
+    <li>Two consecutive monthly private credit impulse prints falling below the 0.75 expansionary threshold (<a href="https://investoranatomy.com/signal_report/Private_Credit_Impulse/" target="_blank">4</a>).</li>
   </ul>
 
-</div>
+</div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_us_credit_conditions/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
+<div class="panel" role="tabpanel" id="panel-US_Labour_Market" aria-labelledby="tab-US_Labour_Market" hidden><div class="panel-title">US Labour Market</div><div class="panel-body"><div class="market-report">
 
-<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Verify December 2025 diffusion z-score (-2.5e10) as it appears to be a statistical outlier in the content.</li>
-  <li>Payroll growth (PAYEMS) data was missing for the latest momentum signal observation.</li>
-</ul>
---></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Regime Assessment:</strong></p>
+  <ul>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>Stability: Fragile</li>
+  </ul>
+
+  <p><strong>Why This Regime:</strong></p>
+  <ul>
+    <li>The high-weight underemployment signal indicates structural stress is already at cycle highs (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+    <li>Bearish labor turnover and negative net job creation confirm a loss of cyclical resilience (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">3</a>).</li>
+    <li>High-confidence bearish sentiment suggests household demand remains a persistent headwind (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">4</a>).</li>
+    <li>Employment diffusion (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">5</a>) and the explicit slack gap (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">6</a>) were downweighted due to low interpretation confidence and internal conflicts.</li>
+  </ul>
+
+  <p><strong>Alignment & Tensions:</strong></p>
+  <ul>
+    <li>Structural stress aligns across underemployment data and deteriorating firm-level job flows (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">3</a>).</li>
+    <li>Tensions exist between strengthening tactical claims data and weakening structural churn (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">7</a>).</li>
+    <li>Manufacturing hours are deeply restrictive while broader private hours remain stable (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">8</a>).</li>
+    <li>These tensions do not overturn the regime call as structural signals typically lead cyclical reversals.</li>
+  </ul>
+
+  <p><strong>Scenario Balance:</strong></p>
+  <ul>
+    <li>Dominant scenario: Continued transition toward a risk-negative regime as labor slack accumulates.</li>
+    <li>Primary upside risk: Tactical claims momentum triggers a broader tightening in labor scarcity (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">7</a>).</li>
+    <li>Primary downside risk: Manufacturing weakness spreads to the broader service sector, triggering accelerated layoffs (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">8</a>).</li>
+  </ul>
+
+  <p><strong>What Would Change the Regime:</strong></p>
+  <ul>
+    <li>The underemployment z-score dropping below the +0.75 stress threshold (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">1</a>).</li>
+    <li>A recovery in the labor turnover spread above the -0.50 bearish mark (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">2</a>).</li>
+    <li>A move in the explicit slack gap beyond &plusmn;0.50 percentage points (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">6</a>).</li>
+  </ul>
+
+</div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
 <div class="panel" role="tabpanel" id="panel-global_growth_economic_cycles" aria-labelledby="tab-global_growth_economic_cycles" hidden><div class="panel-title">Global Growth and Economic Cycle</div><div class="panel-body"><div class="market-report">
 
   <p style="margin-top:0.75rem;"></p>
@@ -566,31 +618,31 @@
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>Speculative sponsorship is decaying in core assets, notably Gold (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>) and Copper (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">2</a>).</li>
-    <li>The high-weight cyclical demand tailwind in metals is weakening (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">3</a>).</li>
-    <li>High-weight tactical stress exists in Lithium due to extreme short crowding (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
-    <li>The Rates flow proxy was downweighted due to internal conflict and mixed signals (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">5</a>).</li>
+    <li>A high-weight cyclical tailwind in metals demand (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>) conflicts with tactical speculative liquidation across key proxies.</li>
+    <li>Aggressive long reduction in Gold (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">2</a>) and capitulation in Palladium (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">3</a>) indicate fading sponsorship for current price levels.</li>
+    <li>Lithium holds high-weight status due to extreme short crowding, signalling significant reversal risk (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Rates sector flow momentum was downweighted due to internal conflict and mixed interpretation confidence (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">5</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Gold (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>) and Palladium (<a href="https://investoranatomy.com/signal_report/Palladium_CoT_Signals/" target="_blank">6</a>) align in active speculative liquidation.</li>
-    <li>Tension exists as Silver (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">7</a>) and Platinum (<a href="https://investoranatomy.com/signal_report/Platinum_CoT_Signals/" target="_blank">8</a>) show emerging long sponsorship.</li>
-    <li>These tensions do not overturn the regime because major volume drivers show fading conviction (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Speculative sponsorship reinforces price paths in Silver (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">6</a>) and Platinum (<a href="https://investoranatomy.com/signal_report/Platinum_CoT_Signals/" target="_blank">7</a>), where flows are improving.</li>
+    <li>Significant tension exists as Copper speculators withdraw sponsorship (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">8</a>) while structural demand residuals remain positive (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+    <li>These tensions prevent a higher confidence call, as tactical de-leveraging currently offsets cyclical expansionary signals.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant Scenario: Continued price consolidation as speculators reduce over-extended positions.</li>
-    <li>Primary Upside Risk: Non-linear short squeeze in Lithium or Silver if price stabilizes (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
-    <li>Primary Downside Risk: Accelerated long liquidation if gold or copper break technical support (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Dominant scenario: Price consolidation as speculative flows move toward neutral (<a href="https://investoranatomy.com/signal_report/Crude_Oil_CoT_Signals/" target="_blank">9</a>).</li>
+    <li>Primary upside risk: Non-linear short-covering cascade in Lithium (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Primary downside risk: Accelerated long liquidation in Gold if price breaks technical support (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>Metals demand tailwind z-score falling below 0.75 into neutral territory (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">3</a>).</li>
-    <li>Speculator z-scores in Gold falling below -2.0, shifting the market to crowded short (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-    <li>A multi-week reversal of speculative flows in Platinum or Silver into negative territory (<a href="https://investoranatomy.com/signal_report/Silver_CoT_Signals/" target="_blank">7</a>).</li>
+    <li>Lithium speculative z-score returning to neutral, resolving high-tension squeeze risks (<a href="https://investoranatomy.com/signal_report/Lithium_Hydroxide_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Copper demand residual z-score falling below 0.75, invalidating the expansionary tailwind (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">1</a>).</li>
+    <li>A sustained transition to positive absolute flow in the Rates sector (<a href="https://investoranatomy.com/signal_report/Economic_Cycle_Proxies_Flow_Momentum/" target="_blank">5</a>).</li>
   </ul>
 
 </div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_global_growth_and_economic_cycles/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
@@ -600,51 +652,39 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Regime: <strong>Transitional / Fragile Balance</strong></li>
-    <li>Regime Confidence Index: <strong>Medium Confidence</strong></li>
-    <li>Stability Assessment: The regime is <strong>fragile</strong>.</li>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile due to extreme speculative crowding and high positioning tension.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>High-weight speculative signals indicate extreme positioning stretch and saturation across major currencies (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
-    <li>Extreme speculative z-scores in the Euro (z=-3.34) and Australian Dollar (z=2.26) signal high exhaustion risk (<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>).</li>
-    <li>Dynamic weighting prioritizes the "High Tension" states in systemic funding markers like the USD and Yen (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">6</a>).</li>
-    <li>The USD Index macro signal was downweighted due to internal conflict and a total loss of momentum (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">7</a>).</li>
-    <li>CAD was downweighted due to low aggregation priority and mixed interpretation confidence (<a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals/" target="_blank">2</a>).</li>
+    <li>Extreme speculative shorting in EUR FX (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>) and long saturation in AUD (<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals/" target="_blank">2</a>) indicate narrative exhaustion.</li>
+    <li>High-weight USD flow momentum has pivoted sharply to a long build (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">3</a>).</li>
+    <li>USD Index momentum (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>) and CAD flows (<a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals/" target="_blank">5</a>) were downweighted due to low interpretation confidence and internal conflicts.</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Alignment exists between USD long builds and aggressive JPY short-side engagement, confirming a carry-regime expansion (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">6</a>).</li>
-    <li>Extreme spec stretch in AUD aligns with "growth optimism saturation" seen in global risk proxies (<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals/" target="_blank">1</a>).</li>
-    <li>Tension is evident in the EUR, where record speculative shorts oppose record commercial longs (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>).</li>
-    <li>Tensions do not overturn the regime because high positioning tension (score 3.50+) inherently defines a transitional state (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
+    <li>USD long builds (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">3</a>) align with the aggressive expansion of EUR speculative shorts (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Tensions exist in JPY, where aggressive shorting re-engagement faces high positioning tension (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>These tensions do not overturn the call because primary USD and EUR drivers show high interpretation confidence.</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant Scenario: Range-bound consolidation as extreme positioning limits further directional momentum without new catalysts.</li>
-    <li>Primary Upside Risk: A tactical short squeeze in EUR triggered by a hawkish policy surprise (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>).</li>
-    <li>Primary Downside Risk: Non-linear long liquidation in USD if global liquidity conditions suddenly pivot (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
+    <li>Dominant scenario: Tactical USD-led liquidity tightening and price consolidation as speculative saturation limits further trends.</li>
+    <li>Primary upside risk: A short-covering squeeze in EUR or JPY triggered by hawkish policy surprises (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>Primary downside risk: Long liquidation in AUD if global growth optimism fades (<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>A multi-week negative flow reversal in the USD Index would signal a liquidity regime shift (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
-    <li>A 6-month momentum change in the USD Index exceeding +5% would confirm a structural bullish regime (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">7</a>).</li>
-    <li>EUR Speculator z-scores moving above -1.0 would signal a normalization of market structure (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>).</li>
+    <li>A multi-week reversal in USD flow momentum turning negative (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">3</a>).</li>
+    <li>EUR Speculator z-score moving back above -1.0, signaling a normalization of extreme crowding (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">1</a>).</li>
   </ul>
 
-</div>
-
-<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Timeliness gap: Several signals use 2026-03-24 data, which is future-dated or requires current system date context for "Fresh" assessment.</li>
-  <li>USD Index macro signal (FRED) contains internal conflict between the "Bearish" label and current near-zero momentum.</li>
-</ul>
---></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_global_inflation_and_fx_dynamics/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
+</div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_global_inflation_and_fx_dynamics/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
 <div class="panel" role="tabpanel" id="panel-Global Trade and Demand" aria-labelledby="tab-Global Trade and Demand" hidden><div class="panel-title">Global Trade and Demand</div><div class="panel-body"><div class="market-report">
 
   <p style="margin-top:0.75rem;"></p>
@@ -652,49 +692,77 @@
   <p><strong>Regime Assessment:</strong></p>
   <ul>
     <li>Regime: Expansionary / Risk-Positive</li>
-    <li>Regime Confidence Index: Medium Confidence</li>
-    <li>Status: Fragile</li>
+    <li>Regime Confidence Index: High Confidence</li>
+    <li>Status: Stable</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The assessment is driven by extreme speculative appetite, with a Market Tone Z-Score of 1.335 signifying a Strong Risk-On state (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>). This is reinforced by acute physical supply stress in the energy sector (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
-    <li>High aggregation weight hints for tactical signals (1)(2) prioritize current speculative flows and physical market imbalances over lagging cyclical data.</li>
-    <li>The USD Index Signal was downweighted due to its Low Confidence rating, an Internal Conflict flag, and a total loss of downside momentum (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>).</li>
+    <li>The primary driver is extreme speculative appetite across global futures markets, evidenced by a 1.335 Z-score (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+    <li>High-weight signals align on persistent risk-on breadth and acute supply-side stress in the energy complex (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
+    <li>The USD Index signal was downweighted due to low interpretation confidence, internal methodological conflict, and weak momentum (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Strong alignment exists between speculative positioning breadth and the physical scarcity seen in Energy hedger requirements (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
-    <li>Tensions are evident in the USD complex, where a nominally Bearish regime is currently exhibiting positive momentum and unstable stability metrics (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>).</li>
-    <li>These tensions do not overturn the regime call because the USD signal is currently in a neutral transition state, while risk-on positioning remains far from its invalidation threshold (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>).</li>
+    <li>Speculative crowding and physical scarcity in Energy both support an upward-biased price path (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
+    <li>Tensions exist in Agriculture, where hedgers flag high supply expansion pressure despite broad risk-on sentiment (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
+    <li>Low interpretation confidence in the USD transition does not overturn the regime due to its minimal aggregation weight (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>).</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
     <li>Dominant Scenario: Persistent speculative appetite supports growth-sensitive assets while Z-scores remain above 1.0 (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
     <li>Primary Upside Risk: Breadth expansion if short-covering triggers in laggard sectors (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
-    <li>Primary Downside Risk: Mean reversion or sharp reversal if positioning hits exhaustion limits amid energy supply normalization (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
+    <li>Primary Downside Risk: Sharp mean reversion if positioning reaches exhaustion limits or energy scarcity eases (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>A decline in the Market Tone Z-score below the 1.0 threshold (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
-    <li>Energy hedger deep long shares falling below the 20% regime threshold (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
+    <li>A decline in the Global Positioning Tone Z-score below the 1.0 threshold (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">1</a>).</li>
+    <li>Energy sector hedger deep long share falling below the 20% regime requirement (<a href="https://investoranatomy.com/signal_report/Regimes_specific_Macro_Themes_Continuous/" target="_blank">2</a>).</li>
+    <li>USD Index monthly value dropping below the 12-month moving average of 120.385 (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>).</li>
   </ul>
 
-</div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_global_trade_demand/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Verification of the 0.5% hysteresis band calculation for the USD Index signal, as the 0.41% level suggests a Neutral state rather than the reported Bullish label.</li>
+</ul>
+--></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/ia_global_trade_demand/" target="_blank" rel="noopener" class="report-btn">IA Macro Analyst Drill-Through</a></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Macro Regime Assessment - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -731,6 +799,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

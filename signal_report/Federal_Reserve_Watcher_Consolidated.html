@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Federal Reserve Watcher</div>
         <div class="page-title">A briefing framework that distils Federal Reserve policy conditions into a clear regime view, directional outlook, and decision-ready interpretation for upcoming meetings.</div>
         <div class="hero-inject market-report"><div class="market-report">
@@ -144,23 +210,23 @@
 
   <p><strong>Policy Regime & Directional Outlook:</strong></p>
   <ul>
-    <li><strong>Policy Regime:</strong> The Federal Reserve has transitioned into a risk-managed hold, pivoting from active normalization to a data-dependent "neutralization" phase that balances two-sided mandate risks. (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Watcher_Consolidated/" target="_blank">1</a>)</li>
-    <li><strong>Near-Term Bias:</strong> HOLD (75% probability) with qualitative confidence that the Committee seeks to observe the impact of prior easing amid stalled disinflation. (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Watcher/" target="_blank">2</a>)</li>
-    <li><strong>Medium-Term Bias:</strong> Conditional normalization; the path favors a gradual reduction toward a 3.4% terminal rate by late 2026, provided inflation expectations remain anchored and labor turnover does not deteriorate. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Projections_Signal/" target="_blank">3</a>)</li>
-    <li><strong>Key Constraint:</strong> Stalled disinflation progress, specifically core goods price volatility and elevated PCE at 2.8%, currently limits the Fed's ability to react aggressively to softening labor demand. (<a href="https://www.federalreserve.gov/newsevents/speech/jefferson20260326a.htm" target="_blank">4</a>)</li>
+    <li><strong>Policy Regime:</strong> The Federal Reserve is currently operating within a risk-managed hold regime, maintaining a "Near Neutral" stance to balance stalled disinflation progress against emerging labour market fragility. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Tone_Decoder/" target="_blank">2</a>).</li>
+    <li><strong>Near-Term Bias:</strong> HOLD with high qualitative confidence, as the Committee seeks to observe the pass-through effects of recent tariff-related price shifts. (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Watcher/" target="_blank">3</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm" target="_blank">4</a>).</li>
+    <li><strong>Medium-Term Bias:</strong> Dovish easing path, with internal projections implying a reduction in the federal funds rate toward a 3.4% median by late 2026 as inflation pressures normalise. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Projections_Signal/" target="_blank">5</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">6</a>).</li>
+    <li><strong>Key Constraint:</strong> The dominant constraint is a dual-mandate conflict between a "COOL" inflation regime with sticky 2.8% PCE and a softening labour market marked by rising underemployment. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank">7</a>).</li>
   </ul>
 
   <p><strong>Policy Justification:</strong></p>
   <ul>
-    <li><strong>Macro Conditions:</strong> Realized inflation has shifted into a COOL regime, yet labor market momentum is softening, and the policy rate remains near a potentially rising neutral r* proxy. (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">6</a>)</li>
-    <li><strong>Fed Worldview (Projections):</strong> The internally prepared scenario anticipates a transition to resilient 2.3% GDP growth in 2026, though medians reflect heightened sensitivity to upside unemployment risks. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Projections_Signal/" target="_blank">3</a>)</li>
-    <li><strong>Behavioural Feasibility:</strong> Communications are currently Hold-biased, as leadership emphasizes mandate balance to offset vocal dovish dissent favoring immediate preemptive cuts. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Tone_Decoder/" target="_blank">7</a>)</li>
-    <li><strong>Real-Economy Signal:</strong> Regional activity reports confirm a manufacturing-led stabilization, though increasing "hiring chills" and consumer price sensitivity validate the macro view of a cooling expansion. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">8</a>)</li>
+    <li><strong>Macro Conditions:</strong> Realised inflation has lost momentum, yet core PCE remains above target; meanwhile, the aggregate labour state is neutral but fragile, with job flows and turnover sentiment turning bearish. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank">7</a>).</li>
+    <li><strong>Fed Worldview (Projections):</strong> SEP data frames a transition toward 2.3% GDP growth in 2026, while explicitly preparing for the unemployment rate to edge up to a 4.5% median peak. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Projections_Signal/" target="_blank">5</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">6</a>).</li>
+    <li><strong>Behavioural Feasibility:</strong> Communication remains "Hold-Biased" following the March 2026 maintenance of the target range, reflecting a committee-wide preference for data-dependent observation over immediate action. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Tone_Decoder/" target="_blank">2</a>)(<a href="https://www.federalreserve.gov/newsevents/speech/jefferson20260326a.htm" target="_blank">8</a>).</li>
+    <li><strong>Real-Economy Signal:</strong> Beige Book evidence confirms a mid-cycle stall, with five districts reporting flat or declining activity and firms increasingly sensitive to rising nonlabor costs. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">9</a>).</li>
   </ul>
 
   <p><strong>Interpretation:</strong></p>
   <ul>
-    <li>Upcoming meetings will confirm the "risk-managed hold" if payrolls stabilize near zero growth while inflation plateaus. However, the regime would be invalidated—forcing a decisive pivot—by a breach of the "neutral range" in realized inflation or a systemic spike in financial stress. (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Signal/" target="_blank">9</a>)</li>
+    <li>Upcoming meetings should be interpreted through the lens of labour mandate protection; while sticky inflation justifies the current hold, any widening of the Slack Gap or a further slowdown in monthly payrolls would invalidate the neutral regime and trigger an immediate easing response. (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Watcher/" target="_blank">3</a>)(<a href="https://www.federalreserve.gov/newsevents/speech/waller20260223a.htm" target="_blank">10</a>).</li>
   </ul>
 
 </div>
@@ -168,8 +234,8 @@
 <!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
 <h3>Missing Content / Critical Improvements</h3>
 <ul>
-  <li>Minutes of the March 17-18, 2026 meeting are required to evaluate the true depth of Committee divergence regarding the "neutral range" debate.</li>
-  <li>April 2026 PCE realized data is missing; necessary to determine if the "stalled" inflation narrative is a persistent trend or temporary noise.</li>
+  <li>Minutes of the January 27–28, 2026 FOMC meeting are missing from the provided documents, which limits the assessment of internal committee divergence regarding tariff-driven inflation risks.</li>
+  <li>The Summary of Economic Projections (SEP) for the March 18, 2026 meeting is referenced in RSS but the full data was not provided for trend comparison.</li>
 </ul>
 --></div>
       </div>
@@ -178,7 +244,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -197,84 +264,78 @@
   <p><strong>Inputs Used:</strong> Macro Signal Synthesiser; Fed Tone Decoder; Fed Projections Synthesiser; Beige Book Summary.</p>
 
   <ul>
-    <li><strong>Macro Signal:</strong> <span style="color:#007700;">CUT</span> (confidence: MEDIUM) - Realized inflation has cooled (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>) and labor market momentum is softening (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">2</a>), even as core measures remain neutral.</li>
-    <li><strong>Behavioural Feasibility:</strong> <span style="color:#666666;">HOLD-BIASED</span> - The Committee successfully paused in March to monitor stalled disinflation (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm" target="_blank">3</a>) and recent leadership remarks suggest the policy rate is already within the "neutral range" (<a href="https://www.federalreserve.gov/newsevents/speech/jefferson20260326a.htm" target="_blank">4</a>).</li>
-    <li><strong>Fed Worldview:</strong> <span style="color:#666666;">HOLD</span> - Projections anticipate a 2026 rebound in GDP and a slow return to 2% inflation, necessitating a "deliberate" balance of dual-mandate risks (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Projections_Signal/" target="_blank">5</a>).</li>
-    <li><strong>Real-Economy Confirmation:</strong> MIXED - Districts report cooling labor demand but persistent tariff-induced input cost pressures and consumer price sensitivity (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">6</a>).</li>
+    <li><strong>Macro Signal:</strong> <span style="color:#666666;">HOLD</span> (confidence: MEDIUM) - Inflation is cooling but PCE remains sticky at 2.8%, while the labor market is neutral but showing underlying fragility in underemployment (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">3</a>).</li>
+    <li><strong>Behavioural Feasibility:</strong> <span style="color:#666666;">HOLD-BIASED</span> - The Committee just maintained the target range in March 2026; high internal divergence between doves (Waller/Miran) and hawks (Barr) favors policy inertia (<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Tone_Decoder/" target="_blank">6</a>).</li>
+    <li><strong>Fed Worldview:</strong> <span style="color:#666666;">HOLD</span> - Projections prepare for a "gradually cooling" labor market and a slow return to the 2% target by 2028, necessitating a "deliberate and careful balancing" of mandate risks (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Projections_Signal/" target="_blank">4</a>)(<a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20251210b.htm" target="_blank">7</a>).</li>
+    <li><strong>Real-Economy Confirmation:</strong> <span style="color:#666666;">CONFIRMS</span> - The Beige Book reports slight to moderate growth with rising districts reporting flat activity, validating a cautious, data-dependent posture (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Beige_Book_Summary/" target="_blank">2</a>).</li>
   </ul>
 
   <hr>
 
   <p><strong>Divergence (this is signal):</strong></p>
   <ul>
-    <li><strong>Macro says:</strong> <span style="color:#007700;">CUT</span></li>
+    <li><strong>Macro says:</strong> <span style="color:#666666;">HOLD</span></li>
     <li><strong>Behaviour says:</strong> <span style="color:#666666;">HOLD</span></li>
     <li><strong>Fed worldview says:</strong> <span style="color:#666666;">HOLD</span></li>
   </ul>
 
   <p><strong>Decision Probabilities (sum = 100%):</strong></p>
   <ul>
-    <li><strong>CUT:</strong> 25%</li>
-    <li><strong>HOLD:</strong> 75%</li>
-    <li><strong>HIKE:</strong> 0%</li>
+    <li><strong>CUT:</strong> 15%</li>
+    <li><strong>HOLD:</strong> 80%</li>
+    <li><strong>HIKE:</strong> 5%</li>
   </ul>
 
-  <p><strong>Forward Guidance Bias:</strong> <span style="color:#666666;">NEUTRAL</span> - mechanism: Shift from "extent and timing" of easing to a data-dependent assessment of the "neutral range" and risk balance emphasis (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Tone_Decoder/" target="_blank">7</a>).</p>
+  <p><strong>Forward Guidance Bias:</strong> <span style="color:#007700;">DOVISH</span> - Language shift likely to highlight rising downside labor risks (U-6 momentum) and "fragile" job growth as the primary focus over stalled disinflation (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Tone_Decoder/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank">8</a>).</p>
 
-  <p><strong>Surprise Risk:</strong> <span style="color:#666666;">MEDIUM</span> - source: Material divergence between deteriorating labor turnover signals (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">8</a>) and the official "stalled disinflation" narrative which constrains further easing.</p>
+  <p><strong>Surprise Risk:</strong> <span style="color:#666666;">MEDIUM</span> - Source: Significant internal divergence; any further deterioration in payroll averages (currently 6,000) could trigger an immediate 25bps cut led by the dissenting block (<a href="https://www.federalreserve.gov/newsevents/speech/jefferson20260326a.htm" target="_blank">9</a>)(<a href="https://www.federalreserve.gov/newsevents/speech/waller20260223a.htm" target="_blank">10</a>).</p>
 
-  <p><strong>Final Call:</strong> <span style="color:#666666;">Outcome: HOLD with neutral guidance.</span></p>
+  <p><strong>Final Call:</strong> <span style="color:#666666;">Outcome: HOLD with dovish guidance.</span></p>
 
   <!--
     INTERNAL DISCIPLINE (DO NOT REMOVE)
-    - Do not blend signals into a single "average" view before stating divergence.
-    - Probabilities reflect:
-        * Macro "CUT" signal is penalized by behavioural feasibility (HOLD bias).
-        * Worldview (SEP) is anchored to 2.8% PCE, making back-to-back cuts after a March pause unlikely.
-        * Dissent (Miran/Waller) is preserved as the 25% "CUT" probability.
-    - Beige Book confirms regional dispersion, supporting the "pause and assess" behavior.
+    - Macro justifies HOLD as rates are near neutral (r*) and slack gap is stable.
+    - Behavioural feasibility is HOLD-BIASED due to the very recent hold decision and the need to observe tariff pass-through.
+    - Worldview acknowledges two-sided risks, supporting a wait-and-see approach.
+    - Path dependency: Consecutive holds are preferred to maintain credibility after significant previous cuts.
   -->
-</div><!--
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Minutes of the March 17–18, 2026 meeting are missing from the Decoder; required to fully evaluate the depth of the "neutral range" debate and dissent intensity.</li>
-  <li>April 2026 PCE data is not yet reflected in the Projections Synthesiser; necessary to confirm if the "stalled" inflation narrative is evolving.</li>
-</ul>
---></div></div>
+</div></div></div>
 <div class="panel" role="tabpanel" id="panel-macro" aria-labelledby="tab-macro" hidden><div class="panel-title">Macro Signal Synthesiser</div><div class="panel-body"><p><em>Conditions-based macro assessment for Federal Reserve policy justification.</em></p>
 
 <h3>1. Macro Conditions Summary</h3>
 <p>
-The current US macroeconomic environment is characterized by a decisive transition from a restrictive to a cooling inflation regime, juxtaposed with a labor market that remains at equilibrium but exhibits softening momentum. Realized inflation pressures have moderated into a <strong>COOL</strong> regime (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>), while core policy-relevant PCE measures remain <strong>Neutral</strong> (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>). Growth is moderating, evidenced by a bifurcated consumer and a gradual shift toward more expansionary financial conditions. While the canonical labor slack gap is <strong>NEUTRAL</strong> and <strong>STABLE</strong> (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">3</a>), underlying signals—specifically bearish labor turnover and softening hiring momentum (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">4</a>)—suggest the balance of risks is shifting from inflation persistence toward growth and labor-market downside. Systemic liquidity has already begun an <strong>Expansionary</strong> impulse (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">5</a>), largely driven by broad money re-acceleration (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">6</a>).
+The US macroeconomic environment is currently transitioning through a cooling phase characterized by a decisive loss of inflation momentum and an incremental softening of the labour market (<a href="https://investoranatomy.com/signal_report/Fed_Watcher_Macro_Signal_Signal/" target="_blank">1</a>). Inflation dynamics have shifted into a COOL regime, driven by weak realized price momentum and stable market-implied expectations, although policy-relevant PCE measures remain stickier at approximately 2.8% (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">3</a>). The labour market remains in a Neutral aggregate state, yet signals of underlying fragility are emerging, specifically via a rising U-6 underemployment rate and bearish worker turnover sentiment (<a href="https://investoranatomy.com/signal_report/ia_us_labour_market/" target="_blank">4</a>). While the explicit Slack Gap is currently Neutral and Stable, the momentum in job openings and hiring suggests a move toward a wider gap in the forward-looking horizon (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>). Growth is moderating toward a mid-cycle stall, while credit conditions remain benign despite elevated systemic stress scores (<a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank">6</a>).
 </p>
 
 <h3>2. Why a Simple Taylor-Style Rule Is Insufficient</h3>
 <p>
-Mechanical policy rules are currently inadequate as they fail to account for the <strong>time-varying nature of policy reaction coefficients</strong> and the <strong>risk asymmetry</strong> inherent in a regime transition. A simple rule focusing on point estimates of headline inflation would ignore the <strong>COOL</strong> momentum and the <strong>STABLE</strong> but fragile state of the labor slack gap (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">3</a>). In the current regime, the weight of the dual mandate has shifted; with inflation expectations anchored and realized inflation cooling, the uncertainty regarding the "stall speed" of the labor market and elevated financial stress (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>) dominates the policy calculus. Rigid rules cannot capture the <strong>liquidity impulse</strong> or the proximity of the current policy rate to a potentially rising <strong>Neutral Rate (r*)</strong> (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">7</a>), which requires a flexible, forward-looking calibration to avoid unintended over-tightening.
+Mechanical policy rules are insufficient in the current regime because they rely on static reaction coefficients that fail to account for the non-linear risks of a cooling labour market. Currently, risk asymmetry dominates point estimates; while inflation remains above target, the downside risk to growth and employment—signaled by waning labour dynamism—carries a higher policy penalty than a marginal inflation overshoot. Furthermore, the time-varying nature of the neutral rate (r*) and shifting mandate weights during regime transitions mean that a fixed rule would likely result in a policy error by ignoring the "long and variable lags" of the current restrictive real-rate stance. Persistence and uncertainty regarding tariff-driven price shocks versus organic disinflation require a flexible reaction function that prioritizes regime stability over mechanical averages.
 </p>
 
 <h3>3. Reaction-Function Relevant Signals</h3>
 <ul>
-  <li><strong>Inflation dynamics:</strong> The composite inflation signal is <strong>COOL</strong> (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>), driven by weak momentum, even as PCE remains <strong>Neutral</strong> (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>) and market-implied expectations remain <strong>STABLE</strong> (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">12</a>).</li>
-  <li><strong>Labour market:</strong> The Explicit Slack Gap is <strong>NEUTRAL</strong> and <strong>STABLE</strong> (-0.12%), but momentum is <strong>Softening</strong> (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">4</a>) with <strong>Bearish</strong> worker turnover confidence (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">13</a>).</li>
-  <li><strong>Growth &amp; demand:</strong> The cycle is in a <strong>Moderating Expansion</strong> phase; while industrial demand tailwinds are active (<a href="https://investoranatomy.com/signal_report/Energy_Adjusted_Metals_Tailwind/" target="_blank">10</a>), consumer sentiment remains <strong>Bearish</strong> (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">14</a>).</li>
-  <li><strong>Financial conditions:</strong> Liquidity is <strong>Expansionary</strong> (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">5</a>) and M2 is <strong>Bullish</strong> (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">6</a>), but a <strong>Bearish</strong> Financial Stress Index (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>) indicates systemic tension. The policy stance is <strong>NEAR NEUTRAL</strong> relative to r* (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">7</a>).</li>
-  <li><strong>Risk asymmetry:</strong> Upside inflation risks (tariff-driven) are noted, but <strong>downside growth/labor risks</strong> are increasing in significance as hiring decelerates. <strong>High Squeeze Risk</strong> (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">11</a>) in positioning suggests market fragility.</li>
+  <li><strong>Inflation dynamics:</strong> The regime is COOL with stable direction and anchored expectations, though core persistence remains a secondary concern (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">2</a>).</li>
+  <li><strong>Labour market:</strong> Composite regime is NEUTRAL but softening; the Explicit Slack Gap is currently NEUTRAL and STABLE with medium confidence (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">7</a>).</li>
+  <li><strong>Growth &amp; demand:</strong> Mid-cycle phase with moderating momentum; demand tailwinds in industrial sectors are offset by price sensitivity in lower-income cohorts (<a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank">6</a>).</li>
+  <li><strong>Financial conditions:</strong> Liquidity impulse is EXPANSIONARY due to ON RRP unwinds (<a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank">8</a>); policy stance is NEAR NEUTRAL relative to a stable r* (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">9</a>). Credit conditions are NORMAL but widening momentum suggests tightening risk (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">11</a>).</li>
+  <li><strong>Risk asymmetry:</strong> Downside growth risks (rising U-6 and bearish consumer sentiment) are beginning to outweigh upside inflation risks, given the "COOL" inflation signal (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">12</a>).</li>
 </ul>
 
 <h3>4. Macro Directional Bias (Conditions Only)</h3>
 <p>
-<strong>CUT</strong>
+<strong>HOLD</strong>
 </p>
 <p>
-This reflects economic justification only, not timing, probability, or intent.
+This reflects economic justification only: While inflation is cooling and labour is softening, the neutral status of the Slack Gap and the proximity of current rates to the estimated neutral rate (r*) suggest that macro conditions do not yet decisively justify a policy departure from the current "Near Neutral" stance.
 </p>
 
 <h3>5. Confidence Score</h3>
 <p>
-<strong>MEDIUM</strong>
+<strong>MEDIUM</strong>, as the cooling labour signals (U-6) and "COOL" inflation regime provide a high degree of coherence, but the "Stable" Slack Gap and "Normal" credit spreads act as significant signal contradictions that enforce regime inertia.
 </p>
+
 <hr>
+
 <p><em>
 This assessment reflects economic justification, not policy timing or decision-making.
 </em></p>
@@ -282,9 +343,9 @@ This assessment reflects economic justification, not policy timing or decision-m
 <!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
 <h3>Missing Content / Critical Improvements</h3>
 <ul>
-  <li>Integration of the most recent PAYEMS data for 2025-12-31 would enhance the Confidence Score for the Labour Momentum signal.</li>
-  <li>The disconnect between the "COOL" Fed Inflation Signal and "Neutral" PCE suggests a need for more granular core vs. headline breakdown in the synthesis.</li>
-  <li>M2 growth data for the most recent two months is missing from the composite, which may impact the perceived strength of the liquidity expansion.</li>
+  <li>The Private Credit Impulse signal for December 2025 has missing data for Commercial & Industrial Loans, hindering a full credit-cycle assessment.</li>
+  <li>M2 Money Stock data for November and December 2025 are missing from the Federal Reserve Liquidity Composite, limiting the quantitative precision of the liquidity impulse.</li>
+  <li>The latest PAYEMS data for 2025-12-31 is missing, which prevents a current assessment of the most recent labour market momentum.</li>
 </ul>
 --></div></div>
 <div class="panel" role="tabpanel" id="panel-projections" aria-labelledby="tab-projections" hidden><div class="panel-title">Projections Synthesiser</div><div class="panel-body"><p><em>
@@ -1387,10 +1448,10 @@ Fed Tone Decoder - Communications Interpretation Module.
 
   <p><strong>Loaded Documents (All):</strong></p>
   <ul>
-    <li><strong>Economic Outlook and Energy Effects</strong> - Speech - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/speech/jefferson20260326a.htm" target="_blank">Source</a> - <em>Status: Processed (This Run)</em> - <em>Importance: medium</em></li>
-    <li><strong>Prospects for Shrinking the Fed’s Balance Sheet</strong> - Speech - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/speech/miran20260326a.htm" target="_blank">Source</a> - <em>Status: Processed (This Run)</em> - <em>Importance: medium</em></li>
-    <li><strong>Reflections on Financial Stability</strong> - Speech - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/speech/cook20260326a.htm" target="_blank">Source</a> - <em>Status: Processed (This Run)</em> - <em>Importance: medium</em></li>
-    <li><strong>Acceptance Remarks</strong> - Speech - 2026-03-21 - <a href="https://www.federalreserve.gov/newsevents/speech/powell20260321a.htm" target="_blank">Source</a> - <em>Status: Processed (This Run)</em> - <em>Importance: high</em></li>
+    <li><strong>Economic Outlook and Energy Effects</strong> - Speech - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/speech/jefferson20260326a.htm" target="_blank">Source</a> - <em>Status: Processed (Library)</em> - <em>Importance: medium</em></li>
+    <li><strong>Prospects for Shrinking the Fed’s Balance Sheet</strong> - Speech - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/speech/miran20260326a.htm" target="_blank">Source</a> - <em>Status: Processed (Library)</em> - <em>Importance: medium</em></li>
+    <li><strong>Reflections on Financial Stability</strong> - Speech - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/speech/cook20260326a.htm" target="_blank">Source</a> - <em>Status: Processed (Library)</em> - <em>Importance: medium</em></li>
+    <li><strong>Acceptance Remarks</strong> - Speech - 2026-03-21 - <a href="https://www.federalreserve.gov/newsevents/speech/powell20260321a.htm" target="_blank">Source</a> - <em>Status: Processed (Library)</em> - <em>Importance: high</em></li>
     <li><strong>Federal Open Market Committee Statement - March 18, 2026</strong> - Statement - 2026-03-18 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260318a.htm" target="_blank">Source</a> - <em>Status: Processed (Library)</em> - <em>Importance: critical</em></li>
     <li><strong>The Beige Book - February 2026</strong> - Beige Book - 2026-03-04 - <a href="file:///C:/Users/peter/OneDrive/Documents/GitHub/Data/Fed-Policy-Advisor/BeigeBook_20260304.pdf" target="_blank">Source</a> - <em>Status: Processed (Library)</em> - <em>Importance: critical</em></li>
     <li><strong>Testimony on the Federal Reserve’s Supervisory and Regulatory Activities</strong> - Testimony - 2026-02-26 - <a href="https://www.federalreserve.gov/newsevents/testimony/bowman20260226a.htm" target="_blank">Source</a> - <em>Status: Processed (Library)</em> - <em>Importance: high</em></li>
@@ -1434,22 +1495,24 @@ Fed Tone Decoder - Communications Interpretation Module.
 
   <p><strong>Important Fed Documents Not Loaded:</strong></p>
   <ul>
-    <li><strong>Federal Reserve Board announces it has made the joint findings with the Office of the Comptroller of the Currency required for the OCC to approve a request by Morgan Stanley Bank, N.A., for an exemption under section 23A of the Federal Reserve Act</strong> - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/orders20260326a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and regulatory exemption for Morgan Stanley section 23A request]</li>
-    <li><strong>Federal Reserve Board releases annual audited financial statements</strong> - 2026-03-25 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/other20260325a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and release of Fed's annual audited financial statements]</li>
-    <li><strong>Barr, Developing Communities through Public-private Partnerships</strong> - 2026-03-24 - <a href="https://www.federalreserve.gov/newsevents/speech/barr20260324a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and speech regarding public-private partnerships in community investment]</li>
-    <li><strong>Agencies request comment on proposals to modernize the regulatory capital framework and maintain the strength of the banking system</strong> - 2026-03-19 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/bcreg20260319a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and proposal to modernize banking regulatory capital framework]</li>
-    <li><strong>Bowman, Capital Rules for the Real Economy</strong> - 2026-03-12 - <a href="https://www.federalreserve.gov/newsevents/speech/bowman20260312a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and speech regarding Basel III and bank capital rules]</li>
-    <li><strong>Federal Reserve Board announces approval of notice by CBS Banc-Corp.</strong> - 2026-03-09 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/orders20260309a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and Board approval for CBS Banc-Corp notice]</li>
-    <li><strong>Agencies clarify the capital treatment of tokenized securities</strong> - 2026-03-05 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/bcreg20260305a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and regulatory clarification on capital for tokenized securities]</li>
-    <li><strong>Bowman, Liquidity Resiliency, Financial Stability, and the Role of the Federal Reserve</strong> - 2026-03-03 - <a href="https://www.federalreserve.gov/newsevents/speech/bowman20260303a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and speech on liquidity, stability, and lender role]</li>
-    <li><strong>Following earlier actions to remove reputation risk from its supervision of banks, Federal Reserve Board requests comment on proposal to codify that removal</strong> - 2026-02-23 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/bcreg20260223a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and proposal to codify removal of reputation risk]</li>
-    <li><strong>Federal Reserve Board announces it will hold a hybrid public outreach meeting on Thursday, March 26, as part of its review of regulations under the Economic Growth and Regulatory Paperwork Reduction Act (EGRPRA)</strong> - 2026-02-19 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/other20260219a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium and announcement of EGRPRA regulatory review outreach meeting]</li>
+    <li><strong>Barr, Brief Remarks on Stablecoins</strong> - 2026-03-31 - <a href="https://www.federalreserve.gov/newsevents/speech/barr20260331a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Recent speech regarding stablecoin regulation and legislative questions.</li>
+    <li><strong>Bowman, Supporting Small Businesses</strong> - 2026-03-31 - <a href="https://www.federalreserve.gov/newsevents/speech/bowman20260331a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Recent speech regarding banking support for small business communities.</li>
+    <li><strong>Federal Reserve Board announces it has made the joint findings with the Office of the Comptroller of the Currency...</strong> - 2026-03-26 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/orders20260326a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Press release regarding Morgan Stanley Bank section 23A exemption.</li>
+    <li><strong>Federal Reserve Board releases annual audited financial statements</strong> - 2026-03-25 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/other20260325a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Release of the Federal Reserve's annual audited financial statements.</li>
+    <li><strong>Barr, Developing Communities through Public-private Partnerships</strong> - 2026-03-24 - <a href="https://www.federalreserve.gov/newsevents/speech/barr20260324a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Recent speech regarding community investment through public-private partnerships.</li>
+    <li><strong>Agencies request comment on proposals to modernize the regulatory capital framework...</strong> - 2026-03-19 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/bcreg20260319a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Request for comment on modernizing the regulatory capital framework.</li>
+    <li><strong>Bowman, Capital Rules for the Real Economy</strong> - 2026-03-12 - <a href="https://www.federalreserve.gov/newsevents/speech/bowman20260312a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Recent speech at Cato regarding Basel III capital rules.</li>
+    <li><strong>Federal Reserve Board announces approval of notice by CBS Banc-Corp.</strong> - 2026-03-09 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/orders20260309a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Press release regarding board approval of banking notice.</li>
+    <li><strong>Agencies clarify the capital treatment of tokenized securities</strong> - 2026-03-05 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/bcreg20260305a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Recent agency clarification regarding capital treatment for tokenized securities.</li>
+    <li><strong>Bowman, Liquidity Resiliency, Financial Stability, and the Role of the Federal Reserve</strong> - 2026-03-03 - <a href="https://www.federalreserve.gov/newsevents/speech/bowman20260303a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Recent speech regarding liquidity resiliency and lender of last resort.</li>
+    <li><strong>Following earlier actions to remove reputation risk from its supervision...</strong> - 2026-02-23 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/bcreg20260223a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Proposal to codify removal of reputation risk from supervision.</li>
+    <li><strong>Federal Reserve Board announces it will hold a hybrid public outreach meeting...</strong> - 2026-02-19 - <a href="https://www.federalreserve.gov/newsevents/pressreleases/other20260219a.htm" target="_blank">Source</a> - <em>Missing</em>: [importance: medium] Announcement of public outreach meeting for EGRPRA regulatory review.</li>
   </ul>
 
   <p><strong>Coverage Notes:</strong></p>
   <ul>
-    <li><strong>RSS Coverage:</strong> RSS feeds were provided and appear complete for the period covering the reported missing candidates.</li>
-    <li><strong>Coverage Counts:</strong> Processed this run: 4; Processed in library: 43; RSS entries: 50; Missing RSS entries (reported candidates): 10.</li>
+    <li><strong>RSS Coverage:</strong> RSS feeds were provided and appear complete for the period covering early 2026.</li>
+    <li><strong>Coverage Counts:</strong> Processed (Library): 43, Processed (This Run): 0, RSS Entries: 50, Missing Reported Candidates: 12.</li>
     <li><strong>Non-RSS Gaps:</strong> Not verifiable from RSS provided.</li>
   </ul>
 
@@ -1471,13 +1534,33 @@ Fed Tone Decoder - Communications Interpretation Module.
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy • Federal Reserve Watcher • Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -1514,6 +1597,9 @@ Fed Tone Decoder - Communications Interpretation Module.
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

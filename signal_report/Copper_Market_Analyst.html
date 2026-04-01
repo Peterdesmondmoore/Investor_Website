@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Copper Market Analyst</div>
         <div class="page-title">The Copper Market Analyst combines price diagnostics, positioning regimes, research synthesis, media monitoring, and macro signal interpretation into a coherent market context.</div>
         <div class="hero-inject market-report"><div class="ia-report-block" id="copper-macro-outlook">
@@ -144,58 +210,49 @@
   <h3>Regime Assessment</h3>
   <p>
     Current conditions align with the <strong>Stress Shock (Risk-Off Override)</strong> regime.
-    Dominant drivers include <strong>Systemic Stress</strong> as evidenced by a Financial Stress Index z-score of 0.9499 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>) and a VIX level of 31.05 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">10</a>). Deterministic signals indicate that while macro growth and liquidity remain neutral, the risk-off override logic currently dominates directional bias.
+    Dominant drivers include elevated financial stress levels (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>) and volatility metrics currently in a "Stressed" state (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">2</a>).
   </p>
 
   <h3>1-Month Outlook (Tactical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Bearish</li>
-    <li><strong>Probability:</strong> Up: 0.45, Down: 0.55</li>
-    <li><strong>Primary Influences:</strong> The 7-day news compression reflects a negative composite score of -0.75, driven by deteriorating sentiment in investment markets and high geopolitical risk (<a href="https://investoranatomy.com/signal_report/Podcast_Copper_News_Signal_Compression_7D/" target="_blank">11</a>).</li>
-    <li><strong>Composite Pricing &amp; Volatility Signals:</strong> Pricing diagnostics show a technical breakdown in the broader copper complex, though isolated large-cap producers show signs of attempted stabilization (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">12</a>).</li>
-    <li><strong>Positioning / CoT Signals:</strong> Speculative conviction is actively fading, with negative 4-week flows of -3.62 aligning with declining price action (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>).</li>
-    <li><strong>Volatility Profile:</strong> High; characterized by "Stressed" market volatility states (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">10</a>).</li>
+    <li><strong>Directional Bias:</strong> Bearish / Defensive</li>
+    <li><strong>Probability:</strong> Up: 0.45 / Down: 0.55</li>
+    <li><strong>Primary Influences:</strong> 7-day news compression reflects a negative composite score (-0.7) driven by high-strength geopolitical risk (<a href="https://investoranatomy.com/signal_report/Podcast_Copper_News_Signal_Compression_7D/" target="_blank">3</a>) and a strengthening USD index environment (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>).</li>
+    <li><strong>Composite Pricing &amp; Volatility Signals:</strong> Pricing diagnostics show a transitional state; established producers are testing 200-day trend supports despite remaining below 50-day moving averages (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">5</a>).</li>
+    <li><strong>Positioning / CoT Signals:</strong> Speculative conviction is actively fading, with net interest falling to 15.9% and negative 4-week flow momentum (-3.62) (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">6</a>).</li>
+    <li><strong>Volatility Profile:</strong> High</li>
   </ul>
 
   <h3>3-Month Outlook (Cyclical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Neutral</li>
-    <li><strong>Probability:</strong> Up: 0.50, Down: 0.50</li>
-    <li><strong>Macro Drivers:</strong> Macro growth and liquidity regimes remain in a neutral state, with supportive M2 supply growth offset by restrictive real interest rate trends (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">4</a>).</li>
-    <li><strong>Confirmation / Tension Signals:</strong> A significant tension exists between the bearish macro stress environment and a bullish physical shortage flagged by the Hedger Pressure Indicator (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">7</a>).</li>
+    <li><strong>Directional Bias:</strong> Neutral / Cautious</li>
+    <li><strong>Probability:</strong> Up: 0.50 / Down: 0.50</li>
+    <li><strong>Macro Drivers:</strong> Deterministic macro drivers are currently dominated by the stress override. Underlying growth indicators remain neutral (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">5</a>), while the USD regime provides a persistent cyclical headwind (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">7</a>).</li>
+    <li><strong>Confirmation / Tension Signals:</strong> A significant internal conflict exists between supportive M2 liquidity expansion (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">8</a>) and the restrictive pressure of the current real interest rate trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">9</a>).</li>
   </ul>
 
   <h3>12-Month Outlook (Strategic)</h3>
   <ul>
-    <li><strong>Regime Persistence:</strong> Mixed; regime confidence is currently challenged by the divergence between structural deficits and tactical technical exhaustion (<a href="https://investoranatomy.com/signal_report/Copper_Research_Analyst/" target="_blank">13</a>).</li>
-    <li><strong>Historical Outcome Bias:</strong> Mixed</li>
-    <li><strong>Structural Context (from provided inputs only):</strong> The long-term outlook remains underpinned by substantial shortfalls driven by AI infrastructure and the energy transition, though a potential 18% correction is flagged if speculative positioning continues to unwind against high price thresholds (<a href="https://investoranatomy.com/signal_report/Copper_Research_Analyst/" target="_blank">13</a>).</li>
+    <li><strong>Regime Persistence:</strong> Mixed; the outlook is defined by a divergence between short-term speculative exhaustion and a forecasted structural deficit in refined copper (<a href="https://www.cruxinvestor.com/posts/coppers-price-ceiling-comes-into-focus-as-speculative-capital-may-unwind?utm_source=chatgpt.com" target="_blank">10</a>).</li>
+    <li><strong>Historical Outcome Bias:</strong> Long-term supply constraints typically support a bullish bias in deficit scenarios.</li>
+    <li><strong>Structural Context (from provided inputs only):</strong> Demand is expected to be underpinned by the global energy transition and AI infrastructure requirements, which could add 300,000 to 500,000 tons of annual demand (<a href="https://press.spglobal.com/2026-01-08-Substantial-Shortfall-in-Copper-Supply-Widens-as-the-Race-for-AI-and-Growing-Defense-Spending-Add-to-Accelerating-Demand,-New-S-P-Global-Study-Finds" target="_blank">11</a>)(<a href="https://www.bcentral.cl/documents/d/banco-central/box-ii-1-december-2025-ipom-pdf?download=true" target="_blank">12</a>).</li>
   </ul>
 
   <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
   <ul>
-    <li><strong>Indicator Conflict:</strong> High internal conflict is flagged due to the divergence between elevated financial stress (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>) and bullish physical market tightness indicated by commercial hedgers (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">7</a>).</li>
-    <li><strong>Pricing Dispersion:</strong> Major producers are attempting technical breakouts while the broader sectoral proxy remains in a breakdown state, creating low internal consistency in the pricing regime (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">12</a>).</li>
-    <li><strong>Invalidation Trigger:</strong> A transition in CoT signals to "Price down AND Flow up" would indicate the current selloff is losing sponsorship and finding absorption (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>).</li>
+    <li><strong>Liquidity vs. Rates:</strong> Bullish M2 momentum is directly countered by restrictive real yields, preventing a clear liquidity-driven tailwind (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">9</a>).</li>
+    <li><strong>Positioning Asymmetry:</strong> High speculative tension in the USD combined with elevated financial stress amplifies the risk of a sharp liquidation in copper if stress accelerates (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">13</a>).</li>
+    <li><strong>Invalidation Trigger:</strong> A transition of the Financial Stress Index and VIX markers back to "Normal" or "Calm" regimes would remove the C6 override and return dominance to growth and liquidity drivers (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">2</a>).</li>
   </ul>
-</div>
-
-<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Global Growth Composite Signal missing: Prevents full growth regime classification.</li>
-  <li>Global PMI Manufacturing Signal missing: Required for industrial demand verification.</li>
-  <li>China Activity Composite Signal missing: Essential for copper's cyclical demand anchor.</li>
-  <li>Energy Transition Demand Proxy missing: Needed for objective structural demand quantification.</li>
-</ul>
---></div>
+</div></div>
       </div>
     </div>
 
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -212,7 +269,7 @@
 
   <div class="ia-panel">
     <h3>Executive Summary</h3>
-    <p>Copper pricing behavior currently reflects a period of significant short-term volatility and a notable divergence between individual producers and the broader sector proxy (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>). While major producers have recently demonstrated technical breakouts above long-term trend lines, the wider producer complex remains positioned in a technical breakdown state (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">2</a>). One-month returns across the cohort show uniform double-digit declines, though one-week data suggests an emerging attempt at stabilization (<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">3</a>). Pricing is characterized by high realized volatility and mid-range positioning within 52-week bands (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>). The internal consistency of the regime is low, as individual equity strength is not yet reflected in the aggregate sectoral performance (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>).</p>
+    <p>Copper pricing behavior currently exhibits a sharp, synchronous daily recovery within a broader one-month window of deterioration (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">2</a>). Established producers are leading an emerging attempt to stabilize technical trends, though prices for major constituents remain below their 50-day moving averages (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>). Participation is broad across the mining cohort, supported by unusually high volume in sector-wide exposure instruments (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">3</a>). Realized volatility remains in a high regime, reflecting the significant drawdown from 52-week highs observed prior to the recent bounce (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">2</a>). The current regime is transitional, characterized by established miners testing trend supports while broader participation remains concentrated (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>).</p>
   </div>
 
   <div class="ia-grid ia-grid-3">
@@ -220,10 +277,10 @@
       <h3>Producers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>mixed</td></tr>
-          <tr><th>Breadth</th><td>moderate</td></tr>
-          <tr><th>Persistence</th><td>established</td></tr>
-          <tr><th>Dispersion</th><td>high</td></tr>
+          <tr><th>Directionality</th><td>improving</td></tr>
+          <tr><th>Breadth</th><td>broad</td></tr>
+          <tr><th>Persistence</th><td>emerging</td></tr>
+          <tr><th>Dispersion</th><td>low</td></tr>
         </tbody>
       </table>
     </div>
@@ -232,9 +289,9 @@
       <h3>Developers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>deteriorating</td></tr>
-          <tr><th>Breadth</th><td>moderate</td></tr>
-          <tr><th>Persistence</th><td>established</td></tr>
+          <tr><th>Directionality</th><td>flat</td></tr>
+          <tr><th>Breadth</th><td>narrow</td></tr>
+          <tr><th>Persistence</th><td>short-lived</td></tr>
           <tr><th>Dispersion</th><td>low</td></tr>
         </tbody>
       </table>
@@ -255,9 +312,17 @@
 
   <div class="ia-panel" style="margin-top:12px;">
     <h3>Cross-Cohort Alignment</h3>
-    <p>The copper pricing regime is partially aligned, with isolated strength appearing in major Producers (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">3</a>) which are divergent from the broader Copper Composite (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>). Pricing behavior is currently driven by specific large-cap Producers that have decoupled from the broader sectoral decline (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>). Participation is not broadening, as the aggregate complex continues to reflect the sharp one-month deterioration rather than the isolated technical recoveries. The regime appears transitional, shifting from uniform weakness toward a state of high-dispersion stabilization. Internal consistency remains low due to the fragmentation between individual equity breakouts and aggregate sectoral breakdowns (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>).</p>
+    <p>The copper pricing regime is currently partially aligned, with established producers acting as the leading cohort following a synchronous bounce off 200-day trend lines (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">2</a>). While producer participation is broad, there is an absence of broadening movement into developer or processor cohorts within the current observation set (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">3</a>). This isolation of strength to miners suggests an uneven recovery where operating leverage is the primary driver of the current established movement (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>).</p>
   </div>
-</div></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank" rel="noopener" class="report-btn">IA Copper Pricing Model</a></div></div>
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Developer Cohort Data: No specific project-level or explorer signals were provided to differentiate developer behavior from established producers.</li>
+  <li>Processor / Fabricator Data: Downstream processing signals were absent from the current diagnostic inputs, limiting cross-cohort synthesis.</li>
+</ul>
+--></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank" rel="noopener" class="report-btn">IA Copper Pricing Model</a></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Copper Positioning Analyst</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -336,8 +401,8 @@
 <ul>
   <li>Verification of "Typical Update Frequency" for Copper CoT to confirm Data Freshness.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_COPPER_Diagnostics.png" alt="Copper CoT diagnostics" /><div class="media-cap">Copper CoT diagnostics (example)</div></figure></div></div>
-<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Copper News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Copper | <strong>As of:</strong> 2026-03-27</p><p><strong>Composite news score:</strong> -0.7500 | <strong>Signal breadth:</strong> 0.5000 | <strong>Overall state:</strong> Mixed</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> c3f3863beb85a61162be66b1a6657a2395d865118b6635002acf9026a3ba017d</p><p><strong>Previous hash:</strong> 1216c3dc6b6f29ff74fa6d1d01f505129b83bca5ceef607fe6273e2d096420b6 | <strong>Change hash:</strong> 101ea7e727366e4751c2455a00835e86e8e6b216ea9bc71d65a561356afaecbe</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Investment &amp; Financial Markets</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Short</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">4</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Geopolitical Risk</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Macro &amp; Monetary Conditions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.7000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.7000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr></tbody></table></div></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_COPPER_Diagnostics.png" alt="Copper CoT diagnostics" /><div class="media-cap">Copper CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Copper News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Copper | <strong>As of:</strong> 2026-04-01</p><p><strong>Composite news score:</strong> -0.7000 | <strong>Signal breadth:</strong> 0.3300 | <strong>Overall state:</strong> Mixed</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> 18209cd37504428d4ca584837ffcb169cb8b3dc8d0cb363489a9bc2c2c548549</p><p><strong>Previous hash:</strong> 93933452c67b1563542ea21bba5272a781d388c2a2cca6cd587565fb4a676dd1 | <strong>Change hash:</strong> 4c93989f2a39cf9c92579643c1542fc30af853f1a8c023b5065c98211a4046de</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Investment &amp; Financial Markets</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Short</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.7000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Geopolitical Risk</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr></tbody></table></div></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Copper Research Analyst</div><div class="panel-body"><div class="asset-forward-view"
      data-as-of-date="2026-03-21"
      data-horizon-min-months="6"
@@ -583,167 +648,122 @@
   </section>
 
 </div></div></div>
-<div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Copper Signal Interpreter</div><div class="panel-body"><div class="ia-report-block" id="copper-regime-state-deterministic">
-    <h3>Copper Regime State — Deterministic Summary</h3>
+<div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Copper Signal Interpreter</div><div class="panel-body">### Copper Regime State — Deterministic Summary
 
-    <div class="ia-grid ia-grid-2">
-        <!-- Column 1: Primary Regime Labels -->
-        <div class="ia-panel">
-            <table class="ia-table">
-                <tr>
-                    <th>Growth & Demand Regime</th>
-                    <td>Neutral</td>
-                </tr>
-                <tr>
-                    <th>Liquidity Regime</th>
-                    <td>Neutral</td>
-                </tr>
-                <tr>
-                    <th>USD Conditioning</th>
-                    <td>Neutral</td>
-                </tr>
-                <tr>
-                    <th>Stress State</th>
-                    <td style="color: #d9534f; font-weight: bold;">Elevated</td>
-                </tr>
-            </table>
+<div class="copper-regime-report">
+    <style>
+        .copper-regime-report { font-family: sans-serif; line-height: 1.4; color: #333; max-width: 900px; }
+        .regime-header { background: #f4f4f4; padding: 1rem; border-left: 4px solid #b87333; margin-bottom: 1rem; }
+        .regime-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .regime-card { border: 1px solid #ddd; padding: 0.75rem; border-radius: 4px; }
+        .regime-label { font-weight: bold; text-transform: uppercase; font-size: 0.85rem; color: #666; display: block; margin-bottom: 0.25rem; }
+        .regime-value { font-size: 1.1rem; font-weight: bold; }
+        .status-bullish { color: #27ae60; }
+        .status-bearish { color: #c0392b; }
+        .status-neutral { color: #f39c12; }
+        .conflict-tag { background: #fee; color: #c0392b; font-size: 0.75rem; padding: 2px 6px; border-radius: 10px; border: 1px solid #c0392b; margin-left: 5px; }
+    </style>
+
+    <div class="regime-header">
+        <span class="regime-label">Primary Copper Regime</span>
+        <div class="regime-value status-bearish">Risk-Off / Defensive Override (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>)</div>
+    </div>
+
+    <div class="regime-grid">
+        <div class="regime-card">
+            <span class="regime-label">Growth & Demand (Primary)</span>
+            <div class="regime-value status-neutral">Neutral<span class="conflict-tag">Mixed Signals</span></div>
+            <small>Pricing stabilization (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">10</a>) vs Negative Flow Momentum (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">7</a>)</small>
         </div>
-
-        <!-- Column 2: Dominance & Horizon -->
-        <div class="ia-panel">
-            <table class="ia-table">
-                <tr>
-                    <th>Dominant Driver</th>
-                    <td>Systemic Stress</td>
-                </tr>
-                <tr>
-                    <th>1-Month Horizon Bias</th>
-                    <td style="color: #d9534f; font-weight: bold;">Bearish</td>
-                </tr>
-                <tr>
-                    <th>3-Month Horizon Bias</th>
-                    <td>Neutral</td>
-                </tr>
-                <tr>
-                    <th>Conflict Flag</th>
-                    <td style="font-weight: bold;">High</td>
-                </tr>
-            </table>
+        <div class="regime-card">
+            <span class="regime-label">Liquidity Regime</span>
+            <div class="regime-value status-neutral">Neutral<span class="conflict-tag">Internal Conflict</span></div>
+            <small>M2 Expansion (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>) offset by Restrictive Real Rates (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</small>
+        </div>
+        <div class="regime-card">
+            <span class="regime-label">USD Regime (Conditioning)</span>
+            <div class="regime-value status-bearish">Strengthening</div>
+            <small>Index above 12M MA (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>) + Speculative Long Build (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>)</small>
+        </div>
+        <div class="regime-card">
+            <span class="regime-label">Financial Stress (Override)</span>
+            <div class="regime-value status-bearish">Elevated</div>
+            <small>VIX Stressed (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>) + High Stress_z (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)</small>
         </div>
     </div>
 
-    <!-- Signal Mapping Table -->
-    <div class="ia-panel" style="margin-top: 1rem;">
-        <h4>Deterministic Signal Inputs</h4>
-        <table class="ia-table ia-table-compact">
-            <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Signal Component</th>
-                    <th>State</th>
-                    <th>Ref</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td rowspan="2">Growth / Industrial</td>
-                    <td>Global Growth / Manufacturing / China</td>
-                    <td>Unknown / Missing</td>
-                    <td>—</td>
-                </tr>
-                <tr>
-                    <td>Copper Individual Market Analysis</td>
-                    <td>Bearish</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>)</td>
-                </tr>
-                <tr>
-                    <td rowspan="3">Liquidity / Rates</td>
-                    <td>Fed Liquidity Composite</td>
-                    <td>Neutral</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>)</td>
-                </tr>
-                <tr>
-                    <td>M2 Money Supply Signal</td>
-                    <td>Bullish</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>)</td>
-                </tr>
-                <tr>
-                    <td>Real Interest Rate Trend</td>
-                    <td>Bearish</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">4</a>)</td>
-                </tr>
-                <tr>
-                    <td rowspan="2">USD / FX</td>
-                    <td>USD Index Signal</td>
-                    <td>Bearish</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)</td>
-                </tr>
-                <tr>
-                    <td>USD Individual Market Analysis</td>
-                    <td>Bullish</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>)</td>
-                </tr>
-                <tr>
-                    <td rowspan="2">Flows / Positioning</td>
-                    <td>Hedger Pressure Indicator</td>
-                    <td>Bullish (Shortage)</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">7</a>)</td>
-                </tr>
-                <tr>
-                    <td>Specs vs Hedgers Divergence</td>
-                    <td>Neutral (Low)</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">8</a>)</td>
-                </tr>
-                <tr>
-                    <td rowspan="2">Risk / Stress</td>
-                    <td>Financial Stress Index (STLFSI4)</td>
-                    <td>Bearish (High Stress)</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>)</td>
-                </tr>
-                <tr>
-                    <td>Market Volatility (VIX)</td>
-                    <td>Stressed</td>
-                    <td>(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">10</a>)</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="regime-grid">
+        <div class="regime-card">
+            <span class="regime-label">1-Month Horizon Bias</span>
+            <div class="regime-value status-bearish">Bearish / Defensive</div>
+            <small>Dominance of Stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>) and Fading Speculative Conviction (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">7</a>)</small>
+        </div>
+        <div class="regime-card">
+            <span class="regime-label">3-Month Horizon Bias</span>
+            <div class="regime-value status-neutral">Neutral / Cautious</div>
+            <small>Growth Neutrality and USD Conditioning reduction (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)</small>
+        </div>
     </div>
 
-    <!-- Rule Execution Logic -->
-    <div class="ia-panel" style="margin-top: 1rem;">
-        <h4>Rule Execution Trace</h4>
-        <ul style="font-size: 0.9rem; line-height: 1.4;">
-            <li><strong>Growth Rules:</strong> Insufficient component data provided to confirm Expansionary or Contractionary state. Defaulting to <strong>Neutral</strong>.</li>
-            <li><strong>Liquidity Rules:</strong> M2 (Bullish), Fed Liq (Neutral), Real Rates (Bearish). No state met "two or more" threshold. Defaulting to <strong>Neutral</strong>.</li>
-            <li><strong>USD Rules:</strong> Conflicting signals between Macro Index (Bearish) and Tactical Positioning (Bullish). Defaulting to <strong>Neutral</strong>.</li>
-            <li><strong>Stress Override:</strong> Stress detected as <strong>Elevated</strong> via VIX (31.05) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">10</a>) and FSI z-score (0.9499) (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">9</a>). Stress override logic engaged: Risk-off logic dominates directional bias.</li>
-            <li><strong>Positioning Rule:</strong> Physical Tightness flagged via Hedger Pressure (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">7</a>). Overrides tactical exhaustion risks.</li>
-            <li><strong>1-Month Horizon:</strong> Dominated by <strong>Elevated Stress</strong> and negative tactical flows in copper (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">1</a>). Bias: <strong>Bearish</strong>.</li>
-            <li><strong>3-Month Horizon:</strong> Dominated by <strong>Neutral</strong> Growth and Liquidity regimes. Bias: <strong>Neutral</strong>.</li>
+    <div class="regime-card" style="margin-top: 1rem;">
+        <span class="regime-label">Positioning & Flow Adjustments</span>
+        <ul>
+            <li><strong>Asymmetry Risk:</strong> Flagged. High positioning tension in USD (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>) combined with elevated Stress (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">11</a>) amplifies liquidation risk.</li>
+            <li><strong>Physical Tightness:</strong> Neutral. Shortage counts increasing but Supply Pressure persists (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">12</a>).</li>
+            <li><strong>Flow Momentum:</strong> Deteriorating. Speculative Net %OI declining as 4-week flows remain negative (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">7</a>).</li>
         </ul>
+    </div>
+
+    <div class="regime-card" style="margin-top: 1rem; border-color: #c0392b;">
+        <span class="regime-label" style="color: #c0392b;">Deterministic Conflict Flags</span>
+        <small>
+            - <strong>USD Index:</strong> Label (Bullish) conflicts with momentum threshold (<5%) (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>).<br>
+            - <strong>Growth Alignment:</strong> Mining price bounce (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">10</a>) vs. negative 4-week speculative flows (<a href="https://investoranatomy.com/signal_report/Copper_CoT_Signals/" target="_blank">7</a>).<br>
+            - <strong>Liquidity:</strong> Bullish M2 momentum (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">3</a>) is countered by Restrictive Real Yields (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>).
+        </small>
     </div>
 </div>
 
 <!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
 <h3>Missing Content / Critical Improvements</h3>
 <ul>
-  <li>Global Growth Composite_Signal missing: Required for primary Growth regime classification.</li>
-  <li>Global PMI Manufacturing_Signal missing: Required for industrial demand regime component.</li>
-  <li>China Activity Composite_Signal missing: High-weight component for copper cyclical demand analysis.</li>
-  <li>Energy Transition Demand Proxy missing: Required for structural demand amplification assessment.</li>
+  <li>Global Growth Composite Signal: Value missing from direct inputs; inferred as Neutral per Rule 3.</li>
+  <li>Global Manufacturing PMI Signal: Value missing from direct inputs; inferred as Neutral per Rule 3.</li>
+  <li>China Activity Composite Signal: Value missing from direct inputs; inferred as Neutral per Rule 3.</li>
+  <li>Energy Transition Demand Proxy: Value missing from direct inputs; inferred as Neutral per Rule 3.</li>
 </ul>
 --></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Copper Market Analyst - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -780,6 +800,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>
