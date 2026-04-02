@@ -5,7 +5,7 @@
 
 const AuthConfig = {
   // Redirect URL for non-authenticated users
-  redirectUrl: 'https://investoranatomy.com',
+  redirectUrl: '/login.html',
   
   // Access categories with their required authentication level
   categories: {
@@ -52,6 +52,7 @@ const AuthConfig = {
     // Public pages
     '/': 'public',
     '/index.html': 'public',
+    '/login': 'public',
     '/login.html': 'public',
     '/login/index.html': 'public',
     '/pricing.html': 'public',
