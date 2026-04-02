@@ -5,7 +5,7 @@
 
 const AuthConfig = {
   // Redirect URL for non-authenticated users
-  redirectUrl: '/login.html',
+  redirectUrl: '/index.html',
   
   // Access categories with their required authentication level
   categories: {

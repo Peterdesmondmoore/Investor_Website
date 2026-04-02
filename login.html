@@ -596,7 +596,7 @@
             Sign in to access <span class="hero-highlight">premium signals</span>, research dashboards, and gated strategy outputs.
           </p>
           <p class="hero-copy">
-            Once logged in, you will be redirected to the Investor Anatomy home page.
+            Once logged in, you will stay on this page.
           </p>
           <div class="action-row">
             <button class="btn btn-primary" id="open-login-btn" type="button">Login</button>
@@ -611,12 +611,9 @@
   <script src="/shared/layout-loader.js"></script>
   <script>
     (function() {
-      var defaultRedirect = "/index.html";
-      var redirectTarget = defaultRedirect;
       var statusEl = document.getElementById("auth-status");
       var openLoginBtn = document.getElementById("open-login-btn");
       var currentUser = null;
-      var redirectAfterManualLogout = false;
 
       function setStatus(message, tone) {
         if (!statusEl) return;
@@ -680,15 +677,10 @@
         window.netlifyIdentity.on("login", function(user) {
           window.netlifyIdentity.close();
           setUIForUser(user || null);
-          window.location.assign(redirectTarget);
         });
 
         window.netlifyIdentity.on("logout", function() {
           setUIForUser(null);
-          if (redirectAfterManualLogout) {
-            redirectAfterManualLogout = false;
-            window.location.assign(redirectTarget);
-          }
         });
 
         if (typeof window.netlifyIdentity.currentUser === "function") {
@@ -703,7 +695,6 @@
           }
 
           if (currentUser) {
-            redirectAfterManualLogout = true;
             window.netlifyIdentity.logout();
           } else {
             window.netlifyIdentity.open();
