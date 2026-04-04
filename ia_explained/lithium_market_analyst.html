@@ -582,21 +582,21 @@
             <div class="process-card-bar" style="background:#3b82f6;"></div>
             <div class="process-card-title">1. Generate lithium signals</div>
             <p class="process-card-copy">
-              Convert macro, positioning, and lithium pricing inputs into signals that capture EV-demand expectations, supply pressure, USD and liquidity effects, crowding, and market stress.
+              Convert macro, market, and lithium-specific data into quantitative signals across EV-demand expectations, supply pressure, USD and liquidity conditions, positioning, ETF flows, and pricing leadership.
             </p>
           </div>
           <div class="process-card">
             <div class="process-card-bar" style="background:#8b5cf6;"></div>
-            <div class="process-card-title">2. Build the pricing layer</div>
+            <div class="process-card-title">2. Synthesis (not aggregation)</div>
             <p class="process-card-copy">
-              Use the ILIT proxy pricing node as the model-facing lithium pricing input in the analyst workflow.
+              Preserve economic meaning by evaluating how demand expectations, supply expansion, producer pricing, and macro forces interact, identifying alignment, conflict, and dominance rather than collapsing signals into a single composite.
             </p>
           </div>
           <div class="process-card">
             <div class="process-card-bar" style="background:#fbbf24;"></div>
             <div class="process-card-title">3. Decision-grade outputs</div>
             <p class="process-card-copy">
-              Route regime interpretation, ILIT proxy pricing, ETF-flow context, research, and compressed news into the Lithium Market Analyst and Lithium Outlook, while showing the remaining unfinished lithium workflow nodes in red.
+              Produce lithium regime views, turning-point signals, and forward-looking interpretation that links macro conditions and battery-material demand to price direction, risk, and opportunity.
             </p>
           </div>
         </div>
@@ -770,7 +770,7 @@
                   "feedsSignalChange": true,
                   "feedsAnalyst": false,
                   "feedsExecutionBaseline": false,
-                  "feedsOutlook": true,
+                  "feedsOutlook": false,
                   "feedsOutlookSecondary": false
             },
             {
@@ -813,9 +813,9 @@
                   "description": "Translate lithium-hydroxide positioning into tactical crowding and reversal-risk signals.",
                   "feedsRegime": true,
                   "feedsSignalChange": true,
-                  "feedsAnalyst": true,
-                  "feedsExecutionBaseline": true,
-                  "feedsOutlook": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
                   "feedsOutlookSecondary": false
             },
             {
@@ -865,7 +865,7 @@
             {
                   "name": "Financial Stress Index Signal Monitor",
                   "href": "/signal_monitor/financial_stress_index_signal_monitor.html",
-                  "sourceGroup": "YFinance",
+                  "sourceGroup": "FRED",
                   "feedsRegime": true,
                   "feedsSignalChange": true,
                   "feedsAnalyst": false,
@@ -876,7 +876,7 @@
             {
                   "name": "Financial Stress Composite Signal Monitor",
                   "href": "/signal_monitor/financial_stress_composite_signal_monitor.html",
-                  "sourceGroup": "YFinance",
+                  "sourceGroup": "FRED",
                   "feedsRegime": true,
                   "feedsSignalChange": true,
                   "feedsAnalyst": false,
@@ -892,7 +892,7 @@
                   "feedsSignalChange": true,
                   "feedsAnalyst": false,
                   "feedsExecutionBaseline": true,
-                  "feedsOutlook": true,
+                  "feedsOutlook": false,
                   "feedsOutlookSecondary": false
             },
             {
@@ -904,7 +904,7 @@
                   "feedsSignalChange": true,
                   "feedsAnalyst": true,
                   "feedsExecutionBaseline": true,
-                  "feedsOutlook": true,
+                  "feedsOutlook": false,
                   "feedsOutlookSecondary": false
             },
             {
@@ -912,11 +912,11 @@
                   "href": "/signal_report/Lithium_ETF_Flow_Signal.html",
                   "sourceGroup": "ETF",
                   "description": "Track approximate BlackRock lithium ETF flow using shares outstanding and NAV per share to monitor investor-flow pressure.",
-                  "feedsRegime": true,
-                  "feedsSignalChange": true,
+                  "feedsRegime": false,
+                  "feedsSignalChange": false,
                   "feedsAnalyst": true,
                   "feedsExecutionBaseline": true,
-                  "feedsOutlook": true,
+                  "feedsOutlook": false,
                   "feedsOutlookSecondary": false
             }
       ],
@@ -956,8 +956,8 @@
                   "description": "Provide the forward-looking lithium outlook page built from the current market-analyst stack."
             },
             "execution": {
-                  "id": "Lithium Execution Brief",
-                  "name": "Lithium Execution Brief",
+                  "id": "Execution Brief",
+                  "name": "Execution Brief",
                   "description": "Translate the lithium market-analyst anchor plus baseline and delta-change context into a short-horizon execution brief.",
                   "href": "/signal_report/lithium_execution_brief.html"
             }
@@ -1245,25 +1245,18 @@
           ...signalInputs.filter((item) => item.feedsSignalChange).map((item) => ({ source: item.name, target: nodes.signalChange.id, commodity, kind: "signal-change-feed", signalSource: getSignalSource(item.name) })),
           ...signalInputs.filter((item) => item.feedsAnalyst).map((item) => ({ source: item.name, target: marketAnalystId, commodity, kind: "analyst-feed", signalSource: getSignalSource(item.name) })),
           ...signalInputs.filter((item) => item.feedsExecutionBaseline).map((item) => ({ source: item.name, target: nodes.execution.id, commodity, kind: "execution-baseline", signalSource: getSignalSource(item.name) })),
-          ...signalInputs.filter((item) => item.feedsOutlook).map((item) => ({ source: item.name, target: nodes.outlook.id, commodity, kind: "outlook-feed", signalSource: getSignalSource(item.name) })),
-          ...signalInputs.filter((item) => item.feedsOutlookSecondary).map((item) => ({ source: item.name, target: nodes.outlook.id, commodity, kind: "outlook-secondary", signalSource: getSignalSource(item.name) })),
           { source: "Deduplicate and Enrich", target: commodity + " News - 7 Days", commodity, kind: "news-pipeline" },
           { source: "Deduplicate and Enrich", target: commodity + " News - 2 Days", commodity, kind: "news-pipeline" },
-          { source: commodity + " News - 7 Days", target: commodity + " News Compression", commodity, kind: "news-pipeline" },
+          { source: commodity + " News - 7 Days", target: commodity + " News Compression", commodity },
+          { source: commodity + " News - 7 Days", target: marketAnalystId, commodity },
           { source: nodes.research.id, target: marketAnalystId, commodity, kind: "analyst-context" },
           { source: nodes.regimeFramework.id, target: marketAnalystId, commodity, kind: "analyst-context" },
           { source: nodes.regimeState.id, target: marketAnalystId, commodity, kind: "analyst-context" },
           { source: commodity + " News Compression", target: marketAnalystId, commodity, kind: "analyst-context" },
           { source: marketAnalystId, target: nodes.execution.id, commodity, kind: "execution-context" },
-          { source: nodes.regimeState.id, target: nodes.execution.id, commodity, kind: "execution-context" },
           { source: nodes.signalChange.id, target: nodes.execution.id, commodity, kind: "execution-context" },
           { source: commodity + " News - 2 Days", target: nodes.execution.id, commodity, kind: "execution-context" },
           { source: marketAnalystId, target: nodes.outlook.id, commodity, kind: "outlook-context" },
-          { source: nodes.research.id, target: nodes.outlook.id, commodity, kind: "outlook-context" },
-          { source: commodity + " News - 7 Days", target: nodes.outlook.id, commodity, kind: "outlook-context" },
-          { source: commodity + " News Compression", target: nodes.outlook.id, commodity, kind: "outlook-context" },
-          { source: nodes.regimeState.id, target: nodes.outlook.id, commodity, kind: "outlook-context" },
-          { source: commodity + " News - 2 Days", target: nodes.outlook.id, commodity, kind: "outlook-secondary" },
         ];
       }
 
@@ -1404,15 +1397,6 @@
         if (node.attention) objective += " This node is shown in red because the workflow is not yet fully wired into the current market-analyst stack.";
         return objective;
       }
-      function getStageBands(chartHeight) {
-        return [
-          { label: "SOURCE FEEDS", x: 16, width: 196, fill: "rgba(103, 232, 249, 0.032)", stroke: "rgba(103, 232, 249, 0.14)", pillFill: "rgba(8, 47, 73, 0.92)" },
-          { label: "UPSTREAM SIGNAL STACK", x: 236, width: 246, fill: "rgba(59, 130, 246, 0.03)", stroke: "rgba(59, 130, 246, 0.14)", pillFill: "rgba(30, 41, 59, 0.92)" },
-          { label: "NEWS SYNTHESIS", x: 500, width: 346, fill: "rgba(103, 232, 249, 0.026)", stroke: "rgba(103, 232, 249, 0.12)", pillFill: "rgba(15, 23, 42, 0.92)" },
-          { label: "REGIME + ANALYST", x: 920, width: 218, fill: getCommodityColor(commodity, 0.05), stroke: getCommodityColor(commodity, 0.18), pillFill: "rgba(30, 41, 59, 0.92)" },
-          { label: "DOWNSTREAM OUTPUTS", x: 1164, width: 236, fill: "rgba(192, 198, 208, 0.03)", stroke: "rgba(192, 198, 208, 0.16)", pillFill: "rgba(30, 41, 59, 0.92)" },
-        ].map((band) => Object.assign({}, band, { y: 56, height: chartHeight - 76 }));
-      }
 
       function positionTooltip(evt, targetEl) {
         const shellRect = sankeyShell.getBoundingClientRect();
@@ -1480,19 +1464,10 @@
         hideTooltip();
 
         const maxY = Math.max.apply(null, nodes.map((n) => n.y + nodeHeight));
-        const chartHeight = Math.max(1360, maxY + 100);
+        const chartHeight = Math.max(1320, maxY + 100);
         svg.setAttribute("viewBox", "0 0 " + chartWidth + " " + chartHeight);
 
         svg.appendChild(make("rect", { x: 0, y: 0, width: chartWidth, height: chartHeight, fill: palette.panel, rx: 0 }));
-
-        getStageBands(chartHeight).forEach((band) => {
-          svg.appendChild(make("rect", { x: band.x, y: band.y, width: band.width, height: band.height, rx: 22, fill: band.fill, stroke: band.stroke, "stroke-width": 1 }));
-          const pillWidth = Math.min(band.width - 20, Math.max(140, band.label.length * 8 + 20));
-          svg.appendChild(make("rect", { x: band.x + 10, y: 16, width: pillWidth, height: 24, rx: 12, fill: band.pillFill, stroke: band.stroke, "stroke-width": 1 }));
-          const label = make("text", { x: band.x + 22, y: 32, "font-size": 11, "font-weight": 700, "letter-spacing": "0.12em", fill: "#cbd5e1" });
-          label.textContent = band.label;
-          svg.appendChild(label);
-        });
 
         links.forEach((link) => {
           const source = nodeById[link.source];
@@ -1563,7 +1538,7 @@
             "letter-spacing": "0.08em",
             fill: "#f59e0b",
           });
-          outputTitle.textContent = "DOWNSTREAM OUTPUTS";
+          outputTitle.textContent = "MODEL OUTPUTS";
           svg.appendChild(outputTitle);
         }
 
