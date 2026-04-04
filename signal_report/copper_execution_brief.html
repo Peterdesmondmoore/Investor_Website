@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="/images/Favicon.png" />
+
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+      --content-width: 720px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #020617;
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(6, 7, 10, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand-text {
+      font-family: "Playfair Display", Georgia, serif;
+    }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+    }
+
+    .nav a.link {
+      color: var(--text-soft);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    .nav a.link:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 clamp(32px, 10vw, 352px) 40px;
+    }
+
+    .page-header {
+      margin: 0 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 36px 0;
+      background: #ffffff;
+      position: relative;
+      z-index: 0;
+    }
+
+    .page-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      background: #ffffff;
+      z-index: -1;
+    }
+
+    .title-wrap {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      align-items: center;
+      justify-items: start;
+      width: 100%;
+    }
+
+    .title-block {
+      text-align: left;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 0.75rem;
+      line-height: 1.15;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.08em;
+      color: #020617;
+    }
+
+    .page-hero-title {
+      margin-top: 6px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.15;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--bg);
+      font-family: "Playfair Display", Georgia, serif;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: none;
+      font-size: 1rem;
+      line-height: 1.65;
+      font-weight: 400;
+      font-style: normal;
+      color: #475569;
+      margin-bottom: 1rem;
+      max-width: calc(var(--content-width) * 2.5);
+      margin-left: auto;
+      margin-right: calc((100% - var(--content-width)) / 2);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .summary-box .subtitle {
+      font-size: 1.6rem;
+      line-height: 1.4;
+      color: var(--positive);
+      font-weight: 400;
+      font-family: "Playfair Display", Georgia, serif;
+    }
+
+
+    .meta-row {
+      display: none;
+    }
+
+    .header-image {
+      width: clamp(72px, 10vw, 120px);
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: #0b1120;
+      display: grid;
+      place-items: center;
+    }
+
+    .header-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .rule {
+      border: none;
+      border-top: none;
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+      max-width: var(--content-width);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .section-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .section-kicker {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-date {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      color: var(--accent);
+    }
+
+    .box {
+      background: transparent;
+      border-radius: 0;
+      padding: 0;
+      border: none;
+      box-shadow: none;
+    }
+
+    .summary-box {
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text-main);
+      display: grid;
+      gap: 12px;
+      max-width: var(--content-width);
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .summary-box.market-report {
+      overflow-x: hidden;
+    }
+
+    .summary-box.market-report img,
+    .summary-box .market-report img {
+      display: block;
+      max-width: 100% !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      margin: 1rem auto;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .summary-box p {
+      margin: 0 0 1.3rem;
+      letter-spacing: 0.01em;
+    }
+
+    .summary-box p strong {
+      font-size: 1.6rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .summary-box .article-heading {
+      margin: 1.1rem 0 0.35rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: inline-block;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      color: var(--text-main);
+    }
+
+    .summary-box .heading-h1,
+    .summary-box .heading-h2,
+    .summary-box .heading-h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .audio-episode {
+      display: grid;
+      grid-template-columns: minmax(140px, 180px) 1fr;
+      gap: 16px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .audio-episode-full {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+
+    .audio-cover {
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background: #0b1120;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+    }
+
+    .audio-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .audio-wrap {
+      border-radius: 0;
+      border: none;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+      display: grid;
+      gap: 8px;
+      overflow: visible;
+      max-width: var(--content-width);
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .audio-body {
+      display: grid;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .audio-title {
+      display: none;
+    }
+
+    .audio-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: linear-gradient(135deg, rgba(196, 64, 124, 0.22), rgba(2, 6, 23, 0.8));
+      color: var(--text-main);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 14px 28px rgba(196, 64, 124, 0.22);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    .audio-controls-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .audio-controls-row .audio-toggle {
+      width: auto;
+      padding: 8px;
+      border-radius: 999px;
+      justify-content: center;
+    }
+
+    .audio-controls-row .audio-wave {
+      flex: 1;
+      height: 28px;
+    }
+
+    .audio-controls-row .audio-time {
+      white-space: nowrap;
+      font-size: 0.7rem;
+    }
+
+    .audio-controls-row .audio-play {
+      font-size: 0.65rem;
+    }
+
+    .audio-toggle:hover {
+      border-color: var(--warn);
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(2, 6, 23, 0.8);
+    }
+
+    .audio-play {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+      font-size: 0.75rem;
+    }
+
+    .audio-wave {
+      position: relative;
+      height: 34px;
+      border-radius: 999px;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(148, 163, 184, 0.28) 0 6px,
+        transparent 6px 10px
+      );
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .audio-wave-progress {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(196, 64, 124, 0.7) 0 6px,
+        transparent 6px 10px
+      );
+      transition: width 0.15s linear;
+    }
+
+    .audio-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .audio-time-sep {
+      opacity: 0.6;
+    }
+
+    .audio-wrap audio {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .audio-wrap audio.audio-fallback {
+      position: static;
+      width: 100%;
+      height: auto;
+      opacity: 1;
+      pointer-events: auto;
+      margin-top: 10px;
+    }
+
+    .audio-fallback-msg {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      margin-top: 8px;
+    }
+
+    .article-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      max-width: var(--content-width);
+      margin: 0 auto;
+    }
+
+    .article-footer {
+      margin-top: 24px;
+      max-width: var(--content-width);
+      margin-left: auto;
+      margin-right: auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .article-footer-label {
+      font-size: 0.9rem;
+      color: var(--text-soft);
+      letter-spacing: 0.01em;
+      text-transform: none;
+      line-height: 1.6;
+    }
+
+    .article-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .article-link:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      max-width: var(--content-width);
+      margin-left: auto;
+      margin-right: auto;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+
+    .keyword {
+      color: var(--warn);
+      font-weight: 600;
+    }
+
+    @media (max-width: 720px) {
+      .title-wrap {
+        grid-template-columns: 1fr;
+        justify-items: start;
+      }
+
+      .audio-episode {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .audio-controls-row .audio-wave {
+        height: 22px;
+      }
+    }
+
+    /* --- Mobile overflow fixes for page header --- */
+    @media (max-width: 720px) {
+      .container {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .page-header,
+      .title-wrap,
+      .title-block {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .page-hero-title {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .subtitle {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/index.html">
+      <div class="logo" aria-hidden="true">
+        <img src="/images/Logo_Transparent.png" alt="Investor Anatomy Logo" style="width:100%; height:100%; object-fit:contain;" />
+      </div>
+      <div class="brand-text">
+        <div><strong>Investor Anatomy</strong></div>
+        <div>Copper Execution Brief</div>
+      </div>
+    </a>
+    <div style="display:flex; gap:6px; align-items:center;">
+      <a class="link" href="/index.html">Home</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-wrap">
+      
+      <div class="title-block">
+        <h1>Investor Anatomy Series</h1>
+        <div class="page-hero-title">Copper Execution Brief</div>
+        <p class="subtitle">A daily tactical view of copper price structure, signal shifts, and execution timing—designed to identify high-probability entry and trim conditions.</p>
+      </div>
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><div class="section-header"><div class="section-meta-row"><div class="section-kicker">By: Investor Anatomy Research</div><div class="section-date">April 4, 2026 | Report</div></div><h2 class="section-title">Copper Execution Brief</h2></div><div class="box summary-box market-report"><p class="subtitle">Volatility stress and deteriorating speculative sponsorship mandate a defensive neutral posture as copper enters a tactical holding pattern.</p><div class="audio-wrap"><div class="audio-episode audio-episode-full"><div class="audio-body"><div class="audio-title">Copper Execution Brief</div><div class="audio-controls-row"><button class="audio-toggle" type="button" aria-pressed="false"><span class="audio-play">&#9658;</span></button><div class="audio-wave" aria-hidden="true"><div class="audio-wave-progress"></div></div><div class="audio-time"><span class="audio-time-current">0:00</span><span class="audio-time-sep">/</span><span class="audio-time-total">0:00</span></div></div><audio preload="metadata" playsinline src="/images/Investor_Anatomy_Copper_Execution_Brief.mp3?v=1775260680"></audio><div class="audio-fallback-msg" hidden>Playback blocked. Tap to use native controls.</div></div></div></div>
+
+<p><strong>Session Setup</strong></p>
+<p>The market is currently classified in a Neutral Zone with the price trading at 48.51, positioned between the 20-day moving average of 46.86 and the upper Bollinger Band of 51.47. The volatility regime is categorized as Stressed, defined by a VIX of 23.87 and an MVS z-score of 1.286, a configuration that historically favors long liquidation over mean reversion. Realized volatility has accelerated into the 90th percentile, which necessitates the use of wider execution bands and a tactical delay in new positioning until realizing volatility begins to compress. Flow posture remains defensive as both speculative positioning and ETF share creation show distribution characteristics rather than accumulation.</p>
+<p><img src="/images/US_Market_Volatility_MVS_signal_chart_mpl.png" alt="Market Volatility Signal"></p>
+
+<p><strong>Signal Change Monitor</strong></p>
+<p>No new linked signal changes since last analyst run.</p>
+
+<p><strong>News Drivers and Market Narrative</strong></p>
+<p>The dominant copper news theme over the last 48 hours is the intensifying smelter squeeze, characterized by surging energy costs and logistical disruptions in the Strait of Hormuz. The current narrative tone is negative, as geopolitical instability and a reported lack of production discipline among major Chinese refiners prevent the formation of a supply-side price floor. This news flow confirms recent price weakness and the failure of the metal to maintain upward momentum. Market participants are now focused on the April 6 deadline for regional shipping lane negotiations, as a failure to resolve the maritime crisis will likely entrench high refining costs and pressure margins for the foreseeable future.</p>
+
+<p><strong>Tactical Trade Call</strong></p>
+<p>The Structural Bias is neutral to bearish, reflecting a strengthening USD index and a non-expansionary global growth environment. The Tactical Posture is no trade - wait for trigger, as price is currently situated mid-range with no clear directional edge or favorable risk-reward entry. The Setup Classification is a fade, though setup quality is currently low due to the lack of price interaction with extreme Bollinger Band boundaries. The confidence level is low, tied to the ongoing conflict between stabilizing price action and deeply negative 4-week speculative flow momentum. Rationale for this stance is driven by the Volatility-Adjusted Execution Framework: because the VIX is in a stressed regime, all breakout-buy setups are disabled. An entry condition for a tactical fade would require a price interaction with the upper Bollinger Band near 51.50 or a Z-score extension beyond 1.5. Conversely, a pullback-buy trigger is currently absent as the price remains above the 20-day mean. A trim/exit condition is established at the mid-band interaction of 46.86 if a short-term rally materializes.</p>
+<p><img src="/images/ICOP_Pricing_Dashboard.png" alt="Copper Pricing Dashboard"></p>
+
+<p><strong>Risk, Invalidation, Next Triggers</strong></p>
+<p>Tactical invalidation of the current defensive posture occurs if the price achieves a daily close above the 50-day moving average of 50.92 on expanding volume, or if the VIX drops below the 16.0 threshold to signal a transition into a calm regime. Near-term triggers to watch include the April 6 geopolitical negotiations and upcoming Chinese industrial production data. A breakdown below the recent swing low of 44.00 would confirm a transition from a neutral posture to an active sell-strength regime, while a reversal to positive 4-week speculative flow momentum would be required to shift the tactical bias back toward a bullish configuration.</p></div></section>
+  <div class="article-footer"><div class="article-footer-label">This analysis is produced by Investor Anatomy. Investor Anatomy develops research through the synthesis of over 100 signals across dozens of data sources. For technical analysis and a full look-through into the underlying signal data driving the report, see the detailed and technical analysis below.</div><div class="article-row"><a class="article-link" href="https://investoranatomy.com/signal_report/copper_market_analyst/" target="_blank" rel="noopener">Technical Analysis</a></div></div>
+  <div class="disclaimer">
+    The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs.<br /><br />
+    All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions.<br /><br />
+    No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+  </div>
+</main>
+<script>
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) {
+      return "0:00";
+    }
+    var mins = Math.floor(seconds / 60);
+    var secs = Math.floor(seconds % 60);
+    return mins + ":" + String(secs).padStart(2, "0");
+  }
+
+  document.querySelectorAll(".audio-wrap").forEach(function (wrap) {
+    var audio = wrap.querySelector("audio");
+    var button = wrap.querySelector(".audio-toggle");
+    var playIcon = wrap.querySelector(".audio-play");
+    var progress = wrap.querySelector(".audio-wave-progress");
+    var wave = wrap.querySelector(".audio-wave");
+    var timeCurrent = wrap.querySelector(".audio-time-current");
+    var timeTotal = wrap.querySelector(".audio-time-total");
+    var fallbackMsg = wrap.querySelector(".audio-fallback-msg");
+
+    if (!audio || !button || !progress || !wave || !timeCurrent || !timeTotal) {
+      return;
+    }
+
+    button.addEventListener("click", function () {
+      if (audio.paused) {
+        var playPromise = audio.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(function () {
+            audio.controls = true;
+            audio.classList.add("audio-fallback");
+            if (fallbackMsg) {
+              fallbackMsg.hidden = false;
+            }
+          });
+        }
+      } else {
+        audio.pause();
+      }
+    });
+
+    audio.addEventListener("loadedmetadata", function () {
+      timeTotal.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener("timeupdate", function () {
+      if (audio.duration) {
+        var pct = (audio.currentTime / audio.duration) * 100;
+        progress.style.width = pct.toFixed(2) + "%";
+      }
+      timeCurrent.textContent = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener("play", function () {
+      button.setAttribute("aria-pressed", "true");
+      playIcon.textContent = "❚❚";
+    });
+
+    audio.addEventListener("pause", function () {
+      button.setAttribute("aria-pressed", "false");
+      playIcon.textContent = "▶";
+    });
+
+    audio.addEventListener("ended", function () {
+      progress.style.width = "0%";
+      timeCurrent.textContent = "0:00";
+    });
+
+    wave.addEventListener("click", function (event) {
+      if (!audio.duration) {
+        return;
+      }
+      var rect = wave.getBoundingClientRect();
+      var clickX = event.clientX - rect.left;
+      var pct = Math.max(0, Math.min(1, clickX / rect.width));
+      audio.currentTime = audio.duration * pct;
+    });
+  });
+</script>
+</body>
+</html>

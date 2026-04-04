@@ -712,6 +712,11 @@
         { name: "Explicit Neutral Rate R Proxy Signal Monitor", href: "https://investoranatomy.com/signal_monitor/explicit_neutral_rate_r_proxy_signal_monitor.html" },
         { name: "Usd Index Signal Monitor", href: "https://investoranatomy.com/signal_monitor/usd_index_signal_monitor.html" },
         { name: "Usd Individual Market Analysis Monitor", href: "https://investoranatomy.com/signal_monitor/usd_individual_market_analysis_monitor.html" },
+        {
+          name: "Global Inflation & FX Dynamics",
+          href: "https://investoranatomy.com/signal_report/Macro_Theme_Global_Inflation_and_FX_Dynamics.html",
+          description: "Track the global inflation and FX regime that conditions silver through USD pressure, inflation sensitivity, and broader commodity transmission."
+        },
         { name: "Inflation Term Structure Signal Monitor", href: "https://investoranatomy.com/signal_monitor/inflation_term_structure_signal_monitor.html" },
         { name: "Market Implied Inflation Signal Monitor", href: "https://investoranatomy.com/signal_monitor/market_implied_inflation_signal_monitor.html" },
         { name: "Policy Relevant Inflation Pce Signal Monitor", href: "https://investoranatomy.com/signal_monitor/policy_relevant_inflation_pce_signal_monitor.html" },
@@ -724,8 +729,18 @@
         { name: "Financial Stress Composite Signal Monitor", href: "https://investoranatomy.com/signal_monitor/financial_stress_composite_signal_monitor.html" },
         { name: "Market Volatility Vix Signal Monitor", href: "https://investoranatomy.com/signal_monitor/market_volatility_vix_signal_monitor.html" },
         { name: "Silver Slv Pricing Monitor", href: "https://investoranatomy.com/signal_monitor/silver_slv_pricing_monitor.html" },
-        { name: "Metals Comparative Signal", href: "https://investoranatomy.com/signal_report/Metals_Comparative_Signal.html" },
-        { name: "SLV ETF Flow Signal", href: "https://investoranatomy.com/signal_report/SLV_ETF_Flow_Signal.html" },
+        {
+          name: "Metals Comparative Signal",
+          href: "https://investoranatomy.com/signal_report/Metals_Comparative_Signal.html",
+          feedsRegime: false,
+          feedsChangeMonitor: false
+        },
+        {
+          name: "SLV ETF Flow Signal",
+          href: "https://investoranatomy.com/signal_report/SLV_ETF_Flow_Signal.html",
+          feedsRegime: false,
+          feedsChangeMonitor: false
+        },
       ];
 
       const cotSignalSet = new Set([
@@ -747,6 +762,7 @@
       ]);
 
       const analystDirectSignals = new Set([
+        "Market Volatility Vix Signal Monitor",
         "Silver Slv Pricing Monitor",
         "Silver Individual Market Analysis Monitor",
         "Metals Comparative Signal",
@@ -822,6 +838,7 @@
           return "rgba(59, 130, 246, 0.9)";
         }
         if (node.type === "enrich") return "rgba(103, 232, 249, 0.92)";
+        if (node.type === "research" && node.commodity) return getCommodityColor(node.commodity, 0.9);
         if (node.type === "research") return "rgba(148, 163, 184, 0.92)";
         if (node.type === "regime" && node.commodity) return getCommodityColor(node.commodity, 0.9);
         if (node.type === "regime") return "rgba(125, 211, 252, 0.88)";
@@ -943,8 +960,8 @@
           return [
             ...standard,
             {
-              id: "Silver Research",
-              name: "Silver Research",
+              id: "Silver Price Research",
+              name: "Silver Price Research",
               x: columnX.compression,
               y: baseY + centerOffset - 100,
               commodity: "Silver",
@@ -1015,11 +1032,11 @@
                   ? "blackrock-source"
                 : "fred-source",
           })),
-          ...silverSignalInputs.map((item) => ({
+          ...silverSignalInputs.filter((item) => item.feedsRegime !== false).map((item) => ({
             source: item.name, target: "Silver Regime State", value: 1, commodity: "Silver", kind: "silver-signal",
             signalSource: getSignalSource(item.name),
           })),
-          ...silverSignalInputs.map((item) => ({
+          ...silverSignalInputs.filter((item) => item.feedsChangeMonitor !== false).map((item) => ({
             source: item.name, target: "Signal Change Monitor", value: 1, commodity: "Silver", kind: "silver-signal",
             signalSource: getSignalSource(item.name),
           })),
@@ -1035,8 +1052,9 @@
           { source: "Deduplicate and Enrich", target: "Silver News - 7 Days", commodity: "Silver" },
           { source: "Deduplicate and Enrich", target: "Silver News - 2 Days", commodity: "Silver" },
           { source: "Silver News - 7 Days", target: "Silver News Compression", commodity: "Silver" },
+          { source: "Silver News - 7 Days", target: "Silver Market Analyst", commodity: "Silver" },
           { source: "Silver News Compression", target: "Silver Market Analyst", commodity: "Silver" },
-          { source: "Silver Research", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
+          { source: "Silver Price Research", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
           { source: "Silver Regime Framework", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
           { source: "Silver Regime State", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
           { source: "Silver Market Analyst", target: "Execution Brief", commodity: "Silver" },
@@ -1151,6 +1169,7 @@
         "Explicit Neutral Rate R Proxy Signal Monitor": "Approximate the market-implied neutral policy rate regime using real-rate and term-premium context.",
         "Usd Index Signal Monitor": "Detect broad USD strengthening or weakening regimes that influence global commodity pricing pressure.",
         "Usd Individual Market Analysis Monitor": "Translate USD futures positioning into crowding, unwind, and reversal-risk diagnostics.",
+        "Global Inflation & FX Dynamics": "Track the global inflation and FX regime that conditions silver through USD pressure, inflation sensitivity, and broader commodity transmission.",
         "Inflation Term Structure Signal Monitor": "Track inflation term-structure shifts across breakevens and real yields to classify reflation vs disinflation.",
         "Market Implied Inflation Signal Monitor": "Summarize forward inflation expectations from TIPS breakevens and momentum structure.",
         "Policy Relevant Inflation Pce Signal Monitor": "Track headline and core PCE inflation pressure in a policy-relevant composite.",
@@ -1172,7 +1191,7 @@
         "Silver Regime Framework": "Define the structural Silver regime lens used to interpret tactical and macro signals.",
         "Silver Regime State": "Classify the current Silver regime state for decision framing and weighting.",
         "Signal Change Monitor": "Track signal transition pressure using the same upstream Silver inputs that feed regime-state classification.",
-        "Silver Research": "Inject thematic Silver research context to complement quantitative signal layers.",
+        "Silver Price Research": "Inject thematic Silver price research context to complement quantitative signal layers.",
         "Silver Market Analyst": "Synthesize Silver macro, positioning, pricing, and narrative layers into a final analyst view.",
         "Execution Brief": "Produce the intraday Silver brief by combining analyst synthesis, tactical pricing/volatility, regime state, and latest 2-day news.",
         "Silver Outlook": "Provide the forward-looking Silver outlook synthesized from the Silver Market Analyst output.",
@@ -1180,6 +1199,10 @@
         "Lithium Market Analyst": "Synthesize Lithium macro, positioning, pricing, and narrative layers into a final analyst view.",
         "Copper Market Analyst": "Synthesize Copper macro, positioning, pricing, and narrative layers into a final analyst view.",
       };
+
+      silverSignalInputs.forEach((item) => {
+        if (item.description) nodeObjectiveByName[item.name] = item.description;
+      });
 
       function getNodeObjective(node) {
         if (nodeObjectiveByName[node.name]) return nodeObjectiveByName[node.name];
