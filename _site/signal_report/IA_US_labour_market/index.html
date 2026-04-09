@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> US Labour Market</div>
         <div class="page-title">Synthesises employment composition, labour-market tightness, wage and hours signals, and worker flows/sentiment to assess the prevailing US labour-market regime.</div>
         <div class="hero-inject market-report"><div class="market-report">
@@ -144,59 +210,49 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Transitional / Fragile Balance</li>
-    <li>Medium Confidence</li>
-    <li>Fragile</li>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>Primary drivers include stable structural levels alongside rising cyclical stress indicators.</li>
-    <li>Employment composition maintains high-weight neutral levels and high interpretation confidence (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
-    <li>Labor market tightness remains balanced, supporting the neutral baseline (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">2</a>).</li>
-    <li>However, underemployment stress has reached a cycle high, indicating emerging slack (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>).</li>
-    <li>Job flows have shifted to negative net creation for the first time this cycle (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>).</li>
-    <li>Explicit slack gap and employment diffusion were downweighted due to low confidence and internal conflict flags (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">6</a>).</li>
+    <li>High-weight structural signals present a conflict between headline stability and rising internal stress.</li>
+    <li>Employment Composition remains neutral based on stable participation and unemployment rates (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+    <li>Underemployment Risk has shifted to a high-stress regime, driven by rising job-finding duration (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">2</a>).</li>
+    <li>Labor Market Turnover confirms a bearish loosening as layoffs rise and quits fall (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">3</a>).</li>
+    <li>Signals for Slack Gap (<a href="https://investoranatomy.com/signal_report/Explicit_Slack_Gap_Signal/" target="_blank">4</a>) and Sectoral Diffusion (<a href="https://investoranatomy.com/signal_report/Sectoral_Employment_Diffusion_Signal/" target="_blank">5</a>) were downweighted due to low interpretation confidence and internal conflicts.</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Composition, tightness, and weekly hours align in neutral regimes, suggesting headline resilience (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">7</a>).</li>
-    <li>Persistent bearish consumer sentiment aligns with rising underemployment risk to signal demand headwinds (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>).</li>
-    <li>Negative job flows conflict with firming jobless claims momentum (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">9</a>).</li>
-    <li>Tensions remain high because structural employment indicators have not yet mirrored worsening cyclical flows.</li>
+    <li>Negative Net Job Creation (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">6</a>) aligns with bearish Consumer Sentiment (<a href="https://investoranatomy.com/signal_report/Consumer_Sentiment/" target="_blank">7</a>) to indicate demand headwinds.</li>
+    <li>Improving jobless claims momentum (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">8</a>) creates tension with manufacturing hours contraction (<a href="https://investoranatomy.com/signal_report/Weekly_Hours_Signal/" target="_blank">9</a>).</li>
+    <li>Tensions do not overturn the regime because high-weight labor underutilization (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">2</a>) and turnover trends (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">3</a>) suggest cyclical deterioration despite headline neutrality (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">10</a>).</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>The dominant scenario is a gradual transition toward a defensive, slack-driven labor regime.</li>
-    <li>Primary upside risk: A re-tightening of the market triggered by a sharp rise in worker confidence and quits rates (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">2</a>).</li>
-    <li>Primary downside risk: A shift to a defensive regime triggered by broadening sectoral job losses and contracting payrolls (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>).</li>
+    <li>Dominant Scenario: Continued fragility as underlying labor slack offsets nominal employment stability.</li>
+    <li>Primary Upside Risk: Transition to tightening triggered by a recovery in payroll momentum (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">8</a>).</li>
+    <li>Primary Downside Risk: Acceleration of underemployment stress leading to a broader cyclical contraction (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">2</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>The underemployment z-score dropping below +0.75, signalling an abatement of cyclical stress (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">3</a>).</li>
-    <li>A composite job flows z-score falling below -0.75, confirming a broader economic slowdown (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>).</li>
-    <li>The labor momentum composite crossing the 0.75 tightening threshold based on firming payroll growth (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">9</a>).</li>
+    <li>A move in the Employment Composition z-score beyond +/- 0.75 (<a href="https://investoranatomy.com/signal_report/Employment_Composition_Signal/" target="_blank">1</a>).</li>
+    <li>The Underemployment composite z-score falling below the +0.75 stress threshold (<a href="https://investoranatomy.com/signal_report/Underemployment_Risk_Signal/" target="_blank">2</a>).</li>
   </ul>
 
-</div>
-
-<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Verify December 2025 diffusion z-score (-2.5e10) as it appears to be a statistical outlier in the content.</li>
-  <li>Payroll growth (PAYEMS) data was missing for the latest momentum signal observation.</li>
-</ul>
---></div>
+</div></div>
       </div>
     </div>
 
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -281,7 +337,7 @@
         <li>U-6 underemployment and participation-adjusted unemployment data would improve reliability.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/Explicit_Slack_Gap_Signal.png" alt="Explicit Slack Gap Signal" /><div class="media-cap">Explicit Slack Gap Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Explicit_Slack_Gap_Signal.png" alt="Explicit Slack Gap Signal" /><div class="media-cap">Explicit Slack Gap Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-university_of_michigan_consumer_sentiment_signal" aria-labelledby="tab-university_of_michigan_consumer_sentiment_signal" hidden><div class="panel-title">University of Michigan Consumer Sentiment Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -354,7 +410,7 @@
         <li>Retail Sales and Personal Consumption Expenditures (PCE) would improve reliability.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_UMCSENT_Signal_chart_mpl.png" alt="University of Michigan Consumer Sentiment Signal" /><div class="media-cap">University of Michigan Consumer Sentiment Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_UMCSENT_Signal_chart_mpl.png" alt="University of Michigan Consumer Sentiment Signal" /><div class="media-cap">University of Michigan Consumer Sentiment Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-sectoral_employment_diffusion_signal" aria-labelledby="tab-sectoral_employment_diffusion_signal" hidden><div class="panel-title">Sectoral Employment Diffusion Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -429,7 +485,7 @@
 <ul>
   <li>Verify the calculation of Diffusion_z for December 2025; the value -2.5e10 appears to be a mathematical outlier.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/Sectoral_Employment_Diffusion_Signal_chart_mpl.png" alt="Sectoral Employment Diffusion Signal" /><div class="media-cap">Sectoral Employment Diffusion Signal</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Sectoral_Employment_Diffusion_Signal_chart_mpl.png" alt="Sectoral Employment Diffusion Signal" /><div class="media-cap">Sectoral Employment Diffusion Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-labor_market_turnover_signal" aria-labelledby="tab-labor_market_turnover_signal" hidden><div class="panel-title">Labor Market Turnover Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -438,69 +494,71 @@
     <ul>
         <li>
             <strong>Configuration statement (mandatory):</strong>
-            Given a turnover differential of 1.0 and a z-score of -0.48, this setup aligns with
-            Indeterminate price paths and Indeterminate volatility,
-            where the dominant risk is Data uncertainty, not Regime shift. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)
+            Given a Turnover_Diff_pp of 0.8 and a Turnover_Diff_z of -0.72, this setup aligns with
+            Downward-biased price paths and Indeterminate volatility,
+            where the dominant risk is Regime shift, not Short covering.
         </li>
-        <li>The signal has entered a Neutral regime as of January 2026, indicating balanced labor flows or a transitional state. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: No. Signal Stability Assessment: Volatile; Threshold Proximity: Near; Revision Sensitivity: High.</li>
+        <li>The signal is in a Bearish regime, indicating rising labor market loosening and firm-level retrenchment (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Moderate; Revision Sensitivity: High.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Regimes are defined by the Turnover_Diff_pp level and Turnover_Diff_z; a z-score between -0.50 and 0.50 signifies a Neutral state. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Bearish regimes are triggered if the z-score falls below -0.50, implying rising firm retrenchment. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Labor Market Turnover Signal: latest observation 2026-01-01. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
+        <li>Z-Scores below -0.50 define a Bearish regime, signaling early warnings for rising unemployment (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Economic expansion and risk-on transitions are implied by rising values in the Turnover_Diff spread (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Labor Market Turnover Signal (latest observation: 2026-02-01) (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the stabilization of Quits at 2.0% and Layoffs at 1.0%, resulting in a 1.0pp differential. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Momentum shows a slight recovery from the Bearish classification in December 2025. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Conditional Invalidation: A decline in the z-score below -0.50 (currently -0.48) would revert the signal to Bearish. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>History suggests low persistence, with the signal frequently alternating between Bearish and Neutral regimes throughout 2025. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
+        <li>The primary driver is the deterioration of the Turnover_Diff_z to -0.72, crossing the -0.50 bearish threshold (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Weakening momentum is evident as the quits rate declined to 1.9 while layoffs rose to 1.1 (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>No internal tensions exist; both components moved in a direction confirming labor market softening.</li>
+        <li>Conditional Invalidation: A recovery of the Z-score above -0.50 would move the signal back to Neutral.</li>
+        <li>The signal has spent 12 of the last 15 months in a Bearish state, suggesting structural persistence.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant; risks balanced due to the proximity of the Bearish threshold.</li>
-        <li>Upside risk: Strengthening worker confidence if QuitsRate rises above 2.2% while Layoffs remain low.</li>
-        <li>Downside risk: Recessionary warning if the LayoffRate increases, pushing the z-score deep into negative territory.</li>
+        <li>Base Case dominant: Recession risk rises as worker confidence fades and job transitions stall.</li>
+        <li>Upside risk: A sudden spike in the job-to-job transition rate could signal a cyclical floor.</li>
+        <li>Downside risk: Accelerating layoffs (LayoffRate > 1.2) could trigger a rapid move to extreme slack.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months); the methodology describes this as a slow-moving confirmation pillar for labor health. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Aggregation Weight Hint: Medium; relevant for confirming broader business cycle shifts but susceptible to noise.</li>
+        <li>Time Horizon: Cyclical (months), as this serves as a slow-moving confirmation pillar for labor health (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, due to the one-month reporting lag and high revision sensitivity (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the US Labor Market dimension, specifically measuring the net balance of power between employees and employers. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Economic mechanism: Measures labor market slack and worker confidence; rising values imply expansion, while falling values signal retrenchment. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
+        <li>Informs the Labor Market dimension, specifically measuring worker confidence and employer bargaining power (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Rising layoffs and falling quits imply a net increase in labor slack and consumption headwinds.</li>
         <li>Cycle position: Not determined.</li>
+        <li>Typically confirms trends in unemployment rates and provides lead-lag context for wage inflation risk (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Newly entered Neutral regime following a single-month Bearish dip; the transition appears to be stabilizing. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-    <li>Regime duration: 1 month.</li>
+    <li>Newly re-entered Bearish regime following a one-month Neutral pause in January 2026 (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+    <li>Direction of change: Weakening (Z-score moved from -0.48 to -0.72).</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Significant annual revisions and a one-month reporting lag. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-    <li>Noisy monthly prints require multi-month moves for high-conviction shifts. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
+    <li>Subject to significant annual revisions and noisy monthly prints (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+    <li>Data carries a one-month reporting lag, preventing high-frequency nowcasting (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Labor Market Turnover Signal: 2026-01-01. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>Most influential: Turnover_Diff_z (-0.48). (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
-        <li>External validation: Job Openings (JTSJOL) and Unemployment Rate (UNEMPLOY). (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>)</li>
+        <li>Labor Market Turnover Signal (2026-02-01) (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Influential data: QuitsRate (1.9), LayoffRate (1.1), and Turnover_Diff_z (-0.72) (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
+        <li>Cross-confirmation via Job Openings (JTSJOL) and Hires Rate (JTSHIR) would improve reliability (<a href="https://investoranatomy.com/signal_report/Labor_Market_Turnover/" target="_blank">1</a>).</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Labor_Turnover_Signal_chart_mpl.png" alt="Labor Market Turnover Signal" /><div class="media-cap">Labor Market Turnover Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Labor_Turnover_Signal_chart_mpl.png" alt="Labor Market Turnover Signal" /><div class="media-cap">Labor Market Turnover Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-job_flows_signal" aria-labelledby="tab-job_flows_signal" hidden><div class="panel-title">Job Flows Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -572,7 +630,7 @@
         <li>Suggested additions: Sectoral Employment Diffusion Signal and Unemployment Rate data.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/Job_Flows_Signal_chart_mpl.png" alt="Job Flows Signal" /><div class="media-cap">Job Flows Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Job_Flows_Signal_chart_mpl.png" alt="Job Flows Signal" /><div class="media-cap">Job Flows Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-labour_market_momentum_signal" aria-labelledby="tab-labour_market_momentum_signal" hidden><div class="panel-title">Labour Market Momentum Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -581,76 +639,71 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given a rising Labor_Momentum composite of 0.587 and firming Z-scores for both ICSA and CCSA, this setup aligns with Upward-biased price paths and Compressed volatility, where the dominant risk is Trend continuation, not a Regime shift. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)
+            Given ICSA and CCSA Z-scores both exceeding 0.65 while PAYEMS momentum remains slightly negative at -0.03, this setup aligns with
+            Transition-biased price paths and Compressed volatility,
+            where the dominant risk is Trend continuation, not Mean reversion (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).
         </li>
-        <li>The signal is currently in a Neutral regime but exhibits strong positive momentum, approaching the Tightening threshold. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
+        <li>The signal remains in a Neutral regime, but the composite value has risen significantly toward the expansionary threshold (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
         <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: High.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>A Composite value &gt; 0.75 indicates a Tightening regime, reflecting easing layoffs and firming hiring velocity. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Values with an absolute value &le; 0.75 are classified as Neutral, signifying trend-level or mixed labour dynamics. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Claims data (ICSA/CCSA) are treated as leading indicators for payroll growth (PAYEMS) at cyclical inflection points. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Latest observation date: 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
+        <li>A Composite score > 0.75 indicates a Tightening regime, reflecting easing layoffs and firming hiring velocity (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Claims metrics (ICSA/CCSA) are interpreted as leading indicators for payrolls (PAYEMS) at cyclical inflection points (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Regime bias logic dictates that rising values imply expansionary support and a risk-on bias (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Labour Market Momentum Dataset (Latest: 2026-03-31).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the sharp improvement in leading claims data, with Z_CCSA rising to 0.75 and Z_ICSA to 0.41. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Momentum has accelerated significantly over three months, rising from 0.027 (January) to 0.587 (March). (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Internal coherence is high as both initial and continuing claims signal reduced labour market stress. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Conditional Invalidation: A sudden spike in ICSA leading to a claims-driven decline in the composite. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Signal stability is improving, having exited a period of near-zero momentum to trend toward an expansionary regime. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
+        <li>The primary driver is the sharp improvement in Initial (Z_ICSA: 0.66) and Continuing (Z_CCSA: 0.65) claims momentum (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Internal tension exists as payroll growth (Z_PAYEMS: -0.03) lags the rapid improvement in claims data (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A claims-driven decline where Z_ICSA or Z_CCSA fall, indicating early-stage layoff acceleration (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Signal stability is high, with the composite rising from near-zero to 0.426 over the last three periods (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Persistence of the Neutral-to-Tightening transition as layoff pressure remains low.</li>
-        <li>Upside risk: The composite crosses 0.75, confirming an official expansionary regime and risk-on support.</li>
-        <li>Downside risk: A sharp reversal in claims data triggered by unexpected sectoral shocks.</li>
+        <li>Base Case dominant: Persistent Neutral regime with continued momentum toward expansion as claims lead payrolls higher.</li>
+        <li>Upside risk: Transition to Tightening regime triggered by a stabilization or positive turn in PAYEMS Z-scores.</li>
+        <li>Downside risk: Stalling momentum triggered by a sudden spike in Initial Jobless Claims.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months) due to the multi-month trend in leading claims data.</li>
-        <li>Aggregation Weight Hint: Medium; the signal provides clear directional guidance but requires payroll confirmation.</li>
+        <li>Time Horizon: Cyclical (months) as it identifies turning points in hiring velocity (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, given its role as a leading directional momentum metric.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the labour demand and economic cycle dimensions of macro aggregation. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Economic mechanism: Reduced layoff stress (lower claims) implies expansionary support for growth assets and cyclical demand. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
+        <li>Informs the US Labour Market dimension by measuring stress (layoffs) versus hiring demand (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Implied mechanism: Decreasing layoff pressure (rising Z_ICSA) provides a pro-cyclical tailwind for growth assets (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
         <li>Cycle position: Not determined.</li>
-        <li>Typically acts as a lead indicator for broader US Growth and Business Cycle themes. (<a href="https://investoranatomy.com/signal_report/ia_growth_and_business_cycle/" target="_blank">2</a>)</li>
+        <li>Interacts with inflation and liquidity blocks to confirm if labour tightness justifies policy adjustments (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-        <li>The signal is in a persistent Neutral regime but is currently undergoing a strengthening transition. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Direction of change: Strengthening toward the Tightening threshold.</li>
+    <li>Regime is persistent (Neutral since 2023) but currently undergoing a significant directional shift (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening toward the Tightening threshold (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-        <li>Weekly claims data are subject to high volatility and administrative distortions. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Heavy reliance on monthly payroll growth (PAYEMS) which is subject to significant revisions. (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
+    <li>High sensitivity to weekly claims volatility and administrative distortions in UI eligibility (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+    <li>Subject to significant monthly and annual revisions in payroll (PAYEMS) data (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Latest dataset: Labour Market Momentum Signal (2026-03-31). (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Most influential datapoints: Z_CCSA (0.75) and Z_ICSA (0.41). (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>)</li>
-        <li>Additional data: Job openings and quits rates would improve the assessment of labour tightness. (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">3</a>)</li>
+        <li>Labour Market Momentum Signal dataset (Latest observation: 2026-03-31) (<a href="https://investoranatomy.com/signal_report/Labour_Market_Momentum/" target="_blank">1</a>).</li>
+        <li>Influential datapoints: Z_ICSA (0.66) and Composite Momentum (0.426).</li>
+        <li>Additional public datasets: JOLTS Job Openings and Quit Rates for turnover confirmation.</li>
     </ul>
 
-</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>PAYEMS data is missing for the latest observation (2026-03-31), forcing reliance on claims-only leadership.</li>
-  <li>Revision window cannot be assessed as release/pull timings were not provided in the content document.</li>
-</ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/US_Labor_Market_Momentum_signal_chart_mpl.png" alt="Labour Market Momentum Signal" /><div class="media-cap">Labour Market Momentum Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Labor_Market_Momentum_signal_chart_mpl.png" alt="Labour Market Momentum Signal" /><div class="media-cap">Labour Market Momentum Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-weekly_hours_signal" aria-labelledby="tab-weekly_hours_signal" hidden><div class="panel-title">Weekly Hours Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -707,7 +760,7 @@
         <li>Additional reliability could be improved by integrating the ISM Manufacturing Employment Index.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/Weekly_Hours_Signal_chart_mpl.png" alt="Weekly Hours Signal" /><div class="media-cap">Weekly Hours Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Weekly_Hours_Signal_chart_mpl.png" alt="Weekly Hours Signal" /><div class="media-cap">Weekly Hours Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-labor_market_tightness_signal" aria-labelledby="tab-labor_market_tightness_signal" hidden><div class="panel-title">Labor Market Tightness Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -779,7 +832,7 @@
         <li>Additional data: Employment Cost Index (ECI) for wage validation and Non-Farm Payrolls for absolute growth context.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/Labor_Market_Tightness_Signal_chart_mpl.png" alt="Labor Market Tightness Signal" /><div class="media-cap">Labor Market Tightness Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Labor_Market_Tightness_Signal_chart_mpl.png" alt="Labor Market Tightness Signal" /><div class="media-cap">Labor Market Tightness Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-underemployment_risk_signal" aria-labelledby="tab-underemployment_risk_signal" hidden><div class="panel-title">Underemployment Risk Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -839,7 +892,7 @@
         <li>`Job_Flows_Signal` (<a href="https://investoranatomy.com/signal_report/Job_Flows_Signal/" target="_blank">4</a>) or `Labor_Market_Tightness_Signal` (<a href="https://investoranatomy.com/signal_report/Labor_Market_Tightness_Signal/" target="_blank">5</a>) would provide additional depth on labor market dynamism and tightness.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/Underemployment_Risk_Signal_chart_mpl.png" alt="Underemployment Risk Signal" /><div class="media-cap">Underemployment Risk Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Underemployment_Risk_Signal_chart_mpl.png" alt="Underemployment Risk Signal" /><div class="media-cap">Underemployment Risk Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-employment_composition_signal" aria-labelledby="tab-employment_composition_signal" hidden><div class="panel-title">Employment Composition Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -886,18 +939,40 @@
         <li>The Wage Growth and Inflation Signal (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal/" target="_blank">2</a>) and Federal Reserve Liquidity Composite Signal (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">5</a>) would improve depth and reliability.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/Employment_Composition_Signal_chart_mpl.png" alt="Employment Composition Signal" /><div class="media-cap">Employment Composition Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Employment_Composition_Signal_chart_mpl.png" alt="Employment Composition Signal" /><div class="media-cap">Employment Composition Signal</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - US Labour Market - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs.<br /><br />
+        All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions.<br /><br />
+        No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -934,6 +1009,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

@@ -37,6 +37,8 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("images");
   eleventyConfig.addPassthroughCopy("components");
   eleventyConfig.addPassthroughCopy("shared");
+  eleventyConfig.addPassthroughCopy("ia_explained/*.jsonl");
+  eleventyConfig.addPassthroughCopy("ia_explained/reporting-history-loader.js");
   eleventyConfig.addPassthroughCopy("insights_carousel.js");
   eleventyConfig.addPassthroughCopy("insights_carousel.json");
 

@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Copper Composite Pricing Signal</div>
         <div class="page-title">The Copper Composite Pricing Signal aggregates multiple copper equity pricing signals into a coherent view of copper market pricing dynamics.</div>
         <div class="hero-inject market-report"><div class="ia-report-block" id="copper-pricing-qualitative-cohort">
@@ -143,7 +209,7 @@
 
   <div class="ia-panel">
     <h3>Executive Summary</h3>
-    <p>Copper pricing behavior currently reflects a period of significant short-term volatility and a notable divergence between individual producers and the broader sector proxy (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>). While major producers have recently demonstrated technical breakouts above long-term trend lines, the wider producer complex remains positioned in a technical breakdown state (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">2</a>). One-month returns across the cohort show uniform double-digit declines, though one-week data suggests an emerging attempt at stabilization (<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">3</a>). Pricing is characterized by high realized volatility and mid-range positioning within 52-week bands (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>). The internal consistency of the regime is low, as individual equity strength is not yet reflected in the aggregate sectoral performance (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>).</p>
+    <p>Copper pricing behavior currently exhibits a sharp, synchronous daily recovery within a broader one-month window of deterioration (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">2</a>). Established producers are leading an emerging attempt to stabilize technical trends, though prices for major constituents remain below their 50-day moving averages (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>). Participation is broad across the mining cohort, supported by unusually high volume in sector-wide exposure instruments (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">3</a>). Realized volatility remains in a high regime, reflecting the significant drawdown from 52-week highs observed prior to the recent bounce (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">2</a>). The current regime is transitional, characterized by established miners testing trend supports while broader participation remains concentrated (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>).</p>
   </div>
 
   <div class="ia-grid ia-grid-3">
@@ -151,10 +217,10 @@
       <h3>Producers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>mixed</td></tr>
-          <tr><th>Breadth</th><td>moderate</td></tr>
-          <tr><th>Persistence</th><td>established</td></tr>
-          <tr><th>Dispersion</th><td>high</td></tr>
+          <tr><th>Directionality</th><td>improving</td></tr>
+          <tr><th>Breadth</th><td>broad</td></tr>
+          <tr><th>Persistence</th><td>emerging</td></tr>
+          <tr><th>Dispersion</th><td>low</td></tr>
         </tbody>
       </table>
     </div>
@@ -163,9 +229,9 @@
       <h3>Developers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>deteriorating</td></tr>
-          <tr><th>Breadth</th><td>moderate</td></tr>
-          <tr><th>Persistence</th><td>established</td></tr>
+          <tr><th>Directionality</th><td>flat</td></tr>
+          <tr><th>Breadth</th><td>narrow</td></tr>
+          <tr><th>Persistence</th><td>short-lived</td></tr>
           <tr><th>Dispersion</th><td>low</td></tr>
         </tbody>
       </table>
@@ -186,16 +252,25 @@
 
   <div class="ia-panel" style="margin-top:12px;">
     <h3>Cross-Cohort Alignment</h3>
-    <p>The copper pricing regime is partially aligned, with isolated strength appearing in major Producers (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">3</a>) which are divergent from the broader Copper Composite (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>). Pricing behavior is currently driven by specific large-cap Producers that have decoupled from the broader sectoral decline (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>). Participation is not broadening, as the aggregate complex continues to reflect the sharp one-month deterioration rather than the isolated technical recoveries. The regime appears transitional, shifting from uniform weakness toward a state of high-dispersion stabilization. Internal consistency remains low due to the fragmentation between individual equity breakouts and aggregate sectoral breakdowns (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>).</p>
+    <p>The copper pricing regime is currently partially aligned, with established producers acting as the leading cohort following a synchronous bounce off 200-day trend lines (<a href="https://investoranatomy.com/signal_report/FCX_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SFR_Pricing_Signal/" target="_blank">2</a>). While producer participation is broad, there is an absence of broadening movement into developer or processor cohorts within the current observation set (<a href="https://investoranatomy.com/signal_report/Wire_Pricing_Signal/" target="_blank">3</a>). This isolation of strength to miners suggests an uneven recovery where operating leverage is the primary driver of the current established movement (<a href="https://investoranatomy.com/signal_report/Copper_Composite_Pricing_Signal/" target="_blank">4</a>).</p>
   </div>
-</div></div>
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Developer Cohort Data: No specific project-level or explorer signals were provided to differentiate developer behavior from established producers.</li>
+  <li>Processor / Fabricator Data: Downstream processing signals were absent from the current diagnostic inputs, limiting cross-cohort synthesis.</li>
+</ul>
+--></div>
       </div>
     </div>
 
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -206,13 +281,13 @@
 
         <div class="panels">
           <div class="panel" role="tabpanel" id="panel-copper_wire" aria-labelledby="tab-copper_wire" hidden><div class="panel-title">Copper Wire Pricing Signal</div><div class="panel-body"><h1>WIRE.AX - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-04-01</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 254 rows</li>
-<li><strong>Last close:</strong> 21.40</li>
-<li><strong>Day change:</strong> -1.83%</li>
+<li><strong>Last close:</strong> 22.69</li>
+<li><strong>Day change:</strong> 6.28%</li>
 <li><strong>Composite view:</strong> Trim</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -224,22 +299,22 @@
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> High realized volatility (top 30% of sample)</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.54</li>
-<li><strong>Volatility percentile:</strong> 88.70%</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.57</li>
+<li><strong>Volatility percentile:</strong> 90.14%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
-<li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 155498.00</li>
-<li><strong>Volume percentile:</strong> 68.77%</li>
-<li><strong>Volume z-score:</strong> 0.07</li>
+<li><strong>Volume/liquidity state:</strong> Unusually high volume (elevated activity)</li>
+<li><strong>Latest volume:</strong> 495477.00</li>
+<li><strong>Volume percentile:</strong> 97.53%</li>
+<li><strong>Volume z-score:</strong> 2.49</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Mid-range within 52-week band</li>
-<li><strong>Position within 52-week range:</strong> 0.60</li>
-<li><strong>Drawdown from 52-week high:</strong> -23.92%</li>
+<li><strong>Position within 52-week range:</strong> 0.67</li>
+<li><strong>Drawdown from 52-week high:</strong> -19.34%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -256,7 +331,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>P/E</td><td>22.70</td></tr>
+<tr><td>P/E</td><td>24.07</td></tr>
 </tbody>
 </table>
 <h2>Analyst Data</h2>
@@ -269,11 +344,11 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>2.39%</td></tr>
-<tr><td>1M</td><td>-20.30%</td></tr>
-<tr><td>3M</td><td>-2.63%</td></tr>
-<tr><td>6M</td><td>23.48%</td></tr>
-<tr><td>12M</td><td>65.36%</td></tr>
+<tr><td>1W</td><td>2.86%</td></tr>
+<tr><td>1M</td><td>-13.99%</td></tr>
+<tr><td>3M</td><td>2.21%</td></tr>
+<tr><td>6M</td><td>25.71%</td></tr>
+<tr><td>12M</td><td>82.86%</td></tr>
 </tbody>
 </table>
 <h3>Drawdown & Volatility</h3>
@@ -285,15 +360,15 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h2>Actions</h2>
 <ul>
 <li><strong>Last dividend amount:</strong> 0.06</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/Wire_Pricing_Dashboard.png" alt="Wire price trend" /><div class="media-cap">Wire price momentum and trend diagnostics</div></figure></div></div>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Wire_Pricing_Dashboard.png" alt="Wire price trend" /><div class="media-cap">Wire price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-sqm" aria-labelledby="tab-sqm"><div class="panel-title">SQM Pricing Signal</div><div class="panel-body"><h1>FCX - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-03-31</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 251 rows</li>
-<li><strong>Last close:</strong> 56.24</li>
-<li><strong>Day change:</strong> 0.73%</li>
+<li><strong>Last close:</strong> 58.78</li>
+<li><strong>Day change:</strong> 7.56%</li>
 <li><strong>Composite view:</strong> Hold / No strong view</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -305,22 +380,22 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> High realized volatility (top 30% of sample)</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.50</li>
-<li><strong>Volatility percentile:</strong> 75.94%</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.57</li>
+<li><strong>Volatility percentile:</strong> 86.09%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 12311494.00</li>
-<li><strong>Volume percentile:</strong> 38.08%</li>
-<li><strong>Volume z-score:</strong> -0.43</li>
+<li><strong>Latest volume:</strong> 18866000.00</li>
+<li><strong>Volume percentile:</strong> 74.25%</li>
+<li><strong>Volume z-score:</strong> 0.28</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Mid-range within 52-week band</li>
-<li><strong>Position within 52-week range:</strong> 0.68</li>
-<li><strong>Drawdown from 52-week high:</strong> -18.28%</li>
+<li><strong>Position within 52-week range:</strong> 0.74</li>
+<li><strong>Drawdown from 52-week high:</strong> -14.59%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -342,13 +417,13 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Market Capitalisation</td><td>80.83bn</td></tr>
-<tr><td>Enterprise Value</td><td>99.36bn</td></tr>
-<tr><td>P/E</td><td>37.00</td></tr>
-<tr><td>Forward P/E</td><td>14.88</td></tr>
-<tr><td>EV / EBITDA</td><td>10.92</td></tr>
-<tr><td>Price / Book</td><td>4.27</td></tr>
-<tr><td>Price / Sales</td><td>3.12</td></tr>
+<tr><td>Market Capitalisation</td><td>84.48bn</td></tr>
+<tr><td>Enterprise Value</td><td>103.01bn</td></tr>
+<tr><td>P/E</td><td>38.67</td></tr>
+<tr><td>Forward P/E</td><td>15.55</td></tr>
+<tr><td>EV / EBITDA</td><td>11.32</td></tr>
+<tr><td>Price / Book</td><td>4.47</td></tr>
+<tr><td>Price / Sales</td><td>3.26</td></tr>
 <tr><td>Profit Margin</td><td>8.51%</td></tr>
 <tr><td>Gross Margin</td><td>37.06%</td></tr>
 <tr><td>Operating Margin</td><td>14.40%</td></tr>
@@ -367,7 +442,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <thead><tr><th>Type</th><th>Value</th></tr></thead>
 <tbody>
 <tr><td>Low</td><td>30.00</td></tr>
-<tr><td>Mean</td><td>67.47</td></tr>
+<tr><td>Mean</td><td>67.27</td></tr>
 <tr><td>High</td><td>81.00</td></tr>
 </tbody></table>
 <h3>Recommendations history</h3>
@@ -473,17 +548,17 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <ul>
 <li><strong>Last dividend date:</strong> 2026-01-15</li>
 <li><strong>Ex-dividend date:</strong> 2026-04-15</li>
-<li><strong>Dividend payment date:</strong> 2026-02-02</li>
+<li><strong>Dividend payment date:</strong> 2026-05-01</li>
 </ul>
 <h2>Price Stats</h2>
 <h3>Multi-horizon Returns</h3>
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>7.97%</td></tr>
-<tr><td>1M</td><td>-17.75%</td></tr>
-<tr><td>3M</td><td>8.59%</td></tr>
-<tr><td>6M</td><td>60.11%</td></tr>
+<tr><td>1W</td><td>4.07%</td></tr>
+<tr><td>1M</td><td>-13.93%</td></tr>
+<tr><td>3M</td><td>14.46%</td></tr>
+<tr><td>6M</td><td>59.32%</td></tr>
 <tr><td>12M</td><td>n/a</td></tr>
 </tbody>
 </table>
@@ -520,15 +595,15 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>institutionsPercentHeld</td>
-      <td>0.88688</td>
+      <td>0.88683</td>
     </tr>
     <tr>
       <td>institutionsFloatPercentHeld</td>
-      <td>0.89293</td>
+      <td>0.89288</td>
     </tr>
     <tr>
       <td>institutionsCount</td>
-      <td>2244.00000</td>
+      <td>2243.00000</td>
     </tr>
   </tbody>
 </table>
@@ -550,7 +625,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Bank of America Corporation</td>
       <td>0.0246</td>
       <td>35300727</td>
-      <td>1985312945</td>
+      <td>2074976689</td>
       <td>-0.0138</td>
     </tr>
     <tr>
@@ -558,7 +633,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Capital Research Global Investors</td>
       <td>0.0245</td>
       <td>35176617</td>
-      <td>1978332999</td>
+      <td>2067681504</td>
       <td>-0.1630</td>
     </tr>
     <tr>
@@ -566,7 +641,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Morgan Stanley</td>
       <td>0.0238</td>
       <td>34262241</td>
-      <td>1926908491</td>
+      <td>2013934484</td>
       <td>0.1005</td>
     </tr>
     <tr>
@@ -574,7 +649,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Geode Capital Management, LLC</td>
       <td>0.0220</td>
       <td>31669550</td>
-      <td>1781095545</td>
+      <td>1861536110</td>
       <td>0.0076</td>
     </tr>
     <tr>
@@ -582,7 +657,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Wellington Management Group, LLP</td>
       <td>0.0218</td>
       <td>31299903</td>
-      <td>1760306597</td>
+      <td>1839808260</td>
       <td>-0.1423</td>
     </tr>
   </tbody>
@@ -605,7 +680,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>SPDR S&amp;P 500 ETF TRUST-State Street SPDR S&amp;P 500 ETF Trust</td>
       <td>0.0120</td>
       <td>17235156</td>
-      <td>969305202</td>
+      <td>1013082448</td>
       <td>-0.0150</td>
     </tr>
     <tr>
@@ -613,23 +688,23 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>VANGUARD INDEX FUNDS-Vanguard Value Index Fund</td>
       <td>0.0092</td>
       <td>13214311</td>
-      <td>743172872</td>
+      <td>776737184</td>
       <td>0.0249</td>
     </tr>
     <tr>
-      <td>2025-10-31</td>
+      <td>2026-01-31</td>
       <td>PUTNAM LARGE CAP VALUE FUND</td>
       <td>0.0085</td>
       <td>12243672</td>
-      <td>688584133</td>
-      <td>0.0174</td>
+      <td>719683025</td>
+      <td>0.0000</td>
     </tr>
     <tr>
       <td>2025-11-30</td>
       <td>VANGUARD WELLINGTON FUND</td>
       <td>0.0084</td>
       <td>12062653</td>
-      <td>678403624</td>
+      <td>709042728</td>
       <td>-0.1747</td>
     </tr>
     <tr>
@@ -637,7 +712,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>INVESTMENT CO OF AMERICA</td>
       <td>0.0059</td>
       <td>8435914</td>
-      <td>474435817</td>
+      <td>495863014</td>
       <td>0.0000</td>
     </tr>
   </tbody>
@@ -645,20 +720,20 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h2>Risk &amp; Short Interest</h2>
 <ul>
 <li><strong>Beta:</strong> 1.44</li>
-<li><strong>52 Week Change:</strong> 25.19%</li>
+<li><strong>52 Week Change:</strong> 43.06%</li>
 <li><strong>Short Ratio:</strong> 1.61</li>
 <li><strong>Short Percent of Float:</strong> 2.06%</li>
 <li><strong>Shares Outstanding:</strong> 1437201606.00</li>
 <li><strong>Float Shares:</strong> 1429282625.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/FCX_Pricing_Dashboard.png" alt="FCX price trend" /><div class="media-cap">FCX price momentum and trend diagnostics</div></figure></div></div>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/FCX_Pricing_Dashboard.png" alt="FCX price trend" /><div class="media-cap">FCX price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-phos" aria-labelledby="tab-phos"><div class="panel-title">PHOS Pricing Signal</div><div class="panel-body"><h1>SFR.AX - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-04-01</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 254 rows</li>
-<li><strong>Last close:</strong> 15.88</li>
-<li><strong>Day change:</strong> -0.31%</li>
+<li><strong>Last close:</strong> 16.93</li>
+<li><strong>Day change:</strong> 5.61%</li>
 <li><strong>Composite view:</strong> Hold / No strong view</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -670,22 +745,22 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> High realized volatility (top 30% of sample)</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.68</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.69</li>
 <li><strong>Volatility percentile:</strong> 95.07%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 1765871.00</li>
-<li><strong>Volume percentile:</strong> 55.34%</li>
-<li><strong>Volume z-score:</strong> -0.07</li>
+<li><strong>Latest volume:</strong> 3042583.00</li>
+<li><strong>Volume percentile:</strong> 91.23%</li>
+<li><strong>Volume z-score:</strong> 1.26</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Mid-range within 52-week band</li>
-<li><strong>Position within 52-week range:</strong> 0.57</li>
-<li><strong>Drawdown from 52-week high:</strong> -25.48%</li>
+<li><strong>Position within 52-week range:</strong> 0.65</li>
+<li><strong>Drawdown from 52-week high:</strong> -20.55%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -707,13 +782,13 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Market Capitalisation</td><td>7.41bn</td></tr>
-<tr><td>Enterprise Value</td><td>7.34bn</td></tr>
-<tr><td>P/E</td><td>36.93</td></tr>
-<tr><td>Forward P/E</td><td>9.79</td></tr>
-<tr><td>EV / EBITDA</td><td>13.05</td></tr>
-<tr><td>Price / Book</td><td>2.66</td></tr>
-<tr><td>Price / Sales</td><td>5.75</td></tr>
+<tr><td>Market Capitalisation</td><td>7.90bn</td></tr>
+<tr><td>Enterprise Value</td><td>7.41bn</td></tr>
+<tr><td>P/E</td><td>39.37</td></tr>
+<tr><td>Forward P/E</td><td>10.11</td></tr>
+<tr><td>EV / EBITDA</td><td>13.18</td></tr>
+<tr><td>Price / Book</td><td>2.82</td></tr>
+<tr><td>Price / Sales</td><td>6.13</td></tr>
 <tr><td>Profit Margin</td><td>10.77%</td></tr>
 <tr><td>Gross Margin</td><td>62.71%</td></tr>
 <tr><td>Operating Margin</td><td>22.68%</td></tr>
@@ -723,8 +798,8 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 </table>
 <h2>Analyst Data</h2>
 <ul>
-<li><strong>Consensus rating:</strong> Hold</li>
-<li><strong>Mean recommendation score:</strong> 2.62</li>
+<li><strong>Consensus rating:</strong> Buy</li>
+<li><strong>Mean recommendation score:</strong> 2.31</li>
 <li><strong>Number of analysts:</strong> 13</li>
 </ul>
 <h3>Target prices</h3>
@@ -732,7 +807,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <thead><tr><th>Type</th><th>Value</th></tr></thead>
 <tbody>
 <tr><td>Low</td><td>15.00</td></tr>
-<tr><td>Mean</td><td>19.17</td></tr>
+<tr><td>Mean</td><td>19.12</td></tr>
 <tr><td>High</td><td>21.15</td></tr>
 </tbody></table>
 <h3>Recommendations history</h3>
@@ -751,9 +826,9 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     <tr>
       <td>0m</td>
       <td>2</td>
+      <td>5</td>
       <td>4</td>
-      <td>4</td>
-      <td>2</td>
+      <td>1</td>
       <td>1</td>
     </tr>
     <tr>
@@ -816,21 +891,21 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>0y</td>
-      <td>1.11835</td>
-      <td>0.84778</td>
+      <td>1.13951</td>
+      <td>0.85701</td>
       <td>1.41</td>
       <td>0.37429</td>
-      <td>11.0</td>
-      <td>198.79%</td>
+      <td>10.0</td>
+      <td>204.45%</td>
     </tr>
     <tr>
       <td>+1y</td>
-      <td>1.62063</td>
+      <td>1.67427</td>
       <td>1.08130</td>
       <td>2.36</td>
-      <td>1.11835</td>
-      <td>11.0</td>
-      <td>44.91%</td>
+      <td>1.13951</td>
+      <td>10.0</td>
+      <td>46.93%</td>
     </tr>
   </tbody>
 </table>
@@ -844,11 +919,11 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>1.79%</td></tr>
-<tr><td>1M</td><td>-22.35%</td></tr>
-<tr><td>3M</td><td>-11.14%</td></tr>
-<tr><td>6M</td><td>16.34%</td></tr>
-<tr><td>12M</td><td>47.04%</td></tr>
+<tr><td>1W</td><td>3.29%</td></tr>
+<tr><td>1M</td><td>-13.00%</td></tr>
+<tr><td>3M</td><td>-5.52%</td></tr>
+<tr><td>6M</td><td>16.76%</td></tr>
+<tr><td>12M</td><td>66.63%</td></tr>
 </tbody>
 </table>
 <h3>Drawdown & Volatility</h3>
@@ -884,15 +959,15 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>institutionsPercentHeld</td>
-      <td>0.69092</td>
+      <td>0.71526</td>
     </tr>
     <tr>
       <td>institutionsFloatPercentHeld</td>
-      <td>0.69744</td>
+      <td>0.72201</td>
     </tr>
     <tr>
       <td>institutionsCount</td>
-      <td>128.00000</td>
+      <td>132.00000</td>
     </tr>
   </tbody>
 </table>
@@ -914,7 +989,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>iShares Trust-iShares Core MSCI EAFE ETF</td>
       <td>0.0075</td>
       <td>3505864</td>
-      <td>55673120</td>
+      <td>59354278</td>
       <td>0.0088</td>
     </tr>
     <tr>
@@ -922,15 +997,15 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>American Century ETF Trust-Avantis International Small Cap Value ETF</td>
       <td>0.0062</td>
       <td>2895882</td>
-      <td>45986606</td>
+      <td>49027283</td>
       <td>0.0000</td>
     </tr>
     <tr>
-      <td>2025-10-31</td>
+      <td>2026-01-31</td>
       <td>DFA INVESTMENT DIMENSIONS GROUP INC-Intl Core Eqy. 2 PORT.</td>
       <td>0.0048</td>
       <td>2243286</td>
-      <td>35623381</td>
+      <td>37978832</td>
       <td>0.0000</td>
     </tr>
     <tr>
@@ -938,37 +1013,57 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Victory Portfolios-Victory Trivalent International Small-Cap Fund</td>
       <td>0.0046</td>
       <td>2160462</td>
-      <td>34308136</td>
+      <td>36576622</td>
       <td>0.0066</td>
     </tr>
     <tr>
       <td>2026-01-31</td>
       <td>iShares Trust-iShares MSCI EAFE Small-Cap ETF</td>
       <td>0.0037</td>
-      <td>1739332</td>
-      <td>27620592</td>
-      <td>0.0196</td>
+      <td>1733056</td>
+      <td>29340638</td>
+      <td>0.0159</td>
     </tr>
   </tbody>
 </table>
 <h2>Risk &amp; Short Interest</h2>
 <ul>
 <li><strong>Beta:</strong> 1.63</li>
-<li><strong>52 Week Change:</strong> 33.68%</li>
+<li><strong>52 Week Change:</strong> 57.78%</li>
 <li><strong>Shares Outstanding:</strong> 466563552.00</li>
 <li><strong>Float Shares:</strong> 460152000.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/SFR_Pricing_Dashboard.png" alt="SFR price trend" /><div class="media-cap">SFR price momentum and trend diagnostics</div></figure></div></div>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/SFR_Pricing_Dashboard.png" alt="SFR price trend" /><div class="media-cap">SFR price momentum and trend diagnostics</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Copper Composite Pricing Model - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs. All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions. No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -1005,6 +1100,9 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

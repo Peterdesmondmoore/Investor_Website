@@ -1,0 +1,1860 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Silver Market Analyst V2 - Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="/images/Favicon.png" />
+  <meta name="description" content="How the Silver Market Analyst is built in Investor Anatomy, with Featured Insights integrated above the model architecture." />
+
+  <style>
+    :root{
+      --bg:#06070a;
+      --bg-primary:#0b1220;
+      --bg-secondary:#121b2d;
+      --text:#e8ecf6;
+      --text-main:#f3f4f6;
+      --muted:#a7b0c5;
+      --text-muted:#9ca3af;
+      --border:rgba(255,255,255,.10);
+      --border-subtle:#2a3648;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+              radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+              radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6;
+      --accent-purple:#8b5cf6;
+      --accent2:#3b82f6;
+      --gold:#fbbf24;
+      --radius:20px;
+      --max:1120px;
+    }
+
+    * { box-sizing:border-box; }
+    html,body { height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--bg-secondary);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    .bg{
+      position:fixed; inset:0;
+      background:var(--glow);
+      pointer-events:none;
+      filter:saturate(1.05);
+    }
+
+    .grain{
+      position:fixed; inset:-20%;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      opacity:.10;
+      mix-blend-mode:overlay;
+      pointer-events:none;
+      transform:rotate(8deg);
+    }
+
+    .wrap {
+      max-width:var(--max);
+      margin:0 auto;
+      padding:28px 18px 0;
+      padding-top:calc(77vh + 40px);
+      position:relative;
+      z-index:1;
+    }
+
+    .page{
+      min-height:100vh;
+      background: var(--bg-secondary);
+      position:relative;
+      overflow:visible;
+    }
+
+    .nav-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Playfair Display", Georgia, serif;
+      z-index: 100;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .nav-header.scrolled {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid #2a3644;
+    }
+
+    .nav-header-inner {
+      max-width: 1120px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .nav-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none;
+    }
+
+    .nav-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: rgba(42, 54, 68, 0.5);
+      color: #e5e7eb;
+      font-size: 12px;
+      transition: background 0.2s ease;
+      text-decoration: none;
+    }
+
+    .nav-menu-btn:hover {
+      background: rgba(42, 54, 68, 0.8);
+      text-decoration:none;
+    }
+
+    .nav-menu-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .video-background{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:77vh;
+      margin-top:0;
+      overflow:hidden;
+      z-index:0;
+    }
+    .video-background video,
+    .video-background img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .video-overlay{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to bottom, rgba(2,6,23,.16) 0%, rgba(2,6,23,.45) 45%, rgba(2,6,23,.75) 100%);
+      pointer-events:none;
+    }
+    .hero-title-mark{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      text-align:center;
+      z-index:1;
+      pointer-events:none;
+    }
+    .hero-title-text{
+      display:inline-flex;
+      align-items:flex-start;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      color:#ffffff;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:clamp(2rem, 4vw, 3.35rem);
+      line-height:1.08;
+      font-weight:400;
+      letter-spacing:0.01em;
+      text-shadow:0 10px 30px rgba(0,0,0,.55), 0 2px 10px rgba(0,0,0,.65);
+    }
+    .hero-title-text .beta{
+      display:inline-block;
+      margin-top:0.48em;
+      font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-size:0.34em;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:0.18em;
+      color:#fbbf24;
+    }
+    .hero{padding:0; display:grid; grid-template-columns:1fr; gap:18px; align-items:start}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .intro-card{
+      border-radius:0;
+      padding:28px 26px 28px;
+      border:0;
+      background: var(--bg-secondary);
+      box-shadow:none;
+    }
+    .hero-intro-grid{
+      display:grid;
+      grid-template-columns:1fr 2fr;
+      gap:22px;
+      align-items:start;
+    }
+    .intro-title{
+      margin:0;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:2.375rem;
+      line-height:1.25;
+      font-weight:400;
+      color:#ffffff;
+    }
+    .intro-body{
+      margin:0;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:1.18rem;
+      line-height:1.65;
+      color:#93c5fd;
+      font-weight:400;
+    }
+    .intro-body + .intro-body{margin-top:10px;}
+    @media (max-width: 920px){
+      .wrap{padding-top:calc(64vh + 30px);}
+      .video-background{height:64vh;}
+      .hero-intro-grid{grid-template-columns:1fr;}
+      .intro-title{font-size:2rem;}
+      .intro-body{font-size:1.05rem;}
+      #overview{padding:40px 0;}
+    }
+
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px; color:var(--text)}
+    h1 .gradient-text{
+      background:linear-gradient(135deg, #fbbf24 0%, #e5e7eb 35%, #3b82f6 70%, #8b5cf6 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      display:inline;
+    }
+    p{margin:0; color:var(--muted); font-size:16px; line-height:1.55}
+
+    .metrics{margin-top:18px; display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
+    @media (max-width: 900px){ .metrics{grid-template-columns:repeat(2, 1fr);} }
+    .metric{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+    }
+    .metric-k{color:var(--muted); font-size:12px; font-weight:750; letter-spacing:.2px}
+    .metric-v{margin-top:6px; font-size:18px; font-weight:900; letter-spacing:-.2px}
+    .metric-s{margin-top:2px; color:var(--muted); font-size:12px}
+
+    .section{
+      position:relative;
+      padding:28px 0;
+      isolation:isolate;
+      --section-bg:var(--bg-primary);
+    }
+    .section::before{
+      content:"";
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:50%;
+      width:100vw;
+      transform:translateX(-50%);
+      background:var(--section-bg);
+      z-index:-1;
+    }
+    .section-primary{ --section-bg:var(--bg-primary); }
+    .section-secondary{ --section-bg:var(--bg-secondary); }
+    #overview{padding:56px 0;}
+    .visual-section{margin-top:18px; margin-bottom:0; position:relative; z-index:1;}
+    .section-title{
+      margin:20px auto 10px;
+      max-width:var(--max);
+      padding:0 44px;
+    }
+    .section-title h2{margin:0; font-size:18px; letter-spacing:.2px}
+    .section-title .hint{color:var(--muted); font-size:13px}
+    .model-lineage-title{
+      margin:0 0 8px;
+      font-size:21px;
+      color:#3b82f6;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:700;
+    }
+    .model-lineage-desc{
+      margin:0 0 14px;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:1.12rem;
+      line-height:1.6;
+      color:#93c5fd;
+      font-weight:400;
+      width:100%;
+      max-width:none;
+    }
+
+    .process-card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-width: var(--max);
+      margin: 0 auto 22px;
+      padding: 0 44px;
+    }
+
+    .process-card {
+      border: 1px solid #111827;
+      border-radius: 18px;
+      background: #172236;
+      padding: 14px;
+      position: relative;
+      overflow: visible;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+    }
+
+    .process-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 26px rgba(2, 6, 23, 0.42);
+      border-color: rgba(147, 197, 253, 0.7);
+      z-index: 5;
+    }
+
+    .process-card-bar {
+      height: 3px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      background: var(--accent);
+    }
+
+    .process-card-title {
+      font-size: 14px;
+      color: #e5e7eb;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .process-card-copy {
+      margin: 0;
+      color: #93c5fd;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      font-weight: 400;
+    }
+
+    .featured-insights-section {
+      padding-top: 0;
+      padding-bottom: 8px;
+    }
+
+    .carousel-card {
+      border-radius: 22px;
+      padding: 16px 18px 18px;
+      border: 1px solid #111827;
+      border-left: 2px solid #8b5cf6;
+      background: transparent;
+      margin: 0 auto;
+      max-width: var(--max);
+    }
+
+    .carousel-shell {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .carousel-image {
+      width: 240px;
+      height: 240px;
+      min-width: 240px;
+      flex-shrink: 0;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 0, #38bdf8, #0f172a 70%);
+      border: 1px solid rgba(148,163,184,0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      color: #e5e7eb;
+      padding: 8px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease, filter 0.24s ease;
+    }
+
+    .carousel-image:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 16px 30px rgba(2, 6, 23, 0.45);
+      border-color: rgba(147, 197, 253, 0.8);
+      filter: saturate(1.08) brightness(1.04);
+    }
+
+    .carousel-image-label {
+      display: inline-block;
+      background: rgba(2, 6, 23, 0.65);
+      color: #e5e7eb;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.2;
+      transition: transform 0.24s ease, background 0.24s ease;
+    }
+
+    .carousel-image:hover .carousel-image-label {
+      transform: translateY(-1px);
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    .carousel-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      max-height: 240px;
+      min-width: 0;
+    }
+
+    .carousel-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .carousel-subtitle {
+      margin: 6px 0 6px;
+      font-size: 1.1rem;
+      line-height: 1.4;
+      color: #3b82f6;
+      font-weight: 400;
+      font-family: "Playfair Display", Georgia, serif;
+    }
+
+    .carousel-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .carousel-summary {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .carousel-footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #111827;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .carousel-button {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(to right, #1d4ed8, #8b5cf6);
+      color: #f9fafb;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .carousel-button span.icon {
+      font-size: 12px;
+    }
+
+    .carousel-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      justify-content: flex-end;
+    }
+
+    .carousel-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .carousel-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .carousel-dot.active {
+      background: var(--gold);
+      border-color: #f59e0b;
+    }
+
+    .carousel-arrow {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: rgba(15,23,42,0.96);
+      color: #e5e7eb;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .carousel-arrow:hover {
+      border-color: #e5e7eb;
+    }
+
+    @media (max-width: 920px){
+      .section-title{padding:0 22px;}
+      .model-lineage-desc{width:100%;}
+      .process-card-grid{
+        grid-template-columns:1fr;
+        padding:0 22px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .carousel-shell {
+        flex-direction: column;
+      }
+
+      .carousel-image {
+        width: 120px;
+        height: 120px;
+        min-width: 120px;
+      }
+
+      .carousel-content {
+        max-height: none;
+      }
+    }
+
+    .visual-card{
+      padding:18px;
+      background: var(--bg-primary);
+      border:0;
+      box-shadow:none;
+    }
+    .visual-card.full-width{
+      width:100vw;
+      margin-left:calc(50% - 50vw);
+      margin-right:calc(50% - 50vw);
+      border-radius:0;
+      border:0;
+      padding:18px 20px 32px;
+    }
+
+    .sankey-shell{
+      position:relative;
+      border:0;
+      border-radius:0;
+      background: var(--bg-primary);
+      overflow:hidden;
+      box-shadow:none;
+    }
+    .sankey-toolbar{
+      display:flex;
+      justify-content:flex-end;
+      padding:14px;
+      border-bottom:1px solid rgba(125, 211, 252, 0.16);
+      background:rgba(0,0,0,.16);
+    }
+    .sankey-filter{
+      background:#0f172a;
+      color:#e6eef8;
+      border:1px solid rgba(125, 211, 252, 0.16);
+      border-radius:8px;
+      padding:8px 10px;
+      font-size:13px;
+    }
+    .sankey-wrap{ width:100%; overflow:hidden; }
+    .sankey-wrap svg{
+      display:block;
+      width:100%;
+      height:auto;
+      min-width:0;
+    }
+    .sankey-tooltip{
+      position:absolute;
+      left:0;
+      top:0;
+      z-index:30;
+      max-width:320px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(125, 211, 252, 0.22);
+      background:linear-gradient(180deg, rgba(9, 17, 31, 0.96), rgba(5, 12, 24, 0.96));
+      box-shadow:0 14px 28px rgba(0, 0, 0, 0.42);
+      color:var(--text);
+      pointer-events:none;
+      opacity:0;
+      transform:translate3d(0, 0, 0) scale(0.98);
+      transition:opacity .14s ease, transform .14s ease;
+    }
+    .sankey-tooltip.show{
+      opacity:1;
+      transform:translate3d(0, 0, 0) scale(1);
+    }
+    .sankey-tooltip .tip-title{
+      margin:0 0 4px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.2px;
+      color:#f8fbff;
+    }
+    .sankey-tooltip .tip-body{
+      margin:0;
+      font-size:11px;
+      line-height:1.4;
+      color:var(--muted);
+    }
+    .click-ring{
+      fill:none;
+      stroke-width:1.4;
+      stroke-dasharray:0;
+      opacity:.36;
+      transform-box:fill-box;
+      transform-origin:center;
+      filter:drop-shadow(0 0 4px currentColor);
+      animation:clickPulse 2.9s cubic-bezier(.4,0,.2,1) infinite;
+      pointer-events:none;
+    }
+    @keyframes clickPulse{
+      0%{
+        opacity:.26;
+        stroke-width:1.2;
+        stroke-dashoffset:0;
+        transform:scale(1);
+      }
+      45%{
+        opacity:.62;
+        stroke-width:2.1;
+        stroke-dashoffset:-1;
+        transform:scale(1.02);
+      }
+      100%{
+        opacity:.16;
+        stroke-width:.9;
+        stroke-dashoffset:-2;
+        transform:scale(1.04);
+      }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .click-ring{animation:none; opacity:.6}
+    }
+
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      width: 100%;
+      background: var(--bg-secondary);
+      z-index: 1;
+    }
+
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none;
+    }
+
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none;
+    }
+
+    .universal-footer-linkedin:hover {
+      text-decoration: none;
+    }
+
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grain"></div>
+
+  <div class="nav-header" id="nav-header">
+    <div class="nav-header-inner">
+      <a class="nav-brand" href="/index.html">Investor Anatomy</a>
+      <a class="nav-menu-btn" href="/index.html" aria-label="Back to home page">
+        <span class="nav-menu-label">Home</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="page">
+    <section class="video-background" aria-label="Silver Market Analyst hero image">
+      <img src="/images/Silver_MA.jpg" alt="Silver market analyst hero image">
+      <div class="video-overlay"></div>
+      <div class="hero-title-mark">
+        <div class="hero-title-text">Silver Market Analyst <span class="beta">BETA</span></div>
+      </div>
+    </section>
+
+    <main class="wrap">
+      <section class="section section-secondary" id="overview">
+        <section class="intro-card">
+          <div class="hero-intro-grid">
+            <h1 class="intro-title">We convert silver market complexity into structured, decision-grade insight</h1>
+            <div>
+              <p class="intro-body">
+                Silver is not a single-factor asset. Its price reflects overlapping regimes &amp; monetary conditions, industrial demand, positioning, and market stress &amp; that often send conflicting signals. Interpreting silver involves identifying which forces are dominant and how they shape direction.
+              </p>
+              <p class="intro-body">
+                The <strong><span style="color: var(--accent-purple);">Silver Market Analyst</span></strong> integrates these layers into a coherent framework, combining signals, positioning, and narrative context into a unified view. It identifies the key drivers of price and the conditions under which they are likely to shift.
+              </p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section id="featured-insights" class="visual-card full-width visual-section featured-insights-section">
+        <div class="section-title">
+          <h2 class="model-lineage-title">Featured Insights</h2>
+          <p class="model-lineage-desc">The current Silver analyst stack produces four primary user-facing outputs: the forward Silver Outlook, the tactical Execution Brief, and two narrative monitors covering the last seven days and last two days of Silver news flow.</p>
+        </div>
+        <div class="carousel-card" id="silver-insights-carousel">
+          <div class="carousel-shell">
+            <div class="carousel-image" id="silver-carousel-image">
+              <span class="carousel-image-label" id="silver-carousel-image-label">Silver Outlook</span>
+            </div>
+            <div class="carousel-content">
+              <div>
+                <div class="carousel-tag" id="silver-carousel-tag">Silver Market Analyst - Outlook</div>
+                <div class="carousel-title" id="silver-carousel-title">Silver Outlook</div>
+                <div class="carousel-subtitle" id="silver-carousel-subtitle"></div>
+                <div class="carousel-summary" id="silver-carousel-summary"></div>
+              </div>
+              <div class="carousel-footer">
+                <button class="carousel-button" id="silver-carousel-button" type="button">
+                  <span>View full report</span>
+                  <span class="icon">&rarr;</span>
+                </button>
+                <div class="carousel-meta" id="silver-carousel-meta">Signal synthesis - Updated April 4, 2026</div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <div class="carousel-arrow" id="silver-carousel-prev">&lsaquo;</div>
+            <div class="carousel-dots" id="silver-carousel-dots"></div>
+            <div class="carousel-arrow" id="silver-carousel-next">&rsaquo;</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="visual" class="visual-card full-width visual-section">
+        <div class="section-title">
+          <h2 class="model-lineage-title">Model Architecture</h2>
+          <p class="model-lineage-desc">How data, signals, and narrative layers are structured to produce the Silver Outlook and Execution Brief output.</p>
+        </div>
+        <div class="process-card-grid">
+          <div class="process-card">
+            <div class="process-card-bar" style="background:#3b82f6;"></div>
+            <div class="process-card-title">1. Generate silver signals</div>
+            <p class="process-card-copy">
+              Convert macro, market, and physical silver data into quantitative signals across real rates, liquidity, USD dynamics, positioning, ETF flows, and industrial demand.
+            </p>
+          </div>
+          <div class="process-card">
+            <div class="process-card-bar" style="background:#8b5cf6;"></div>
+            <div class="process-card-title">2. Synthesis (not aggregation)</div>
+            <p class="process-card-copy">
+              Preserve economic meaning by evaluating how monetary, industrial, and positioning forces interact, identifying alignment, conflict, and dominance rather than collapsing signals into a single composite.
+            </p>
+          </div>
+          <div class="process-card">
+            <div class="process-card-bar" style="background:#fbbf24;"></div>
+            <div class="process-card-title">3. Decision-grade outputs</div>
+            <p class="process-card-copy">
+              Produce silver regime views, turning-point signals, and forward-looking interpretation that links macro conditions and physical demand to price direction, risk, and opportunity.
+            </p>
+          </div>
+        </div>
+
+        <div class="sankey-shell" aria-label="Silver market analyst sankey diagram">
+        <div class="sankey-wrap">
+            <svg id="commoditySankey" viewBox="0 0 1460 1320" role="img" aria-label="Silver signal flow from sources to market analyst outputs"></svg>
+          </div>
+          <div id="sankeyTooltip" class="sankey-tooltip" aria-hidden="true">
+            <p class="tip-title"></p>
+            <p class="tip-body"></p>
+          </div>
+        </div>
+
+      </section>
+    </main>
+    <footer class="universal-footer">
+      <div class="universal-footer-inner">
+        <div class="universal-footer-top">
+          <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+          <a href="https://www.linkedin.com/company/investoranatomy/"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Investor Anatomy on LinkedIn"
+             class="universal-footer-linkedin">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="24"
+                 height="24"
+                 viewBox="0 0 24 24"
+                 fill="#0A66C2"
+                 aria-hidden="true">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+            </svg>
+          </a>
+        </div>
+        <p class="universal-footer-disclaimer">
+          The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs. All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions. No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+        </p>
+        <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/shared/layout-loader.js"></script>
+  <script>
+    (function () {
+      const navHeader = document.getElementById("nav-header");
+      if (!navHeader) return;
+
+      function syncNavState() {
+        navHeader.classList.toggle("scrolled", window.scrollY > 8);
+      }
+
+      syncNavState();
+      window.addEventListener("scroll", syncNavState, { passive: true });
+    })();
+  </script>
+  <script>
+    (function () {
+      const items = [
+        {
+          imagePath: "/images/IA_Silver_Card.png",
+          imageLabel: "Silver Outlook",
+          tag: "Silver Market Analyst - Outlook",
+          title: "Silver Outlook",
+          subtitle: "Silver is currently supported by a dominant liquidity expansion regime, yet it remains constrained by tactical price exhaustion and a strengthening US dollar.",
+          summary: "A structured, signal-driven synthesis of the silver market, integrating macro drivers, price behaviour, and institutional research into a single, decision-grade view.",
+          meta: "Signal synthesis - Updated April 4, 2026",
+          url: "/signal_report/Silver_Outlook_Podcast.html"
+        },
+        {
+          imagePath: "/images/Silver_Pricing_Dashboard.png",
+          imageLabel: "Execution Brief",
+          tag: "Silver Market Analyst - Tactical",
+          title: "Execution Brief",
+          subtitle: "Protective posture required as systemic stress overrides structural liquidity support amid extreme technical exhaustion.",
+          summary: "A daily tactical view of silver price structure, signal shifts, and execution timing, designed to identify high-probability entry and trim conditions.",
+          meta: "Execution layer - Updated April 4, 2026",
+          url: "/signal_report/silver_execution_brief.html"
+        },
+        {
+          imagePath: "/images/silver_news_signal_events_plot_7d.png",
+          imageLabel: "Silver News 7 Days",
+          tag: "Narrative Monitor - 7 Days",
+          title: "Silver News 7 Days",
+          subtitle: "Silver faces extreme volatility as institutional demand and falling yields clash with geopolitical rhetoric and shifting inflation fears.",
+          summary: "A 7-day Silver news signal with 30-day price-and-news chart context to show how narrative flow is interacting with price.",
+          meta: "Narrative layer - Updated April 4, 2026",
+          url: "/signal_report/Podcast_Silver_News_Signal_7D.html"
+        },
+        {
+          imagePath: "/images/silver_news_signal_events_plot_2d.png",
+          imageLabel: "Silver News 2 Days",
+          tag: "Narrative Monitor - 2 Days",
+          title: "Silver News 2 Days",
+          subtitle: "Silver prices have faced a sharp correction as geopolitical rhetoric and shifting macro expectations trigger a broad sell-off across the precious metals complex.",
+          summary: "A 48-hour Silver news signal with 30-day price-and-news chart context to surface the latest narrative shift feeding the tactical brief.",
+          meta: "Narrative layer - Updated April 4, 2026",
+          url: "/signal_report/Podcast_Silver_News_Signal_48H.html"
+        }
+      ];
+
+      let index = 0;
+
+      const imageEl = document.getElementById("silver-carousel-image");
+      const imageLabelEl = document.getElementById("silver-carousel-image-label");
+      const tagEl = document.getElementById("silver-carousel-tag");
+      const titleEl = document.getElementById("silver-carousel-title");
+      const subtitleEl = document.getElementById("silver-carousel-subtitle");
+      const summaryEl = document.getElementById("silver-carousel-summary");
+      const metaEl = document.getElementById("silver-carousel-meta");
+      const buttonEl = document.getElementById("silver-carousel-button");
+      const dotsEl = document.getElementById("silver-carousel-dots");
+      const prevEl = document.getElementById("silver-carousel-prev");
+      const nextEl = document.getElementById("silver-carousel-next");
+
+      if (!imageEl || !imageLabelEl || !tagEl || !titleEl || !subtitleEl || !summaryEl || !metaEl || !buttonEl || !dotsEl || !prevEl || !nextEl) {
+        return;
+      }
+
+      function goToItem(item) {
+        if (!item || !item.url) return;
+        window.location.href = item.url;
+      }
+
+      function renderDots() {
+        dotsEl.innerHTML = "";
+        items.forEach(function (_, idx) {
+          const dot = document.createElement("div");
+          dot.className = "carousel-dot" + (idx === index ? " active" : "");
+          dot.addEventListener("click", function () {
+            index = idx;
+            updateCarousel();
+          });
+          dotsEl.appendChild(dot);
+        });
+      }
+
+      function updateCarousel() {
+        const item = items[index];
+        imageEl.style.backgroundImage = item.imagePath ? "url('" + item.imagePath + "')" : "";
+        imageLabelEl.textContent = item.imageLabel || "";
+        tagEl.textContent = item.tag || "";
+        titleEl.textContent = item.title || "";
+        titleEl.style.display = item.title ? "block" : "none";
+        subtitleEl.textContent = item.subtitle || "";
+        summaryEl.textContent = item.summary || "";
+        metaEl.textContent = item.meta || "";
+        buttonEl.onclick = function () { goToItem(item); };
+        imageEl.onclick = function () { goToItem(item); };
+        renderDots();
+      }
+
+      prevEl.addEventListener("click", function () {
+        index = (index - 1 + items.length) % items.length;
+        updateCarousel();
+      });
+
+      nextEl.addEventListener("click", function () {
+        index = (index + 1) % items.length;
+        updateCarousel();
+      });
+
+      setInterval(function () {
+        index = (index + 1) % items.length;
+        updateCarousel();
+      }, 12000);
+
+      updateCarousel();
+    })();
+  </script>
+  <script>
+    (function () {
+      const newsSources = [
+        "EIN News - Mining (Gold)",
+        "Mining.com",
+        "World Gold Council - Research",
+        "CME Group - Metals Video",
+        "Bank for International Settlements",
+        "CFTC",
+        "The Silver Institute",
+        "Yahoo Finance",
+      ];
+
+      const rssFeedFallbackUrl = "https://investoranatomy.com/rss_feed.html";
+      const newsSourceMeta = {
+        "EIN News - Mining (Gold)": {
+          rssUrl: "https://mining.einnews.com/rss/RTz1oPsRZsCpdz10",
+          description: "Track high-frequency metals and mining wire headlines focused on projects, policy, and supply developments.",
+        },
+        "Mining.com": {
+          rssUrl: "https://www.mining.com/feed/",
+          description: "Capture global mining-industry reporting on operations, projects, production trends, and capital activity.",
+        },
+        "World Gold Council - Research": {
+          rssUrl: "https://www.gold.org/rss/research",
+          description: "Ingest World Gold Council research on gold demand, central-bank behavior, and market structure.",
+        },
+        "CME Group - Metals Video": {
+          rssUrl: "https://www.cmegroup.com/rss/metals-video-commentary.rss",
+          description: "Monitor CME metals-market video briefings for futures price action, volatility, and positioning context.",
+        },
+        "Bank for International Settlements": {
+          rssUrl: "https://www.bis.org/doclist/all_statistics.rss",
+          description: "Track BIS publications and commentary for central-bank, liquidity, and macro-financial policy signals.",
+        },
+        "CFTC": {
+          rssUrl: "https://www.cftc.gov/RSS/RSSGP/rssgp.xml",
+          description: "Monitor CFTC releases for market-structure, regulatory, and positioning-related developments.",
+        },
+        "The Silver Institute": {
+          rssUrl: "https://silverinstitute.org/category/news/feed/",
+          description: "Track Silver Institute updates on silver supply, industrial demand, investment demand, and market balances.",
+        },
+        "Yahoo Finance": {
+          rssUrl: "https://finance.yahoo.com/news/",
+          description: "Capture broad market and company headlines that shape metals sentiment and near-term risk tone.",
+        },
+      };
+
+      const silverSignalInputs = [
+        { name: "Real Interest Rate Trend Signal Monitor", href: "https://investoranatomy.com/signal_monitor/real_interest_rate_trend_signal_monitor.html" },
+        { name: "Federal Reserve Liquidity Composite Signal Monitor", href: "https://investoranatomy.com/signal_monitor/federal_reserve_liquidity_composite_signal_monitor.html" },
+        { name: "M2 Money Supply Signal Monitor", href: "https://investoranatomy.com/signal_monitor/m2_money_supply_signal_monitor.html" },
+        { name: "Explicit Neutral Rate R Proxy Signal Monitor", href: "https://investoranatomy.com/signal_monitor/explicit_neutral_rate_r_proxy_signal_monitor.html" },
+        { name: "Usd Index Signal Monitor", href: "https://investoranatomy.com/signal_monitor/usd_index_signal_monitor.html" },
+        { name: "Usd Individual Market Analysis Monitor", href: "https://investoranatomy.com/signal_monitor/usd_individual_market_analysis_monitor.html" },
+        {
+          name: "Global Inflation & FX Dynamics",
+          href: "https://investoranatomy.com/signal_report/Macro_Theme_Global_Inflation_and_FX_Dynamics.html",
+          description: "Track the global inflation and FX regime that conditions silver through USD pressure, inflation sensitivity, and broader commodity transmission."
+        },
+        { name: "Inflation Term Structure Signal Monitor", href: "https://investoranatomy.com/signal_monitor/inflation_term_structure_signal_monitor.html" },
+        { name: "Market Implied Inflation Signal Monitor", href: "https://investoranatomy.com/signal_monitor/market_implied_inflation_signal_monitor.html" },
+        { name: "Policy Relevant Inflation Pce Signal Monitor", href: "https://investoranatomy.com/signal_monitor/policy_relevant_inflation_pce_signal_monitor.html" },
+        { name: "Silver Individual Market Analysis Monitor", href: "https://investoranatomy.com/signal_monitor/silver_individual_market_analysis_monitor.html" },
+        { name: "Cross Sector Positioning Monitor", href: "https://investoranatomy.com/signal_monitor/cross_sector_positioning_monitor.html" },
+        { name: "Specs Vs Hedgers Divergence Reversal Risk Monitor", href: "https://investoranatomy.com/signal_monitor/specs_vs_hedgers_divergence_reversal_risk_monitor.html" },
+        { name: "Hedger Pressure Indicator Monitor", href: "https://investoranatomy.com/signal_monitor/hedger_pressure_indicator_monitor.html" },
+        { name: "Squeeze Exhaustion Risk Indicators Monitor", href: "https://investoranatomy.com/signal_monitor/squeeze_exhaustion_risk_indicators_monitor.html" },
+        { name: "Financial Stress Index Signal Monitor", href: "https://investoranatomy.com/signal_monitor/financial_stress_index_signal_monitor.html" },
+        { name: "Financial Stress Composite Signal Monitor", href: "https://investoranatomy.com/signal_monitor/financial_stress_composite_signal_monitor.html" },
+        { name: "Market Volatility Vix Signal Monitor", href: "https://investoranatomy.com/signal_monitor/market_volatility_vix_signal_monitor.html" },
+        {
+          name: "Silver Slv Pricing Monitor",
+          href: "https://investoranatomy.com/signal_monitor/silver_slv_pricing_monitor.html",
+          feedsRegime: false
+        },
+        {
+          name: "Metals Comparative Signal",
+          href: "https://investoranatomy.com/signal_report/Metals_Comparative_Signal.html",
+          feedsRegime: false,
+          feedsChangeMonitor: false
+        },
+        {
+          name: "SLV ETF Flow Signal",
+          href: "https://investoranatomy.com/signal_report/SLV_ETF_Flow_Signal.html",
+          feedsRegime: false,
+          feedsChangeMonitor: false
+        },
+      ];
+
+      const cotSignalSet = new Set([
+        "Usd Individual Market Analysis Monitor",
+        "Silver Individual Market Analysis Monitor",
+        "Cross Sector Positioning Monitor",
+        "Specs Vs Hedgers Divergence Reversal Risk Monitor",
+        "Hedger Pressure Indicator Monitor",
+        "Squeeze Exhaustion Risk Indicators Monitor",
+      ]);
+
+      const investorAnatomySignalSet = new Set([
+        "Global Growth & Economic Cycles",
+        "Global Inflation & FX Dynamics",
+      ]);
+
+      const yFinanceSignalSet = new Set([
+        "Market Volatility Vix Signal Monitor",
+        "Silver Slv Pricing Monitor",
+        "Metals Comparative Signal",
+      ]);
+
+      const blackrockSignalSet = new Set([
+        "SLV ETF Flow Signal",
+      ]);
+
+      const silverRegimeStateRolesBySignal = Object.freeze({
+        "Silver Individual Market Analysis Monitor": ["positioning"],
+        "Cross Sector Positioning Monitor": ["positioning"],
+        "Specs Vs Hedgers Divergence Reversal Risk Monitor": ["positioning"],
+        "Hedger Pressure Indicator Monitor": ["flow"],
+        "Squeeze Exhaustion Risk Indicators Monitor": ["flow"],
+      });
+
+      const analystDirectSignals = new Set([
+        "Market Volatility Vix Signal Monitor",
+        "Silver Slv Pricing Monitor",
+        "Silver Individual Market Analysis Monitor",
+        "SLV ETF Flow Signal",
+      ]);
+
+      const commodities = ["Silver"];
+
+      function silverFeedsRegimeState(name) {
+        return Object.prototype.hasOwnProperty.call(silverRegimeStateRolesBySignal, name);
+      }
+
+      const nodeLinks = {
+        "Silver News - 7 Days": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_7D.html",
+        "Silver News - 2 Days": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_48H.html",
+        "Silver News Compression": "https://investoranatomy.com/signal_report/Podcast_Silver_News_Signal_Compression_7D.html",
+        "Execution Brief": "/signal_report/silver_execution_brief.html",
+        "Silver Market Analyst": "https://investoranatomy.com/signal_report/silver_market_analyst/",
+      };
+
+      const palette = {
+        panel: "#0b1220",
+        text: "#e6eef8",
+        link: "#67e8f9",
+        flow: "rgba(103, 232, 249, 0.18)",
+        newsFlow: "rgba(103, 232, 249, 0.42)",
+        silver: "rgba(192, 198, 208, 0.60)",
+        gold: "rgba(250, 204, 21, 0.52)",
+        lithium: "rgba(129, 140, 248, 0.52)",
+        copper: "rgba(251, 146, 60, 0.56)",
+        yfinance: "rgba(16, 185, 129, 0.42)",
+        blackrock: "rgba(236, 72, 153, 0.50)",
+      };
+
+      const columnX = { source: 40, enrich: 280, news: 520, compression: 760, analyst: 1000, terminal: 1240 };
+      const nodeWidth = 18;
+      const nodeHeight = 22;
+      const reportGap = 16;
+      const sourceGap = 42;
+      const rowBase = { Silver: 110 };
+      const chartWidth = 1420;
+      const modelOutputNodeIds = new Set(["Silver Outlook", "Execution Brief"]);
+
+      function getSignalSource(name) {
+        if (cotSignalSet.has(name)) return "COT";
+        if (investorAnatomySignalSet.has(name)) return "Investor Anatomy";
+        if (yFinanceSignalSet.has(name)) return "YFinance";
+        if (blackrockSignalSet.has(name)) return "Blackrock";
+        return "FRED";
+      }
+
+      function getNewsSourceRssUrl(name) {
+        const meta = newsSourceMeta[name] || {};
+        if (meta.rssUrl) return meta.rssUrl;
+        return rssFeedFallbackUrl + "?q=" + encodeURIComponent(name);
+      }
+
+      function getCommodityColor(commodity, alpha) {
+        if (commodity === "Silver") return "rgba(192, 198, 208, " + alpha + ")";
+        if (commodity === "Gold") return "rgba(250, 204, 21, " + alpha + ")";
+        if (commodity === "Lithium") return "rgba(129, 140, 248, " + alpha + ")";
+        if (commodity === "Copper") return "rgba(251, 146, 60, " + alpha + ")";
+        return "rgba(103, 232, 249, " + alpha + ")";
+      }
+
+      function getNodeFill(node) {
+        if (node.type === "source") return "rgba(103, 232, 249, 0.92)";
+        if (node.type === "data-source") {
+          if (node.id === "Investor Anatomy") return "rgba(249, 115, 22, 0.95)";
+          if (node.id === "COT") return "rgba(251, 191, 36, 0.95)";
+          if (node.id === "YFinance") return "rgba(16, 185, 129, 0.95)";
+          if (node.id === "Blackrock") return "rgba(236, 72, 153, 0.95)";
+          return "rgba(59, 130, 246, 0.95)";
+        }
+        if (node.type === "signal") {
+          if (node.sourceGroup === "Investor Anatomy") return "rgba(249, 115, 22, 0.9)";
+          if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.9)";
+          if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.9)";
+          if (node.sourceGroup === "Blackrock") return "rgba(236, 72, 153, 0.9)";
+          return "rgba(59, 130, 246, 0.9)";
+        }
+        if (node.type === "enrich") return "rgba(103, 232, 249, 0.92)";
+        if (node.type === "research" && node.commodity) return getCommodityColor(node.commodity, 0.9);
+        if (node.type === "research") return "rgba(148, 163, 184, 0.92)";
+        if (node.type === "regime" && node.commodity) return getCommodityColor(node.commodity, 0.9);
+        if (node.type === "regime") return "rgba(125, 211, 252, 0.88)";
+        if (node.commodity) return getCommodityColor(node.commodity, node.href ? 0.92 : 0.62);
+        return "rgba(15,23,42,0.9)";
+      }
+
+      function getNodeRingStroke(node) {
+        if (node.type === "data-source") {
+          if (node.id === "Investor Anatomy") return "rgba(249, 115, 22, 0.75)";
+          if (node.id === "COT") return "rgba(251, 191, 36, 0.75)";
+          if (node.id === "YFinance") return "rgba(16, 185, 129, 0.75)";
+          if (node.id === "Blackrock") return "rgba(236, 72, 153, 0.78)";
+          return "rgba(59, 130, 246, 0.75)";
+        }
+        if (node.type === "signal") {
+          if (node.sourceGroup === "Investor Anatomy") return "rgba(249, 115, 22, 0.8)";
+          if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.8)";
+          if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.8)";
+          if (node.sourceGroup === "Blackrock") return "rgba(236, 72, 153, 0.82)";
+          return "rgba(59, 130, 246, 0.8)";
+        }
+        if (node.commodity) return getCommodityColor(node.commodity, 0.8);
+        return "rgba(103, 232, 249, 0.75)";
+      }
+
+      function buildNodes() {
+        const newsSourceNodes = newsSources.map((name, index) => ({
+          id: name,
+          name,
+          x: columnX.source,
+          y: 70 + index * sourceGap,
+          type: "source",
+          href: getNewsSourceRssUrl(name),
+        }));
+        const dedupeY = Math.round((newsSourceNodes[0].y + newsSourceNodes[newsSourceNodes.length - 1].y) / 2);
+
+        const silverSignalsStartY = Math.max(180, 70 + newsSources.length * sourceGap - 10);
+        const signalGroupOrder = ["FRED", "Investor Anatomy", "COT", "YFinance", "Blackrock"];
+        const silverSignalNodes = [];
+        const signalSourceNodes = [];
+        let groupCursorY = silverSignalsStartY;
+
+        signalGroupOrder.forEach((groupName) => {
+          const groupItems = silverSignalInputs.filter((item) => getSignalSource(item.name) === groupName);
+          if (!groupItems.length) return;
+
+          const groupStartY = groupCursorY;
+          groupItems.forEach((item, index) => {
+            silverSignalNodes.push({
+              id: item.name,
+              name: item.name,
+              x: columnX.enrich,
+              y: groupCursorY + index * sourceGap,
+              type: "signal",
+              commodity: "Silver",
+              href: item.href,
+              sourceGroup: groupName,
+            });
+          });
+
+          const groupEndY = groupCursorY + (groupItems.length - 1) * sourceGap;
+          signalSourceNodes.push({
+            id: groupName,
+            name: groupName,
+            x: columnX.source,
+            y: groupStartY + (groupEndY - groupStartY) / 2,
+            type: "data-source",
+            commodity: "Silver",
+          });
+
+          groupCursorY = groupEndY + sourceGap + 18;
+        });
+
+        const baseNodes = [
+          ...newsSourceNodes,
+          ...signalSourceNodes,
+          ...silverSignalNodes,
+          { id: "Deduplicate and Enrich", name: "Deduplicate and Enrich", x: columnX.enrich, y: dedupeY, type: "enrich" },
+        ];
+
+        const commodityNodes = commodities.flatMap((commodity) => {
+          const baseY = rowBase[commodity];
+          const centerOffset = (nodeHeight + reportGap) / 2;
+          const standard = [
+            {
+              id: commodity + " News - 7 Days",
+              name: commodity + " News - 7 Days",
+              x: columnX.news,
+              y: baseY + (nodeHeight + reportGap) * 2,
+              commodity,
+              href: nodeLinks[commodity + " News - 7 Days"],
+            },
+            {
+              id: commodity + " News - 2 Days",
+              name: commodity + " News - 2 Days",
+              x: columnX.news,
+              y: baseY + (nodeHeight + reportGap) * 5,
+              commodity,
+              href: nodeLinks[commodity + " News - 2 Days"],
+            },
+            {
+              id: commodity + " News Compression",
+              name: commodity + " News Compression",
+              x: columnX.compression,
+              y: baseY + centerOffset + (nodeHeight + reportGap) * 2,
+              commodity,
+              href: nodeLinks[commodity + " News Compression"],
+            },
+            {
+              id: commodity + " Market Analyst",
+              name: commodity + " Market Analyst",
+              x: columnX.analyst,
+              y: baseY + centerOffset,
+              commodity,
+              href: nodeLinks[commodity + " Market Analyst"],
+            },
+          ];
+
+          if (commodity !== "Silver") return standard;
+          return [
+            ...standard,
+            {
+              id: "Silver Price Research",
+              name: "Silver Price Research",
+              x: columnX.compression,
+              y: baseY + centerOffset - 100,
+              commodity: "Silver",
+              type: "research",
+              href: "https://investoranatomy.com/signal_report/Silver_Price_Research.html",
+            },
+            {
+              id: "Silver Regime Framework",
+              name: "Silver Regime Framework",
+              x: columnX.compression,
+              y: baseY + centerOffset - 62,
+              commodity: "Silver",
+              type: "regime",
+            },
+            {
+              id: "Silver Regime State",
+              name: "Silver Regime State",
+              x: columnX.news,
+              y: baseY + (nodeHeight + reportGap) * 8,
+              commodity: "Silver",
+              type: "regime",
+              description: "Classify the current Silver regime state by combining positioning inputs from Silver Individual Market Analysis, Cross Sector Positioning, and Specs vs Hedgers divergence with flow inputs from Hedger Pressure and Squeeze Exhaustion. Silver SLV Pricing remains confirmatory only, and SLV ETF Flow stays outside this Regime State node.",
+              href: "https://investoranatomy.com/signal_report/Silver_Regime_State.html",
+            },
+            {
+              id: "Execution Brief",
+              name: "Execution Brief",
+              x: columnX.terminal,
+              y: baseY + centerOffset + nodeHeight + reportGap,
+              commodity: "Silver",
+              type: "endpoint-day-trader",
+              href: nodeLinks["Execution Brief"],
+            },
+            {
+              id: "Silver Outlook",
+              name: "Silver Outlook",
+              x: columnX.terminal,
+              y: baseY + centerOffset - (nodeHeight + reportGap),
+              commodity: "Silver",
+              type: "endpoint-outlook",
+              href: "/signal_report/Silver_Outlook_Podcast.html",
+            },
+            {
+              id: "Signal Change Monitor",
+              name: "Signal Change Monitor",
+              x: columnX.news,
+              y: baseY + (nodeHeight + reportGap) * 11,
+              commodity: "Silver",
+              type: "regime",
+            },
+          ];
+        });
+
+        return baseNodes.concat(commodityNodes);
+      }
+
+      function buildLinks() {
+        return [
+          ...newsSources.map((source) => ({ source, target: "Deduplicate and Enrich", value: 1, kind: "news-source" })),
+          ...silverSignalInputs.map((item) => ({
+            source: getSignalSource(item.name),
+            target: item.name,
+            commodity: "Silver",
+            kind: getSignalSource(item.name) === "COT"
+              ? "cot-source"
+              : getSignalSource(item.name) === "Investor Anatomy"
+                ? "investor-anatomy-source"
+              : getSignalSource(item.name) === "YFinance"
+                ? "yfinance-source"
+              : getSignalSource(item.name) === "Blackrock"
+                ? "blackrock-source"
+                : "fred-source",
+          })),
+          ...silverSignalInputs.filter((item) => silverFeedsRegimeState(item.name)).map((item) => ({
+            source: item.name, target: "Silver Regime State", value: 1, commodity: "Silver", kind: "silver-signal",
+            signalSource: getSignalSource(item.name),
+          })),
+          ...silverSignalInputs.filter((item) => item.feedsChangeMonitor !== false).map((item) => ({
+            source: item.name, target: "Signal Change Monitor", value: 1, commodity: "Silver", kind: "silver-signal",
+            signalSource: getSignalSource(item.name),
+          })),
+          ...silverSignalInputs
+            .filter((item) => analystDirectSignals.has(item.name))
+            .map((item) => ({
+              source: item.name,
+              target: "Silver Market Analyst",
+              commodity: "Silver",
+              kind: "analyst-direct",
+              signalSource: getSignalSource(item.name),
+            })),
+          { source: "Deduplicate and Enrich", target: "Silver News - 7 Days", commodity: "Silver" },
+          { source: "Deduplicate and Enrich", target: "Silver News - 2 Days", commodity: "Silver" },
+          { source: "Silver News - 7 Days", target: "Silver News Compression", commodity: "Silver" },
+          { source: "Silver News - 7 Days", target: "Silver Market Analyst", commodity: "Silver" },
+          { source: "Silver News Compression", target: "Silver Market Analyst", commodity: "Silver" },
+          { source: "Silver Price Research", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
+          { source: "Silver Regime Framework", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
+          { source: "Silver Regime State", target: "Silver Market Analyst", commodity: "Silver", kind: "regime" },
+          { source: "Silver Market Analyst", target: "Execution Brief", commodity: "Silver" },
+          { source: "Silver Market Analyst", target: "Silver Outlook", commodity: "Silver", kind: "regime" },
+          { source: "Market Volatility Vix Signal Monitor", target: "Execution Brief", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+          { source: "Silver Slv Pricing Monitor", target: "Execution Brief", commodity: "Silver", kind: "analyst-direct", signalSource: "YFinance" },
+          { source: "SLV ETF Flow Signal", target: "Execution Brief", commodity: "Silver", kind: "analyst-direct", signalSource: "Blackrock" },
+          { source: "Signal Change Monitor", target: "Execution Brief", commodity: "Silver", kind: "regime" },
+          { source: "Silver News - 2 Days", target: "Execution Brief", commodity: "Silver" },
+        ];
+      }
+
+      function getLinkColor(link) {
+        if (link.kind === "news-source") return palette.newsFlow;
+        if (link.kind === "fred-source") return "rgba(59, 130, 246, 0.35)";
+        if (link.kind === "investor-anatomy-source") return "rgba(249, 115, 22, 0.4)";
+        if (link.kind === "cot-source") return "rgba(251, 191, 36, 0.42)";
+        if (link.kind === "yfinance-source") return palette.yfinance;
+        if (link.kind === "blackrock-source") return palette.blackrock;
+        if (link.kind === "silver-signal") {
+          if (link.signalSource === "Investor Anatomy") return "rgba(249, 115, 22, 0.52)";
+          if (link.signalSource === "COT") return "rgba(251, 191, 36, 0.52)";
+          if (link.signalSource === "YFinance") return "rgba(16, 185, 129, 0.52)";
+          if (link.signalSource === "Blackrock") return "rgba(236, 72, 153, 0.58)";
+          return "rgba(59, 130, 246, 0.48)";
+        }
+        if (link.kind === "analyst-direct") {
+          if (link.signalSource === "Investor Anatomy") return "rgba(249, 115, 22, 0.78)";
+          if (link.signalSource === "COT") return "rgba(251, 191, 36, 0.78)";
+          if (link.signalSource === "YFinance") return "rgba(16, 185, 129, 0.78)";
+          if (link.signalSource === "Blackrock") return "rgba(236, 72, 153, 0.82)";
+          return "rgba(59, 130, 246, 0.72)";
+        }
+        if (link.commodity === "Silver") return palette.silver;
+        if (link.commodity === "Gold") return palette.gold;
+        if (link.commodity === "Lithium") return palette.lithium;
+        if (link.commodity === "Copper") return palette.copper;
+        return palette.flow;
+      }
+
+      const svg = document.getElementById("commoditySankey");
+      const sankeyShell = document.querySelector(".sankey-shell");
+      const tooltip = document.getElementById("sankeyTooltip");
+      if (!svg || !sankeyShell || !tooltip) return;
+
+      const tooltipTitle = tooltip.querySelector(".tip-title");
+      const tooltipBody = tooltip.querySelector(".tip-body");
+      if (!tooltipTitle || !tooltipBody) return;
+
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const XLINK_NS = "http://www.w3.org/1999/xlink";
+
+      function make(tag, attrs) {
+        const el = document.createElementNS(SVG_NS, tag);
+        Object.keys(attrs || {}).forEach((key) => el.setAttribute(key, attrs[key]));
+        return el;
+      }
+
+      function wrapNodeLabel(text, maxChars) {
+        const words = (text || "").split(/\s+/).filter(Boolean);
+        if (!words.length) return [""];
+
+        const lines = [];
+        let current = "";
+
+        words.forEach((word) => {
+          if (!current) {
+            if (word.length > maxChars) {
+              lines.push(word.slice(0, maxChars - 1) + "...");
+            } else {
+              current = word;
+            }
+            return;
+          }
+
+          const candidate = current + " " + word;
+          if (candidate.length <= maxChars) {
+            current = candidate;
+            return;
+          }
+
+          lines.push(current);
+          if (word.length > maxChars) {
+            lines.push(word.slice(0, maxChars - 1) + "...");
+            current = "";
+          } else {
+            current = word;
+          }
+        });
+
+        if (current) lines.push(current);
+        if (lines.length <= 2) return lines;
+
+        let second = lines.slice(1).join(" ");
+        if (second.length > maxChars) second = second.slice(0, maxChars - 1).trimEnd() + "...";
+        return [lines[0], second];
+      }
+
+      function estimateLabelWidth(lines) {
+        const maxLen = lines.reduce((acc, line) => Math.max(acc, line.length), 0);
+        return Math.max(110, Math.min(430, Math.round(maxLen * 6.2 + 16)));
+      }
+
+      function getNodeDisplayName(node) {
+        if (node.type === "signal") return (node.name || "").replace(/\s+Monitor$/i, "");
+        return node.name || "";
+      }
+
+      const nodeObjectiveByName = {
+        "Real Interest Rate Trend Signal Monitor": "Track 10Y real-yield deviation from trend to flag accommodative vs restrictive real-rate pressure.",
+        "Federal Reserve Liquidity Composite Signal Monitor": "Measure system liquidity by combining M2, Fed balance sheet, reserves, and reverse-repo dynamics.",
+        "M2 Money Supply Signal Monitor": "Monitor money-supply growth and short-run momentum to identify liquidity acceleration or contraction.",
+        "Explicit Neutral Rate R Proxy Signal Monitor": "Approximate the market-implied neutral policy rate regime using real-rate and term-premium context.",
+        "Usd Index Signal Monitor": "Detect broad USD strengthening or weakening regimes that influence global commodity pricing pressure.",
+        "Usd Individual Market Analysis Monitor": "Translate USD futures positioning into crowding, unwind, and reversal-risk diagnostics.",
+        "Global Inflation & FX Dynamics": "Track the global inflation and FX regime that conditions silver through USD pressure, inflation sensitivity, and broader commodity transmission.",
+        "Inflation Term Structure Signal Monitor": "Track inflation term-structure shifts across breakevens and real yields to classify reflation vs disinflation.",
+        "Market Implied Inflation Signal Monitor": "Summarize forward inflation expectations from TIPS breakevens and momentum structure.",
+        "Policy Relevant Inflation Pce Signal Monitor": "Track headline and core PCE inflation pressure in a policy-relevant composite.",
+        "Silver Individual Market Analysis Monitor": "Translate Silver futures CoT positioning into tactical crowding and reversal-risk signals that anchor the Silver positioning regime.",
+        "Cross Sector Positioning Monitor": "Aggregate CoT positioning breadth across sectors to contextualize the Silver positioning regime.",
+        "Specs Vs Hedgers Divergence Reversal Risk Monitor": "Measure speculative vs hedger divergence breadth to surface Silver positioning-regime stress and reversal risk.",
+        "Hedger Pressure Indicator Monitor": "Quantify commercial hedger pressure as a direct Silver flow-regime input.",
+        "Squeeze Exhaustion Risk Indicators Monitor": "Aggregate squeeze and trend-exhaustion breadth flags as a direct Silver flow-regime input.",
+        "Financial Stress Index Signal Monitor": "Track STLFSI stress conditions to detect risk-off pressure and systemic strain.",
+        "Financial Stress Composite Signal Monitor": "Blend stress index, credit spreads, and curve slope into a unified financial-stress regime signal.",
+        "Market Volatility Vix Signal Monitor": "Track VIX regime and momentum as a tactical risk-sentiment and volatility-pressure gauge.",
+        "Silver Slv Pricing Monitor": "Track SLV pricing trend and momentum as a confirmatory market-expression check rather than a Silver Regime State driver.",
+        "Metals Comparative Signal": "Track cross-metal relative performance and rotation pressure for context, while keeping it outside the Silver Regime State node in this phase.",
+        "SLV ETF Flow Signal": "Track SLV ETF net flow regime as a tactical execution and analyst input that remains outside the Silver Regime State node.",
+        "Silver News Compression": "Compress Silver narrative flow into a concise signal layer for analyst synthesis.",
+        "Gold News Compression": "Compress Gold narrative flow into a concise signal layer for analyst synthesis.",
+        "Lithium News Compression": "Compress Lithium narrative flow into a concise signal layer for analyst synthesis.",
+        "Copper News Compression": "Compress Copper narrative flow into a concise signal layer for analyst synthesis.",
+        "Silver Regime Framework": "Define the structural Silver regime lens used to interpret tactical and macro signals.",
+        "Silver Regime State": "Classify the current Silver regime state by combining positioning inputs from Silver Individual Market Analysis, Cross Sector Positioning, and Specs vs Hedgers divergence with flow inputs from Hedger Pressure and Squeeze Exhaustion. Silver SLV Pricing remains confirmatory only, and SLV ETF Flow stays outside this Regime State node.",
+        "Signal Change Monitor": "Track Silver signal transition pressure from the broader execution delta-candidate set rather than only the narrower Regime State inputs.",
+        "Silver Price Research": "Inject thematic Silver price research context to complement quantitative signal layers.",
+        "Silver Market Analyst": "Synthesize Silver macro, positioning, pricing, and narrative layers into a final analyst view.",
+        "Execution Brief": "Produce the intraday Silver brief by combining analyst synthesis, tactical pricing/volatility, regime state, and latest 2-day news.",
+        "Silver Outlook": "Provide the forward-looking Silver outlook synthesized from the Silver Market Analyst output.",
+        "Gold Market Analyst": "Synthesize Gold macro, positioning, pricing, and narrative layers into a final analyst view.",
+        "Lithium Market Analyst": "Synthesize Lithium macro, positioning, pricing, and narrative layers into a final analyst view.",
+        "Copper Market Analyst": "Synthesize Copper macro, positioning, pricing, and narrative layers into a final analyst view.",
+      };
+
+      silverSignalInputs.forEach((item) => {
+        if (item.description) nodeObjectiveByName[item.name] = item.description;
+      });
+
+      function getNodeObjective(node) {
+        if (nodeObjectiveByName[node.name]) return nodeObjectiveByName[node.name];
+        const commodityName = (node.name || "").split(" ")[0] || "Commodity";
+        if (node.type === "source") {
+          const meta = newsSourceMeta[node.name];
+          if (meta && meta.description) return meta.description;
+          return "Provide external commodity-news inputs to the enrichment layer.";
+        }
+        if (node.type === "enrich") return "Deduplicate, normalize, and enrich incoming news before compression.";
+        if (node.type === "data-source") {
+          if (node.id === "FRED") return "Provide macroeconomic time-series used by the FRED-driven Silver signal stack.";
+          if (node.id === "Investor Anatomy") return "Provide Investor Anatomy macro-theme outputs used by the cross-asset Silver regime stack.";
+          if (node.id === "COT") return "Provide commitment-of-traders positioning data used by the CoT signal stack.";
+          if (node.id === "YFinance") return "Provide market-pricing and volatility feeds used by the YFinance signal stack.";
+          if (node.id === "Blackrock") return "Provide Blackrock ETF flow data stream used to track SLV investment-demand shifts.";
+          return "Provide source data for downstream signal generation.";
+        }
+        if (node.type === "signal") return "Generate a Silver monitor signal for downstream regime and analyst synthesis.";
+        if (node.name.indexOf("News - 7 Days") !== -1) return "Summarize the last 7 days of " + commodityName + " narrative flow.";
+        if (node.name.indexOf("News - 2 Days") !== -1) return "Highlight the most recent 48-hour changes in " + commodityName + " narrative flow.";
+        if (node.name.indexOf("News Compression") !== -1) return "Compress recent news into a concise decision-ready signal.";
+        if (node.name.indexOf("Regime Framework") !== -1) return "Define the structural regime lens applied to interpretation.";
+        if (node.name.indexOf("Regime State") !== -1) return "Classify current regime state to anchor analyst judgment.";
+        if (node.name.indexOf("Research") !== -1) return "Inject deeper research context alongside market and news signals.";
+        if (node.name.indexOf("Market Analyst") !== -1) return "Integrate signals, regime context, and compressed news into final analyst output.";
+        return "Provide context within the commodity analyst workflow.";
+      }
+
+      function positionTooltip(evt, targetEl) {
+        const shellRect = sankeyShell.getBoundingClientRect();
+        let left = 16;
+        let top = 16;
+
+        if (evt && typeof evt.clientX === "number" && typeof evt.clientY === "number") {
+          left = evt.clientX - shellRect.left + 14;
+          top = evt.clientY - shellRect.top + 14;
+        } else if (targetEl) {
+          const targetRect = targetEl.getBoundingClientRect();
+          left = targetRect.left - shellRect.left + targetRect.width + 12;
+          top = targetRect.top - shellRect.top + targetRect.height / 2;
+        }
+
+        tooltip.style.left = left + "px";
+        tooltip.style.top = top + "px";
+
+        const tipRect = tooltip.getBoundingClientRect();
+        const maxLeft = shellRect.width - tipRect.width - 12;
+        const maxTop = shellRect.height - tipRect.height - 12;
+
+        let clampedLeft = Math.min(left, maxLeft);
+        let clampedTop = Math.min(top, maxTop);
+        if (clampedLeft < 12) clampedLeft = 12;
+        if (clampedTop < 12) clampedTop = 12;
+
+        if (left > maxLeft && targetEl) {
+          const targetRect = targetEl.getBoundingClientRect();
+          clampedLeft = targetRect.left - shellRect.left - tipRect.width - 12;
+          if (clampedLeft < 12) clampedLeft = 12;
+        }
+
+        tooltip.style.left = Math.round(clampedLeft) + "px";
+        tooltip.style.top = Math.round(clampedTop) + "px";
+      }
+
+      function showTooltip(node, evt, targetEl) {
+        tooltipTitle.textContent = getNodeDisplayName(node);
+        tooltipBody.textContent = getNodeObjective(node);
+        tooltip.classList.add("show");
+        tooltip.setAttribute("aria-hidden", "false");
+        positionTooltip(evt, targetEl);
+      }
+
+      function hideTooltip() {
+        tooltip.classList.remove("show");
+        tooltip.setAttribute("aria-hidden", "true");
+      }
+
+      function bindTooltipEvents(el, node) {
+        el.addEventListener("pointerenter", function (evt) { showTooltip(node, evt, el); });
+        el.addEventListener("pointermove", function (evt) { positionTooltip(evt, el); });
+        el.addEventListener("pointerleave", hideTooltip);
+        el.addEventListener("mouseenter", function (evt) { showTooltip(node, evt, el); });
+        el.addEventListener("mousemove", function (evt) { positionTooltip(evt, el); });
+        el.addEventListener("mouseleave", hideTooltip);
+      }
+
+      function draw() {
+        const nodes = buildNodes();
+        const links = buildLinks();
+        const nodeById = Object.fromEntries(nodes.map((n) => [n.id, n]));
+        svg.textContent = "";
+        hideTooltip();
+
+        const maxY = Math.max.apply(null, nodes.map((n) => n.y + nodeHeight));
+        const chartHeight = Math.max(1320, maxY + 100);
+        svg.setAttribute("viewBox", "0 0 " + chartWidth + " " + chartHeight);
+
+        svg.appendChild(make("rect", { x: 0, y: 0, width: chartWidth, height: chartHeight, fill: palette.panel, rx: 0 }));
+
+        links.forEach((link) => {
+          const source = nodeById[link.source];
+          const target = nodeById[link.target];
+          if (!source || !target) return;
+
+          const x1 = source.x + nodeWidth;
+          const y1 = source.y + nodeHeight / 2;
+          const x2 = target.x;
+          const y2 = target.y + nodeHeight / 2;
+          const cx1 = x1 + (x2 - x1) * 0.35;
+          const cx2 = x1 + (x2 - x1) * 0.65;
+
+          const path = make("path", {
+            d: "M " + x1 + " " + y1 + " C " + cx1 + " " + y1 + ", " + cx2 + " " + y2 + ", " + x2 + " " + y2,
+            stroke: getLinkColor(link),
+            "stroke-width": 2.4,
+            opacity: 1,
+            fill: "none",
+            "stroke-linecap": "round",
+          });
+          svg.appendChild(path);
+        });
+
+        const modelOutputNodes = nodes.filter((node) => modelOutputNodeIds.has(node.id));
+        if (modelOutputNodes.length) {
+          let boxLeft = Number.POSITIVE_INFINITY;
+          let boxTop = Number.POSITIVE_INFINITY;
+          let boxRight = Number.NEGATIVE_INFINITY;
+          let boxBottom = Number.NEGATIVE_INFINITY;
+
+          modelOutputNodes.forEach((node) => {
+            const outputLines = wrapNodeLabel(getNodeDisplayName(node), 30);
+            const outputLabelWidth = estimateLabelWidth(outputLines);
+            const outputLabelHeight = Math.max(nodeHeight, outputLines.length * 12 + 4);
+            const left = node.x - 10;
+            const top = node.y - 8;
+            const right = node.x + nodeWidth + 10 + outputLabelWidth + 14;
+            const bottom = node.y + outputLabelHeight + 8;
+            if (left < boxLeft) boxLeft = left;
+            if (top < boxTop) boxTop = top;
+            if (right > boxRight) boxRight = right;
+            if (bottom > boxBottom) boxBottom = bottom;
+          });
+
+          boxLeft = Math.max(10, boxLeft - 18);
+          boxRight = Math.min(chartWidth - 14, boxRight + 10);
+          boxBottom += 16;
+          boxTop = Math.max(10, boxTop - 34);
+          const outputBox = make("rect", {
+            x: boxLeft,
+            y: boxTop,
+            width: boxRight - boxLeft,
+            height: boxBottom - boxTop,
+            rx: 14,
+            fill: "rgba(192, 198, 208, 0.05)",
+            stroke: "rgba(192, 198, 208, 0.7)",
+            "stroke-width": 1.4,
+            "stroke-dasharray": "8 6",
+          });
+          svg.appendChild(outputBox);
+
+          const outputTitle = make("text", {
+            x: boxLeft + 12,
+            y: boxTop + 22,
+            "font-size": 14,
+            "font-weight": 700,
+            "letter-spacing": "0.08em",
+            fill: "#f59e0b",
+          });
+          outputTitle.textContent = "MODEL OUTPUTS";
+          svg.appendChild(outputTitle);
+        }
+
+        nodes.forEach((node) => {
+          const isOutputNode = node.id === "Silver Outlook" || node.id === "Execution Brief";
+          const fill = getNodeFill(node);
+          const textFill = isOutputNode ? "#93c5fd" : "#e2e8f0";
+          const displayName = getNodeDisplayName(node);
+          const labelLines = wrapNodeLabel(displayName, 30);
+          const labelX = node.x + nodeWidth + 10;
+          const labelLineHeight = 12;
+          const labelBoxWidth = estimateLabelWidth(labelLines);
+          const labelBoxHeight = Math.max(nodeHeight, labelLines.length * labelLineHeight + 4);
+
+          const group = make("g", { opacity: 1 });
+          if (node.href) group.style.cursor = "pointer";
+
+          group.appendChild(make("rect", {
+            x: node.x, y: node.y, width: nodeWidth, height: nodeHeight, rx: 5, fill,
+          }));
+
+          if (node.href) {
+            const ring = make("rect", {
+              x: node.x - 6,
+              y: node.y - 4,
+              width: nodeWidth + 12 + labelBoxWidth,
+              height: labelBoxHeight + 8,
+              rx: 10,
+              stroke: getNodeRingStroke(node),
+              class: "click-ring",
+            });
+            ring.style.animationDelay = ((node.y % 17) / 10).toFixed(2) + "s";
+            group.appendChild(ring);
+          }
+
+          const text = make("text", {
+            x: labelX,
+            y: node.y + nodeHeight / 2 - ((labelLines.length - 1) * labelLineHeight) / 2 + 4,
+            "font-size": 12,
+            "font-weight": 700,
+            "letter-spacing": "0.08em",
+            fill: textFill,
+          });
+          labelLines.forEach((line, index) => {
+            const tspan = make("tspan", {
+              x: labelX,
+              dy: index === 0 ? 0 : labelLineHeight,
+            });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          group.appendChild(text);
+
+          if (node.href) {
+            const anchor = make("a", { href: node.href, target: "_blank" });
+            anchor.setAttributeNS(XLINK_NS, "xlink:href", node.href);
+            anchor.appendChild(group);
+            bindTooltipEvents(anchor, node);
+            anchor.addEventListener("focus", function (evt) { showTooltip(node, evt, anchor); });
+            anchor.addEventListener("blur", hideTooltip);
+            svg.appendChild(anchor);
+          } else {
+            bindTooltipEvents(group, node);
+            svg.appendChild(group);
+          }
+        });
+      }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>
+

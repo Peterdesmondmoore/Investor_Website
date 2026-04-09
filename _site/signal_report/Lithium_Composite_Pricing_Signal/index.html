@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Lithium Composite Pricing Signal</div>
         <div class="page-title">The Lithium Composite Pricing Signal aggregates multiple lithium equity pricing signals into a coherent view of lithium market pricing dynamics.</div>
         <div class="hero-inject market-report"><div class="ia-report-block" id="lithium-pricing-qualitative-cohort">
@@ -143,7 +209,7 @@
 
   <div class="ia-panel">
     <h3>Executive Summary</h3>
-    <p>The lithium pricing regime is currently fragmented, exhibiting a significant performance gap between established producers and development-stage assets (<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">1</a>). While the Miner cohort has transitioned toward an improving directional trend characterized by strong short-term momentum, broader participation across the sector remains constrained (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>). Technology and Project cohorts continue to show deteriorating or flat pricing characteristics relative to their 52-week ranges, despite marginal daily gains (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). This lack of internal consistency suggests a narrow, producer-led environment rather than a broad-based sector recovery (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">6</a>). Observed behavior is transitional as the gap between leading producers and lagging developers remains established (<a href="https://investoranatomy.com/signal_report/Lithium_Composite_Pricing_Signal/" target="_blank">1</a>).</p>
+    <p>Observed pricing behavior in the lithium sector currently demonstrates significant divergence between established producers and developmental projects (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>). Producers are characterized by improving directionality, with several entities trading above their 200-day technical averages (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>). Conversely, the project developer cohort shows high dispersion, as some entities trade near 52-week lows while others exhibit strong 6-month momentum (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>). Realized volatility remains in the normal to high range across most observed cohorts (<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). Participation in recent price strength is narrowing toward operationally established producers and specific niche cleantech developers (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>). The overall regime is transitional and lacks internal consistency between producers and development-stage assets (<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>).</p>
   </div>
 
   <div class="ia-grid ia-grid-3">
@@ -151,10 +217,10 @@
       <h3>Miners / Producers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>Improving</td></tr>
+          <tr><th>Directionality</th><td>Improving (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>)</td></tr>
           <tr><th>Breadth</th><td>Moderate</td></tr>
-          <tr><th>Persistence</th><td>Emerging</td></tr>
-          <tr><th>Dispersion</th><td>High</td></tr>
+          <tr><th>Persistence</th><td>Established (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>)</td></tr>
+          <tr><th>Dispersion</th><td>Low (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">1</a>)</td></tr>
         </tbody>
       </table>
     </div>
@@ -163,10 +229,10 @@
       <h3>Projects / Developers</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>Mixed</td></tr>
-          <tr><th>Breadth</th><td>Narrow</td></tr>
-          <tr><th>Persistence</th><td>Short-lived</td></tr>
-          <tr><th>Dispersion</th><td>High</td></tr>
+          <tr><th>Directionality</th><td>Mixed (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>)</td></tr>
+          <tr><th>Breadth</th><td>Moderate</td></tr>
+          <tr><th>Persistence</th><td>Emerging (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)</td></tr>
+          <tr><th>Dispersion</th><td>High (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)</td></tr>
         </tbody>
       </table>
     </div>
@@ -175,10 +241,10 @@
       <h3>Technology / Processing</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr><th>Directionality</th><td>Deteriorating</td></tr>
+          <tr><th>Directionality</th><td>Mixed / Flat (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)</td></tr>
           <tr><th>Breadth</th><td>Narrow</td></tr>
-          <tr><th>Persistence</th><td>Fading</td></tr>
-          <tr><th>Dispersion</th><td>Low</td></tr>
+          <tr><th>Persistence</th><td>Fading / Short-lived (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)</td></tr>
+          <tr><th>Dispersion</th><td>High (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>)</td></tr>
         </tbody>
       </table>
     </div>
@@ -186,7 +252,7 @@
 
   <div class="ia-panel" style="margin-top:12px;">
     <h3>Cross-Cohort Alignment</h3>
-    <p>Pricing across the lithium sector is currently divergent, with the Miner/Producer cohort acting as the leading indicator following recent technical breakouts (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>). The Project and Technology cohorts are lagging significantly, with several assets remaining in established downtrends or trading near 52-week lows (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>). High dispersion between cohorts indicates that current pricing strength is concentrated in large-scale producers rather than flowing through to the broader development pipeline (<a href="https://investoranatomy.com/signal_report/IGO_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">6</a>).</p>
+    <p>Cohorts are currently <strong>Divergent</strong>. The leading cohort consists of established Producers (<a href="https://investoranatomy.com/signal_report/SQM_Pricing_Signal/" target="_blank">3</a>) and specific high-momentum Developers (<a href="https://investoranatomy.com/signal_report/PHOS_Pricing_Signal/" target="_blank">4</a>), which are trading above key technical thresholds. The lagging cohort is composed of project developers and technology-focused entities that remain in established downtrends or are trading near 52-week lows (<a href="https://investoranatomy.com/signal_report/VUL_Pricing_Signal/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/SLI_Pricing_Signal/" target="_blank">5</a>).</p>
   </div>
 </div></div>
       </div>
@@ -195,7 +261,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -209,47 +276,47 @@
 
         <div class="panels">
           <div class="panel" role="tabpanel" id="panel-igo" aria-labelledby="tab-igo" hidden><div class="panel-title">IGO Pricing Signal</div><div class="panel-body"><h1>IGO.AX - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-04-01</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 254 rows</li>
-<li><strong>Last close:</strong> 7.93</li>
-<li><strong>Day change:</strong> 3.93%</li>
-<li><strong>Composite view:</strong> Trim</li>
+<li><strong>Last close:</strong> 8.16</li>
+<li><strong>Day change:</strong> 3.95%</li>
+<li><strong>Composite view:</strong> Hold / No strong view</li>
 </ul>
 <h3>Technical Trend</h3>
 <ul>
-<li><strong>Trend state:</strong> Recent breakdown below 50d/200d trend</li>
-<li><strong>Price above 50-day average:</strong> False</li>
+<li><strong>Trend state:</strong> Recent breakout above 50d/200d trend</li>
+<li><strong>Price above 50-day average:</strong> True</li>
 <li><strong>Price above 200-day average:</strong> True</li>
 </ul>
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> High realized volatility (top 30% of sample)</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.59</li>
-<li><strong>Volatility percentile:</strong> 81.74%</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.57</li>
+<li><strong>Volatility percentile:</strong> 77.97%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 2669258.00</li>
-<li><strong>Volume percentile:</strong> 20.00%</li>
-<li><strong>Volume z-score:</strong> -0.80</li>
+<li><strong>Latest volume:</strong> 2657979.00</li>
+<li><strong>Volume percentile:</strong> 19.73%</li>
+<li><strong>Volume z-score:</strong> -0.81</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Mid-range within 52-week band</li>
-<li><strong>Position within 52-week range:</strong> 0.76</li>
-<li><strong>Drawdown from 52-week high:</strong> -15.37%</li>
+<li><strong>Position within 52-week range:</strong> 0.79</li>
+<li><strong>Drawdown from 52-week high:</strong> -12.91%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
 </p>
 <h3>Model Signal (Daily)</h3>
 <p>The daily signal is constructed from trend and momentum: uptrend + positive momentum tends to generate <strong>Add</strong> bias; downtrend + negative momentum tends to generate <strong>Reduce</strong> bias.</p>
-<p><strong>Latest daily signal value:</strong> 0</p>
+<p><strong>Latest daily signal value:</strong> 1</p>
 <h2>Company Profile</h2>
 <ul>
 <li><strong>Name:</strong> IGO Limited</li>
@@ -264,12 +331,12 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Market Capitalisation</td><td>6.01bn</td></tr>
-<tr><td>Enterprise Value</td><td>5.60bn</td></tr>
-<tr><td>Forward P/E</td><td>15.44</td></tr>
-<tr><td>EV / EBITDA</td><td>231.52</td></tr>
-<tr><td>Price / Book</td><td>2.91</td></tr>
-<tr><td>Price / Sales</td><td>13.71</td></tr>
+<tr><td>Market Capitalisation</td><td>6.18bn</td></tr>
+<tr><td>Enterprise Value</td><td>5.54bn</td></tr>
+<tr><td>Forward P/E</td><td>16.15</td></tr>
+<tr><td>EV / EBITDA</td><td>229.02</td></tr>
+<tr><td>Price / Book</td><td>2.99</td></tr>
+<tr><td>Price / Sales</td><td>14.11</td></tr>
 <tr><td>Profit Margin</td><td>-47.18%</td></tr>
 <tr><td>Gross Margin</td><td>57.98%</td></tr>
 <tr><td>Operating Margin</td><td>-42.66%</td></tr>
@@ -280,7 +347,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h2>Analyst Data</h2>
 <ul>
 <li><strong>Consensus rating:</strong> Hold</li>
-<li><strong>Mean recommendation score:</strong> 3.00</li>
+<li><strong>Mean recommendation score:</strong> 2.86</li>
 <li><strong>Number of analysts:</strong> 14</li>
 </ul>
 <h3>Target prices</h3>
@@ -288,7 +355,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <thead><tr><th>Type</th><th>Value</th></tr></thead>
 <tbody>
 <tr><td>Low</td><td>5.40</td></tr>
-<tr><td>Mean</td><td>8.25</td></tr>
+<tr><td>Mean</td><td>8.29</td></tr>
 <tr><td>High</td><td>11.50</td></tr>
 </tbody></table>
 <h3>Recommendations history</h3>
@@ -307,8 +374,8 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     <tr>
       <td>0m</td>
       <td>1</td>
-      <td>3</td>
-      <td>6</td>
+      <td>4</td>
+      <td>5</td>
       <td>3</td>
       <td>1</td>
     </tr>
@@ -372,21 +439,21 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>0y</td>
-      <td>0.26714</td>
+      <td>0.26668</td>
       <td>0.0900</td>
       <td>0.5396</td>
       <td>-0.22885</td>
       <td>12.0</td>
-      <td>216.73%</td>
+      <td>216.53%</td>
     </tr>
     <tr>
       <td>+1y</td>
-      <td>0.51365</td>
+      <td>0.50528</td>
       <td>0.2693</td>
       <td>1.0111</td>
-      <td>0.26714</td>
+      <td>0.26668</td>
       <td>10.0</td>
-      <td>92.28%</td>
+      <td>89.47%</td>
     </tr>
   </tbody>
 </table>
@@ -400,11 +467,11 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>16.45%</td></tr>
-<tr><td>1M</td><td>-11.20%</td></tr>
-<tr><td>3M</td><td>-2.10%</td></tr>
-<tr><td>6M</td><td>55.19%</td></tr>
-<tr><td>12M</td><td>88.81%</td></tr>
+<tr><td>1W</td><td>4.21%</td></tr>
+<tr><td>1M</td><td>4.62%</td></tr>
+<tr><td>3M</td><td>-0.49%</td></tr>
+<tr><td>6M</td><td>64.19%</td></tr>
+<tr><td>12M</td><td>117.60%</td></tr>
 </tbody>
 </table>
 <h3>Drawdown & Volatility</h3>
@@ -429,7 +496,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
   <tbody>
     <tr>
       <td>insidersPercentHeld</td>
-      <td>0.11064</td>
+      <td>0.11066</td>
     </tr>
     <tr>
       <td>institutionsPercentHeld</td>
@@ -437,7 +504,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>institutionsFloatPercentHeld</td>
-      <td>0.61743</td>
+      <td>0.61744</td>
     </tr>
     <tr>
       <td>institutionsCount</td>
@@ -463,7 +530,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Pacer Advisors, Inc.</td>
       <td>0.0015</td>
       <td>1146225</td>
-      <td>9089564</td>
+      <td>9353195</td>
       <td>0.1098</td>
     </tr>
   </tbody>
@@ -486,59 +553,59 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>DFA INVESTMENT TRUST CO-The Asia Pacific Small Company Series</td>
       <td>0.0039</td>
       <td>2952561</td>
-      <td>23413808</td>
+      <td>24092897</td>
       <td>0.1376</td>
     </tr>
     <tr>
       <td>2026-01-31</td>
       <td>iShares Trust-iShares MSCI EAFE Small-Cap ETF</td>
-      <td>0.0035</td>
-      <td>2613668</td>
-      <td>20726386</td>
-      <td>0.0258</td>
+      <td>0.0034</td>
+      <td>2604224</td>
+      <td>21250467</td>
+      <td>0.0221</td>
     </tr>
     <tr>
       <td>2025-12-31</td>
       <td>AQR Funds-AQR Long-Short Equity Fund</td>
       <td>0.0027</td>
       <td>2047140</td>
-      <td>16233819</td>
+      <td>16704662</td>
       <td>1.5298</td>
-    </tr>
-    <tr>
-      <td>2025-10-31</td>
-      <td>Dimensional ETF Trust-Dimensional International Small Cap Value ETF</td>
-      <td>0.0020</td>
-      <td>1524404</td>
-      <td>12088523</td>
-      <td>0.3299</td>
     </tr>
     <tr>
       <td>2025-11-30</td>
       <td>SCHWAB STRATEGIC TRUST-Schwab International Equity ETF</td>
       <td>0.0020</td>
       <td>1543206</td>
-      <td>12237623</td>
+      <td>12592560</td>
       <td>0.2590</td>
+    </tr>
+    <tr>
+      <td>2025-10-31</td>
+      <td>VANGUARD Intl Eqy. INDEX Fd.S-Vanguard FTSE All-World ex-US Index Fd.</td>
+      <td>0.0019</td>
+      <td>1454259</td>
+      <td>11866753</td>
+      <td>0.0218</td>
     </tr>
   </tbody>
 </table>
 <h2>Risk &amp; Short Interest</h2>
 <ul>
 <li><strong>Beta:</strong> 0.60</li>
-<li><strong>52 Week Change:</strong> 60.99%</li>
+<li><strong>52 Week Change:</strong> 109.33%</li>
 <li><strong>Shares Outstanding:</strong> 757267813.00</li>
-<li><strong>Float Shares:</strong> 670601212.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/IGO_Pricing_Dashboard.png" alt="IGO price trend" /><div class="media-cap">IGO price momentum and trend diagnostics</div></figure></div></div>
+<li><strong>Float Shares:</strong> 670578540.00</li>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/IGO_Pricing_Dashboard.png" alt="IGO price trend" /><div class="media-cap">IGO price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-sqm" aria-labelledby="tab-sqm"><div class="panel-title">SQM Pricing Signal</div><div class="panel-body"><h1>SQM - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-03-31</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 251 rows</li>
-<li><strong>Last close:</strong> 82.70</li>
-<li><strong>Day change:</strong> 6.89%</li>
-<li><strong>Composite view:</strong> Hold / No strong view</li>
+<li><strong>Last close:</strong> 80.94</li>
+<li><strong>Day change:</strong> 0.02%</li>
+<li><strong>Composite view:</strong> Add (modest conviction)</li>
 </ul>
 <h3>Technical Trend</h3>
 <ul>
@@ -548,23 +615,23 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 </ul>
 <h3>Volatility Regime</h3>
 <ul>
-<li><strong>Volatility state:</strong> High realized volatility (top 30% of sample)</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.62</li>
-<li><strong>Volatility percentile:</strong> 90.43%</li>
+<li><strong>Volatility state:</strong> Volatility in normal range</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.52</li>
+<li><strong>Volatility percentile:</strong> 67.54%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
-<li><strong>Volume/liquidity state:</strong> Unusually high volume (elevated activity)</li>
-<li><strong>Latest volume:</strong> 3549775.00</li>
-<li><strong>Volume percentile:</strong> 99.18%</li>
-<li><strong>Volume z-score:</strong> 3.34</li>
+<li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
+<li><strong>Latest volume:</strong> 2296100.00</li>
+<li><strong>Volume percentile:</strong> 90.96%</li>
+<li><strong>Volume z-score:</strong> 1.45</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Trading near 52-week highs</li>
-<li><strong>Position within 52-week range:</strong> 0.94</li>
-<li><strong>Drawdown from 52-week high:</strong> -3.20%</li>
+<li><strong>Position within 52-week range:</strong> 0.91</li>
+<li><strong>Drawdown from 52-week high:</strong> -5.26%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -586,13 +653,13 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Market Capitalisation</td><td>23.62bn</td></tr>
-<tr><td>Enterprise Value</td><td>28.03bn</td></tr>
-<tr><td>P/E</td><td>40.15</td></tr>
-<tr><td>Forward P/E</td><td>14.98</td></tr>
-<tr><td>EV / EBITDA</td><td>18.97</td></tr>
-<tr><td>Price / Book</td><td>4.15</td></tr>
-<tr><td>Price / Sales</td><td>5.16</td></tr>
+<tr><td>Market Capitalisation</td><td>23.12bn</td></tr>
+<tr><td>Enterprise Value</td><td>27.52bn</td></tr>
+<tr><td>P/E</td><td>39.29</td></tr>
+<tr><td>Forward P/E</td><td>14.73</td></tr>
+<tr><td>EV / EBITDA</td><td>18.63</td></tr>
+<tr><td>Price / Book</td><td>4.06</td></tr>
+<tr><td>Price / Sales</td><td>5.05</td></tr>
 <tr><td>Profit Margin</td><td>12.85%</td></tr>
 <tr><td>Gross Margin</td><td>29.56%</td></tr>
 <tr><td>Operating Margin</td><td>28.33%</td></tr>
@@ -604,14 +671,14 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <ul>
 <li><strong>Consensus rating:</strong> Buy</li>
 <li><strong>Mean recommendation score:</strong> 2.39</li>
-<li><strong>Number of analysts:</strong> 17</li>
+<li><strong>Number of analysts:</strong> 18</li>
 </ul>
 <h3>Target prices</h3>
 <table>
 <thead><tr><th>Type</th><th>Value</th></tr></thead>
 <tbody>
 <tr><td>Low</td><td>40.00</td></tr>
-<tr><td>Mean</td><td>76.74</td></tr>
+<tr><td>Mean</td><td>74.94</td></tr>
 <tr><td>High</td><td>100.00</td></tr>
 </tbody></table>
 <h3>Recommendations history</h3>
@@ -724,10 +791,10 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>16.22%</td></tr>
-<tr><td>1M</td><td>6.07%</td></tr>
-<tr><td>3M</td><td>16.64%</td></tr>
-<tr><td>6M</td><td>86.01%</td></tr>
+<tr><td>1W</td><td>5.20%</td></tr>
+<tr><td>1M</td><td>7.02%</td></tr>
+<tr><td>3M</td><td>15.51%</td></tr>
+<tr><td>6M</td><td>83.12%</td></tr>
 <tr><td>12M</td><td>n/a</td></tr>
 </tbody>
 </table>
@@ -765,15 +832,15 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>institutionsPercentHeld</td>
-      <td>0.34977</td>
+      <td>0.34746</td>
     </tr>
     <tr>
       <td>institutionsFloatPercentHeld</td>
-      <td>0.35313</td>
+      <td>0.35080</td>
     </tr>
     <tr>
       <td>institutionsCount</td>
-      <td>428.00000</td>
+      <td>420.00000</td>
     </tr>
   </tbody>
 </table>
@@ -795,7 +862,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Blackrock Inc.</td>
       <td>0.0106</td>
       <td>1514256</td>
-      <td>125228966</td>
+      <td>122563884</td>
       <td>0.0370</td>
     </tr>
     <tr>
@@ -803,7 +870,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>RWC Asset Advisors (US) LLC</td>
       <td>0.0102</td>
       <td>1462794</td>
-      <td>120973059</td>
+      <td>118398549</td>
       <td>0.1867</td>
     </tr>
     <tr>
@@ -811,7 +878,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Mirae Asset Global ETFs Holdings Ltd.</td>
       <td>0.0084</td>
       <td>1193423</td>
-      <td>98696078</td>
+      <td>96595660</td>
       <td>-0.2196</td>
     </tr>
     <tr>
@@ -819,7 +886,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Castle Hook Partners LP</td>
       <td>0.0070</td>
       <td>1006637</td>
-      <td>83248876</td>
+      <td>81477201</td>
       <td>1.0000</td>
     </tr>
     <tr>
@@ -827,7 +894,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Citadel Advisors Llc</td>
       <td>0.0062</td>
       <td>879805</td>
-      <td>72759870</td>
+      <td>71211418</td>
       <td>0.2363</td>
     </tr>
   </tbody>
@@ -850,7 +917,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>BARON SELECT FUNDS-Baron Emerging Markets Fund</td>
       <td>0.0033</td>
       <td>478333</td>
-      <td>39558137</td>
+      <td>38716274</td>
       <td>-0.0768</td>
     </tr>
     <tr>
@@ -858,7 +925,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>GMO TRUST-GMO Resources Fund</td>
       <td>0.0030</td>
       <td>423662</td>
-      <td>35036846</td>
+      <td>34291203</td>
       <td>-0.4523</td>
     </tr>
     <tr>
@@ -866,7 +933,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Driehaus Mutual Funds-DRIEHAUS EMERGING MARKETS GROWTH FUND</td>
       <td>0.0023</td>
       <td>322452</td>
-      <td>26666779</td>
+      <td>26099265</td>
       <td>1.0000</td>
     </tr>
     <tr>
@@ -874,7 +941,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>ALLSPRING FUNDS TRUST-Allspring Emerging Markets Equity Fund</td>
       <td>0.0022</td>
       <td>308059</td>
-      <td>25476478</td>
+      <td>24934296</td>
       <td>0.0000</td>
     </tr>
     <tr>
@@ -882,7 +949,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>ADVISORS' INNER CIRCLE FUND II-KOPERNIK GLOBAL ALL-CAP FUND</td>
       <td>0.0021</td>
       <td>296284</td>
-      <td>24502685</td>
+      <td>23981227</td>
       <td>-0.5676</td>
     </tr>
   </tbody>
@@ -890,13 +957,13 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h2>Risk &amp; Short Interest</h2>
 <ul>
 <li><strong>Beta:</strong> 1.04</li>
-<li><strong>52 Week Change:</strong> 64.91%</li>
+<li><strong>52 Week Change:</strong> 103.47%</li>
 <li><strong>Short Ratio:</strong> 0.83</li>
 <li><strong>Shares Outstanding:</strong> 142818904.00</li>
 <li><strong>Float Shares:</strong> 103726514.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/SQM_Pricing_Dashboard.png" alt="SQM price trend" /><div class="media-cap">SQM price momentum and trend diagnostics</div></figure></div></div>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/SQM_Pricing_Dashboard.png" alt="SQM price trend" /><div class="media-cap">SQM price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-phos" aria-labelledby="tab-phos"><div class="panel-title">PHOS Pricing Signal</div><div class="panel-body"><h1>PHOS.CN - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-03-31</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
@@ -914,16 +981,16 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> Volatility in normal range</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.68</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.67</li>
 <li><strong>Volatility percentile:</strong> 5.80%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 205543.00</li>
-<li><strong>Volume percentile:</strong> 53.42%</li>
-<li><strong>Volume z-score:</strong> -0.26</li>
+<li><strong>Latest volume:</strong> 146892.00</li>
+<li><strong>Volume percentile:</strong> 45.48%</li>
+<li><strong>Volume z-score:</strong> -0.44</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
@@ -1072,16 +1139,16 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>1.03%</td></tr>
-<tr><td>1M</td><td>11.36%</td></tr>
-<tr><td>3M</td><td>3.16%</td></tr>
-<tr><td>6M</td><td>48.48%</td></tr>
+<tr><td>1W</td><td>2.08%</td></tr>
+<tr><td>1M</td><td>-5.77%</td></tr>
+<tr><td>3M</td><td>-12.50%</td></tr>
+<tr><td>6M</td><td>68.97%</td></tr>
 <tr><td>12M</td><td>n/a</td></tr>
 </tbody>
 </table>
 <h3>Drawdown & Volatility</h3>
 <ul>
-<li><strong>Max drawdown 3M:</strong> -33.04%</li>
+<li><strong>Max drawdown 3M:</strong> -29.91%</li>
 <li><strong>Max drawdown 6M:</strong> -37.38%</li>
 <li><strong>Max drawdown 12M:</strong> -37.38%</li>
 </ul>
@@ -1120,19 +1187,19 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h2>Risk &amp; Short Interest</h2>
 <ul>
 <li><strong>Beta:</strong> 1.58</li>
-<li><strong>52 Week Change:</strong> 223.33%</li>
+<li><strong>52 Week Change:</strong> 226.67%</li>
 <li><strong>Short Ratio:</strong> 6.38</li>
 <li><strong>Shares Outstanding:</strong> 158259672.00</li>
-<li><strong>Float Shares:</strong> 145811294.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/PHOS_Pricing_Dashboard.png" alt="PHOS price trend" /><div class="media-cap">PHOS price momentum and trend diagnostics</div></figure></div></div>
+<li><strong>Float Shares:</strong> 145814759.00</li>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/PHOS_Pricing_Dashboard.png" alt="PHOS price trend" /><div class="media-cap">PHOS price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-nano" aria-labelledby="tab-nano"><div class="panel-title">NANO Pricing Signal</div><div class="panel-body"><h1>NANO.TO - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-03-31</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 252 rows</li>
-<li><strong>Last close:</strong> 0.88</li>
-<li><strong>Day change:</strong> 0.00%</li>
+<li><strong>Last close:</strong> 0.86</li>
+<li><strong>Day change:</strong> 3.61%</li>
 <li><strong>Composite view:</strong> Hold / No strong view</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -1144,29 +1211,29 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> Volatility in normal range</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.44</li>
-<li><strong>Volatility percentile:</strong> 4.93%</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.49</li>
+<li><strong>Volatility percentile:</strong> 13.62%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 61003.00</li>
-<li><strong>Volume percentile:</strong> 32.33%</li>
-<li><strong>Volume z-score:</strong> -0.45</li>
+<li><strong>Latest volume:</strong> 111300.00</li>
+<li><strong>Volume percentile:</strong> 64.93%</li>
+<li><strong>Volume z-score:</strong> -0.06</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Trading near 52-week lows</li>
-<li><strong>Position within 52-week range:</strong> 0.19</li>
-<li><strong>Drawdown from 52-week high:</strong> -55.78%</li>
+<li><strong>Position within 52-week range:</strong> 0.18</li>
+<li><strong>Drawdown from 52-week high:</strong> -56.78%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
 </p>
 <h3>Model Signal (Daily)</h3>
 <p>The daily signal is constructed from trend and momentum: uptrend + positive momentum tends to generate <strong>Add</strong> bias; downtrend + negative momentum tends to generate <strong>Reduce</strong> bias.</p>
-<p><strong>Latest daily signal value:</strong> 0</p>
+<p><strong>Latest daily signal value:</strong> -1</p>
 <h2>Company Profile</h2>
 <ul>
 <li><strong>Name:</strong> Nano One Materials Corp.</li>
@@ -1181,16 +1248,16 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Market Capitalisation</td><td>104248072.00</td></tr>
-<tr><td>Enterprise Value</td><td>94988816.00</td></tr>
-<tr><td>Forward P/E</td><td>-4.00</td></tr>
-<tr><td>EV / EBITDA</td><td>-3.37</td></tr>
-<tr><td>Price / Book</td><td>4.47</td></tr>
+<tr><td>Market Capitalisation</td><td>101878800.00</td></tr>
+<tr><td>Enterprise Value</td><td>97445224.00</td></tr>
+<tr><td>Forward P/E</td><td>-3.91</td></tr>
+<tr><td>EV / EBITDA</td><td>-3.36</td></tr>
+<tr><td>Price / Book</td><td>4.53</td></tr>
 <tr><td>Profit Margin</td><td>0.00%</td></tr>
 <tr><td>Gross Margin</td><td>0.00%</td></tr>
 <tr><td>Operating Margin</td><td>0.00%</td></tr>
 <tr><td>Return on Equity</td><td>-50.73%</td></tr>
-<tr><td>Return on Assets</td><td>-53.72%</td></tr>
+<tr><td>Return on Assets</td><td>-53.85%</td></tr>
 </tbody>
 </table>
 <h2>Analyst Data</h2>
@@ -1202,18 +1269,18 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>-2.22%</td></tr>
-<tr><td>1M</td><td>-4.35%</td></tr>
-<tr><td>3M</td><td>-21.43%</td></tr>
-<tr><td>6M</td><td>-21.43%</td></tr>
+<tr><td>1W</td><td>-8.51%</td></tr>
+<tr><td>1M</td><td>-3.37%</td></tr>
+<tr><td>3M</td><td>-19.63%</td></tr>
+<tr><td>6M</td><td>-33.85%</td></tr>
 <tr><td>12M</td><td>n/a</td></tr>
 </tbody>
 </table>
 <h3>Drawdown & Volatility</h3>
 <ul>
-<li><strong>Max drawdown 3M:</strong> -28.21%</li>
-<li><strong>Max drawdown 6M:</strong> -57.79%</li>
-<li><strong>Max drawdown 12M:</strong> -57.79%</li>
+<li><strong>Max drawdown 3M:</strong> -29.06%</li>
+<li><strong>Max drawdown 6M:</strong> -58.29%</li>
+<li><strong>Max drawdown 12M:</strong> -58.29%</li>
 </ul>
 <h2>Actions</h2>
 <ul>
@@ -1240,7 +1307,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
   <tbody>
     <tr>
       <td>insidersPercentHeld</td>
-      <td>0.04337</td>
+      <td>0.01900</td>
     </tr>
     <tr>
       <td>institutionsPercentHeld</td>
@@ -1248,7 +1315,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>institutionsFloatPercentHeld</td>
-      <td>0.08471</td>
+      <td>0.08261</td>
     </tr>
     <tr>
       <td>institutionsCount</td>
@@ -1274,7 +1341,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Tradition Wealth Management, LLC</td>
       <td>0.0</td>
       <td>1509</td>
-      <td>1327</td>
+      <td>1297</td>
       <td>0.0</td>
     </tr>
   </tbody>
@@ -1297,7 +1364,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>U.S. GLOBAL INVESTORS FUNDS-USGI World Precious Minerals Fund</td>
       <td>0.0241</td>
       <td>2882500</td>
-      <td>2536599</td>
+      <td>2478950</td>
       <td>0.0646</td>
     </tr>
     <tr>
@@ -1305,26 +1372,27 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>U.S. GLOBAL INVESTORS FUNDS-USGI Global Resources Fund</td>
       <td>0.0042</td>
       <td>500000</td>
-      <td>439999</td>
+      <td>430000</td>
       <td>0.4925</td>
     </tr>
   </tbody>
 </table>
 <h2>Risk &amp; Short Interest</h2>
 <ul>
-<li><strong>52 Week Change:</strong> 34.33%</li>
+<li><strong>Beta:</strong> 0.95</li>
+<li><strong>52 Week Change:</strong> 25.76%</li>
 <li><strong>Short Ratio:</strong> 1.24</li>
 <li><strong>Shares Outstanding:</strong> 118463721.00</li>
-<li><strong>Float Shares:</strong> 111453510.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/NANO_Pricing_Dashboard.png" alt="NANO price trend" /><div class="media-cap">NANO price momentum and trend diagnostics</div></figure></div></div>
+<li><strong>Float Shares:</strong> 116836352.00</li>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/NANO_Pricing_Dashboard.png" alt="NANO price trend" /><div class="media-cap">NANO price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-vul" aria-labelledby="tab-vul"><div class="panel-title">VUL Pricing Signal</div><div class="panel-body"><h1>VUL.AX - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-04-01</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 254 rows</li>
-<li><strong>Last close:</strong> 3.27</li>
-<li><strong>Day change:</strong> 3.48%</li>
+<li><strong>Last close:</strong> 3.39</li>
+<li><strong>Day change:</strong> 6.27%</li>
 <li><strong>Composite view:</strong> Hold / No strong view</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -1336,22 +1404,22 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> Volatility in normal range</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.70</li>
-<li><strong>Volatility percentile:</strong> 52.46%</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.72</li>
+<li><strong>Volatility percentile:</strong> 55.36%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 2119322.00</li>
+<li><strong>Latest volume:</strong> 2154293.00</li>
 <li><strong>Volume percentile:</strong> 79.18%</li>
-<li><strong>Volume z-score:</strong> 0.26</li>
+<li><strong>Volume z-score:</strong> 0.27</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Trading near 52-week lows</li>
-<li><strong>Position within 52-week range:</strong> 0.10</li>
-<li><strong>Drawdown from 52-week high:</strong> -56.52%</li>
+<li><strong>Position within 52-week range:</strong> 0.13</li>
+<li><strong>Drawdown from 52-week high:</strong> -54.92%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -1368,22 +1436,22 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <li><strong>Currency:</strong> AUD</li>
 </ul>
 <p><strong>Description:</strong></p>
-<p>Vulcan Energy Resources Limited engages in the geothermal energy, and lithium exploration and production activities in Europe, Germany, and Australia. The company is involved in exploration and development of battery materials and geothermal lithium; and provision of engineering services. It holds interests in the Phase One Lionheart Project. The company was formerly known as Koppar Resources Limited and changed its name to Vulcan Energy Resources Limited in September 2019. The company was incorporated in 2018 and is based in Perth, Australia.</p>
+<p>Vulcan Energy Resources Limited engages in the geothermal energy, and lithium exploration and production activities in Europe, Germany, and Australia. The company is involved in exploration and development of battery materials and geothermal lithium; and provision of engineering services. It holds interests in the Phase One Lionheart Project. The company was formerly known as Koppar Resources Limited and changed its name to Vulcan Energy Resources Limited in September 2019. Vulcan Energy Resources Limited was incorporated in 2018 and is based in Perth, Australia.</p>
 <h2>Valuation &amp; Ratios</h2>
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Market Capitalisation</td><td>1.56bn</td></tr>
-<tr><td>Enterprise Value</td><td>649870272.00</td></tr>
-<tr><td>Forward P/E</td><td>-23.93</td></tr>
-<tr><td>EV / EBITDA</td><td>-14.05</td></tr>
-<tr><td>Price / Book</td><td>1.32</td></tr>
-<tr><td>Price / Sales</td><td>74.28</td></tr>
-<tr><td>Profit Margin</td><td>-255.24%</td></tr>
-<tr><td>Gross Margin</td><td>91.25%</td></tr>
-<tr><td>Operating Margin</td><td>-776.22%</td></tr>
-<tr><td>Return on Equity</td><td>-17.48%</td></tr>
-<tr><td>Return on Assets</td><td>-10.46%</td></tr>
+<tr><td>Market Capitalisation</td><td>1.62bn</td></tr>
+<tr><td>Enterprise Value</td><td>1.05bn</td></tr>
+<tr><td>Forward P/E</td><td>-24.80</td></tr>
+<tr><td>EV / EBITDA</td><td>-24.13</td></tr>
+<tr><td>Price / Book</td><td>1.13</td></tr>
+<tr><td>Price / Sales</td><td>220.42</td></tr>
+<tr><td>Profit Margin</td><td>0.00%</td></tr>
+<tr><td>Gross Margin</td><td>59.80%</td></tr>
+<tr><td>Operating Margin</td><td>-954.77%</td></tr>
+<tr><td>Return on Equity</td><td>-11.51%</td></tr>
+<tr><td>Return on Assets</td><td>-5.88%</td></tr>
 </tbody>
 </table>
 <h2>Analyst Data</h2>
@@ -1495,11 +1563,11 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>9.36%</td></tr>
-<tr><td>1M</td><td>-18.05%</td></tr>
-<tr><td>3M</td><td>-26.52%</td></tr>
-<tr><td>6M</td><td>-43.43%</td></tr>
-<tr><td>12M</td><td>-35.88%</td></tr>
+<tr><td>1W</td><td>3.04%</td></tr>
+<tr><td>1M</td><td>-6.87%</td></tr>
+<tr><td>3M</td><td>-23.13%</td></tr>
+<tr><td>6M</td><td>-39.14%</td></tr>
+<tr><td>12M</td><td>-26.30%</td></tr>
 </tbody>
 </table>
 <h3>Drawdown & Volatility</h3>
@@ -1528,11 +1596,11 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     </tr>
     <tr>
       <td>institutionsPercentHeld</td>
-      <td>0.26218</td>
+      <td>0.26196</td>
     </tr>
     <tr>
       <td>institutionsFloatPercentHeld</td>
-      <td>0.38048</td>
+      <td>0.38016</td>
     </tr>
     <tr>
       <td>institutionsCount</td>
@@ -1557,16 +1625,16 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>2026-01-31</td>
       <td>iShares Trust-iShares MSCI EAFE Small-Cap ETF</td>
       <td>0.0030</td>
-      <td>1422480</td>
-      <td>4651509</td>
-      <td>0.0235</td>
+      <td>1417257</td>
+      <td>4804501</td>
+      <td>0.0197</td>
     </tr>
     <tr>
       <td>2025-10-31</td>
       <td>VANGUARD Intl Eqy. INDEX Fd.S-Vanguard FTSE All-World ex-US Small-Cap</td>
       <td>0.0014</td>
       <td>659558</td>
-      <td>2156754</td>
+      <td>2235901</td>
       <td>0.3049</td>
     </tr>
     <tr>
@@ -1574,7 +1642,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>SPROTT FUNDS TRUST-Sprott Lithium Miners ETF</td>
       <td>0.0009</td>
       <td>445413</td>
-      <td>1456500</td>
+      <td>1509950</td>
       <td>0.4874</td>
     </tr>
     <tr>
@@ -1582,7 +1650,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>iShares, Inc.-iShares MSCI Global Metals &amp; Mining Producers ETF</td>
       <td>0.0009</td>
       <td>443689</td>
-      <td>1450863</td>
+      <td>1504105</td>
       <td>0.3254</td>
     </tr>
     <tr>
@@ -1590,7 +1658,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>SCHWAB STRATEGIC TRUST-Schwab International Small-Cap Equity ETF</td>
       <td>0.0008</td>
       <td>384583</td>
-      <td>1257586</td>
+      <td>1303736</td>
       <td>0.3736</td>
     </tr>
   </tbody>
@@ -1598,18 +1666,18 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h2>Risk &amp; Short Interest</h2>
 <ul>
 <li><strong>Beta:</strong> 1.65</li>
-<li><strong>52 Week Change:</strong> -38.73%</li>
+<li><strong>52 Week Change:</strong> -30.65%</li>
 <li><strong>Shares Outstanding:</strong> 477903314.00</li>
-<li><strong>Float Shares:</strong> 154076910.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/VUL_Pricing_Dashboard.png" alt="VUL price trend" /><div class="media-cap">VUL price momentum and trend diagnostics</div></figure></div></div>
+<li><strong>Float Shares:</strong> 336730675.00</li>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/VUL_Pricing_Dashboard.png" alt="VUL price trend" /><div class="media-cap">VUL price momentum and trend diagnostics</div></figure></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-sli" aria-labelledby="tab-sli"><div class="panel-title">SLI Pricing Signal</div><div class="panel-body"><h1>SLI - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-03-31</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 251 rows</li>
-<li><strong>Last close:</strong> 3.52</li>
-<li><strong>Day change:</strong> 0.57%</li>
+<li><strong>Last close:</strong> 3.41</li>
+<li><strong>Day change:</strong> 5.57%</li>
 <li><strong>Composite view:</strong> Add (modest conviction)</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -1621,22 +1689,22 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> Volatility in normal range</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.64</li>
-<li><strong>Volatility percentile:</strong> 42.90%</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.69</li>
+<li><strong>Volatility percentile:</strong> 52.17%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 1255583.00</li>
-<li><strong>Volume percentile:</strong> 27.95%</li>
-<li><strong>Volume z-score:</strong> -0.42</li>
+<li><strong>Latest volume:</strong> 2004100.00</li>
+<li><strong>Volume percentile:</strong> 55.07%</li>
+<li><strong>Volume z-score:</strong> -0.19</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Mid-range within 52-week band</li>
-<li><strong>Position within 52-week range:</strong> 0.46</li>
-<li><strong>Drawdown from 52-week high:</strong> -37.70%</li>
+<li><strong>Position within 52-week range:</strong> 0.44</li>
+<li><strong>Drawdown from 52-week high:</strong> -39.65%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -1658,15 +1726,16 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Metric</th><th>Value</th></tr></thead>
 <tbody>
-<tr><td>Market Capitalisation</td><td>838735104.00</td></tr>
-<tr><td>Enterprise Value</td><td>807092160.00</td></tr>
-<tr><td>P/E</td><td>5.77</td></tr>
-<tr><td>Forward P/E</td><td>-37.24</td></tr>
-<tr><td>EV / EBITDA</td><td>-58.57</td></tr>
-<tr><td>Price / Book</td><td>2.88</td></tr>
+<tr><td>Market Capitalisation</td><td>812524672.00</td></tr>
+<tr><td>Enterprise Value</td><td>639661184.00</td></tr>
+<tr><td>Forward P/E</td><td>-36.26</td></tr>
+<tr><td>EV / EBITDA</td><td>-27.83</td></tr>
+<tr><td>Price / Book</td><td>2.24</td></tr>
 <tr><td>Profit Margin</td><td>0.00%</td></tr>
 <tr><td>Gross Margin</td><td>0.00%</td></tr>
 <tr><td>Operating Margin</td><td>0.00%</td></tr>
+<tr><td>Return on Equity</td><td>-16.63%</td></tr>
+<tr><td>Return on Assets</td><td>-4.63%</td></tr>
 </tbody>
 </table>
 <h2>Analyst Data</h2>
@@ -1680,7 +1749,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <tbody>
 <tr><td>Low</td><td>5.29</td></tr>
 <tr><td>Mean</td><td>5.42</td></tr>
-<tr><td>High</td><td>5.54</td></tr>
+<tr><td>High</td><td>5.55</td></tr>
 </tbody></table>
 <h3>Recommendations history</h3>
 <table class="dataframe">
@@ -1786,17 +1855,17 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>4.14%</td></tr>
-<tr><td>1M</td><td>-23.48%</td></tr>
-<tr><td>3M</td><td>-27.12%</td></tr>
-<tr><td>6M</td><td>-6.88%</td></tr>
+<tr><td>1W</td><td>-7.59%</td></tr>
+<tr><td>1M</td><td>-27.75%</td></tr>
+<tr><td>3M</td><td>-26.51%</td></tr>
+<tr><td>6M</td><td>0.59%</td></tr>
 <tr><td>12M</td><td>n/a</td></tr>
 </tbody>
 </table>
 <h3>Drawdown & Volatility</h3>
 <ul>
-<li><strong>Max drawdown 3M:</strong> -40.18%</li>
-<li><strong>Max drawdown 6M:</strong> -41.00%</li>
+<li><strong>Max drawdown 3M:</strong> -42.83%</li>
+<li><strong>Max drawdown 6M:</strong> -42.83%</li>
 <li><strong>Max drawdown 12M:</strong> n/a</li>
 </ul>
 <h2>Actions</h2>
@@ -1849,7 +1918,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Invesco Ltd.</td>
       <td>0.0091</td>
       <td>2205586</td>
-      <td>7763662</td>
+      <td>7521048</td>
       <td>-0.1239</td>
     </tr>
     <tr>
@@ -1857,7 +1926,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Burkehill Global Management, LP</td>
       <td>0.0082</td>
       <td>2000000</td>
-      <td>7039999</td>
+      <td>6820000</td>
       <td>1.0000</td>
     </tr>
     <tr>
@@ -1865,7 +1934,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Goldman Sachs Group Inc</td>
       <td>0.0054</td>
       <td>1298043</td>
-      <td>4569111</td>
+      <td>4426326</td>
       <td>4.2946</td>
     </tr>
     <tr>
@@ -1873,7 +1942,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Balyasny Asset Management LP</td>
       <td>0.0053</td>
       <td>1287718</td>
-      <td>4532767</td>
+      <td>4391118</td>
       <td>1.0000</td>
     </tr>
     <tr>
@@ -1881,7 +1950,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Millennium Management Llc</td>
       <td>0.0049</td>
       <td>1191867</td>
-      <td>4195371</td>
+      <td>4064266</td>
       <td>2.8011</td>
     </tr>
   </tbody>
@@ -1904,7 +1973,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>SPROTT FUNDS TRUST-Sprott Critical Materials ETF</td>
       <td>0.0011</td>
       <td>257918</td>
-      <td>907871</td>
+      <td>879500</td>
       <td>0.6181</td>
     </tr>
     <tr>
@@ -1912,7 +1981,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>SPDR INDEX SHARES Fd.S-State Street SPDR S&amp;P Intl Small Cap ETF</td>
       <td>0.0004</td>
       <td>98252</td>
-      <td>345847</td>
+      <td>335039</td>
       <td>0.0000</td>
     </tr>
     <tr>
@@ -1920,7 +1989,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>U.S. GLOBAL INVESTORS FUNDS-USGI Global Resources Fund</td>
       <td>0.0003</td>
       <td>75000</td>
-      <td>263999</td>
+      <td>255750</td>
       <td>0.0000</td>
     </tr>
     <tr>
@@ -1928,7 +1997,7 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Tidal Trust II-Even Herd Long Short ETF</td>
       <td>0.0002</td>
       <td>41624</td>
-      <td>146516</td>
+      <td>141937</td>
       <td>0.7412</td>
     </tr>
     <tr>
@@ -1936,30 +2005,49 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
       <td>Themes ETF Trust-Themes Lithium &amp; Battery Metal Miners ETF</td>
       <td>0.0000</td>
       <td>3748</td>
-      <td>13192</td>
+      <td>12780</td>
       <td>6.8574</td>
     </tr>
   </tbody>
 </table>
 <h2>Risk &amp; Short Interest</h2>
 <ul>
-<li><strong>Beta:</strong> 2.03</li>
-<li><strong>52 Week Change:</strong> 158.02%</li>
+<li><strong>52 Week Change:</strong> 144.70%</li>
 <li><strong>Short Ratio:</strong> 1.96</li>
 <li><strong>Shares Outstanding:</strong> 238277028.00</li>
-<li><strong>Float Shares:</strong> 231233559.00</li>
-</ul></div><div class="panel-media"><figure class="media"><img src="/images/SLI_Pricing_Dashboard.png" alt="SLI price trend" /><div class="media-cap">SLI price momentum and trend diagnostics</div></figure></div></div>
+<li><strong>Float Shares:</strong> 225312315.00</li>
+</ul></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/SLI_Pricing_Dashboard.png" alt="SLI price trend" /><div class="media-cap">SLI price momentum and trend diagnostics</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Lithium Composite Pricing Model - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs. All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions. No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -1996,6 +2084,9 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

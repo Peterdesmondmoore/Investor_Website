@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .summary-box,
+    .table-box {
+      overflow-x: auto;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .market-report table,
+    .ia-gemini-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .market-report th,
+    .market-report td,
+    .ia-gemini-table th,
+    .ia-gemini-table td {
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      text-align: left;
+      white-space: nowrap;
+      color: #0f172a !important;
+      background: #ffffff;
+    }
+
+    .market-report th,
+    .ia-gemini-table th {
+      font-weight: 600;
+      font-size: 0.76rem;
+      background: #e5e7eb !important;
+    }
+
+    .market-report tbody tr:nth-child(even) td,
+    .ia-gemini-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .market-report table a,
+    .ia-gemini-table a {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    .market-report table a:hover,
+    .ia-gemini-table a:hover {
+      color: #1e40af;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Lithium Price Research</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Lithium Price Research</h1>
+      <p class="subtitle">Institution-level institutional lithium target extraction from IA researcher PDFs, with historical target tracking and synthesis.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-04-05</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Market Interpretation</h2><div class="box summary-box market-report"><div class="market-report"><div style="display:grid; gap:10px; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); margin-bottom:0.9rem;"><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Current Median Target</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">20,600.00</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Recent (latest 90 days)</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Current Target Range</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">20,000.00 - 21,600.00</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Focus window min/max</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Recent Forecast Count</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">3</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Numeric rows driving current view</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Median Shift vs Prior</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#22c55e;">↑ +9325.00</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Prior median: 11,275.00</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Latest Publication</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">2026-04-03</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Based on publication dates in the latest 90 days.</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Comparability</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f59e0b;">Low</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Limited recent sample size.</p></div></div><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Current View:</strong> The institutional outlook for lithium prices has undergone a significant upward shift, with market-implied expectations now converging at approximately double the levels forecasted in late 2025. Recent data from April 2026 shows a tight cluster of pricing between $20,000 and $21,600/tonne for lithium hydroxide across major exchange platforms, indicating a firming of price expectations for the 2026 and 2027 horizons.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Historical Comparison:</strong> This recent distribution reflects a substantial softening of the bearish sentiment observed in late 2025. Previous point-forecasts from J.P. Morgan and the Australian Department of Industry, Science and Resources estimated annual averages for 2026 between $10,250 and $12,300/tonne. The move to current levels suggests that the price target distribution has shifted aggressively upward as the market prices in tighter fundamentals than previously anticipated.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Comparability and Data Quality:</strong> The comparability of the current dataset is limited by the shift in source types. The most recent and highest targets are market-implied figures from the CME and LME futures curves, which reflect active trading positions, whereas the lower historical targets represent fundamental analyst models. Furthermore, several key research providers, including Benchmark Mineral Intelligence and Fastmarkets, have recently transitioned to paywalled or service-based reporting, leaving the numeric landscape dominated by exchange-cleared data.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Market Drivers:</strong> The upward revision in targets is largely attributed to robust demand growth in the Energy Storage Systems (ESS) sector and a modest uplift in Electric Vehicle (EV) demand. On the supply side, analysts and exchanges highlight the impact of production curtailments, China-based policy stimulus, and the time lag associated with restarting idled mining capacity as critical factors supporting higher price floors.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Consensus Outlook:</strong> While the current market-implied consensus appears stable in the $20,000+ range, the overall outlook remains characterized by a divide between older institutional research and real-time exchange pricing. The recent data suggests a high-conviction shift away from the $10,000–$12,000 range, though the absence of updated numeric point-forecasts from several major investment banks in this cycle leaves the long-term consensus somewhat less transparent.</p></div></div></section>
+
+<section class="section"><h2 class="section-title">Target Visuals</h2><div class="box chart-box"><img src="/images/Lithium_Price_Research_Targets.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Recent forecasts are emphasised; older retained forecasts provide historical context. Targets represent extracted institutional expectations, not realised lithium prices.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Extracted Data (Validation)</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><div class="market-report"><p style="margin:0 0 0.6rem;"><strong>No new rows this run: showing retained history rows (validation view)</strong></p><div style="overflow:auto; max-height:700px; border:1px solid #334155; border-radius:12px;"><table style="width:100%; min-width:1040px; border-collapse:separate; border-spacing:0;" class="ia-gemini-table"><thead><tr><th style="position:sticky; top:0; z-index:2; text-align:left; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Recency</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Publication Date</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Institution</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Forecast Horizon</th><th style="position:sticky; top:0; z-index:2; text-align:right; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Price Target (USD/tonne)</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Target Type</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Source</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:10px 10px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.74rem; letter-spacing:0.03em; border-bottom:1px solid #334155;">Confidence</th></tr></thead><tbody><tr style="opacity:1.0; border-bottom:1px solid #1f2937; border-top:0; background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">2026-04-03</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">CME Group / COMEX</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">Oct 2026</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">20,600.00</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">point forecast</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><a href="https://www.tradingview.com/symbols/COMEX-LTH1%21/contracts/" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Lithium Hydroxide CIF CJK (Fastmarkets) futures</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:1.0; border-bottom:1px solid #1f2937; border-top:0; background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">2026-04-03</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">CME Group / COMEX</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">Apr 2027</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">21,600.00</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">point forecast</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><a href="https://www.tradingview.com/symbols/COMEX-LTH1%21/contracts/" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Lithium Hydroxide CIF CJK (Fastmarkets) futures</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:1.0; border-bottom:1px solid #1f2937; border-top:0; background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">2026-04-03</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">London Metal Exchange</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">Month 2</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">20,000.00</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">point forecast</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><a href="https://www.lme.com/metals/ev/lme-lithium-hydroxide-cif-fastmarkets-mb" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">LME Lithium Hydroxide CIF (Fastmarkets MB) contract</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:0; background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">2026-03-31</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">Benchmark Mineral Intelligence</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">Year-ahead</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><a href="https://source.benchmarkminerals.com/article/benchmark-launches-industry-first-lithium-forward-curves" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Benchmark launches industry-first lithium forward curves</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:0; background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">2026-02-06</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">U.S. Geological Survey</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">Historical commentary</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-lithium.pdf" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Mineral Commodity Summaries 2026 (Lithium)</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:0; background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">2026-01-06</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">Benchmark Mineral Intelligence</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;">CY2026 annual average</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><a href="https://source.benchmarkminerals.com/article/why-are-lithium-prices-in-china-soaring-this-week" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Why are lithium prices in China soaring this week</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#131726 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:1.0; border-bottom:1px solid #1f2937; border-top:2px solid #334155; background:rgba(148,163,184,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #64748b; background:rgba(148,163,184,0.18); color:#e2e8f0 !important;">Prior</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">2025-12-01</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">Australian Department of Industry, Science and Resources</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">CY2026f (annual)</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">10,250.00</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">point forecast</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><a href="https://www.industry.gov.au/sites/default/files/2025-12/resources-and-energy-quarterly-december-2025.pdf" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Resources and Energy Quarterly December 2025</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:1.0; border-bottom:1px solid #1f2937; border-top:0; background:rgba(148,163,184,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #64748b; background:rgba(148,163,184,0.18); color:#e2e8f0 !important;">Prior</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">2025-10-29</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">J.P. Morgan (Asia Pacific Equity Research)</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">CY2026e (annual avg)</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">12,300.00</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">point forecast</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><a href="https://cdn-ceo-ca.s3.amazonaws.com/1kg4kkt-2510%20JPM%20Lithium%20Upgrade%20on%20Higher%20ESS%20Demand.pdf" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">JPM Lithium Upgrade on Higher ESS Demand</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:0; background:rgba(148,163,184,0.07);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #64748b; background:rgba(148,163,184,0.18); color:#e2e8f0 !important;">Prior</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">2025-10-10</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">Goldman Sachs</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;">CY2026 average</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><a href="https://www.reuters.com/world/asia-pacific/goldman-sachs-expects-copper-price-remain-10000-11000t-price-range-20262027-2025-10-10/" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Goldman Sachs expects copper price to remain 10000-11000t price range 20262027</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0f172a !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #60a5fa; background:rgba(96,165,250,0.18); color:#dbeafe !important;">medium</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:2px solid #334155; background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">2024-05-17</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">International Energy Agency</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">Multi-scenario outlook</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><a href="https://www.iea.org/reports/lithium" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Lithium</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #22c55e; background:rgba(34,197,94,0.18); color:#bbf7d0 !important;">high</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:0; background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">Citigroup</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">N/A</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><a href="https://www.citigroup.com/global/insights/commodities-market-outlook-4q25" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Commodities Market Outlook 4Q25</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #f59e0b; background:rgba(245,158,11,0.20); color:#fef3c7 !important;">low</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:0; background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">Fastmarkets</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">Short-term (2-year)</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><a href="https://www.fastmarkets.com/metals-and-mining/battery-raw-materials/short-term-forecasts/" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Short-term forecasts</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #60a5fa; background:rgba(96,165,250,0.18); color:#dbeafe !important;">medium</span></td></tr><tr style="opacity:0.62; border-bottom:1px solid #1f2937; border-top:0; background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">Wood Mackenzie</td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;">Ongoing forecast</td><td style="text-align:right; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(51,65,85,0.78); color:#e2e8f0 !important;">no numeric target</span></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><a href="https://www.woodmac.com/lens/lens-metals-and-mining-markets-forecast/" target="_blank" rel="noopener" style="color:#93c5fd; text-decoration:underline;">Lens Metals &amp; Mining Markets Forecast</a></td><td style="text-align:left; padding:9px 10px; font-size:0.79rem; border-bottom:1px solid #1f2937; color:#e2e8f0 !important; background:#0b1220 !important;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #60a5fa; background:rgba(96,165,250,0.18); color:#dbeafe !important;">medium</span></td></tr></tbody></table></div><details style="margin-top:0.75rem;"><summary style="cursor:pointer; color:#cbd5e1; font-weight:600;">Show Secondary Fields (Base/Bull/Bear, scenario notes)</summary><div style="margin-top:0.55rem; overflow:auto; max-height:420px; border:1px solid #334155; border-radius:10px;"><table style="width:100%; min-width:980px; border-collapse:separate; border-spacing:0;" class="ia-gemini-table"><thead><tr><th style="position:sticky; top:0; z-index:2; text-align:left; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Recency</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Publication Date</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Institution</th><th style="position:sticky; top:0; z-index:2; text-align:right; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Base Case</th><th style="position:sticky; top:0; z-index:2; text-align:right; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Bull Case</th><th style="position:sticky; top:0; z-index:2; text-align:right; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Bear Case</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Scenario Basis</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Price Target Raw</th><th style="position:sticky; top:0; z-index:2; text-align:left; padding:8px 9px; background:#0f172a !important; color:#e2e8f0 !important; font-size:0.72rem; border-bottom:1px solid #334155;">Notes</th></tr></thead><tbody><tr style="background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026-04-03</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">CME Group / COMEX</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Market-implied (futures curve)</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">20.60/kg</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Converted from $/kg to $/t (x1000).</td></tr><tr style="background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026-04-03</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">CME Group / COMEX</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Market-implied (futures curve)</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">21.60/kg</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Converted from $/kg to $/t (x1000).</td></tr><tr style="background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026-04-03</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">London Metal Exchange</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Market-implied (exchange reference)</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">20,000.00</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Day-delayed closing price as of 2026-04-03; near-term reference.</td></tr><tr style="background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026-03-31</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Benchmark Mineral Intelligence</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Forward curve service announcement</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Service announced; values not disclosed in public release.</td></tr><tr style="background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026-02-06</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">U.S. Geological Survey</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Mineral Commodity Summary</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Not a forecast; contains historical 2025 data only.</td></tr><tr style="background:rgba(196,64,124,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #c4407c; background:rgba(196,64,124,0.16); color:#fbcfe8 !important;">Recent</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026-01-06</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Benchmark Mineral Intelligence</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Upside scenario</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Product not separated in public excerpt.</td></tr><tr style="background:rgba(148,163,184,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #64748b; background:rgba(148,163,184,0.18); color:#e2e8f0 !important;">Prior</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2025-12-01</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Australian Department of Industry, Science and Resources</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">10,250.00</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026 average</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">10,250</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Explicit lithium hydroxide nominal price forecast.</td></tr><tr style="background:rgba(148,163,184,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #64748b; background:rgba(148,163,184,0.18); color:#e2e8f0 !important;">Prior</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2025-10-29</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">J.P. Morgan (Asia Pacific Equity Research)</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">12,300.00</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2026 average</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">12.3</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Secondary copy of client note; price 12.3 interpreted as $12,300/t based on adjacent data.</td></tr><tr style="background:rgba(148,163,184,0.07);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #64748b; background:rgba(148,163,184,0.18); color:#e2e8f0 !important;">Prior</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2025-10-10</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Goldman Sachs</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Commodities outlook relay</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Secondary relay; lithium product type (hydroxide vs carbonate) unspecified.</td></tr><tr style="background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">2024-05-17</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">International Energy Agency</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Scenario-based demand (STEPS/APS/NZE)</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">No price targets on page.</td></tr><tr style="background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Citigroup</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Registration wall</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Content not publicly accessible due to registration requirement.</td></tr><tr style="background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Fastmarkets</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Paywalled forecast</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Paywalled service; values not public.</td></tr><tr style="background:rgba(71,85,105,0.08);"><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"><span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.72rem; line-height:1.2; border:1px solid #475569; background:rgba(71,85,105,0.20); color:#cbd5e1 !important;">Stale</span></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Wood Mackenzie</td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:right; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Paywalled forecast</td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;"></td><td style="text-align:left; padding:8px 9px; font-size:0.76rem; border-bottom:1px solid #1f2937; color:#cbd5e1; background:#0b1220;">Numbers paywalled.</td></tr></tbody></table></div></details><details style="margin-top:1rem;"><summary style="cursor:pointer; color:#cbd5e1; font-weight:600;">Run Diagnostics</summary><div style="margin-top:0.7rem; color:#94a3b8; font-size:0.82rem;"><ul><li>Source PDFs discovered: 0</li><li>Processed PDFs this run: 0</li><li>Failed PDFs this run: 0</li><li>Rows in current run snapshot: 0</li><li>Run snapshot JSONL: Not written (no current-run rows)</li></ul><p><strong>Processed PDFs</strong></p><ul><li>None</li></ul><p><strong>Failed PDFs</strong></p><ul><li>None</li></ul><p><strong>Extraction Notes</strong></p><ul><li>None</li></ul></div></details><details style="margin-top:0.8rem;"><summary style="cursor:pointer; color:#cbd5e1; font-weight:600;">Prompt</summary><pre style="white-space:pre-wrap; line-height:1.35; margin-top:0.6rem; border:1px solid #334155; background:#0b1220; color:#cbd5e1; border-radius:10px; padding:0.75rem; overflow:auto;">
+Goal
+Identify institutional price targets for Lithium Hydroxide over the next 6-12 months.
+
+Sources to prioritise
+- Bank commodity outlooks (Goldman Sachs, UBS, Citi, JP Morgan, Macquarie)
+- Commodity specialists (Benchmark Mineral Intelligence, Fastmarkets, Wood Mackenzie)
+- Industry bodies (International Energy Agency (IEA), USGS)
+- Major institutional research notes on battery materials and EV supply chains
+
+Output requirements
+Return a table with:
+Institution
+Publication date
+Price target (USD per tonne, Lithium Hydroxide)
+Forecast horizon
+Base case / bull case / bear case
+Key drivers cited (e.g., EV demand, battery storage growth, supply expansion, spodumene conversion economics)
+Link to research
+
+Exclusions
+Retail blogs
+Company promotional material without independent analysis.
+</pre></details></div></div></div></details></section>
+  <div class="disclaimer">
+    The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs.<br /><br />
+    All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions.<br /><br />
+    No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+  </div>
+</main>
+</body>
+</html>

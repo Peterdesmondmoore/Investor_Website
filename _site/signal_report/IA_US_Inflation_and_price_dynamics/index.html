@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> US Inflation and Price Dynamics</div>
         <div class="page-title">Systematically synthesises realised inflation, cost pressures, and market expectations to assess the prevailing US inflation regime.</div>
         <div class="hero-inject market-report"><div class="market-report">
@@ -144,39 +210,38 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Regime Label: Transitional / Fragile Balance.</li>
-    <li>Regime Confidence Index: Medium Confidence.</li>
-    <li>The regime is fragile due to deteriorating stability in headline inflation momentum.</li>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The headline inflation signal has entered a transition band, moving toward a disinflationary regime (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>High-weight indicators for policy inflation and market-priced expectations remain strictly Neutral (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>).</li>
-    <li>Dynamic weighting prioritized high-confidence Neutral signals from PCE and term structure over conflicted disinflationary data (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">4</a>).</li>
-    <li>Wage pressure signals were downweighted due to low interpretation confidence and lagged quarterly inputs (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal/" target="_blank">5</a>).</li>
+    <li>The primary drivers are four medium-weighted signals (PCE, Term-Structure, Market-Implied, and CPI/PPI Divergence) currently holding in stable or neutral bands (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">4</a>).</li>
+    <li>Dynamic weighting prioritizes high-confidence PCE and Market-Implied signals, which indicate range-bound price paths (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>).</li>
+    <li>The US Inflation Signal was downweighted due to internal conflict and mixed interpretation confidence (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">5</a>).</li>
+    <li>Wage Growth was downweighted due to low interpretation confidence (<a href="https://investoranatomy.com/signal_report/Wage_Growth_and_Inflation_Signal/" target="_blank">6</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Breakeven rates and the term structure align, showing well-anchored long-term inflation compensation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">4</a>).</li>
-    <li>A primary tension exists between the COOL regime label in the inflation signal and its current transition-zone z-score (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>Producer and consumer price divergence remains within historical norms, contradicting the disinflationary impulse in headline data (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">6</a>).</li>
-    <li>Tensions do not overturn the regime call as most cyclical signals maintain stable neutral classifications.</li>
+    <li>Market-implied expectations and the PCE composite align in a persistent neutral state (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>).</li>
+    <li>Tension exists between the US Inflation Signal’s rapid decline toward disinflation (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">5</a>) and the CPI/PPI Divergence signal’s rising upstream cost pressure (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">4</a>).</li>
+    <li>Tensions do not overturn the regime because medium-weight cyclical signals remain centered within historical noise thresholds (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>).</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant Scenario: Persistent transition toward disinflation as headline momentum compresses toward zero (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>Primary Upside Risk: Sudden reversal in energy or supply chain costs triggering a momentum spike (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>Primary Downside Risk: Cyclical demand collapse forcing a confirmed shift into a deep COOL regime (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+    <li>The dominant scenario is range-bound inflation pricing with normal volatility.</li>
+    <li>Primary upside risk: Upstream cost-push pressure triggers a "Hot" regime shift as PPI acceleration continues (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">4</a>).</li>
+    <li>Primary downside risk: A confirmed disinflationary trend if the US Inflation Signal drops below -0.50 (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">5</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>A 3-month annualized CPI reading exceeding the YoY rate would invalidate the disinflationary bias (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>PCE composite scores moving above 0.75 or below -0.75 would force a regime exit from Neutrality (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">2</a>).</li>
-    <li>A divergence z-score exceeding 1.0 would signal a transition to a high-pressure cost-push regime (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">6</a>).</li>
+    <li>The PCE Composite value exceeding the 0.75 threshold for a "Hot" regime transition (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>).</li>
+    <li>The Market-Implied Inflation z-score reaching or exceeding 1.0 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">3</a>).</li>
+    <li>A reversal in Inflation Signal momentum exceeding +0.25 from its current level (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">5</a>).</li>
   </ul>
 
 </div></div>
@@ -186,7 +251,8 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -206,72 +272,74 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            Given an inflation_signal z-score of 0.0007 and a regime classification of COOL, this setup aligns with
-            Transition-biased price paths and Indeterminate volatility,
-            where the dominant risk is Regime shift, not trend continuation (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).
+            <strong>Configuration statement:</strong>
+            Given the <strong>inflation_signal</strong> z-score of 0.003 and a scale value of 20.4, this setup aligns with
+            <strong>Transition-biased</strong> price paths and <strong>Indeterminate</strong> volatility,
+            where the dominant risk is <strong>Regime shift</strong>, not trend continuation.
         </li>
-        <li>The signal reflects a state of disinflationary impulse, currently transitioning from Neutral into a COOL regime (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>The signal is currently classified as COOL by the data provider, though its quantitative level indicates a directionless structural turning point (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
         <li>Conviction Band: Low; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: Yes. Signal Stability Assessment: Deteriorating; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>A composite z-score between -0.25 and +0.25 defines a TRANSITION state, signaling a structural turning point (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>The COOL regime is defined by a z-score ≤ -0.50, though the current data labels values near zero as COOL (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Economic momentum is assessed by comparing 3-month annualized CPI against the YoY CPI rate (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Inflation Signal (latest observation: 2026-03-31) (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Composite z-scores between -0.25 and +0.25 (currently 0.003) define a TRANSITION regime, indicating high regime-flip risk (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Values are interpreted relative to a 10-year rolling trend to quantify aggregate latent pressure (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Falling z-scores imply a disinflationary impulse or demand deceleration, suggesting potential for monetary easing (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Dataset: Inflation Signal (Latest observation: 2026-04-30).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the rapid compression of the inflation_signal z-score toward zero, falling from 0.347 to 0.0007 in one month (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Falling values imply a disinflationary slowdown or potential for expansionary policy pivot (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Internal Conflict: The current z-score sits in the "TRANSITION" band (-0.25 to +0.25), yet the provided regime label identifies it as COOL (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: A 3-month annualized CPI exceeding YoY CPI would signal accelerating momentum and invalidate the disinflationary bias (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>The signal shows deteriorating stability as it approaches a regime-flip threshold.</li>
+        <li>The primary driver is the sharp decline in the composite z-score from 0.346 (Feb 2026) to 0.003 (April 2026), moving deep into the transition zone (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Momentum indicates a deteriorating inflationary state, though it remains above the -0.50 threshold required for a confirmed "COOL" regime by methodology standards.</li>
+        <li>Internal Conflict: The provided data labels 0.003 as "COOL," while the methodology defines values between -0.25 and +0.25 as "TRANSITION" (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A reversal in z-score momentum exceeding +0.25 would negate the current disinflationary transition.</li>
+        <li>The signal demonstrates low stability, having shifted regime labels twice in the last four months.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Persistent transition state leading to a confirmed disinflationary regime.</li>
-        <li>Upside risk: Sharp reversal in 3-month momentum triggered by unexpected supply-chain or energy shocks.</li>
-        <li>Downside risk: Acceleration into a deep COOL regime triggered by a cyclical demand collapse.</li>
+        <li>Base case dominant; risks balanced due to the directionless nature of the transition zone.</li>
+        <li>Upside Risk: A re-acceleration of 3-month annualized CPI above the YoY rate, triggering a regime flip toward "HOT."</li>
+        <li>Downside Risk: A continued decline below -0.50, confirming a structural disinflationary trend.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months) as the signal tracks 10-year rolling trends and monthly momentum (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: Medium; the transition-zone position necessitates confirmation from liquidity or copper signals (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Time Horizon: Cyclical (months), reflecting the 10-year rolling window and multi-month momentum rules.</li>
+        <li>Aggregation Weight Hint: Low, justified by the high regime-flip risk and internal classification conflicts.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs aggregate inflation pressure, influencing policy expectations and macro risk budgeting (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Economic mechanism: Disinflationary impulse or demand deceleration, which typically serves as a tailwind for fixed income (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Informs the broader <strong>US Inflation & Price Dynamics</strong> macro theme (<a href="https://investoranatomy.com/signal_report/ia_us_inflation_and_price_dynamics/" target="_blank">2</a>).</li>
+        <li>Economic mechanism: The signal implies a disinflationary impulse, which typically serves as a tailwind for fixed income and a warning of cyclical demand slowdown (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with M2 liquidity and copper prices; divergence from these would suggest cost-push rather than demand-pull dynamics (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>This signal should be cross-referenced with M2 liquidity and Copper demand to distinguish between cost-push and demand-pull dynamics.</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Newly entered COOL regime (per provided label), following a period of Neutral stability (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>Direction of change: Strengthening disinflationary momentum.</li>
+    <li>Newly entered the transition zone after a period of relative stability in the upper neutral range.</li>
+    <li>Direction of change: Weakening towards the disinflationary boundary.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Subject to CPI revisions, seasonality, and news-based noise from Economic Policy Uncertainty (EPU) (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-    <li>TIPS liquidity bias during stress may distort market-implied components (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+    <li>The signal is sensitive to CPI revisions and seasonality adjustments (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+    <li>TIPS liquidity bias during market stress can distort the market-implied components (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>US Inflation Signal (2026-03-31) (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Influential data: Latest z-score of 0.000778 (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
-        <li>Additional data: M2 Money Supply and Copper Prices would improve interpretation confidence (<a href="https://investoranatomy.com/signal_report/US_Inflation_Signal/" target="_blank">1</a>).</li>
+        <li>Inflation Signal (Latest: 2026-04-30).</li>
+        <li>Dominant influence: Composite z-score (0.003) and 0-100 scale (20.40).</li>
+        <li>Data timeliness cannot be assessed (Data Freshness: Unknown).</li>
+        <li>External verification: 10Y Breakeven Inflation Rates and M2 Money Supply.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Inflation_Signal_chart_mpl.png" alt="Inflation Signal" /><div class="media-cap">Inflation Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Inflation_Signal_chart_mpl.png" alt="Inflation Signal" /><div class="media-cap">Inflation Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-wage_growth_and_inflation_signal" aria-labelledby="tab-wage_growth_and_inflation_signal" hidden><div class="panel-title">Wage Growth and Inflation Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -351,7 +419,7 @@
   <li>Observation dates were not provided in the input tables; data timeliness cannot be assessed.</li>
   <li>Revision window cannot be assessed from provided content.</li>
 </ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/Wage_and_Inflation_Composite_chart_mpl.png" alt="Wage Growth and Inflation Signal" /><div class="media-cap">Wage Growth and Inflation Signal</div></figure></div></div>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Wage_and_Inflation_Composite_chart_mpl.png" alt="Wage Growth and Inflation Signal" /><div class="media-cap">Wage Growth and Inflation Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-policy_relevant_inflation_pce_signal" aria-labelledby="tab-policy_relevant_inflation_pce_signal" hidden><div class="panel-title">Policy-Relevant Inflation (PCE) Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -425,7 +493,7 @@
         <li>Dallas Fed Trimmed Mean PCE and 10Y Breakeven Inflation Rates would improve reliability. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_PCE_Policy_Inflation_signal_chart_mpl.png" alt="Policy-Relevant Inflation (PCE) Signal" /><div class="media-cap">Policy-Relevant Inflation (PCE) Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_PCE_Policy_Inflation_signal_chart_mpl.png" alt="Policy-Relevant Inflation (PCE) Signal" /><div class="media-cap">Policy-Relevant Inflation (PCE) Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-inflation_term_structure_signal" aria-labelledby="tab-inflation_term_structure_signal" hidden><div class="panel-title">Inflation Term-Structure Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -434,71 +502,72 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given an Inflation Term Composite of 0.12 and 5-year breakevens (T5YIE) at 2.56, this setup aligns with
-            Range-biased price paths and Normal volatility,
-            where the dominant risk is Mean reversion, not Regime shift.
+            Given a 5-year Z-score of 0.78 and Composite of 0.31, this setup aligns with
+            range-biased price paths and indeterminate volatility,
+            where the dominant risk is data uncertainty, not mean reversion.
         </li>
-        <li>The signal remains in a Neutral regime as the composite value sits well within the +/- 0.75 threshold (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Far; Revision Sensitivity: Low.</li>
+        <li>The signal identifies a persistent Neutral regime that is currently strengthening toward reflationary thresholds (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Values for the Infl_Term_Composite between -0.75 and 0.75 are classified as Neutral, implying market pricing is within normal historical bands (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Directional shifts toward +0.75 indicate reflationary expansion, while moves toward -0.75 signal disinflationary tightening (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>The methodology uses weighted Z-scores of 5-year/10-year breakevens and 10-year real TIPS yields to identify regime shifts (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Dataset: FRED Inflation Term Structure series; Latest Observation: 2026-03-31 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Absolute Composite values below 0.75 define a Neutral regime with no strong directional bias (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Rising Composite values imply a shift toward reflationary expansion and risk-on conditions (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>The methodology weighs 5-year and 10-year breakevens against 10-year real TIPS yields (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Latest observation date: 2026-04-30.</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the stabilization of 10-year real yields (DFII10) at 2.08%, which offsets the rise in 5-year inflation expectations (Z_T5: 0.59) (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Momentum has shifted from a slight negative bias in February (-0.16) to a mild positive bias in March (0.12), indicating stabilization.</li>
-        <li>Conditional Invalidation: A sustained move in the composite score above 0.75 would trigger a Reflationary regime.</li>
-        <li>The signal has shown high persistence in the Neutral regime for over 24 months, suggesting a lack of structural trend in inflation compensation (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>The primary driver is the 5-year breakeven Z-score, which has reached 0.78 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Real yields (DFII10) remain neutral at 1.97, providing minimal contribution to the composite (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>The signal exhibits consistent upward momentum over the last five months.</li>
+        <li>Conditional Invalidation: The Composite value exceeding the 0.75 threshold triggers a Reflationary regime shift (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Signal stability is high, having remained in the Neutral zone since mid-2023 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Continued Neutrality as real yields and expectations remain broadly balanced.</li>
-        <li>Upside risk: Reflationary shift triggered by a sharp rise in 5-year breakevens exceeding 2.75%.</li>
-        <li>Downside risk: Disinflationary shift triggered by real yield expansion (DFII10) above 2.5% without matching inflation expectations.</li>
+        <li>Base case dominant: Continued neutral pricing as inflation expectations remain within historical bands.</li>
+        <li>Upside risk: Transition to Reflationary regime triggered by rising short-term breakevens.</li>
+        <li>Downside risk: Shift toward Disinflationary regime if real yields spike or breakevens collapse.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months). The signal identifies shifts in market-priced regimes relative to rolling historical baselines.</li>
-        <li>Aggregation Weight Hint: Medium. Neutral signals act as a secondary conditioning variable rather than a primary driver.</li>
+        <li>Time Horizon: Cyclical (months); identifies shifts in market-priced inflation regimes (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; Neutral signals serve as weak conditioning variables in macro models (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the Inflation dimension of the macro environment.</li>
-        <li>The transmission mechanism involves market-implied inflation compensation and real financial conditions; the current Neutrality implies no immediate pressure on real rates.</li>
-        <li>Cycle position: Not determined.</li>
-        <li>Interacts with Liquidity and Credit signals; persistent neutrality suggests an absence of market-priced macro stress (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Informs the aggregate state of inflation pricing and real financial conditions.</li>
+        <li>Economic mechanism: Measures the balance between inflation compensation and real-rate easing (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined by this methodology.</li>
+        <li>Interacts with liquidity and credit signals to confirm broader tightening or easing cycles.</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-        <li>This is a persistent regime; the signal has occupied the Neutral zone since April 2023 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Direction of change: Stabilizing near the zero-line after a brief period of mild disinflationary bias in late 2024.</li>
+    <li>The Neutral regime is highly persistent, lasting over two years.</li>
+    <li>The direction of change is strengthening toward a reflationary regime shift.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-        <li>TIPS liquidity distortions during market stress can create false disinflation signals (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Monthly resampling introduces a recognition lag for tactical shifts.</li>
+    <li>TIPS liquidity distortions during stress can generate false disinflationary signals (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+    <li>Monthly resampling creates a recognition lag for rapid market moves (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Dataset: FRED Inflation Term Structure; Latest Observation: 2026-03-31 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Most influential datapoints: T5YIE (2.56) and DFII10 (2.08) (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
-        <li>Additional data: University of Michigan Consumer Sentiment would improve depth by contrasting market-based and survey-based expectations.</li>
+        <li>Data sourced from T5YIE, T10YIE, and DFII10 as of 2026-04-30 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Revision window cannot be assessed from provided content.</li>
+        <li>Reliability would improve by incorporating University of Michigan Inflation Expectations or SPF forecasts.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Inflation_Term_Structure_signal_chart_mpl.png" alt="Inflation Term-Structure Signal" /><div class="media-cap">Inflation Term-Structure Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Inflation_Term_Structure_signal_chart_mpl.png" alt="Inflation Term-Structure Signal" /><div class="media-cap">Inflation Term-Structure Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-market_implied_inflation_signal" aria-labelledby="tab-market_implied_inflation_signal" hidden><div class="panel-title">Market Implied Inflation Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -506,79 +575,71 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement (mandatory):</strong>
-            Given a T5YIE of 2.56, a T10YIE of 2.31, and a composite z-score of 0.41, this setup aligns with
+            <strong>Configuration statement:</strong>
+            Given a T5YIE of 2.61 and T10YIE of 2.36, this setup aligns with
             Range-biased price paths and Normal volatility,
-            where the dominant risk is Mean reversion, not Regime shift.
+            where the dominant risk is Mean reversion, not Trend continuation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).
         </li>
-        <li>The signal is currently in a STABLE regime, reflecting inflation expectations that remain range-bound and consistent with long-term norms (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Moderate; Revision Sensitivity: Low.</li>
+        <li>The signal remains in a STABLE regime, characterized by inflation expectations that are range-bound and consistent with long-term historical norms (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>A z-score between -0.5 and 1.0 classifies the regime as STABLE, implying neutral directional conviction (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
-        <li>The methodology dictates that "FALLING" signals should be discounted if the broader Liquidity Regime is stressed, which is not currently flagged (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
-        <li>The composite weights levels (5-year and 10-year breakevens) more heavily than short-term annualised momentum (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
-        <li>Market Implied Inflation Signal: latest observation dated 2026-03-31 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>A z-score between -0.5 and 1.0 classifies the Market Implied Inflation Signal (MIIE) as STABLE, implying expectations are consistent with long-term norms (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>The methodology dictates prioritizing realized inflation data (CPI/PPI) and liquidity signals for directional conviction when in this regime (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>The signal measures "inflation compensation," which aggregates expected inflation, risk premia, and liquidity premia (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Latest observation date: 2026-04-30.</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the 10-Year Breakeven Inflation Rate (T10YIE) at 2.31, which remains well-anchored within the historical distribution (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
-        <li>Momentum has stabilised following a minor dip in February, with the MIIE_z recovering from 0.16 to 0.41 in March (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
-        <li>No significant internal tensions; both 5-year and 10-year metrics show synchronous range-bound behaviour.</li>
-        <li>Conditional Invalidation: A move in the MIIE_z above 1.0 would trigger a "RISING" regime classification.</li>
-        <li>Persistence is high; the STABLE regime has been maintained for over 36 consecutive observations.</li>
+        <li>The primary driver is the T5YIE level z-score (0.844), which is rising toward the upper boundary of the stable range (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Momentum has stabilized, with the composite MIIE_z rising from 0.155 in February to 0.526 in April, showing internal strengthening within the regime (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: An MIIE z-score ≥ 1.0 would trigger a "RISING" regime, indicating accelerating inflation compensation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Continued range-bound inflation pricing supported by anchored 10-year expectations.</li>
-        <li>Upside risk: Acceleration in inflation compensation triggered by a sustained break of T5YIE above 2.75.</li>
-        <li>Downside risk: Disinflationary flight-to-quality event if TIPS liquidity premiums spike during market stress.</li>
+        <li>Dominant base case: Continued range-bound inflation pricing supported by stable long-term breakevens.</li>
+        <li>Most plausible upside risk: Transition to RISING regime triggered by a sustained breach of the 1.0 z-score threshold.</li>
+        <li>Most plausible downside risk: Flight-to-quality event causing breakevens to collapse below a -0.5 z-score (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months), as breakevens reflect medium-term market-based compensation rather than high-frequency noise.</li>
-        <li>Aggregation Weight Hint: Medium, providing a necessary neutral anchor for cross-asset inflation thematic models.</li>
+        <li>Time Horizon: Cyclical (months); breakeven rates reflect medium-to-long-term market positioning (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; provides a high-confidence anchor for inflation pricing but lacks immediate directional impulse.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the pricing dimension of the macro cycle, specifically market-based inflation compensation.</li>
-        <li>The current stable direction implies that inflation risk premia are neither expanding nor contracting aggressively.</li>
-        <li>Cycle position: Not determined by this methodology.</li>
-        <li>Typically interacts with real yields and realized CPI to identify whether market expectations lead or lag fundamental shifts (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Informs the pricing of inflation compensation and forward-looking expectations in the Treasury market (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Directional shifts imply changes in the inflation risk premium or liquidity conditions, affecting the real yield curve (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interaction: Typically used to validate realized inflation signals like the Fed Inflation Signal (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>This is a persistent regime; the signal has occupied the STABLE band throughout the provided historical window.</li>
-    <li>Direction of change: Stabilising, following a brief period of softening in early Q1 2026.</li>
+        <li>Regime persistence: The STABLE regime has persisted since May 2023 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Direction of change: Strengthening within the stable band, as the MIIE_z has trended higher over the last three months (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>TIPS liquidity premiums can artificially depress breakevens during periods of acute financial stress (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
-    <li>Monetary policy interventions, such as QE, may distort term premia and decouple expectations from fundamentals (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>TIPS liquidity premiums can artificially depress breakevens during periods of market stress (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Quantitative Easing (QE) and supply shifts may distort the term premia embedded in the signal (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Market Implied Inflation Signal (MIIE) dataset: latest observation 2026-03-31.</li>
-        <li>The MIIE_score of 65.1 is the most influential factor for the current regime classification.</li>
-        <li>Real interest rate trends and realized PCE data would improve interpretation depth.</li>
+        <li>Dataset: Market Implied Inflation Signal; latest observation 2026-04-30 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Influential datapoints: T5YIE (2.61) and MIIE_z (0.527) (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Secondary datasets: Real Yields and CPI/PPI momentum would provide additional depth (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
     </ul>
 
-</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Fed Inflation Signal (realized) was not provided; required to validate if market expectations are aligned with realized data as per methodology.</li>
-  <li>Liquidity Regime status is missing; necessary to determine if the "FALLING" signal discount rule should be applied.</li>
-</ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/US_Market_Implied_Inflation_MIIE_signal_chart_mpl.png" alt="Market Implied Inflation Signal" /><div class="media-cap">Market Implied Inflation Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Market_Implied_Inflation_MIIE_signal_chart_mpl.png" alt="Market Implied Inflation Signal" /><div class="media-cap">Market Implied Inflation Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-cpi_vs_ppi_divergence_signal" aria-labelledby="tab-cpi_vs_ppi_divergence_signal" hidden><div class="panel-title">CPI vs PPI Divergence Signal</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -587,82 +648,105 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given a divergence_z of 0.23, a CPI_YoY of 2.43%, and a PPI_YoY of 3.22%, this setup aligns with
-            range-biased price paths and normal volatility,
-            where the dominant risk is mean reversion because the abs(z) < 0.35 threshold indicates a Neutral regime, not a trend continuation.
+            Given a rising PPI_YoY of 3.61%, a stable CPI_YoY of 2.40%, and a divergence_z of 0.41 (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>), this setup aligns with
+            Transition-biased price paths and Compressed volatility,
+            where the dominant risk is Trend continuation of upstream cost-push pressure, not mean reversion.
         </li>
-        <li>The signal is currently classified as NEUTRAL, indicating the producer-to-consumer price gap is within historical noise thresholds (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Near; Revision Sensitivity: High.</li>
+        <li>The signal is currently in a NEUTRAL regime, showing a clear upward trajectory in pipeline price pressure as producer prices begin to outpace consumer costs (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Low; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: High.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Divergence thresholds: abs(z) < 0.35 is defined as NEUTRAL, representing a stable price relationship (<a href="https://investoranatomy.com/signal_monitor/cpi_vs_ppi_divergence_signal_monitor.html" target="_blank">2</a>).</li>
-        <li>HOT regime requires z >= 1.0 or (z >= 0.75 and CPI YoY >= 3.0%) to signal cost-push pressure (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>The methodology treats producer prices as a leading indicator for consumer price direction (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>CPI vs PPI Divergence Signal: latest observation February 28, 2026 (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>A HOT regime is triggered if the divergence_z ≥ 1.0, signifying significant upstream cost-push pressure (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>NEUTRAL is defined by the methodology as divergence within historical noise thresholds (abs(z) &lt; 0.35) or failing HOT/COOL criteria (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>Rising values imply inflationary pressure and potential late-cycle expansion; falling values imply disinflationary pressure (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>CPI vs PPI Divergence Signal (Latest observation: 2026-03-31) (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the narrowing gap between PPI and CPI, with the PPI_minus_CPI_YoY spread currently at 0.78 (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Recent momentum shows a shift from negative to positive divergence, though it remains below the 1.0 z-score threshold for a regime shift (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Stabilisation in the NEUTRAL band has persisted for over 28 months (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: Divergence z-score exceeding 1.0 or falling below -1.0.</li>
+        <li>The primary driver is the 1.65% increase in PPI_YoY over the last two months, while CPI_YoY remained nearly flat (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>A clear upward momentum in the z-score (from 0.03 in Jan to 0.41 in Mar) indicates a strengthening divergence trend (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>No internal offsets are present as both headline PPI and the divergence spread are moving in tandem.</li>
+        <li>Conditional Invalidation: A reversal of the z-score below 0.0 or a PPI_YoY print returning below 1.5%.</li>
+        <li>The signal shows high persistence in the NEUTRAL band but is now testing the upper volatility limits.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant; risks balanced due to stable price relationship.</li>
-        <li>Upside risk: PPI acceleration beyond CPI causing margin compression and a transition to HOT.</li>
-        <li>Downside risk: PPI collapse relative to CPI leading to a return to the COOL (disinflation) regime.</li>
+        <li>Base case dominant: Continued NEUTRAL state with rising pipeline costs absorbed by retail margins.</li>
+        <li>Upside risk: Transition to HOT regime if PPI acceleration continues, potentially leading to upside CPI surprises.</li>
+        <li>Downside risk: Mean reversion of producer prices caused by a sudden drop in commodity or energy costs.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Cyclical (months) as it identifies multi-month pipeline inflation trends.</li>
-        <li>Aggregation Weight Hint: Medium as the signal currently lacks extreme directional bias but identifies core stability.</li>
+        <li>Time Horizon: Cyclical (months). The methodology identifies this as a leading indicator for CPI direction (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium, as the signal is currently transitioning between regimes but remains within noise thresholds.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the pricing and inflation dimension by measuring relative speeds of production and retail price changes (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>The implied economic mechanism is pipeline price pass-through; current neutrality suggests no significant upstream pressure on retail margins.</li>
-        <li>Cycle position: Not determined by methodology.</li>
-        <li>Typically interacts with inflation breakevens and ISM Prices Paid to confirm cost-push environments (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>Informs the Pricing and Inflation dimension by detecting gaps between production and retail price speeds (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>The implied economic mechanism is "cost-push pressure," where rising upstream inputs may force retail price hikes or compress corporate margins.</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interacts typically with Inflation Breakevens and ISM Prices Paid to confirm pipeline trends (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-        <li>Persistent Neutral regime since October 2023 (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Direction of change: Stabilising, with a slight strengthening of the producer price component relative to consumer prices.</li>
+    <li>This is a persistent NEUTRAL regime maintained since October 2023 (approx. 30 months) (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening towards the HOT threshold.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-        <li>PPI is subject to multi-month revisions which can retroactively change z-score classifications (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Pass-through from producer to consumer prices is often lagged and incomplete (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+    <li>PPI is subject to multi-month revisions which may alter the z-score retroactively (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+    <li>Pass-through from PPI to CPI is historically lagged and often incomplete (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Latest dataset observation: 2026-02-28 (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Dominant datapoints: divergence_z (0.23) and PPI_YoY (3.22) (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
-        <li>Additional indicators: ISM Prices Paid and Inflation Breakevens would improve reliability.</li>
+        <li>CPI vs PPI Divergence Signal (2026-03-31) (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>Most influential: PPI_YoY (3.606) and the divergence_z (0.407) (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
+        <li>Relevant public datasets: ISM Prices Paid and Unit Labor Costs (<a href="https://investoranatomy.com/signal_report/CPI_PPI_Divergence/" target="_blank">1</a>).</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CPI_PPI_Divergence_signal.png" alt="CPI vs PPI Divergence Signal" /><div class="media-cap">CPI vs PPI Divergence Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CPI_PPI_Divergence_signal.png" alt="CPI vs PPI Divergence Signal" /><div class="media-cap">CPI vs PPI Divergence Signal</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - US Inflation and Price Dynamics - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs.<br /><br />
+        All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions.<br /><br />
+        No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -699,6 +783,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Gold Market Analyst</div>
         <div class="page-title">The Gold Market Analyst combines price diagnostics, positioning regimes, research synthesis, media monitoring, and macro signal interpretation into a coherent market context.</div>
         <div class="hero-inject market-report"><div class="ia-report-block" id="gold-macro-outlook">
@@ -143,37 +209,40 @@
 
   <h3>Regime Assessment</h3>
   <p>
-    Current conditions align with the <strong>Liquidity-Driven Safe Haven Expansion</strong> regime (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">14</a>).
-    Dominant drivers include a expansionary liquidity backdrop (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">11</a>) and elevated financial stress indicators (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>). While structural support is moderate, the regime faces a persistent conflict from a restrictive real interest rate trend (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).
+    Deterministic regime state indicates that current conditions align with the <strong>Stress Safe Haven (G6)</strong> regime.
+    Dominant forces include Stress Safe-Haven Activation driven by elevated financial stress and market volatility, which currently override standard macro relationships (<a href="https://investoranatomy.com/signal_report/Gold_Price_Research.html" target="_blank">1</a>). 
+    While liquidity remains in expansion, it is currently countered by a sustained real rate headwind and significant US dollar strength (<a href="https://investoranatomy.com/signal_report/Gold_Pricing_Signal/" target="_blank">2</a>).
   </p>
 
   <h3>1-Month Outlook (Tactical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Neutral / Volatile (<a href="https://investoranatomy.com/signal_monitor/gold_pricing_monitor.html" target="_blank">13</a>)</li>
-    <li><strong>Probability:</strong> Up: 0.65, Down: 0.35</li>
-    <li><strong>Primary Influences:</strong> 7-day news compression indicates negative pressure in investment flows and macro conditions, though this is partially offset by heightened geopolitical risk (<a href="https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_Compression_7D/" target="_blank">12</a>). Tactical positioning is currently in a "Spec_Long_Unwind" state, creating a near-term drag on price sponsorship (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">10</a>).</li>
-    <li><strong>Volatility Profile:</strong> High (93rd percentile realized volatility) (<a href="https://investoranatomy.com/signal_monitor/gold_pricing_monitor.html" target="_blank">13</a>)</li>
+    <li><strong>Directional Bias:</strong> Defensive / Neutral</li>
+    <li><strong>Probability:</strong> Up: 0.70 | Down: 0.30</li>
+    <li><strong>Primary Influences:</strong> 7-day news compression indicates a "Transition" state with a negative composite score, specifically noting that macro and monetary conditions are exerting downward pressure despite supportive regulatory signals (<a href="https://investoranatomy.com/signal_report/Podcast_Gold_News_Signal_Compression_7D/" target="_blank">3</a>).</li>
+    <li><strong>Positioning / Flow Context:</strong> Positioning is currently supportive, characterized by a "Spec_Trend_Long" regime in futures markets (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">4</a>). This is balanced by a Flow Regime that has stabilized into "Neutral" following a period of extreme institutional liquidation (<a href="https://investoranatomy.com/signal_report/Gold_ETF_Flow_Signal.html" target="_blank">5</a>).</li>
+    <li><strong>Volatility Profile:</strong> High (<a href="https://investoranatomy.com/signal_report/Gold_Pricing_Signal/" target="_blank">2</a>)</li>
   </ul>
 
   <h3>3-Month Outlook (Cyclical)</h3>
   <ul>
-    <li><strong>Directional Bias:</strong> Bullish (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">14</a>)</li>
-    <li><strong>Probability:</strong> Up: 0.75, Down: 0.25</li>
-    <li><strong>Structural Drivers:</strong> Cyclical strength is anchored in the expansion of M2 money supply (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>) and broader Federal Reserve liquidity support (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">11</a>), which historically offsets real rate headwinds in expansionary regimes.</li>
+    <li><strong>Directional Bias:</strong> Range-bound / Mixed</li>
+    <li><strong>Probability:</strong> Up: 0.80 | Down: 0.20</li>
+    <li><strong>Structural Drivers:</strong> The interaction between expansionary liquidity and rising real yields creates a cyclical tug-of-war. The Market Expression Check currently confirms the regime, though the 3-month horizon remains sensitive to whether stress levels persist or mean-reversion in flows dominates (<a href="https://investoranatomy.com/signal_report/Gold_ETF_Flow_Signal.html" target="_blank">5</a>).</li>
+    <li><strong>Conflict / Override Watch:</strong> Active override flags for Stress Safe-Haven Activation are the primary driver of current conviction. Conflict flags are elevated regarding the divergence between Liquidity and Real Rates (<a href="https://investoranatomy.com/signal_report/Gold_Price_Research.html" target="_blank">1</a>).</li>
   </ul>
 
   <h3>12-Month Outlook (Strategic)</h3>
   <ul>
-    <li><strong>Regime Persistence:</strong> High (Long-term structural)</li>
-    <li><strong>Historical Outcome Bias:</strong> Bullish</li>
-    <li><strong>Research Context:</strong> Research context suggests a structural shift in central bank reserves and a persistent "debasement trade" will likely support prices through 2026 (<a href="https://investoranatomy.com/investment-strategy/gold-strategy/" target="_blank">15</a>). Institutional analysts anticipate price targets in the $4,500–$5,000/oz range as Western investor participation broadens via ETF inflows (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">16</a>).</li>
+    <li><strong>Regime Persistence:</strong> High (Historical G6 outcomes favor significant upside moves during stress duration).</li>
+    <li><strong>Historical Outcome Bias:</strong> Aggressively Bullish</li>
+    <li><strong>Research Context:</strong> Research context suggests a strong institutional upside bias, with major investment banks establishing a significantly higher baseline for the asset. The median institutional price target has shifted upward to $5,900/oz, driven by themes of central bank accumulation and US dollar diversification (<a href="https://investoranatomy.com/signal_report/Gold_Price_Research.html" target="_blank">1</a>).</li>
   </ul>
 
   <h3>Conflicts, Risks &amp; Invalidation Watchpoints</h3>
   <ul>
-    <li><strong>Real Rate vs. Liquidity:</strong> Positive real yields remain a structural headwind, requiring continued liquidity expansion to sustain the bullish regime (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>).</li>
-    <li><strong>Positioning Divergence:</strong> A conflict exists between the current speculative long liquidation in futures and the underlying physical shortage/central bank demand (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">14</a>).</li>
-    <li><strong>Invalidation Trigger:</strong> A shift in central bank behavior to net selling or a failure of M2 momentum to offset USD strength would invalidate the current Liquidity Expansion thesis (<a href="https://investoranatomy.com/investment-strategy/gold-strategy/" target="_blank">15</a>).</li>
+    <li><strong>USD/Real Rate Pressure:</strong> Persistent USD strength and rising real yields act as a primary macro drag that could overwhelm safe-haven demand if stress indices normalize (<a href="https://investoranatomy.com/signal_report/Gold_Pricing_Signal/" target="_blank">2</a>).</li>
+    <li><strong>Positioning Exhaustion:</strong> While currently supportive, the "Spec_Trend_Long" regime faces "Spec_Long_Unwind" risk if speculative sponsorship fades in the absence of new catalysts (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">4</a>).</li>
+    <li><strong>Invalidation Trigger:</strong> A transition of the Stress State from "Elevated" to "Normal" would deactivate the current override, shifting the regime focus back to Real Rate and USD headwinds.</li>
   </ul>
 </div></div>
       </div>
@@ -182,26 +251,45 @@
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
           <button class="tab" role="tab" aria-selected="false" aria-controls="panel-price" id="tab-price">Price Signal Decoder</button>
+<button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-etf_flow" id="tab-etf_flow">Gold ETF Flow Signal</button>
 <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-CoT" id="tab-CoT">Gold Positioning Analyst</button>
 <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-news" id="tab-news">Gold News Compression (7D)</button>
 <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-supply_demand" id="tab-supply_demand">Gold Research Analyst</button>
 <button class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-regime" id="tab-regime">Gold Signal Interpreter</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-real_interest_rate_trend_signal" id="tab-real_interest_rate_trend_signal">Real Interest Rate Trend Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-federal_reserve_liquidity_composite_signal" id="tab-federal_reserve_liquidity_composite_signal">Federal Reserve Liquidity Composite Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-m2_money_supply_signal" id="tab-m2_money_supply_signal">M2 Money Supply Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-explicit_neutral_rate_r_proxy_signal" id="tab-explicit_neutral_rate_r_proxy_signal">Explicit Neutral Rate R Proxy Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-usd_index_signal" id="tab-usd_index_signal">USD Index Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-usd_individual_market_analysis" id="tab-usd_individual_market_analysis">USD Individual Market Analysis</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-macro_theme_global_inflation_fx_dynamics" id="tab-macro_theme_global_inflation_fx_dynamics">Macro Theme Global Inflation FX Dynamics</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-inflation_term_structure_signal" id="tab-inflation_term_structure_signal">Inflation Term Structure Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-market_implied_inflation_signal" id="tab-market_implied_inflation_signal">Market Implied Inflation Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-policy_relevant_inflation_pce_signal" id="tab-policy_relevant_inflation_pce_signal">Policy Relevant Inflation PCE Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-cross_sector_positioning" id="tab-cross_sector_positioning">Cross Sector Positioning</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-specs_vs_hedgers_divergence_reversal_risk" id="tab-specs_vs_hedgers_divergence_reversal_risk">Specs Vs Hedgers Divergence Reversal Risk</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-hedger_pressure_indicator" id="tab-hedger_pressure_indicator">Hedger Pressure Indicator</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-squeeze_exhaustion_risk_indicators" id="tab-squeeze_exhaustion_risk_indicators">Squeeze Exhaustion Risk Indicators</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-financial_stress_index_signal" id="tab-financial_stress_index_signal">Financial Stress Index Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-financial_stress_composite_signal" id="tab-financial_stress_composite_signal">Financial Stress Composite Signal</button>
+<button class="tab" role="tab" aria-selected="false" aria-controls="panel-market_volatility_vix_signal" id="tab-market_volatility_vix_signal">Market Volatility VIX Signal</button>
         </div>
 
         <div class="panels">
           <div class="panel" role="tabpanel" id="panel-price" aria-labelledby="tab-price" hidden><div class="panel-title">Price Signal Decoder</div><div class="panel-body"><h1>GLDM - Consolidated Report</h1>
-<p><strong>Pricing as of:</strong> 2026-03-27</p>
+<p><strong>Pricing as of:</strong> 2026-04-02</p>
 <h2>Pricing Context</h2>
 <h3>Headline Snapshot</h3>
 <ul>
 <li><strong>Observations:</strong> 251 rows</li>
-<li><strong>Last close:</strong> 89.34</li>
-<li><strong>Day change:</strong> 3.49%</li>
+<li><strong>Last close:</strong> 92.48</li>
+<li><strong>Day change:</strong> -1.93%</li>
 <li><strong>Composite view:</strong> Trim</li>
 </ul>
 <h3>Technical Trend</h3>
@@ -213,22 +301,22 @@
 <h3>Volatility Regime</h3>
 <ul>
 <li><strong>Volatility state:</strong> High realized volatility (top 30% of sample)</li>
-<li><strong>20-day realised volatility (annualised):</strong> 0.35</li>
+<li><strong>20-day realised volatility (annualised):</strong> 0.36</li>
 <li><strong>Volatility percentile:</strong> 93.62%</li>
 <li><strong>Downside risk proxy triggered:</strong> False</li>
 </ul>
 <h3>Volume &amp; Liquidity</h3>
 <ul>
 <li><strong>Volume/liquidity state:</strong> Volume near normal levels</li>
-<li><strong>Latest volume:</strong> 6990666.00</li>
-<li><strong>Volume percentile:</strong> 80.00%</li>
-<li><strong>Volume z-score:</strong> 0.21</li>
+<li><strong>Latest volume:</strong> 5723700.00</li>
+<li><strong>Volume percentile:</strong> 67.40%</li>
+<li><strong>Volume z-score:</strong> -0.01</li>
 </ul>
 <h3>Price Position vs 52-Week Range</h3>
 <ul>
 <li><strong>52-week position state:</strong> Mid-range within 52-week band</li>
-<li><strong>Position within 52-week range:</strong> 0.60</li>
-<li><strong>Drawdown from 52-week high:</strong> -16.32%</li>
+<li><strong>Position within 52-week range:</strong> 0.66</li>
+<li><strong>Drawdown from 52-week high:</strong> -13.38%</li>
 </ul>
 <p>
 Positive scores favour adding exposure, negative scores favour trimming/reducing, zero indicates no strong directional bias based on the simple rules defined.
@@ -249,10 +337,10 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <table>
 <thead><tr><th>Horizon</th><th>Return</th></tr></thead>
 <tbody>
-<tr><td>1W</td><td>0.30%</td></tr>
-<tr><td>1M</td><td>-13.12%</td></tr>
-<tr><td>3M</td><td>0.72%</td></tr>
-<tr><td>6M</td><td>20.45%</td></tr>
+<tr><td>1W</td><td>7.12%</td></tr>
+<tr><td>1M</td><td>-8.99%</td></tr>
+<tr><td>3M</td><td>8.33%</td></tr>
+<tr><td>6M</td><td>20.79%</td></tr>
 <tr><td>12M</td><td>n/a</td></tr>
 </tbody>
 </table>
@@ -272,7 +360,83 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 <tbody>
 <tr><td>2022-02-23</td><td>0.50</td></tr>
 </tbody>
-</table></div><div class="panel-media"><figure class="media"><img src="/images/Gold_Pricing_Dashboard.png" alt="Gold price trend" /><div class="media-cap">Gold price momentum and trend diagnostics</div></figure></div></div>
+</table></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/Gold_Pricing_Dashboard.png" alt="Gold price trend" /><div class="media-cap">Gold price momentum and trend diagnostics</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-etf_flow" aria-labelledby="tab-etf_flow"><div class="panel-title">Gold ETF Flow Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given the recovery in the etf_flow_signal to -0.527 and a surge in flow acceleration (z_accel) to 1.73, this setup aligns with Range-biased price paths and Normal volatility, where the dominant risk is Mean reversion, not Trend continuation. (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">1</a>)
+        </li>
+        <li>The signal has successfully transitioned from an Extreme Outflow regime in mid-March 2026 to a stable Neutral regime as of April 2026. (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">2</a>)</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Low.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Regime labels (e.g., Extreme Outflow, Neutral) are determined by the <code>flow_regime</code> metric thresholds. (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">1</a>)</li>
+        <li>Flow intensity is governed by <code>z_flow_20d</code> and <code>z_flow_60d</code>, where values below -2.0 signify extreme liquidation stress.</li>
+        <li>Persistence regimes (e.g., Sustained Inflow) are derived from the <code>flow_persistence_score</code>, measuring the consistency of daily changes.</li>
+        <li>Latest observation: 2026-04-02.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Main drivers include a significant reduction in outflow intensity, with 20-day z-flows moving from -3.49 to -1.43. (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">1</a>)</li>
+        <li>A sharp positive inflection in flow acceleration (z_accel) indicates that the heavy liquidation phase has exhausted.</li>
+        <li>Internal Tension: While the daily regime is Neutral, 60-day flows remain historically low (z-score -1.45), suggesting a lingering demand deficit.</li>
+        <li>Conditional Invalidation: A return of <code>flow_shock</code> (currently False) or the etf_flow_signal dropping below -2.0. (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">2</a>)</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued stabilization as mean reversion offsets prior extreme liquidations.</li>
+        <li>Upside risk: Shift to a "Strong Inflow" regime triggered by a persistence score exceeding 0.80.</li>
+        <li>Downside risk: Re-entry into "Extreme Outflow" if price-path bias shifts from Range-biased to Downward-biased.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks); current dynamics reflect short-term repositioning rather than structural shifts.</li>
+        <li>Aggregation Weight Hint: Medium; the signal provides a high-frequency proxy for institutional "physical" demand sentiment. (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the "Investment Demand" dimension of the broader gold macro complex. (<a href="https://investoranatomy.com/signal_report/Gold_Regime_State/" target="_blank">2</a>)</li>
+        <li>Economic mechanism: Implies a shift from aggressive liquidity-driven selling to a stabilization in risk preference.</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Typically acts as a lead indicator for physical price discovery during regime transitions.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The current Neutral regime is newly entered (persistent for 5 periods) following a three-week "Extreme Outflow" phase.</li>
+    <li>Direction of change: Strengthening (improving from deeply negative extremes).</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Flows are approximated from shares outstanding; NAV pricing lags may introduce small estimation errors.</li>
+    <li>Does not account for non-ETF physical demand (e.g., central banks).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>BlackRock Historical Data: Shares Outstanding and NAV per Share (2026-04-02). (<a href="https://investoranatomy.com/signal_report/Gold_Research_Analyst/" target="_blank">1</a>)</li>
+        <li>Influential datapoints: z_accel (1.73) and flow_persistence_score (0.625).</li>
+        <li>Additional data: COMEX positioning data would improve the assessment of total market crowding.</li>
+    </ul>
+
+</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>The 2026 dates in the source table suggest a forward-dated or simulated dataset; verification of real-world date alignment is required for live macro aggregation.</li>
+</ul>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/gold_etf_flow_signal_chart.png" alt="Gold ETF flow signal chart" /><div class="media-cap">Gold ETF flow pressure diagnostics</div></figure></div><div class="report-buttons"><a href="https://investoranatomy.com/signal_report/Gold_ETF_Flow_Signal.html" target="_blank" rel="noopener" class="report-btn">Gold ETF Flow Signal</a></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-CoT" aria-labelledby="tab-CoT"><div class="panel-title">Gold Positioning Analyst</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -281,385 +445,1394 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given a Spec_Net_%OI of 22.68% and a Spec_zscore of -1.13, this setup aligns with
-            Downward-biased price paths and Normal volatility,
-            where the dominant risk is Long liquidation, not Short covering (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).
+            Given a Spec_Net_%OI of 25.68% and a positive 4-week flow of 1.79, this setup aligns with
+            Upward-biased price paths and Normal volatility,
+            where the dominant risk is Trend continuation, not Mean reversion. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)
         </li>
-        <li>The signal is currently in a <strong>Normal</strong> synthetic state classified as a <strong>Spec_Long_Unwind</strong> regime (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
+        <li>The signal is currently in a Spec_Trend_Long regime with a Normal synthetic state. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Speculators net long and Commercials net short represents the normal structural baseline for the gold market (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>A negative 4-week positioning flow indicates conviction is fading or de-risking is occurring, serving as an early warning for trend consolidation (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Positioning z-scores (52-week rolling) define the structural regime; current Hedger z-scores (1.78) approach fragility thresholds (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Gold - Commodity Exchange Inc. (Latest Observation: 2026-03-24).</li>
+        <li>Rule 1: Commercials net short and Speculators net long defines a normal structural baseline. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Rule 2: Fragility regimes and tail-risk are identified by z-scores exceeding 2.0. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Rule 5: Price appreciation alongside rising positioning flow confirms trend sponsorship. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>GOLD - COMMODITY EXCHANGE INC. (Latest observation: 2026-03-31). (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is a sustained <strong>Long_Reduction</strong> (Flow_4w: -0.158), reflecting a persistent withdrawal of speculative sponsorship (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Price action shows a significant bearish divergence, as the move from ~5229 to 4399 aligns with declining positioning momentum (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Internal tension is present: while speculators unwind, hedgers remain in a <strong>Hedgers_Deep_Long</strong> regime (z-score 1.78), indicating a lack of supply expansion pressure (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: Speculator z-score falling below -2.0 would shift the regime to "Crowded Short," introducing non-linear squeeze risk (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Stability is low; the market has transitioned from "High Tension" in February to a liquidation-led decline in March (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The 4-week flow shifted to a "Long_Build" state, supporting recent price gains. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Hedgers are in a "Deep_Long" pressure regime with a z-score of 1.69. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Positioning tension remains moderate at 1.99, staying below high-fragility thresholds. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: The interpretation reverses if the 4-week flow turns negative (Long_Reduction). (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Revision window cannot be assessed from provided content.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Continued price consolidation as speculators further reduce over-extended positions.</li>
-        <li>Upside risk: A short-covering cascade triggered if positioning flow turns sharply positive amid a macro tailwind shift (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Downside risk: Accelerated long liquidation if price breaks support without offsetting organic spot demand (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Base case dominant: Speculative trend continuation driven by improving 4-week flow.</li>
+        <li>Upside risk: A short-covering cascade if positioning turns crowded-short amid macro tailwinds. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Downside risk: A "Spec_Long_Unwind" triggered by a fade in speculative sponsorship. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks). The 4-week flow momentum is currently the dominant driver of price direction (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: Medium. Positioning reflects high-confidence liquidation but lacks extreme "Exhaustion" or "Squeeze" flags.</li>
+        <li>Time Horizon: Tactical (weeks) based on weekly COT reporting cycles.</li>
+        <li>Aggregation Weight Hint: Medium as the signal tracks speculative conviction shifts.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs global risk-off and inflation-hedging sentiment through the lens of futures market sponsorship (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Economic mechanism: Speculative sponsorship is currently the primary headwind, as participants de-lever despite the underlying macro baseline (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>This signal informs risk sentiment and hedging demand within the broader macro environment. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>The economic mechanism implies speculative sponsorship rather than immediate exhaustion. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with real yields and USD Index signals to confirm if liquidation is macro-justified or purely technical (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Typically interacts with real interest rate trends and USD index signals. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>)</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-        <li>The <strong>Spec_Long_Unwind</strong> regime has persisted for eight consecutive weeks, marking a structural transition from earlier "Spec_Trend_Long" strength (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Direction of change: Weakening. Positioning breadth and price sponsorship are both in a state of decay (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The current "Spec_Trend_Long" regime was re-entered on 2026-03-03. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>The regime is strengthening as it transitions away from a "Spec_Long_Unwind" phase. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-        <li>Positioning data excludes large OTC and physical gold markets, which may offset futures-driven price moves (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Commercial hedger data includes dealer hedging, which can obscure pure producer sentiment (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Futures data excludes large OTC and physical markets. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Commercial data includes dealer hedging which can mask underlying sentiment. (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Gold CoT Disaggregated Report (Latest: 2026-03-24) (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Most influential: Flow_4w (-0.158) and Hedger_zscore (1.78) (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Additional metrics like 10Y Real TIPS Yields and the Broad USD Index would improve regime confirmation.</li>
+        <li>GOLD - COMMODITY EXCHANGE INC. (2026-03-31). (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Influential datapoints: Spec_Net_%OI (25.68%) and Hedger_zscore (1.69). (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Additional metrics: 10-Year TIPS real yields and broad USD Index. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">3</a>)</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_GOLD_Diagnostics.png" alt="Gold CoT diagnostics" /><div class="media-cap">Gold CoT diagnostics (example)</div></figure></div></div>
-<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Gold News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Gold | <strong>As of:</strong> 2026-03-27</p><p><strong>Composite news score:</strong> -0.4500 | <strong>Signal breadth:</strong> 0.5000 | <strong>Overall state:</strong> Transition</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> 7292adc5d6573bf2b13f048ce4c81318dd594f10240a4850abbf1ce5b54ed30c</p><p><strong>Previous hash:</strong> 2473a6e478ec2cadc1af8135edc1e5bddd3687f101c2dc1cacbb854580947b65 | <strong>Change hash:</strong> 015d13906315ded6c03ca890199ece40256b8c08cc6eaa4edb748e4b784f1460</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">16</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Investment &amp; Financial Markets</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8500</td><td style="padding:8px; border-bottom:1px solid #1f2937;">11</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Geopolitical Risk</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">5</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Macro &amp; Monetary Conditions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">5</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Regulatory &amp; Policy</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.5000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Physical Market Structure</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.6000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td></tr></tbody></table></div></div></div>
-<div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Gold Research Analyst</div><div class="panel-body"><div class="asset-forward-view"
-     data-as-of-date="2026-03-21"
-     data-horizon-min-months="6"
-     data-horizon-max-months="12">
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_GOLD_Diagnostics.png" alt="Gold CoT diagnostics" /><div class="media-cap">Gold CoT diagnostics (example)</div></figure></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-news" aria-labelledby="tab-news"><div class="panel-title">Gold News Compression (7D)</div><div class="panel-body"><div class="box summary-box market-report"><p class="subtitle">Deterministic 7-day compression layer output for machine-readable news states.</p><p><strong>Asset:</strong> Gold | <strong>As of:</strong> 2026-04-05</p><p><strong>Composite news score:</strong> -0.4500 | <strong>Signal breadth:</strong> 0.4300 | <strong>Overall state:</strong> Transition</p><p><strong>Content changed:</strong> Yes | <strong>Content hash:</strong> abe497c8cb43965360b4c667876e9845fa56cb061e3e6363f1d5405d0185555f</p><p><strong>Previous hash:</strong> b11ea69512b04f72ef390f8e6e5f52d0f623dee3be86797619527f1ce6f346c7 | <strong>Change hash:</strong> 157fa61f5f47e04397a405d1b8ae15a783f82d8833245f3b16f155d7f5fb97aa</p></div><div class="box summary-box market-report"><p><strong>Category States</strong></p><table style="width:100%; border-collapse:collapse;"><thead><tr><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">category</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">direction</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">strength</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">persistence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">confidence</th><th style="text-align:left; border-bottom:1px solid #334155; padding:8px;">evidence_count</th></tr></thead><tbody><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Supply &amp; Mining</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">60</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Investment &amp; Financial Markets</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">12</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Geopolitical Risk</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8500</td><td style="padding:8px; border-bottom:1px solid #1f2937;">10</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Macro &amp; Monetary Conditions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">-2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.9000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">7</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Regulatory &amp; Policy</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Long</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.7000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">6</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Price Recap / Live Rates</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.0000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">5</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Physical Market Structure</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Medium</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.8000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">3</td></tr><tr><td style="padding:8px; border-bottom:1px solid #1f2937;">Corporate &amp; Capital Actions</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0</td><td style="padding:8px; border-bottom:1px solid #1f2937;">1</td><td style="padding:8px; border-bottom:1px solid #1f2937;">Short</td><td style="padding:8px; border-bottom:1px solid #1f2937;">0.6000</td><td style="padding:8px; border-bottom:1px solid #1f2937;">2</td></tr></tbody></table></div></div></div>
+<div class="panel is-active" role="tabpanel" id="panel-supply_demand" aria-labelledby="tab-supply_demand"><div class="panel-title">Gold Research Analyst</div><div class="panel-body"><div class="market-report"><div style="display:grid; gap:10px; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); margin-bottom:0.9rem;"><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Current Median Target</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">5,900.00</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Recent (latest 90 days)</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Current Target Range</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">4,600.00 - 7,200.00</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Focus window min/max</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Recent Forecast Count</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">11</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Numeric rows driving current view</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Median Shift vs Prior</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#22c55e;">↑ +1200.00</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Prior median: 4,700.00</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Latest Publication</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#f8fafc;">2026-04-01</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Based on publication dates in the latest 90 days.</p></div><div style="border:1px solid #334155; border-radius:12px; padding:10px 12px; background:rgba(2,6,23,0.42); min-height:90px;"><p style="margin:0; font-size:0.74rem; color:#94a3b8; letter-spacing:0.04em; text-transform:uppercase;">Comparability</p><p style="margin:0.35rem 0 0.15rem; font-size:1.12rem; font-weight:700; color:#22c55e;">High</p><p style="margin:0; font-size:0.73rem; color:#94a3b8; line-height:1.35;">Recent window is mostly direct institution forecasts.</p></div></div><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Current View:</strong> The institutional outlook for gold prices through 2026 has shifted significantly upward, with recent forecasts from major investment banks establishing a new, higher baseline for the asset. The market exhibits a strong upside bias, as evidenced by a recent median price target of $5,900/oz, representing a $1,200 increase over prior median expectations. High-conviction targets from top-tier institutions now frequently exceed the $6,000 mark, suggesting a consensus that remains aggressively bullish despite the already elevated price environment.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Recent Forecasts:</strong> In the first quarter of 2026, several institutions revised their year-end targets upward to reflect changing macroeconomic conditions. J.P. Morgan issued a leading base-case target of $6,300/oz for year-end 2026, while UBS maintains a base path of $6,200/oz for much of the year before a slight moderation to $5,900/oz in December. Goldman Sachs also signaled a strengthening outlook in late January, raising its end-2026 forecast from $4,900/oz to $5,400/oz. These revisions indicate that the distribution of targets has moved decisively away from the $4,000–$5,000 range seen in late 2025.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Historical Context:</strong> Older forecasts from late 2025 now serve primarily as a lower bound for the current outlook. Estimates from ING ($4,325) and BMO’s initial December outlook ($4,200) reflect an earlier phase of the bull cycle. BMO has since updated its 2026 annual average forecast to $4,600, illustrating how even conservative institutions are adjusting their models to account for persistent demand. While these older and average-based figures appear low relative to current point forecasts, they underscore the velocity of the upward shift in institutional sentiment over the last six months.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Comparability and Market Implied Data:</strong> There is a notable divergence between direct analyst price targets and market-implied data. While major banks are forecasting prices between $5,900 and $6,300, the CME/COMEX futures curve for late 2026 currently sits near $4,919. This suggests that institutional analysts are significantly more bullish than what is currently priced into the futures market. Additionally, while most institutions provide point forecasts for specific month-ends, others like WisdomTree provide a quarterly path, and BMO focuses on annual averages, which naturally smooths out the volatility expected by the most aggressive price targets.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Key Drivers and Conviction:</strong> The consensus for these record-high targets is rooted in a consistent set of drivers: sustained central bank accumulation, anticipated Fed rate-cutting cycles, and ongoing dollar diversification. Institutions such as Citi and UBS also highlight &quot;event risk&quot; and &quot;geopolitical uncertainty&quot; as significant tailwinds. The conviction behind these targets is supported by a lack of bearish cases in the recent dataset; even the more moderate scenarios, such as WisdomTree’s model-based path to $5,020, assume a steady upward trajectory throughout the 2026 calendar year.</p><p style="margin:0 0 0.8rem; color:#e2e8f0; line-height:1.6;"><strong>Outlook Dispersion:</strong> While the general trend is upward, the outlook remains somewhat dispersed due to the wide range between market-implied prices and the most aggressive bank targets. The spread between the CME futures price and J.P. Morgan&#x27;s target exceeds $1,300, indicating a high degree of uncertainty regarding the absolute ceiling for the metal. However, the absence of any recent downward revisions suggests that institutional researchers view the risk to the upside as more probable than a return to sub-$4,500 levels in the near term.</p></div>
+<details style="margin-top:0.8rem;"><summary style="cursor:pointer; color:#cbd5e1; font-weight:600;">Prompt</summary><pre style="white-space:pre-wrap; line-height:1.35; margin-top:0.6rem; border:1px solid #334155; background:#0b1220; color:#cbd5e1; border-radius:10px; padding:0.75rem; overflow:auto;">
+Goal
+Identify institutional price targets for Gold over the next 6-12 months.
 
-  <section class="stance">
-    <h2>6-12 Month Stance</h2>
-    <p><strong>Stance:</strong>
-      <span data-field="stance">bullish</span>
-    </p>
-    <p><strong>Confidence:</strong>
-      <span data-field="confidence">high</span>
-    </p>
-  </section>
+Sources to prioritise
+- Bank commodity outlooks (Goldman Sachs, JP Morgan, UBS, Citi, ING, BMO)
+- Commodity specialists (Sprott, WisdomTree)
+- Industry bodies (World Gold Council)
+- Exchange research (CME)
+- Major institutional research notes
 
-  <section class="core-narrative">
-    <h2>Core Narrative</h2>
-    <p data-field="core_narrative">
-      The outlook for gold in 2026 is overwhelmingly positive, with multiple institutions forecasting a continuation of the record-breaking rally seen in 2025 (1)(12). Price targets for the second half of 2026 generally converge between $4,500/oz and $5,000/oz, driven by a structural shift in central bank reserves, the continuation of the Federal Reserve's easing cycle, and persistent geopolitical instability (8)(19). While 2025 was characterized by "stratospheric" performance, 2026 is expected to see a broadening of investor participation, particularly through record-level ETF inflows as real rates stabilize and currency debasement concerns grow (12)(14). Despite potential short-term volatility or technical resistance, the fundamental "debasement trade" and the role of gold as a "core store of value" remain highly supported by institutional analysis (13)(16).
-    </p>
-  </section>
+Output requirements
+Return a table with:
+Institution
+Publication date
+Price target (USD per ounce)
+Forecast horizon
+Base case / bull case / bear case
+Key drivers cited (e.g., central bank demand, real rates, USD, geopolitics)
+Link to research
 
-  <section class="key-drivers">
-    <h2>Key Drivers</h2>
-
-    <div class="driver">
-      <h3 data-field="driver_name">Sustained Central Bank Accumulation</h3>
-      <p><strong>Directional implication:</strong>
-        <span data-field="directional_implication">supportive</span>
-      </p>
-      <p data-field="mechanism">
-        Central banks are expected to remain significant net buyers as they diversify away from US dollar-denominated reserves (1)(19). While annual totals may fluctuate slightly compared to 2024–2025 peaks, the structural trend of sovereign diversification is viewed as a "relevant structural factor" that outweighs traditional opportunity costs (19)(23).
-      </p>
-    </div>
-
-    <div class="driver">
-      <h3 data-field="driver_name">Monetary Policy and Real Yields</h3>
-      <p><strong>Directional implication:</strong>
-        <span data-field="directional_implication">supportive</span>
-      </p>
-      <p data-field="mechanism">
-        Anticipated rate cuts by the Federal Reserve and a general downward trend in the US dollar are expected to maintain investor enthusiasm (8)(12). Even if real rates remain relatively static due to "sticky inflation," the declining opportunity cost of holding non-yielding assets supports a bullish case for gold (14)(20).
-      </p>
-    </div>
-
-    <div class="driver">
-      <h3 data-field="driver_name">Fiscal Dominance and Geopolitical Hedging</h3>
-      <p><strong>Directional implication:</strong>
-        <span data-field="directional_implication">supportive</span>
-      </p>
-      <p data-field="mechanism">
-        Persistent global geopolitical unease and concerns regarding the fiscal sustainability of G20 economies are driving investors toward the "relative haven" of gold (12)(16). This "debasement trade" is reinforced by deglobalization trends that make hard assets strategic levers in a multi-polar world (16).
-      </p>
-    </div>
-  </section>
-
-  <section class="key-risks">
-    <h2>Key Risks</h2>
-
-    <div class="risk">
-      <h3 data-field="risk_name">Reflation Return and Policy Success</h3>
-      <p data-field="why_it_matters">
-        A "reflation return" scenario, where US economic policies result in stronger-than-expected growth, could trigger a price correction of 5% to 20% (3). In this environment, improved risk appetite and a potentially stronger dollar would diminish the appeal of safe-haven assets (3).
-      </p>
-    </div>
-
-    <div class="risk">
-      <h3 data-field="risk_name">Institutional Asset Rotation</h3>
-      <p data-field="why_it_matters">
-        There is evidence of large investors gradually rebalancing portfolios from precious metals into base metals like copper (18). This rotation is driven by the energy transition and AI infrastructure demand, which could siphon speculative capital away from gold (18)(22).
-      </p>
-    </div>
-
-    <div class="risk">
-      <h3 data-field="risk_name">Technical Resistance and Volatility</h3>
-      <p data-field="why_it_matters">
-        Gold has faced technical "triangle" continuation patterns that require sustained moves above key resistance levels (e.g., $4,245/oz) to confirm the next leg of the uptrend (7). Sudden sharp reversals, such as the 9% drop seen in early 2026, highlight the risk of volatility despite long-term bullish fundamentals (21).
-      </p>
-    </div>
-  </section>
-
-  <section class="signposts">
-    <h2>Signposts to Watch</h2>
-
-    <div class="signpost">
-      <h3 data-field="signpost_name">Monthly Central Bank Net Purchases</h3>
-      <p><strong>Would confirm:</strong>
-        <span data-field="confirm">Continued high volumes of buying by major banks (e.g., Poland, Uzbekistan, Kazakhstan) would confirm the structural diversification narrative (23).</span>
-      </p>
-      <p><strong>Would invalidate:</strong>
-        <span data-field="invalidate">A shift to net selling by major emerging market central banks or a prolonged pause in Chinese accumulation (23).</span>
-      </p>
-    </div>
-
-    <div class="signpost">
-      <h3 data-field="signpost_name">Global Gold ETF Flow Data</h3>
-      <p><strong>Would confirm:</strong>
-        <span data-field="confirm">Sustained monthly inflows, similar to the record $19bn seen in January 2026, would confirm that Western retail and institutional investors are re-engaging with the asset class (25).</span>
-      </p>
-      <p><strong>Would invalidate:</strong>
-        <span data-field="invalidate">Persistent outflows or stagnation in ETF AUM despite geopolitical triggers would suggest investor exhaustion (7)(25).</span>
-      </p>
-    </div>
-  </section>
-
-  <section class="scenarios">
-    <h2>Scenarios</h2>
-
-    <div class="scenario" data-scenario="base">
-      <h3 data-field="scenario_name">Resilient Growth & Central Bank Support</h3>
-      <p data-field="scenario_description">
-        Gold prices average approximately $4,325 to $4,500/oz as central bank demand offsets rising real yields and resilient global growth (11)(12). The Fed continues gradual easing, and the dollar remains moderately soft (1)(8).
-      </p>
-      <p><strong>Implied stance:</strong>
-        <span data-field="implied_stance">bullish</span>
-      </p>
-      <p><strong>Key drivers:</strong>
-        <span data-field="drivers_most_responsible">
-          Central Bank Accumulation; Fed Easing Cycle
-        </span>
-      </p>
-    </div>
-
-    <div class="scenario" data-scenario="upside">
-      <h3 data-field="scenario_name">Geoeconomic "Doom Loop"</h3>
-      <p data-field="scenario_description">
-        A deeper, more synchronized global slowdown driven by rising geopolitical and trade risks causes gold to surge 15% to 30%, potentially reaching $5,000–$6,000/oz (3)(19). Currency debasement concerns become the primary market driver (13).
-      </p>
-      <p><strong>Implied stance:</strong>
-        <span data-field="implied_stance">bullish</span>
-      </p>
-      <p><strong>Key drivers:</strong>
-        <span data-field="drivers_most_responsible">
-          Geopolitical Hedging; Currency Debasement
-        </span>
-      </p>
-    </div>
-
-    <div class="scenario" data-scenario="downside">
-      <h3 data-field="scenario_name">US Reflation & Policy Success</h3>
-      <p data-field="scenario_description">
-        Successful implementation of US growth-oriented policies leads to higher-than-expected GDP and a stronger dollar, resulting in a gold price correction toward the $3,400-$3,800 range (3).
-      </p>
-      <p><strong>Implied stance:</strong>
-        <span data-field="implied_stance">bearish</span>
-      </p>
-      <p><strong>Key drivers:</strong>
-        <span data-field="drivers_most_responsible">
-          Stronger US Dollar; Improved Risk Appetite
-        </span>
-      </p>
-    </div>
-  </section>
-
-  <section class="disagreements">
-    <h2>Disagreements & Uncertainties</h2>
-
-    <div class="disagreement">
-      <h3 data-field="topic">Yield-Gold Correlation</h3>
-      <p data-field="what_conflicts">
-        There is disagreement regarding whether traditional headwinds like rising real yields still effectively constrain gold prices (19).
-      </p>
-      <ul>
-        <li data-field="side_a">Rising real yields continue to act as a significant headwind if they break key resistance levels (7).</li>
-        <li data-field="side_b">Geopolitical hedging and sovereign diversification have caused gold to decouple from its historical inverse relationship with real yields (19).</li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="research-quality">
-    <h2>Research Quality & Coverage Assessment</h2>
-
-    <p><strong>Overall quality:</strong>
-      <span data-field="research_quality">strong</span>
-    </p>
-
-    <p data-field="quality_rationale">
-      The research set is comprehensive, featuring detailed annual outlooks from major global investment banks (J.P. Morgan, ING, UOB) and specialized industry bodies (World Gold Council, Silver Institute). There is a high degree of consensus on the directional outlook and the underlying fundamental drivers, with specific price targets provided for the 12-month horizon (1)(8)(11)(19).
-    </p>
-
-    <p><strong>Coverage completeness:</strong>
-      <span data-field="coverage_completeness">comprehensive</span>
-    </p>
-
-    <p data-field="coverage_gaps">
-      The research covers macro-monetary policy, central bank behavior, ETF flows, technical analysis, and thematic risks such as deglobalization and fiscal dominance.
-    </p>
-
-    <p data-field="missing_thematic_research">
-      none identified
-    </p>
-  </section>
-
-  <section class="coverage-stats">
-    <h2>Sources Used</h2>
-    <ul>
-      <li><strong>Documents provided:</strong>
-        <span data-field="documents_provided">25</span>
-      </li>
-      <li><strong>Documents used:</strong>
-        <span data-field="documents_used">19</span>
-      </li>
-      <li><strong>Sources used:</strong>
-        <ol>
-          <li id="ref-1"><a href="https://www.jpmorgan.com/insights/global-research/outlook/market-outlook">2026 market outlook: A multidimensional polarization</a></li>
-          <li id="ref-2"><a href="https://www.gold.org/goldhub/research/central-bank-asgm">Central bank considerations when pricing ASGM purchases</a></li>
-          <li id="ref-3"><a href="https://www.gold.org/goldhub/research/gold-outlook-2026">Gold Outlook 2026: Push ahead or pull back</a></li>
-          <li id="ref-4"><a href="https://www.gold.org/goldhub/gold-focus/2025/12/you-asked-we-answered-golds-appeal-fading-rising-vol">Is gold’s appeal fading on rising vol?</a></li>
-          <li id="ref-5"><a href="https://www.bis.org/publ/otc_hy2512.htm">OTC derivatives statistics at end-June 2025</a></li>
-          <li id="ref-6"><a href="https://ap.allianzgi.com/en-ap/insights/market-insights/outlook-and-commentary/outlook-2026">Outlook 2026: Navigate new pathways</a></li>
-          <li id="ref-7"><a href="https://www.gold.org/goldhub/gold-focus/2025/12/weekly-markets-monitor-2026-gold-outlook">The 2026 Gold Outlook</a></li>
-          <li id="ref-8"><a href="https://www.uobgroup.com/research/quarterly-global-outlook.page">Quarterly Global Outlook 1Q 2026</a></li>
-          <li id="ref-9"><a href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/commodities%20research/outlook/2026/1h26%20commodities%20outlook.pdf">1H2026 Commodities Outlook</a></li>
-          <li id="ref-10"><a href="https://economics.bmo.com/media/filer_public/fc/3d/fc3d0b80-ae57-475d-9f07-c1e83a029fb5/commoditiesoutlook.pdf">Commodities Outlook: Our Key Commodities Forecasts for December 2025</a></li>
-          <li id="ref-11"><a href="https://think.ing.com/uploads/reports/Commodities_Outlook_2026.pdf">Commodities Outlook 2026</a></li>
-          <li id="ref-12"><a href="https://www.emiratesnbdresearch.com/-/media/research/article/2025/december/emirates_nbd_research_-_market_economics_precious_metals_2026.pdf">Precious metals to extend gains in 2026</a></li>
-          <li id="ref-13"><a href="https://www.globalx.ca/insights/articles/2026-perspectives-from-global-x">2026 PERSPECTIVES</a></li>
-          <li id="ref-14"><a href="https://www.wisdomtree.eu/api/sitecore/pdf/getblogpdf?id=dc416e42-3489-46ef-9145-7731911683ef">Silver outlook to Q3 2026 - Silver’s second act: the metal’s rally has room to run</a></li>
-          <li id="ref-15"><a href="https://sprott.com/insights/top-10-themes-for-2026/">Top 10 Themes for 2026</a></li>
-          <li id="ref-16"><a href="https://silverinstitute.org/wp-content/uploads/2025/04/World_Silver_Survey-2025.pdf">World Silver Survey 2025</a></li>
-          <li id="ref-17"><a href="https://www.investing.com/analysis/copper-outlook-2026-institutional-rotation-supply-deficits-technical-analysis-200673451?utm_source=chatgpt.com">Copper Outlook 2026: Institutional Rotation, Supply Deficits, and Technical Analysis</a></li>
-          <li id="ref-18"><a href="https://www.jpmorgan.com/insights/global-research/commodities/gold-prices?utm_source=chatgpt.com">Will gold prices break $5,000/oz in 2026?</a></li>
-          <li id="ref-19"><a href="https://www.cmegroup.com/articles/2026/precious-metals-outlook-2026-market-dynamics-following-a-record-breaking-year.html?utm_source=chatgpt.com">Precious Metals Outlook 2026: Market Dynamics Following a Record-Breaking Year</a></li>
-          <li id="ref-20"><a href="https://www.cruxinvestor.com/posts/why-gold-and-silver-suddenly-sold-off-and-what-it-means-for-investors-public-companies?utm_source=chatgpt.com">What Drives Sudden Precious Metals Price Reversals</a></li>
-          <li id="ref-21"><a href="https://www.cruxinvestor.com/posts/coppers-price-ceiling-comes-into-focus-as-speculative-capital-may-unwind?utm_source=chatgpt.com">From Momentum to Mean Reversion: Why Copper's Rally Is Being Re-Examined</a></li>
-          <li id="ref-22"><a href="https://www.gold.org/goldhub/gold-focus/2026/02/central-bank-gold-statistics-december-2025#from-login=1&login-type=google">Central bank gold statistics December 2025</a></li>
-          <li id="ref-23"><a href="https://www.gold.org/goldhub/research/relevance-of-gold-as-a-strategic-asset">Gold as a strategic asset 2026 edition</a></li>
-          <li id="ref-24"><a href="https://www.gold.org/goldhub/research/gold-etfs-holdings-and-flows/2026/02">Gold ETF Commentary | January 2026</a></li>
-        </ol>
-      </li>
-      <li><strong>Date range:</strong>
-        <span data-field="earliest_publication_date">2025-04-01</span>
-        to
-        <span data-field="latest_publication_date">2026-02-07</span>
-      </li>
-    </ul>
-  </section>
-
-</div></div></div>
+Exclusions
+Retail blogs
+Opinion pieces
+</pre></details></div></div>
 <div class="panel is-active" role="tabpanel" id="panel-regime" aria-labelledby="tab-regime"><div class="panel-title">Gold Signal Interpreter</div><div class="panel-body"><div class="ia-report-block" id="gold-regime-state-deterministic">
-  <h2>Gold Regime State — Deterministic Summary</h2>
+  <h2>Gold Regime State - Deterministic Summary</h2>
 
   <table class="ia-table ia-table-compact">
     <tbody>
-      <tr>
-        <th>Macro Regime</th>
-        <td>Liquidity-Driven Safe Haven Expansion</td>
-      </tr>
-      <tr>
-        <th>Regime Strength</th>
-        <td>Moderate</td>
-      </tr>
-      <tr>
-        <th>Liquidity Regime</th>
-        <td>Expansion (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">2</a>)</td>
-      </tr>
-      <tr>
-        <th>Real Rate Regime</th>
-        <td>Headwind (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)</td>
-      </tr>
-      <tr>
-        <th>USD Regime</th>
-        <td>Neutral (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">4</a>)(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>)</td>
-      </tr>
-      <tr>
-        <th>Inflation Regime</th>
-        <td>Neutral (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">7</a>)</td>
-      </tr>
-      <tr>
-        <th>Stress State</th>
-        <td>Elevated (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>)</td>
-      </tr>
+      <tr><th>Liquidity Regime</th><td>Expansion (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">4</a>)</td></tr>
+      <tr><th>Real Rate Regime</th><td>Headwind (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>)</td></tr>
+      <tr><th>USD Regime</th><td>Strengthening (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>)</td></tr>
+      <tr><th>Inflation Regime</th><td>Neutral (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">7</a>)(<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">8</a>)(<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">9</a>)</td></tr>
+      <tr><th>Stress State</th><td>Elevated (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">11</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">12</a>)</td></tr>
+      <tr><th>Positioning Regime</th><td>Supportive (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">13</a>)(<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">14</a>)(<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">15</a>)</td></tr>
+      <tr><th>Flow Regime</th><td>Neutral (<a href="https://investoranatomy.com/signal_report/Gold_ETF_Flow_Signal.html" target="_blank">16</a>)</td></tr>
+      <tr><th>Market Expression Check</th><td>Confirming (<a href="https://investoranatomy.com/signal_report/Gold_Pricing_Signal/" target="_blank">17</a>)</td></tr>
     </tbody>
   </table>
 
-  <div class="ia-grid ia-grid-2" style="margin-top: 12px;">
+  <div class="ia-grid ia-grid-2" style="margin-top:12px;">
     <div class="ia-panel">
       <h3>Horizon Bias</h3>
       <table class="ia-table ia-table-compact">
         <tbody>
-          <tr>
-            <th>1M</th>
-            <td>Neutral / Volatile (<a href="https://investoranatomy.com/signal_report/Gold_CoT_Signals/" target="_blank">10</a>)(<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">9</a>)</td>
-          </tr>
-          <tr>
-            <th>3M</th>
-            <td>Bullish (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">11</a>)</td>
-          </tr>
+          <tr><th>1-Month Bias</th><td>Defensive / Neutral</td></tr>
+          <tr><th>3-Month Bias</th><td>Range-bound / Mixed</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="ia-panel">
-      <h3>Stress &amp; Conflict Flags</h3>
+      <h3>Diagnostics</h3>
       <ul class="ia-list">
-        <li><strong>Dominant Forces:</strong> Liquidity Expansion, Elevated Financial Stress</li>
-        <li><strong>Conflicts:</strong> Real Rate Headwind vs Liquidity Expansion, Spec Long Unwind vs Physical Shortage Pressure</li>
+        <li><strong>Dominant Drivers:</strong> Stress Safe-Haven Activation (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">12</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">10</a>), Real Rate Suppression (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>), USD Strength (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">6</a>)</li>
+        <li><strong>Conflict Flags:</strong> Liquidity/Real Rate Divergence (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">3</a>), USD Index Hysteresis (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">5</a>)</li>
+        <li><strong>Override Flags:</strong> Stress Safe-Haven Activation (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">12</a>)(<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">10</a>)</li>
       </ul>
     </div>
   </div>
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-real_interest_rate_trend_signal" aria-labelledby="tab-real_interest_rate_trend_signal" hidden><div class="panel-title">Real Interest Rate Trend Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a Real_Yield_DFII10 of 2.02 and a DFII10_Trend of 1.865, this setup aligns with
+            Downward-biased price paths and Indeterminate volatility,
+            where the dominant risk is Regime shift, not Mean reversion. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)
+        </li>
+        <li>The signal is currently in a persistent Bearish regime, reflecting tightening real-rate pressure at the margin. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Far; Revision Sensitivity: Low.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A Bearish signal is triggered when the Real Yield (DFII10) exceeds its 6-month moving average by more than 0.05%. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>A Neutral regime is defined by the Real Yield remaining within a +/- 0.05% band of the 6-month trend. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Economic interpretation maps higher real yields to restrictive real financial conditions. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Real Interest Rate Trend Signal (2026-04-01).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The dominant driver is the sustained elevation of the 10-year real yield (2.02%) above its medium-term trend (1.865%). (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>The signal shows strong directional persistence, remaining Bearish for four consecutive observations since early 2026. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: The regime would transition to Neutral if the real yield falls below 1.915% (Trend + 0.05%). (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Signal stability is high, as the gap between the spot yield and the trend threshold is currently 10.5 basis points. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Restrictive real rates persist, maintaining downward pressure on growth-sensitive assets.</li>
+        <li>Upside risk: A sharp decline in nominal yields or a spike in inflation expectations triggers a move below the 1.915% threshold.</li>
+        <li>Downside risk: Further acceleration in real yields widens the gap to the trend, intensifying financial restrictiveness.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the 6-month moving average window used for trend identification. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: High, as real interest rates are a fundamental driver of global liquidity and valuation.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the US Liquidity and Monetary Conditions dimension.</li>
+        <li>The economic mechanism is the tightening of real borrowing costs, which exerts restrictive pressure on capital investment and consumption. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Cycle position: Not determined by methodology.</li>
+        <li>Typically interacts with credit spreads and equity risk premiums to define total financial conditions.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The current regime is persistent, having entered the Bearish state in early 2026 after a Neutral phase. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+    <li>Direction of change: Stabilising in a restrictive (Bearish) posture.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Lagging behavior is inherent due to the use of a 6-month moving average window. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+    <li>TIPS liquidity premiums may distort the signal during high-volatility risk-off episodes. (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Real Interest Rate Trend Signal (latest observation: 2026-04-01). (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+        <li>Most influential datapoints: 10-Year Real Yield (DFII10) and the 6-month DFII10_Trend.</li>
+        <li>Public datasets for improvement: 5-year real yields (DFII5) and Nominal 10-year yields (DGS10). (<a href="https://investoranatomy.com/signal_report/Real_Interest_Rate_Trend/" target="_blank">1</a>)</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-federal_reserve_liquidity_composite_signal" aria-labelledby="tab-federal_reserve_liquidity_composite_signal" hidden><div class="panel-title">Federal Reserve Liquidity Composite Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a Liquidity Composite of 0.148, a Neutral regime classification, and Bullish RRP drainage, this setup aligns with
+            Upward-biased price paths and Compressed volatility,
+            where the dominant risk is Trend continuation, not Regime shift.
+        </li>
+        <li>The signal reflects a persistent Neutral regime that has transitioned from contractionary levels in late 2024 to a strengthening positive trajectory in early 2026 (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Moderate.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A Composite Score (LC) between -0.75 and 0.75 defines a Neutral regime, implying balanced liquidity conditions (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Falling ON RRP usage (currently Bullish at -99.99% 3-month momentum) is interpreted as an incremental easing impulse as cash returns to the private banking system (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Rising Reserve Balances (WRESBAL), indicated by the 18.39% 3-month growth, are viewed as supportive of lower short-term funding volatility (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Federal Reserve Liquidity Composite Signal (Latest: 2026-04-30).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the significant drainage of the Overnight Reverse Repo (ON RRP) facility, which offsets the more cautious neutrality in M2 growth (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Momentum is positive, with the Liquidity Composite rising from -0.20 in December 2025 to 0.148 currently, suggesting a gradual expansion of the monetary base (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A reversal in RRP drainage or a Liquidity Composite score falling below -0.75, signalling systemic withdrawal.</li>
+        <li>Signal stability is high, as the composite has maintained a steady upward trend for several quarters without volatile swings (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued neutral-to-positive liquidity expansion supported by RRP cash migration.</li>
+        <li>Upside risk: Rapid liquidity surge if Fed asset purchases (QE) resume or M2 growth accelerates sharply.</li>
+        <li>Downside risk: Sudden tightening if Treasury General Account (TGA) replenishment drains bank reserves faster than RRP can offset.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months). Rationale: Balance sheet adjustments and M2 trends evolve over multi-month windows.</li>
+        <li>Aggregation Weight Hint: High. Justification: Foundational liquidity is a primary filter for risk-asset performance and credit availability.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the Liquidity and Monetary Conditions dimension by quantifying the net expansion of the US monetary base (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>The transmission mechanism works through increased settlement liquidity for depository institutions, which typically eases funding stress and supports risk-on sentiment.</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Typically acts as a lead indicator for credit spreads and equity market volatility (VIX).</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The Neutral regime has persisted for over 24 months, showing remarkable duration and stability (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening. The recent move toward the 0.75 expansion threshold indicates an improving liquidity environment (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Susceptible to weekly data alignment noise and reporting lags in M2 money supply data (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    <li>Sensitive to Treasury General Account (TGA) volatility, which can mask underlying Fed-driven trends (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Federal Reserve Liquidity Composite Signal (2026-04-30) (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Key datapoints: RRP 3M momentum (-99.99%) and Reserves 3M growth (18.39%) (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">1</a>).</li>
+        <li>Public datasets: 10-Year TIPS Real Yield and ICE BofA High Yield Spreads for cross-signal validation.</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-m2_money_supply_signal" aria-labelledby="tab-m2_money_supply_signal" hidden><div class="panel-title">M2 Money Supply Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given M2 Year-over-Year growth of 4.88% and 3-month momentum of 1.66%, this setup aligns with
+            Upward-biased price paths and Indeterminate volatility,
+            where the dominant risk is Trend continuation, not Data uncertainty, utilizing the 1.0% momentum expansion threshold (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).
+        </li>
+        <li>The signal has transitioned into a Bullish regime as of February 2026, driven by accelerating short-term liquidity momentum (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Moderate.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A Bullish classification requires M2 YoY growth > 6.0% and 3-month momentum > 1.0% for aggressive expansion (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>A Neutral regime is defined by M2 YoY growth between 2.0% and 6.0% (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Worst-of logic is applied for risk control: if either YoY level or 3-month momentum is Bearish, the overall signal is Bearish (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>M2 Money Supply Signal: Latest observation dated 2026-02-01 (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the 3-month momentum reaching 1.66%, which suggests accelerating commercial bank credit creation (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Momentum has shifted from 0.98% in January to 1.66% in February, indicating a meaningful inflection toward expansionary conditions (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>The signal is nearing the 6.0% YoY threshold required for a full aggressive expansion classification (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A drop in M2 YoY growth below 2.0% or 3-month momentum falling below -1.0% (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Revision window cannot be assessed from provided content.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued liquidity expansion as 3-month momentum maintains levels above 1.0%.</li>
+        <li>Upside risk: M2 YoY growth accelerates above 6.0%, confirming an aggressive expansionary regime.</li>
+        <li>Downside risk: Monetary stagnation occurs if YoY growth fails to breach 6.0% and momentum reverts below 1.0%.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months) as M2 captures broader monetary shifts and credit cycles (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; it serves as a primary input for liquidity-driven asset allocation models (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the Macro Theme: US Liquidity & Monetary Conditions by measuring broad money supply growth (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>The economic mechanism is the transmission of Federal Reserve policy and commercial credit into the real economy, supporting risk assets (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interacts typically with Federal Reserve Liquidity Composite and inflation expectations signals to confirm liquidity-driven reflation (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The current Bullish regime is newly entered as of February 2026 after a persistent Neutral phase (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening, characterized by rising YoY growth and a breakout in 3-month momentum (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Monthly reporting frequency introduces lag, and 3-month momentum can be subject to significant volatility (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>M2 Money Supply Signal: Latest value 22,667.3 (2026-02-01) (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Influential datapoints: 4.88% YoY growth and 1.66% 3-month change (<a href="https://investoranatomy.com/signal_report/M2_Money_Supply/" target="_blank">1</a>).</li>
+        <li>Additional reliability could be improved by monitoring the Federal Reserve Liquidity Composite and Credit Spreads.</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-explicit_neutral_rate_r_proxy_signal" aria-labelledby="tab-explicit_neutral_rate_r_proxy_signal" hidden><div class="panel-title">Explicit Neutral Rate R Proxy Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a stance_gap of -0.69 and an r* proxy of 1.97, this setup aligns with
+            Upward-biased price paths and Indeterminate volatility,
+            where the dominant risk is Trend continuation, not Mean reversion (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).
+        </li>
+        <li>The signal is currently in an Accommodative regime, which has persisted for approximately four weeks and is showing signs of strengthening as the stance gap widens (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: Medium; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A stance_gap ≤ -0.50 indicates an accommodative policy stance, providing support for growth and risk assets (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Neutral_drift tracks the context of the neutral rate; values > +0.10 support "higher for longer" narratives, while values < -0.10 increase policy restrictiveness (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>The signal measures the distance between the inflation-adjusted policy rate and a market-implied neutral rate composite (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Data Freshness is classified as Fresh based on the observation date of 2026-04-03 (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the stance_gap (-0.69), which has deepened below the accommodative threshold of -0.50 since early March (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>A stable to rising r* proxy (1.97) vs. a lower policy_real_proxy (1.28) creates the accommodative impulse (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: The stance_gap rising above the -0.50 threshold.</li>
+        <li>The regime is stable, having maintained an accommodative classification for 21 out of the last 22 trading days (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued support for risk assets due to the persistent accommodative gap.</li>
+        <li>Upside risk: A further rise in market-implied r* (neutral_drift) without corresponding policy tightening, deepening accommodation.</li>
+        <li>Downside risk: A sharp fall in market-implied r* or a rise in real policy rates that closes the stance gap toward neutral.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), as r* shifts and policy transmission reflect medium-term macro trends.</li>
+        <li>Aggregation Weight Hint: Medium, justified by stable regime persistence and moderate confidence levels.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the pricing and liquidity dimension by assessing the gap between market expectations and central bank policy.</li>
+        <li>Economic mechanism: Accommodative stance implies a reduction in financial headwinds, typically supporting expansionary momentum.</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interacts with inflation momentum and economic slack indicators to validate the sustainability of the neutral rate drift (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The regime transitioned from Near Neutral to Accommodative on 2026-03-06 and has persisted for 28 days (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening; the stance gap has moved from -0.51 to -0.69 during this period.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Market-implied r* includes liquidity and risk premia, and 10-year horizons may mismatch near-term policy cycles (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+    <li>Revision windows cannot be assessed from the provided content.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Latest dataset observation: 2026-04-03 (<a href="https://investoranatomy.com/signal_report/Explicit_Neutral_Rate_Signal/" target="_blank">1</a>).</li>
+        <li>Most influential datapoints: stance_gap (-0.69) and rstar_proxy (1.97).</li>
+        <li>External validation via Unemployment/Output Gap and Financial Stress Indices would improve reliability.</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-usd_index_signal" aria-labelledby="tab-usd_index_signal" hidden><div class="panel-title">USD Index Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a monthly value of 120.8851 and a marginal 12-month MA distance of 0.41%, this setup aligns with
+            Transition-biased price paths and Indeterminate volatility,
+            where the dominant risk is a Regime shift, not trend continuation.
+        </li>
+        <li>The signal has transitioned to a Bullish classification as of March 2026, ending a six-month Bearish regime (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Low; Interpretation Confidence: Low Confidence; Internal Conflict Flag: Yes. Signal Stability Assessment: Volatile; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>The signal requires a 6-month change &gt; 5% and a level &gt; 0.5% above the 12-month MA to confirm a Bullish regime (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>A "Neutral/Transition" state is triggered if level and momentum conflict or price sits within the hysteresis band (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>USD Index Signal: Latest observation 2026-03-01 (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the price crossing above the 12-month MA (120.385), though momentum remains weak (6M Change: 0.62%) (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Internal Conflict: The provided "Bullish" label conflicts with methodology rules requiring 5% momentum for a reinforcing regime (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A drop in the monthly value below 120.385 would return the signal to a Bearish or Neutral state (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Stability is currently low as the index has just exited a persistent downtrend begun in late 2025 (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Indeterminate/Neutral state as price churns within the methodology's hysteresis band.</li>
+        <li>Upside risk: Strengthening USD regime if 6-month momentum accelerates beyond 5%.</li>
+        <li>Downside risk: Mean reversion toward the 12-month MA if global risk appetite improves.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks) given the proximity to MA thresholds and lack of momentum confirmation.</li>
+        <li>Aggregation Weight Hint: Low, due to the internal conflict between discrete labels and quantitative thresholds.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs global financial conditions and dollar-denominated funding costs (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Economic Mechanism: Marginal USD strength implies a nascent tightening of liquidity, acting as a potential headwind for commodities (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The signal represents a newly entered regime transition from a Bearish state that persisted for 6 months (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening (directional flip from negative to positive momentum).</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Lagging behavior inherent in moving average and 6-month change calculations (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+    <li>Static thresholds may fail to adapt to shifts in market volatility (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>USD Index Signal (2026-03-01): Value 120.885, 12M MA 120.385, 6M Change 0.62% (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">1</a>).</li>
+        <li>Global liquidity and credit spread data would improve the assessment of this regime's persistence.</li>
+    </ul>
+
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Verification of the 0.5% hysteresis band calculation: The current price is 0.41% above the MA, which technically places it in the Neutral zone per methodology Rule 3, despite the 'Bullish' label.</li>
+</ul>
+--></div></div>
+<div class="panel" role="tabpanel" id="panel-usd_individual_market_analysis" aria-labelledby="tab-usd_individual_market_analysis" hidden><div class="panel-title">USD Individual Market Analysis</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement (mandatory):</strong>
+            Given a Speculative Z-score of 1.61 and 4-week flow strength of 26.2, this setup aligns with
+            Upward-biased price paths and Elevated volatility,
+            where the dominant risk is Trend continuation, not Mean reversion.
+        </li>
+        <li>The signal is currently in a <strong>Balanced Long Bias</strong> regime, characterized by high positioning tension and an accelerating long build (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Speculative Z-score (Stretch): Values approaching +2.0 indicate a "Crowded Long" regime and extreme speculative optimism (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Flow Analysis: Aligned flow and positioning (Long Build) indicate an expansionary or trending regime (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Price-Positioning Divergence: Falling prices alongside rising speculative flow suggest a bullish divergence or accumulation phase (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>USD - Individual Market Analysis (Latest: 2026-03-31).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is a surge in 4-week flow momentum (26.2), marking a sharp acceleration in long builds compared to prior weeks (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Positioning tension has increased to 3.60, signaling high internal stress as hedgers move into a "Deep Short" pressure regime (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Stabilization of flow in a crowded market would signal late-cycle exhaustion; however, current momentum remains expansionary (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A reversal in 4-week flow to negative values or a Speculative Z-score exceeding +2.0 (triggering "Crowded" fragility rules).</li>
+        <li>The signal shows strong persistence, with speculative net positioning moving from -18.4% to +9.5% over the last three reports (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued USD strength driven by persistent capital inflows and speculative trend following.</li>
+        <li>Upside secondary: A liquidity squeeze or short-covering event if global funding stress accelerates rapidly.</li>
+        <li>Downside residual: Tactical reversal if speculative conviction fades or price action fails to confirm the positioning build.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks) based on flow-dominant interpretation rules (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: High, due to high tension scores and proximity to 52-week stretch thresholds.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs global liquidity and systemic financial tightening pressure (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Rising long positioning implies a tightening global liquidity regime and increased demand for USD funding (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+        <li>High long positioning typically interacts with other signals as a headwind for commodities and emerging market assets (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The regime has recently transitioned from "Balanced Short Bias" (early March) to a "Balanced Long Bias" (mid-to-late March) (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening transition as speculative Z-scores rise toward 1-year extremes.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Weekly reporting lag in CoT data can mask intra-week volatility shifts (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Persistent extremes can endure during strong macro-driven trends, leading to premature "exhaustion" flags (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>USD INDEX - ICE FUTURES U.S. (CoT Legacy Report, 2026-03-31) (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Most influential: 4-week flow momentum (26.2) and Positioning Tension Score (3.60).</li>
+        <li>The Broad Trade-Weighted USD Index would provide additional trend confirmation (<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">2</a>).</li>
+    </ul>
+
+</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Methodology does not provide an explicit revision window for CoT data; "Revision Sensitivity" remains Unknown.</li>
+</ul>
+--></div></div>
+<div class="panel" role="tabpanel" id="panel-macro_theme_global_inflation_fx_dynamics" aria-labelledby="tab-macro_theme_global_inflation_fx_dynamics" hidden><div class="panel-title">Macro Theme Global Inflation FX Dynamics</div><div class="panel-body"><div class="market-report">
+
+  <p style="margin-top:0.75rem;"></p>
+
+  <p><strong>Regime Assessment:</strong></p>
+  <ul>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile.</li>
+  </ul>
+
+  <p><strong>Why This Regime:</strong></p>
+  <ul>
+    <li>The primary driver is a high-weight surge in USD long flow momentum (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
+    <li>Significant capital withdrawal is evident in CAD sponsorship and active JPY short builds (<a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>EURO and USD Index signals were downweighted due to low interpretation confidence and internal methodology conflicts (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/USD_Index_Signal/" target="_blank">7</a>).</li>
+  </ul>
+
+  <p><strong>Alignment & Tensions:</strong></p>
+  <ul>
+    <li>USD long accumulation aligns with heavy flow contraction in commodity-linked currencies like CAD (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>)(<a href="https://investoranatomy.com/signal_report/CAD_CoT_Signals/" target="_blank">2</a>).</li>
+    <li>Extreme crowding in AUD longs creates high fragility and drawdown risk despite positive momentum (<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Tensions exist as EURO de-risking reaches extreme z-scores while spot prices diverge from positioning (<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>).</li>
+    <li>These tensions signal fragility rather than a regime shift because USD momentum remains expansionary (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
+  </ul>
+
+  <p><strong>Scenario Balance:</strong></p>
+  <ul>
+    <li>Dominant scenario: Continued USD strength and tightening global liquidity regimes (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
+    <li>Primary upside risk: A violent short squeeze in JPY or EURO if global risk appetite shocks occur (<a href="https://investoranatomy.com/signal_report/YEN_CoT_Signals/" target="_blank">6</a>)(<a href="https://investoranatomy.com/signal_report/EURO_CoT_Signals/" target="_blank">3</a>).</li>
+    <li>Primary downside risk: Rapid liquidation of AUD longs if China macro indicators or growth cycles falter (<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals/" target="_blank">1</a>).</li>
+  </ul>
+
+  <p><strong>What Would Change the Regime:</strong></p>
+  <ul>
+    <li>A reversal in USD 4-week positioning flow to negative values (<a href="https://investoranatomy.com/signal_report/USD_CoT_Signals/" target="_blank">5</a>).</li>
+    <li>Multi-week flow reversals in AUD signaling a growth-cycle inflection point (<a href="https://investoranatomy.com/signal_report/AUD_CoT_Signals/" target="_blank">1</a>).</li>
+  </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-inflation_term_structure_signal" aria-labelledby="tab-inflation_term_structure_signal" hidden><div class="panel-title">Inflation Term Structure Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a 5-year Z-score of 0.78 and Composite of 0.31, this setup aligns with
+            range-biased price paths and indeterminate volatility,
+            where the dominant risk is data uncertainty, not mean reversion.
+        </li>
+        <li>The signal identifies a persistent Neutral regime that is currently strengthening toward reflationary thresholds (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Absolute Composite values below 0.75 define a Neutral regime with no strong directional bias (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Rising Composite values imply a shift toward reflationary expansion and risk-on conditions (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>The methodology weighs 5-year and 10-year breakevens against 10-year real TIPS yields (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Latest observation date: 2026-04-30.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the 5-year breakeven Z-score, which has reached 0.78 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Real yields (DFII10) remain neutral at 1.97, providing minimal contribution to the composite (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>The signal exhibits consistent upward momentum over the last five months.</li>
+        <li>Conditional Invalidation: The Composite value exceeding the 0.75 threshold triggers a Reflationary regime shift (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Signal stability is high, having remained in the Neutral zone since mid-2023 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued neutral pricing as inflation expectations remain within historical bands.</li>
+        <li>Upside risk: Transition to Reflationary regime triggered by rising short-term breakevens.</li>
+        <li>Downside risk: Shift toward Disinflationary regime if real yields spike or breakevens collapse.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months); identifies shifts in market-priced inflation regimes (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; Neutral signals serve as weak conditioning variables in macro models (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the aggregate state of inflation pricing and real financial conditions.</li>
+        <li>Economic mechanism: Measures the balance between inflation compensation and real-rate easing (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined by this methodology.</li>
+        <li>Interacts with liquidity and credit signals to confirm broader tightening or easing cycles.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The Neutral regime is highly persistent, lasting over two years.</li>
+    <li>The direction of change is strengthening toward a reflationary regime shift.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>TIPS liquidity distortions during stress can generate false disinflationary signals (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+    <li>Monthly resampling creates a recognition lag for rapid market moves (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Data sourced from T5YIE, T10YIE, and DFII10 as of 2026-04-30 (<a href="https://investoranatomy.com/signal_report/Inflation_Term_Structure/" target="_blank">1</a>).</li>
+        <li>Revision window cannot be assessed from provided content.</li>
+        <li>Reliability would improve by incorporating University of Michigan Inflation Expectations or SPF forecasts.</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-market_implied_inflation_signal" aria-labelledby="tab-market_implied_inflation_signal" hidden><div class="panel-title">Market Implied Inflation Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a T5YIE of 2.61 and T10YIE of 2.36, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is Mean reversion, not Trend continuation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).
+        </li>
+        <li>The signal remains in a STABLE regime, characterized by inflation expectations that are range-bound and consistent with long-term historical norms (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A z-score between -0.5 and 1.0 classifies the Market Implied Inflation Signal (MIIE) as STABLE, implying expectations are consistent with long-term norms (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>The methodology dictates prioritizing realized inflation data (CPI/PPI) and liquidity signals for directional conviction when in this regime (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>The signal measures "inflation compensation," which aggregates expected inflation, risk premia, and liquidity premia (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Latest observation date: 2026-04-30.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the T5YIE level z-score (0.844), which is rising toward the upper boundary of the stable range (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Momentum has stabilized, with the composite MIIE_z rising from 0.155 in February to 0.526 in April, showing internal strengthening within the regime (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: An MIIE z-score ≥ 1.0 would trigger a "RISING" regime, indicating accelerating inflation compensation (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Dominant base case: Continued range-bound inflation pricing supported by stable long-term breakevens.</li>
+        <li>Most plausible upside risk: Transition to RISING regime triggered by a sustained breach of the 1.0 z-score threshold.</li>
+        <li>Most plausible downside risk: Flight-to-quality event causing breakevens to collapse below a -0.5 z-score (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months); breakeven rates reflect medium-to-long-term market positioning (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; provides a high-confidence anchor for inflation pricing but lacks immediate directional impulse.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the pricing of inflation compensation and forward-looking expectations in the Treasury market (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Directional shifts imply changes in the inflation risk premium or liquidity conditions, affecting the real yield curve (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interaction: Typically used to validate realized inflation signals like the Fed Inflation Signal (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+        <li>Regime persistence: The STABLE regime has persisted since May 2023 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Direction of change: Strengthening within the stable band, as the MIIE_z has trended higher over the last three months (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+        <li>TIPS liquidity premiums can artificially depress breakevens during periods of market stress (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Quantitative Easing (QE) and supply shifts may distort the term premia embedded in the signal (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Dataset: Market Implied Inflation Signal; latest observation 2026-04-30 (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Influential datapoints: T5YIE (2.61) and MIIE_z (0.527) (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+        <li>Secondary datasets: Real Yields and CPI/PPI momentum would provide additional depth (<a href="https://investoranatomy.com/signal_report/Market_Implied_Inflation/" target="_blank">1</a>).</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-policy_relevant_inflation_pce_signal" aria-labelledby="tab-policy_relevant_inflation_pce_signal" hidden><div class="panel-title">Policy Relevant Inflation PCE Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement (mandatory):</strong>
+            Given a PCE_Composite of -0.23, headline PCE_YoY of 2.83%, and CorePCE_YoY of 3.06%, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is Mean reversion, not Regime shift. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)
+        </li>
+        <li>The signal is currently in a stable Neutral regime, having transitioned from a Hot regime in late 2023. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Far; Revision Sensitivity: Moderate.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Composite scores between -0.75 and 0.75 are classified as Neutral, suggesting no immediate policy bias. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>The "Level_pp > 0" rule identifies that inflation exceeding the 2% target creates structural pressure for restrictive rates. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Momentum is used as an early warning for regime transitions toward Hot or Cool states. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Policy-Relevant Inflation (PCE) Signal; Latest observation: 2026-01-31. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the stabilization of both Headline (-0.22 Z-score) and Core (-0.25 Z-score) inflation within historical norms. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Inflation remains above the 2% policy target, maintaining a floor under restrictive monetary policy expectations. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Momentum has flattened, with the PCE_Composite showing negligible change from the prior month (-0.234 vs -0.226). (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: A PCE_Composite move exceeding 0.75 would trigger a transition back to a Hot regime. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>The signal has shown high persistence, remaining in the Neutral regime for over 28 consecutive months. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued Neutral regime persistence as inflation levels oscillate slightly above the 2% target.</li>
+        <li>Upside risk: A re-acceleration in consumer demand or energy shocks pushing the composite toward the 0.75 "Hot" threshold.</li>
+        <li>Downside risk: Rapid labor market softening causing a transition toward the -0.75 "Cool" disinflationary threshold.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months), reflecting the typical lag in PCE data and central bank reaction functions.</li>
+        <li>Aggregation Weight Hint: Medium, as PCE is the Federal Reserve's primary inflation gauge but currently lacks trend momentum.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the pricing of real rates and the Federal Reserve's "higher for longer" policy stance.</li>
+        <li>Implies an economic transmission mechanism where residual labor market tightness sustains core inflation above target. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interacts with 10Y Breakeven Inflation and Unemployment rates to validate the sustainability of the current inflation path. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>Regime persistence is high; the signal has occupied the Neutral zone since September 2023. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+    <li>Direction of change: Stabilising within the Neutral band.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Subject to material BEA revisions and monthly reporting lags. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+    <li>Z-scores may be distorted by historical structural breaks in inflation volatility. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Policy-Relevant Inflation (PCE) Signal (2026-01-31). (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Most influential: PCE_Composite (-0.234) and CorePCE_YoY (3.06%). (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+        <li>Dallas Fed Trimmed Mean PCE and 10Y Breakeven Inflation Rates would improve reliability. (<a href="https://investoranatomy.com/signal_report/Policy_Relevant_Inflation_PCE/" target="_blank">1</a>)</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-cross_sector_positioning" aria-labelledby="tab-cross_sector_positioning" hidden><div class="panel-title">Cross Sector Positioning</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement (mandatory):</strong>
+            Given high speculative crowding and elevated commercial hedging in the Agricultural sector, this setup aligns with
+            Range-biased price paths and Elevated volatility,
+            where the dominant risk is Mean reversion, not Trend continuation. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)
+        </li>
+        <li>The signal identifies a localized regime of extreme positioning in Ags (61.5% crowding), while Energy, Metals, and FX sectors remain in a Neutral, uncrowded state. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating (imbalances growing); Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Speculative consensus is flagged as "Broad" when the <code>spec_crowded_long_share</code> exceeds 0.40, signaling reversal risk. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Defensive regimes are identified when <code>hedger_pressure_share</code> reaches 0.40, indicating systemic commercial hedging. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Cross-Sector Positioning (COT): Latest observation date 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the Agricultural sector, where <code>spec_crowded_long_share</code> (0.615) and <code>hedger_pressure_share</code> (0.692) are well above critical 0.40 thresholds. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>The <code>avg_spec_zscore</code> for Ags (1.41) suggests an outlier positioning state compared to other sectors like Rates (0.13) or Metals (0.09). (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Momentum in Ags imbalances is rising, having increased from 0.53 to 0.61 speculative crowding over the last week. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: A drop in Ags <code>spec_crowded_long_share</code> below 0.40 or a spike in <code>unwind_risk_share</code> above 0.30.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Mean reversion in Agricultural markets as speculative consensus reaches levels historically associated with trend exhaustion.</li>
+        <li>Upside secondary: Continued trend extension if commercial hedger pressure stabilizes without triggering an immediate liquidation.</li>
+        <li>Downside residual: Sharp systemic liquidation if adverse price action triggers "unwind risk" across the crowded Ags complex.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks) to Cyclical (months) due to the persistent nature of CoT positioning extremes.</li>
+        <li>Aggregation Weight Hint: High for Agricultural-related themes; Medium for general macro risk sentiment.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs global sentiment and liquidity dimensions by highlighting where capital is most concentrated and at risk of reversal.</li>
+        <li>Economic mechanism: Implies trend exhaustion and rising defensive commercial positioning, potentially signaling a peak in sector-specific demand.</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Typically interacts with volatility indices (VIX) and sector-specific pricing to confirm if positioning stress is translating into price action.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The Ags sector has been in a persistent "Crowded" regime for at least two weeks; other sectors are stable. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    <li>Direction of change: Strengthening imbalance (implying rising reversal risk) in Ags; stabilizing in Energy and Rates. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>CoT data is inherently lagged and may miss intra-week position shifts. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    <li>Sector mapping relies on heuristics which may overlook niche market dynamics. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Cross-Sector Positioning CoT dataset, latest date 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Most influential: Ags spec z-score (1.410) and hedger share (0.692). (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Recommended additions: Sector-specific volatility (IV) and realized momentum to validate the "Range-biased" outlook.</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-specs_vs_hedgers_divergence_reversal_risk" aria-labelledby="tab-specs_vs_hedgers_divergence_reversal_risk" hidden><div class="panel-title">Specs Vs Hedgers Divergence Reversal Risk</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a divergence share of 0.239 and a z-score of -1.26, this setup aligns with
+            Indeterminate price paths and Compressed volatility,
+            where the dominant risk is Trend continuation, not Regime shift. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)
+        </li>
+        <li>The signal remains in a Low Divergence regime, indicating high alignment between speculative narratives and commercial fundamentals. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A Robust Z-Score below -0.5 defines a Low Divergence regime. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Low values imply high probability of trend persistence or expansionary cycles. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>The signal measures the breadth of markets where speculators and hedgers hold opposing high-conviction positions. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Specs vs Hedgers Divergence: Reversal Risk, latest observation 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the low divergence count (89) relative to total markets (372). (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Momentum is currently normalizing as the z-score rises from -1.81 toward the -0.5 threshold. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Internal consensus is strong, with speculators and hedgers showing unusually high alignment across sectors. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: A move in the Macro Divergence Risk z-score above -0.5. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>The Low Divergence regime has persisted for over 15 weeks. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base case dominant: Continued trend persistence supported by high participant alignment.</li>
+        <li>Upside risk: Strengthening of the current expansion if alignment deepens further.</li>
+        <li>Downside risk: Emergence of internal market tension if speculative narratives detach from commercials.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks); reflects the reporting frequency of CoT data. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: High; extreme alignment suggests a robust macro consensus across futures markets.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs cross-asset positioning and sentiment by identifying potential structural instability. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>The current state implies that speculative flows are well-anchored by physical commercial activity. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interacts with volatility and flow momentum signals to confirm trend health. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The Low Divergence regime is persistent and long-standing. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    <li>The regime is weakening as the z-score trends toward the normal range. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>The signal is lagging due to Commitments of Traders reporting frequency. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    <li>Requires high-magnitude z-scores on both sides to trigger divergence flags. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>CoT-based divergence dataset, latest observation March 31, 2026. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Most influential data: divergence share and macro divergence risk z-score. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Additional metrics like the VIX and MOVE indices would improve risk context.</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-hedger_pressure_indicator" aria-labelledby="tab-hedger_pressure_indicator" hidden><div class="panel-title">Hedger Pressure Indicator</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a rise in the <strong>hedger_deep_long_count</strong> to 91 and the <strong>Hedger_ShortagePressure_z</strong> reaching 0.537, this setup aligns with <strong>Upward-biased</strong> price paths and <strong>Normal</strong> volatility, where the dominant risk is a <strong>Regime shift</strong>, not trend continuation. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)
+        </li>
+        <li>The signal has recently transitioned from a supply expansion phase into a <strong>Moderate Shortage / Stress</strong> regime. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Conviction Band: <strong>Low</strong>; Interpretation Confidence: <strong>Mixed Signals</strong>; Internal Conflict Flag: <strong>Yes</strong>. Signal Stability Assessment: <strong>Volatile</strong>; Threshold Proximity: <strong>Near</strong>; Revision Sensitivity: <strong>Unknown</strong>.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li><strong>Z-score Thresholds:</strong> Robust Z-scores > 0.75 denote moderate pressure and trend confirmation, while > 1.5 indicate extreme regimes or exhaustion. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li><strong>Shortage Bias:</strong> A Hedger Z-score &ge; 1.0 (Deep Long) signifies physical shortage or inventory stress, implying a bullish upward price bias. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li><strong>Supply Bias:</strong> A Hedger Z-score &le; -1.0 (Deep Short) indicates supply expansion or producer hedging, implying a bearish disinflationary bias. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Dataset: Hedger Pressure Indicator (Latest: 2026-03-31). (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the rotation toward <strong>Shortage Pressure</strong> (z = 0.537), though it currently remains below the methodology's 0.75 confirmation threshold. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>The signal shows <strong>regime instability</strong>, having flipped from "Moderate Supply Expansion" in February to "Moderate Shortage" in late March. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Internal Tension: The 2026-03-31 Z-score (0.537) is labeled "Moderate" despite the methodology requiring &gt; 0.75 for that classification. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: The <strong>Hedger_ShortagePressure_z</strong> falling below 0.0, neutralizing the current upward bias. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li><strong>Base Case dominant:</strong> Recent momentum suggests rising inventory stress among consumers will support price floors.</li>
+        <li><strong>Upside risk:</strong> A rapid spike in deep long counts (z > 1.5) triggers a physical scarcity-driven rally.</li>
+        <li><strong>Downside risk:</strong> A sudden expansion in producer hedging (Deep Shorts) reinstates the February disinflationary supply regime.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: <strong>Tactical (weeks)</strong> as CoT-derived commercial sentiment reflects near-term physical positioning and hedging cycles. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: <strong>Low</strong> due to the current conflict between numerical Z-scores and categorical regime labels.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the <strong>Supply/Demand Balance</strong> dimension of macro analysis. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Economic mechanism: <strong>Inventory stress</strong>; rising longs among commercial participants imply a shift toward inflationary/expansionary pressure. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Cycle position: <strong>Not determined</strong> by methodology.</li>
+        <li>Typically interacts with <strong>Speculative Crowding</strong> to identify contrarian reversal risks. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+        <li>Current regime is <strong>newly entered</strong> as of late March 2026. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Direction of change: <strong>Strengthening</strong> shortage pressure relative to the neutral readings in mid-March. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+        <li>CoT data is <strong>inherently lagging</strong> and may not reflect real-time physical inventory shifts. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Sensitivity to <strong>static thresholds</strong> (0.75/1.5) may delay regime classification during fast-moving market pivots. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Hedger Pressure Indicator (2026-03-31): <strong>hedger_deep_long_share</strong> (0.242) and <strong>Hedger_ShortagePressure_z</strong> (0.537). (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Recommended public datasets: LME Physical Inventory levels and Bloomberg Commodity Volatility Index.</li>
+    </ul>
+
+</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Clarify the discrepancy between the 0.75 threshold rule and the 'Moderate' regime label applied to a Z-score of 0.537 to resolve internal conflict.</li>
+</ul>
+--></div></div>
+<div class="panel" role="tabpanel" id="panel-squeeze_exhaustion_risk_indicators" aria-labelledby="tab-squeeze_exhaustion_risk_indicators" hidden><div class="panel-title">Squeeze Exhaustion Risk Indicators</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a Squeeze_z of -0.04 and an Exhaustion_z of 0.15, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is Mean reversion, not Regime shift.
+        </li>
+        <li>The signal currently occupies a Normal regime for both squeeze and exhaustion breadth (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No.</li>
+        <li>Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Low.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Z-scores below 0.5 define a Normal regime where tactical risks align with historical medians (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Exhaustion_z measures trend fatigue; values above 1.0 imply a high probability of trend reversal (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Squeeze_z measures forced covering risk; high breadth indicates vulnerability to flow-driven price spikes (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Dataset: CoT Tactical Breadth (Latest: 2026-03-31).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>Exhaustion breadth has stabilised following a peak of 0.94 on March 3 (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Squeeze risk has recovered from extreme lows (-0.98) to a neutral level (-0.04) (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>There are no internal tensions as both metrics confirm a lack of extreme tactical stress.</li>
+        <li>Conditional Invalidation: Any component z-score crossing above the 1.0 threshold for High Risk (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>The signal shows improving stability as it moves away from earlier "Moderate" risk levels.</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Current market trends persist without immediate flow-driven structural failure.</li>
+        <li>Upside secondary: Sustained low breadth signals clean positioning and potential for trend extensions.</li>
+        <li>Downside residual: Rapid rise in exhaustion breadth indicates widespread trend fatigue and reversal.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Tactical (weeks): The signal monitors short-term positioning fragility and trend maturity (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Low; current "Normal" readings suggest no immediate tactical headwind for macro trends.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the sentiment and positioning dimension of the macro complex (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Identifies potential for non-fundamental volatility driven by forced liquidation or momentum decay.</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interacts with VIX and Credit Spreads to confirm systemic or tactical stress regimes (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The Exhaustion regime transitioned from Moderate Risk back to Normal over the last three weeks (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+    <li>Direction of change: Stabilising at neutral levels following a period of moderate trend fatigue.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Sector-agnostic approach ignores potential concentration risks in specific asset classes (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+    <li>Reporting frequency for CoT data is inherently lagging.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Latest Data: 2026-03-31; influential datapoints: Squeeze_z (-0.04) and Exhaustion_z (0.15) (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Public datasets: VIX Index and MOVE Index for cross-confirmation of volatility regimes.</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-financial_stress_index_signal" aria-labelledby="tab-financial_stress_index_signal" hidden><div class="panel-title">Financial Stress Index Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a latest STLFSI4 value of -0.1828 and a robust Stress_z of 1.6231, this setup aligns with Downward-biased price paths and Elevated volatility, where the dominant risk is Regime shift as defined by the robust z-score exceeding the 0.5 bearish threshold. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)
+        </li>
+        <li>The signal is currently classified as Bearish, indicating elevated financial stress relative to historical averages despite a negative headline index level. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: Low Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A Bearish/Risk-off regime is triggered if STLFSI4 > 0 or the Robust Z-score > 0.5. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>A Bullish/Risk-on regime requires STLFSI4 < 0 and a Robust Z-score < -0.5. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Economic interpretation: Elevated z-scores signify tightening financial system conditions and increased funding stress. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Financial Stress Index (STLFSI4), latest observation: 2026-03-27. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The dominant driver is the sharp expansion in Stress_z (1.6231), which has consistently exceeded the 0.5 threshold since late February. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Momentum is currently deteriorating, with the z-score rising from 0.495 to 1.623 over the last six weeks. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: The Bearish interpretation would be invalidated if the robust z-score falls below 0.5. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Persistence: The signal has maintained a Bearish classification for five consecutive periods, suggesting a stable transition into a high-stress regime. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued Bearish regime persistence as systemic stress remains elevated.</li>
+        <li>Upside secondary: Mean reversion to a Neutral state if Stress_z compresses toward 0.5.</li>
+        <li>Downside residual: Rapid stress escalation toward crisis levels (z-scores > 2.0).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks); the signal utilizes a weekly reporting frequency for short-term risk monitoring. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: Low; Data timeliness cannot be assessed as no current comparison date was provided.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the Financial Stress dimension, specifically measuring risk aversion and funding liquidity. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Implied economic mechanism: Tightening conditions and systemic stress typically pressure cyclical assets and risk-seeking positioning. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interaction: This signal should be confirmed with liquidity (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">2</a>), credit (<a href="https://investoranatomy.com/signal_report/Credit_Conditions/" target="_blank">3</a>), and volatility (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">4</a>) indicators.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The current regime is a newly persistent Bearish state (duration: 5 weeks).</li>
+    <li>Direction of change: Strengthening stress levels as z-scores continue to trend away from neutral thresholds.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Potential for data staleness in sub-components such as the TED spread. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+    <li>Sensitivity to threshold whipsaws when the index is near the zero line. (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Latest Data Point: STLFSI4 at -0.1828 and Stress_z at 1.6231 (2026-03-27). (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Primary Influencer: Robust Z-score (Stress_z). (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Index/" target="_blank">1</a>)</li>
+        <li>Required External Data: Interbank funding spreads (TED Spread) and equity implied volatility (VIX). (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">4</a>)</li>
+    </ul>
+
+</div></div></div>
+<div class="panel" role="tabpanel" id="panel-financial_stress_composite_signal" aria-labelledby="tab-financial_stress_composite_signal" hidden><div class="panel-title">Financial Stress Composite Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement (mandatory):</strong>
+            Given a High Yield spread of 3.17 and a positive yield curve slope of 0.51, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is Mean reversion, not Regime shift (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).
+        </li>
+        <li>The signal currently occupies a Neutral regime, having moderated from a slight stress uptick in the previous month (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Low; Interpretation Confidence: Low Confidence; Internal Conflict Flag: Yes. State Signal Stability Assessment: Volatile; Threshold Proximity: Moderate; Revision Sensitivity: Moderate.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>A Composite value between -0.75 and 0.75 classifies the environment as Neutral, implying market stability and conditions aligned with historical norms (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Falling values in the composite indicate a transition toward risk-on and economic expansion (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Sub-component Z-scores for HY OAS and Yield Curve inversion are averaged to determine the aggregate stress regime (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Financial Stress Composite Signal (2026-04-30).</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the contraction in credit risk premia (Z_HY: -0.16) and a steepening yield curve (Z_INV: -0.50) (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Internal conflict is present due to missing STLFSI4 data for the latest observation, which reduces the reliability of the composite average.</li>
+        <li>Momentum has shifted lower from 0.15 to -0.33, suggesting a stabilization of funding conditions after brief March volatility (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A move in the composite above 0.75, signaling materially elevated funding strain (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Continued range-bound stability as components remain within one standard deviation of the mean.</li>
+        <li>Upside risk: Transition to a "Low Stress" regime if HY spreads compress further toward Z-scores below -1.0.</li>
+        <li>Downside risk: Spike into "High Stress" triggered by a sudden reversal in funding liquidity (STLFSI4).</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Cyclical (months); the signal uses monthly averages to smooth intra-month volatility.</li>
+        <li>Aggregation Weight Hint: Low; the absence of the STLFSI4 component in the latest print requires cautious weighting in broader composites.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>The signal informs the funding liquidity and credit risk dimensions of the macro environment (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Lower composite values imply reduced margin pressure and higher risk appetite in corporate credit markets (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The Neutral regime has been persistent for over 12 months, despite significant fluctuations in the underlying yield curve slope (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+    <li>Direction of change: Stabilising, as the composite returns toward the middle of the neutral band.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Monthly frequency may miss rapid intra-month liquidity shocks (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+    <li>Lagging nature of yield curve inversion as a real-time stress indicator (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Latest dataset observation: 2026-04-30 (<a href="https://investoranatomy.com/signal_report/Financial_Stress_Composite/" target="_blank">1</a>).</li>
+        <li>Most influential datapoints: HY_OAS (3.17) and T10Y2Y (0.51).</li>
+        <li>Public VIX and TED Spread data would improve the assessment of the missing liquidity component.</li>
+    </ul>
+
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>STLFSI4 data is missing for 2026-04-30. This is a primary driver of the composite and its absence forces a 'Low' conviction rating. Obtaining the St. Louis Fed Financial Stress Index for this period is required to resolve the internal conflict.</li>
+</ul>
+--></div></div>
+<div class="panel" role="tabpanel" id="panel-market_volatility_vix_signal" aria-labelledby="tab-market_volatility_vix_signal" hidden><div class="panel-title">Market Volatility VIX Signal</div><div class="panel-body"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a VIX of 23.87 and an MVS_z of 1.286, this setup aligns with
+            Downward-biased price paths and Elevated volatility,
+            where the dominant risk is Long liquidation, not mean reversion.
+        </li>
+        <li>The signal is currently in a STRESSED regime, characterized by high market fear and active liquidation (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Moderate; Revision Sensitivity: Low.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Regime Rule: An MVS z-score ≥ 1.0 or VIX ≥ 30 classifies the environment as STRESSED (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Risk Bias: Rising values signal a transition toward risk-off and market contraction (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Market Volatility (VIX) Signal: Latest observation 2026-04-02.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the MVS_z of 1.286, which remains well above the 1.0 threshold for systemic stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Momentum has stabilized after a severe peak in early March (MVS_z 3.15), suggesting persistent but non-accelerating fear (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A shift to CALM regime requires VIX &lt; 16 and MVS z-score &lt; 0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Signal Stability: The STRESSED regime has persisted since 2026-03-02, indicating a durable period of high uncertainty (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Persistent market stress and defensive positioning.</li>
+        <li>Upside risk: Transition to CRISIS (VIX ≥ 45) triggered by systemic liquidity pressure.</li>
+        <li>Downside risk: Mean reversion to ELEVATED (VIX &lt; 20) if downside hedging demand fades.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks); the VIX reflects short-term equity sentiment and tail-risk expectations (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: High; significant as a "probabilistic risk thermometer" for calibrating risk-on/off exposure (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>This signal informs the Sentiment and Risk Appetite macro dimensions (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: High readings indicate expanding volatility risk premiums, making downside protection expensive and tightening overall risk appetite (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interaction: Confirms risk-off when aligned with widening credit spreads and tightening liquidity (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>Regime is persistent; the signal has occupied the STRESSED zone for 31 days (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Direction of change: Stabilising at elevated levels after retreating from crisis-level peaks (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Month-end snapshots may miss intramonth volatility bursts (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Absolute VIX levels can undergo structural shifts over decades (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>Market Volatility (VIX) Signal: Latest 2026-04-02 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Most influential: MVS_z (1.285) and MVS_regime (STRESSED) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Additional data: ICE BofA High Yield Master II Option-Adjusted Spread would improve risk-off confirmation.</li>
+    </ul>
+
 </div></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Gold Market Analyst - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs.<br /><br />
+        All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions.<br /><br />
+        No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -696,6 +1869,9 @@ Positive scores favour adding exposure, negative scores favour trimming/reducing
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>

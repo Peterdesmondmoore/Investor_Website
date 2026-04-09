@@ -1,0 +1,3477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="images/Favicon.png" />
+  
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/auth-guard.js"></script>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #C4407C; /* Portfolio Characteristics (magenta) */
+      --accent-soft: rgba(196, 64, 124, 0.16);
+      --text-main: #f1f5f9; /* Signal white */
+      --text-soft: #94a3b8; /* Slate */
+      --border-subtle: #1f2937;
+      --danger: #ef4444; /* Hot z-score */
+      --positive: #3b82f6; /* Brand blue / cool */
+      --warn: #fbbf24;    /* Gold highlight */
+      --chip-bg: #020617;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 55%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: #64748b; /* default link (slate) */
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--warn); /* highlighted (gold) */
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(2, 6, 23, 0.96);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .home-link {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--chip-bg);
+      color: var(--text-soft);
+    }
+
+    .home-link:hover {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .page-header {
+      margin: 24px 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 3vw, 2.1rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      max-width: 640px;
+      font-size: 0.9rem;
+      color: var(--text-soft);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      align-items: center;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.75rem;
+      color: var(--warn);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .rule {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 0 0 18px;
+    }
+
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .box {
+      background: radial-gradient(circle at top left, var(--accent-soft), var(--card));
+      border-radius: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
+    }
+
+    .summary-box {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    .summary-box p {
+      margin: 0 0 0.8rem;
+    }
+
+    .summary-box ul,
+    .summary-box ol,
+    .market-report ul,
+    .market-report ol {
+      margin: 0 0 0.8rem 1.25rem;
+      padding-left: 1.25rem;
+      list-style: disc;
+    }
+
+    .summary-box li {
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-box {
+      text-align: center;
+    }
+
+    .chart-img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      background: #020617;
+    }
+
+    .chart-caption {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+    }
+
+    .details {
+      border: none;
+    }
+
+    .expand-summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0 10px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .expand-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .chevron {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      transition: transform 0.15s ease;
+    }
+
+    .details[open] .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-inner {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease;
+    }
+
+    .details[open] .expand-inner {
+      max-height: 2000px;
+    }
+
+    .expand-inner.open {
+      max-height: none;
+    }
+
+    .summary-box,
+    .table-box {
+      overflow-x: auto;
+    }
+
+    .table-box {
+      font-size: 0.8rem;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .market-report table,
+    .ia-gemini-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      border: 1px solid #d1d5db;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .market-report th,
+    .market-report td,
+    .ia-gemini-table th,
+    .ia-gemini-table td {
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      text-align: left;
+      white-space: nowrap;
+      color: #0f172a !important;
+      background: #ffffff;
+    }
+
+    .market-report th,
+    .ia-gemini-table th {
+      font-weight: 600;
+      font-size: 0.76rem;
+      background: #e5e7eb !important;
+    }
+
+    .market-report tbody tr:nth-child(even) td,
+    .ia-gemini-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .market-report table a,
+    .ia-gemini-table a {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    .market-report table a:hover,
+    .ia-gemini-table a:hover {
+      color: #1e40af;
+    }
+
+    iframe {
+      width: 100%;
+      min-height: 480px;
+      border: none;
+      border-radius: 12px;
+      background: #020617;
+    }
+
+    .methodology-button {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #f9fafb;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+      box-shadow: 0 10px 30px rgba(196, 64, 124, 0.35);
+    }
+
+    .methodology-button:hover {
+      background: #e11d48;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .disclaimer {
+      margin-top: 24px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <div>Copper ETF Flow Signal</div>
+    <a href="https://investoranatomy.com/" class="home-link">← Back to dashboard</a>
+  </div>
+</nav>
+
+<main class="container">
+  <header class="page-header">
+    <div class="title-block">
+      <h1>Copper ETF Flow Signal</h1>
+      <p class="subtitle">Approximate BlackRock copper and metals mining ETF flow monitor built from Historical shares outstanding data. This is a research proxy, not official issuer holdings flow.</p>
+    </div>
+    <div class="meta-row">
+      <div>As of 2026-04-02</div>
+      
+    </div>
+  </header>
+
+  <hr class="rule" />
+
+  <section class="section"><h2 class="section-title">Gemini Summary</h2><div class="box summary-box market-report"><div class="market-report">
+
+    <p style="margin-top:0.75rem;"></p>
+
+    <p><strong>Signal Summary:</strong></p>
+    <ul>
+        <li>
+            <strong>Configuration statement:</strong>
+            Given a Neutral <strong>flow_regime</strong>, a Distribution <strong>divergence_regime</strong>, and a negative -1.16 <strong>z_flow_20d</strong>, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is Mean reversion, not Trend continuation (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).
+        </li>
+        <li>The signal is currently in a persistent Neutral state following a significant exhaustion of the late-2025 inflow cycle (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: Yes. Signal Stability Assessment: Deteriorating; Threshold Proximity: Near; Revision Sensitivity: Low.</li>
+    </ul>
+
+    <p><strong>Methodology Applied:</strong></p>
+    <ul>
+        <li>Divergence regimes (e.g., "Distribution") identify instances where price action is unsupported by underlying share creation (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>Flow intensity bands (Neutral vs. Extreme) categorize the velocity of capital entry/exit relative to historical norms (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>The <strong>etf_flow_signal</strong> blends 20-day and 60-day flow z-scores to determine tactical regime strength (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>Copper ETF Flow Proxy: Latest observation 2026-04-02.</li>
+    </ul>
+
+    <p><strong>Key Dynamics:</strong></p>
+    <ul>
+        <li>The primary driver is the stall in <strong>Shares Outstanding</strong> at 8.5M since late March, ending a period of aggressive accumulation (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>Momentum has shifted from "Sustained Inflow" to "Mixed/Neutral" as 20-day flows turned negative (-150k shares) (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>Internal tension exists between the positive 60-day flow buffer and the immediate "Distribution" divergence (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A new <strong>flow_shock</strong> (True) or a move to "Strong Inflow" intensity.</li>
+        <li>Signal stability is deteriorating as the <strong>etf_flow_signal</strong> has declined from >2.0 to -0.63 in one month (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+    </ul>
+
+    <p><strong>Scenario Balance:</strong></p>
+    <ul>
+        <li>Base Case dominant: Sideways price consolidation as investor accumulation pauses.</li>
+        <li>Upside risk: Sudden "Inflow Shock" triggered by macro tailwinds or physical supply tightness.</li>
+        <li>Downside risk: Transition to "Distribution" regime leading to active liquidation of shares outstanding.</li>
+    </ul>
+
+    <p><strong>Time Horizon & Aggregation:</strong></p>
+    <ul>
+        <li>Time Horizon: Tactical (weeks); reflects short-term shifts in retail and institutional sentiment via ETF vehicles.</li>
+        <li>Aggregation Weight Hint: Medium; serves as a confirmation tool for broader positioning signals.</li>
+    </ul>
+
+    <p><strong>Macro Relevance:</strong></p>
+    <ul>
+        <li>Informs the <strong>liquidity and sentiment</strong> dimension of the copper market (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>The economic mechanism is <strong>capital flow intensity</strong>; declining flows imply fading demand impulse from financial investors.</li>
+        <li>Cycle position: Late-stage expansion/stalling (not determined by methodology).</li>
+        <li>Typically interacts with CoT positioning to identify when "paper" demand decouples from physical indicators.</li>
+    </ul>
+
+    <p><strong>Regime Context:</strong></p>
+    <ul>
+    <li>The regime has stabilized in "Neutral" for 10 sessions following a rapid weakening of the "Strong Inflow" phase.</li>
+    <li>Direction of change: Weakening/Stabilizing.</li>
+    </ul>
+
+    <p><strong>Model Limitations:</strong></p>
+    <ul>
+    <li>Flows are approximated from shares outstanding and may not capture intra-day liquidity nuances.</li>
+    <li>Prior-day NAV pricing creates a minor lag in USD flow calculations.</li>
+    </ul>
+
+    <p><strong>Data & References:</strong></p>
+    <ul>
+        <li>BlackRock/iShares Copper ETF Proxy data: 2026-04-02 (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>Most influential: <strong>z_flow_20d</strong> (-1.17) and <strong>divergence_regime</strong> (Distribution) (<a href="https://investoranatomy.com/signal_report/Copper_ETF_Flow_Signal.html" target="_blank">1</a>).</li>
+        <li>COMEX Copper Futures Positioning (CoT) and Physical Warehouse Stock levels.</li>
+    </ul>
+
+</div></div></section>
+
+<section class="section"><h2 class="section-title">Copper ETF Flow</h2><div class="box chart-box"><img src="/images/copper_etf_flow_signal_chart.png" alt="Signal chart" class="chart-img" /><p class="chart-caption">Approximate flow signal derived from BlackRock copper ETF shares outstanding and NAV per share.</p></div></section>
+
+<section class="section"><details class="details"><summary class="expand-summary"><span>Historical Holdings + Flow Signal Table</span><span class="chevron">▸</span></summary><div class="expand-inner"><div class="box table-box market-report"><table class="dataframe ia-gemini-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>As Of</th>
+      <th>NAV per Share</th>
+      <th>Ex-Dividends</th>
+      <th>Shares Outstanding</th>
+      <th>flow_shares</th>
+      <th>flow_usd</th>
+      <th>flow_normalized</th>
+      <th>flow_pct</th>
+      <th>flow_20d</th>
+      <th>flow_60d</th>
+      <th>z_flow_20d</th>
+      <th>z_flow_60d</th>
+      <th>z_accel</th>
+      <th>z_price_20d</th>
+      <th>etf_flow_signal_base</th>
+      <th>etf_flow_signal</th>
+      <th>flow_intensity_band</th>
+      <th>flow_regime</th>
+      <th>flow_persistence_score</th>
+      <th>flow_persistence_regime</th>
+      <th>divergence</th>
+      <th>divergence_regime</th>
+      <th>flow_shock</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2025-10-17</td>
+      <td>38.197222</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>1.779006</td>
+      <td>-0.119027</td>
+      <td>-0.222031</td>
+      <td>0.577425</td>
+      <td>0.693904</td>
+      <td>0.693904</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.201581</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-20</td>
+      <td>38.876066</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>2.007136</td>
+      <td>-0.102735</td>
+      <td>-2.188898</td>
+      <td>0.597388</td>
+      <td>0.415490</td>
+      <td>0.498588</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.409748</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-10-21</td>
+      <td>37.552599</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>1.917026</td>
+      <td>-0.086245</td>
+      <td>-2.113164</td>
+      <td>-0.060289</td>
+      <td>0.522064</td>
+      <td>0.522064</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.977315</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-22</td>
+      <td>37.256437</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>1.835387</td>
+      <td>-0.069535</td>
+      <td>-3.573520</td>
+      <td>-0.505196</td>
+      <td>0.283168</td>
+      <td>0.283168</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.340583</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-23</td>
+      <td>37.740239</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>1.760882</td>
+      <td>-0.052581</td>
+      <td>-3.192515</td>
+      <td>-0.362020</td>
+      <td>0.298568</td>
+      <td>0.298568</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.122902</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-24</td>
+      <td>37.758503</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>1.692451</td>
+      <td>-0.035359</td>
+      <td>-1.562354</td>
+      <td>-0.681302</td>
+      <td>0.659407</td>
+      <td>0.659407</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.373753</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-27</td>
+      <td>37.764095</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>1.629242</td>
+      <td>-0.017842</td>
+      <td>-0.777105</td>
+      <td>-1.389005</td>
+      <td>0.931648</td>
+      <td>0.931648</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>3.018247</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-28</td>
+      <td>38.168258</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>350000.0</td>
+      <td>1.570561</td>
+      <td>0.000000</td>
+      <td>-0.760547</td>
+      <td>-1.458943</td>
+      <td>0.924960</td>
+      <td>0.924960</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>3.029504</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-29</td>
+      <td>38.899049</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>350000.0</td>
+      <td>1.007741</td>
+      <td>0.018199</td>
+      <td>0.000000</td>
+      <td>-1.089239</td>
+      <td>0.727178</td>
+      <td>0.727178</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.096980</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-30</td>
+      <td>38.630562</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>350000.0</td>
+      <td>0.976872</td>
+      <td>0.036790</td>
+      <td>0.000000</td>
+      <td>-1.310578</td>
+      <td>0.761589</td>
+      <td>0.761589</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.287451</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-10-31</td>
+      <td>38.409406</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>350000.0</td>
+      <td>0.947002</td>
+      <td>0.055813</td>
+      <td>0.000000</td>
+      <td>-1.708983</td>
+      <td>0.832041</td>
+      <td>0.832041</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.655984</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-03</td>
+      <td>37.858662</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>350000.0</td>
+      <td>0.918044</td>
+      <td>0.075311</td>
+      <td>0.000000</td>
+      <td>-1.849427</td>
+      <td>0.851501</td>
+      <td>0.851501</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.767472</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-04</td>
+      <td>36.448119</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>350000.0</td>
+      <td>0.889925</td>
+      <td>0.095332</td>
+      <td>0.000000</td>
+      <td>-2.389399</td>
+      <td>0.951442</td>
+      <td>0.951442</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>3.279323</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-05</td>
+      <td>37.376923</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>350000.0</td>
+      <td>0.862572</td>
+      <td>0.115929</td>
+      <td>0.000000</td>
+      <td>-2.337416</td>
+      <td>0.933548</td>
+      <td>0.933548</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>3.199988</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-06</td>
+      <td>37.709026</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>350000.0</td>
+      <td>0.833605</td>
+      <td>0.137165</td>
+      <td>0.000000</td>
+      <td>-2.022235</td>
+      <td>0.862399</td>
+      <td>0.862399</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.855840</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-07</td>
+      <td>38.009446</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>100000.0</td>
+      <td>350000.0</td>
+      <td>-0.211396</td>
+      <td>0.159107</td>
+      <td>0.000000</td>
+      <td>-1.259099</td>
+      <td>0.193854</td>
+      <td>0.193854</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.047703</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-10</td>
+      <td>38.923789</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>50000.0</td>
+      <td>350000.0</td>
+      <td>-0.724491</td>
+      <td>0.181834</td>
+      <td>0.000000</td>
+      <td>-1.529048</td>
+      <td>-0.001886</td>
+      <td>-0.001886</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.804557</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-11</td>
+      <td>39.050994</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>50000.0</td>
+      <td>350000.0</td>
+      <td>-0.738773</td>
+      <td>0.205434</td>
+      <td>0.000000</td>
+      <td>-1.359740</td>
+      <td>-0.035808</td>
+      <td>-0.035808</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.620967</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-12</td>
+      <td>39.621600</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.230011</td>
+      <td>0.000000</td>
+      <td>-1.292701</td>
+      <td>-0.290717</td>
+      <td>-0.290717</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.056179</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-13</td>
+      <td>38.740533</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.255683</td>
+      <td>0.000000</td>
+      <td>-1.743339</td>
+      <td>-0.192888</td>
+      <td>-0.192888</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.506818</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-14</td>
+      <td>38.460489</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.282591</td>
+      <td>0.000000</td>
+      <td>-1.389840</td>
+      <td>-0.255516</td>
+      <td>-0.255516</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.153318</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-17</td>
+      <td>37.785107</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.310897</td>
+      <td>0.000000</td>
+      <td>-1.962696</td>
+      <td>-0.132453</td>
+      <td>-0.132453</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.726174</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-18</td>
+      <td>37.243914</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.324388</td>
+      <td>0.000000</td>
+      <td>-1.544343</td>
+      <td>-0.212076</td>
+      <td>-0.212076</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.307821</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-19</td>
+      <td>37.618156</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.338144</td>
+      <td>0.000000</td>
+      <td>-1.182609</td>
+      <td>-0.280296</td>
+      <td>-0.280296</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.053913</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-20</td>
+      <td>36.314616</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.352179</td>
+      <td>0.000000</td>
+      <td>-1.925156</td>
+      <td>-0.127576</td>
+      <td>-0.127576</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.688634</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-21</td>
+      <td>36.895554</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>-1.598749</td>
+      <td>-0.188558</td>
+      <td>-0.188558</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.362227</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-24</td>
+      <td>37.848488</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>-1.136016</td>
+      <td>-0.281105</td>
+      <td>-0.281105</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.100506</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-25</td>
+      <td>38.399563</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>-1.038690</td>
+      <td>-0.300570</td>
+      <td>-0.300570</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.197832</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-26</td>
+      <td>39.316370</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>-0.930129</td>
+      <td>-0.322282</td>
+      <td>-0.322282</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.306392</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-27</td>
+      <td>39.316370</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>-0.793125</td>
+      <td>-0.349683</td>
+      <td>-0.349683</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.443397</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-11-28</td>
+      <td>39.952214</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>-0.414177</td>
+      <td>-0.425473</td>
+      <td>-0.425473</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.822345</td>
+      <td>Distribution</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-01</td>
+      <td>40.262042</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>-0.023697</td>
+      <td>-0.503569</td>
+      <td>-0.503569</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-1.212825</td>
+      <td>Distribution</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-02</td>
+      <td>40.208363</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>0.618183</td>
+      <td>-0.631945</td>
+      <td>-0.631945</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-1.854705</td>
+      <td>Distribution</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-03</td>
+      <td>41.403991</td>
+      <td>0.298758</td>
+      <td>2700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>350000.0</td>
+      <td>-1.236522</td>
+      <td>0.366510</td>
+      <td>0.000000</td>
+      <td>0.677093</td>
+      <td>-0.643727</td>
+      <td>-0.643727</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-1.913615</td>
+      <td>Distribution</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-04</td>
+      <td>41.618201</td>
+      <td>0.298758</td>
+      <td>2850000.0</td>
+      <td>150000.0</td>
+      <td>6.210599e+06</td>
+      <td>0.057288</td>
+      <td>0.055556</td>
+      <td>150000.0</td>
+      <td>450000.0</td>
+      <td>0.214760</td>
+      <td>1.702099</td>
+      <td>2.173352</td>
+      <td>0.607802</td>
+      <td>0.931120</td>
+      <td>0.931120</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.393042</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-05</td>
+      <td>41.751674</td>
+      <td>0.298758</td>
+      <td>2850000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>150000.0</td>
+      <td>450000.0</td>
+      <td>0.200396</td>
+      <td>1.665100</td>
+      <td>2.076528</td>
+      <td>0.520327</td>
+      <td>0.910968</td>
+      <td>0.910968</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.319931</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-08</td>
+      <td>41.266757</td>
+      <td>0.298758</td>
+      <td>2850000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>150000.0</td>
+      <td>450000.0</td>
+      <td>0.185969</td>
+      <td>1.629773</td>
+      <td>1.989185</td>
+      <td>-0.089883</td>
+      <td>0.997730</td>
+      <td>0.997730</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.275852</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-09</td>
+      <td>41.391056</td>
+      <td>0.298758</td>
+      <td>2900000.0</td>
+      <td>50000.0</td>
+      <td>2.063338e+06</td>
+      <td>0.018927</td>
+      <td>0.017544</td>
+      <td>200000.0</td>
+      <td>500000.0</td>
+      <td>0.631783</td>
+      <td>2.186795</td>
+      <td>2.502455</td>
+      <td>-0.076660</td>
+      <td>1.487753</td>
+      <td>1.487753</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.708442</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-10</td>
+      <td>42.206108</td>
+      <td>0.298758</td>
+      <td>3050000.0</td>
+      <td>150000.0</td>
+      <td>6.208658e+06</td>
+      <td>0.056550</td>
+      <td>0.051724</td>
+      <td>350000.0</td>
+      <td>650000.0</td>
+      <td>1.913716</td>
+      <td>3.586406</td>
+      <td>3.809348</td>
+      <td>0.025937</td>
+      <td>2.789462</td>
+      <td>2.789462</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.887778</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2025-12-11</td>
+      <td>43.047013</td>
+      <td>0.298758</td>
+      <td>3100000.0</td>
+      <td>50000.0</td>
+      <td>2.110305e+06</td>
+      <td>0.018773</td>
+      <td>0.016393</td>
+      <td>400000.0</td>
+      <td>650000.0</td>
+      <td>2.199941</td>
+      <td>3.258095</td>
+      <td>0.961217</td>
+      <td>0.787646</td>
+      <td>2.112114</td>
+      <td>2.534536</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.412296</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-12</td>
+      <td>42.472297</td>
+      <td>0.298758</td>
+      <td>3150001.0</td>
+      <td>50001.0</td>
+      <td>2.152394e+06</td>
+      <td>0.018692</td>
+      <td>0.016129</td>
+      <td>450001.0</td>
+      <td>700001.0</td>
+      <td>2.422481</td>
+      <td>3.384915</td>
+      <td>1.465580</td>
+      <td>0.665089</td>
+      <td>2.386813</td>
+      <td>2.864176</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.757391</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-15</td>
+      <td>42.655853</td>
+      <td>0.298758</td>
+      <td>3250000.0</td>
+      <td>99999.0</td>
+      <td>4.247187e+06</td>
+      <td>0.037197</td>
+      <td>0.031746</td>
+      <td>550000.0</td>
+      <td>800000.0</td>
+      <td>2.884472</td>
+      <td>3.750182</td>
+      <td>2.392185</td>
+      <td>1.058731</td>
+      <td>2.833981</td>
+      <td>3.400777</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.825741</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-16</td>
+      <td>41.753526</td>
+      <td>0.592989</td>
+      <td>3250000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>550000.0</td>
+      <td>800000.0</td>
+      <td>2.655744</td>
+      <td>3.338118</td>
+      <td>1.303259</td>
+      <td>0.916295</td>
+      <td>2.406700</td>
+      <td>2.888040</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.739449</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-17</td>
+      <td>42.076885</td>
+      <td>0.592989</td>
+      <td>3350000.0</td>
+      <td>100000.0</td>
+      <td>4.175353e+06</td>
+      <td>0.036810</td>
+      <td>0.030769</td>
+      <td>650000.0</td>
+      <td>900000.0</td>
+      <td>2.973554</td>
+      <td>3.574680</td>
+      <td>-0.742758</td>
+      <td>0.870770</td>
+      <td>2.236475</td>
+      <td>2.683770</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>2.102784</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-18</td>
+      <td>42.363981</td>
+      <td>0.592989</td>
+      <td>3350000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>650000.0</td>
+      <td>900000.0</td>
+      <td>2.727589</td>
+      <td>3.206281</td>
+      <td>-0.240074</td>
+      <td>1.614263</td>
+      <td>1.954811</td>
+      <td>2.345774</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.113326</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-19</td>
+      <td>42.799310</td>
+      <td>0.592989</td>
+      <td>3450000.0</td>
+      <td>100000.0</td>
+      <td>4.236398e+06</td>
+      <td>0.036386</td>
+      <td>0.029851</td>
+      <td>750000.0</td>
+      <td>1000000.0</td>
+      <td>2.949341</td>
+      <td>3.384738</td>
+      <td>-0.249763</td>
+      <td>1.477067</td>
+      <td>2.144726</td>
+      <td>2.573671</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.472273</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-22</td>
+      <td>43.980410</td>
+      <td>0.592989</td>
+      <td>3450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>750000.0</td>
+      <td>1000000.0</td>
+      <td>2.708324</td>
+      <td>3.061516</td>
+      <td>-2.203940</td>
+      <td>1.500773</td>
+      <td>1.531674</td>
+      <td>1.838009</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.207551</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-23</td>
+      <td>44.682486</td>
+      <td>0.592989</td>
+      <td>3500000.0</td>
+      <td>50000.0</td>
+      <td>2.199020e+06</td>
+      <td>0.017969</td>
+      <td>0.014493</td>
+      <td>800000.0</td>
+      <td>1050000.0</td>
+      <td>2.692712</td>
+      <td>3.010595</td>
+      <td>-1.191824</td>
+      <td>1.523753</td>
+      <td>1.706419</td>
+      <td>2.047703</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.168959</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-24</td>
+      <td>44.548390</td>
+      <td>0.592989</td>
+      <td>3500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>800000.0</td>
+      <td>1000000.0</td>
+      <td>2.499010</td>
+      <td>2.567986</td>
+      <td>-1.622804</td>
+      <td>1.044641</td>
+      <td>1.486412</td>
+      <td>1.783694</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.454369</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-25</td>
+      <td>44.548390</td>
+      <td>0.592989</td>
+      <td>3500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>800000.0</td>
+      <td>1000000.0</td>
+      <td>2.336320</td>
+      <td>2.402520</td>
+      <td>-1.105741</td>
+      <td>1.056077</td>
+      <td>1.456553</td>
+      <td>1.747863</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.280243</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-26</td>
+      <td>44.909900</td>
+      <td>0.592989</td>
+      <td>3700000.0</td>
+      <td>200000.0</td>
+      <td>8.909678e+06</td>
+      <td>0.070526</td>
+      <td>0.057143</td>
+      <td>1000000.0</td>
+      <td>1200000.0</td>
+      <td>2.806539</td>
+      <td>2.971792</td>
+      <td>-0.611109</td>
+      <td>0.928273</td>
+      <td>1.986931</td>
+      <td>2.384317</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.878266</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-29</td>
+      <td>44.165168</td>
+      <td>0.592989</td>
+      <td>3700000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1000000.0</td>
+      <td>1200000.0</td>
+      <td>2.592330</td>
+      <td>2.736993</td>
+      <td>0.341274</td>
+      <td>0.508818</td>
+      <td>2.083754</td>
+      <td>2.500505</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>2.083512</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-30</td>
+      <td>44.423593</td>
+      <td>0.029497</td>
+      <td>3850000.0</td>
+      <td>150000.0</td>
+      <td>6.624775e+06</td>
+      <td>0.052113</td>
+      <td>0.040541</td>
+      <td>1150000.0</td>
+      <td>1350000.0</td>
+      <td>2.788188</td>
+      <td>3.000682</td>
+      <td>0.805800</td>
+      <td>0.648717</td>
+      <td>2.325715</td>
+      <td>2.790858</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>2.139470</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2025-12-31</td>
+      <td>44.236612</td>
+      <td>0.029497</td>
+      <td>3950000.0</td>
+      <td>100000.0</td>
+      <td>4.442359e+06</td>
+      <td>0.034453</td>
+      <td>0.025974</td>
+      <td>1250000.0</td>
+      <td>1450000.0</td>
+      <td>2.797292</td>
+      <td>3.036344</td>
+      <td>2.507233</td>
+      <td>0.079606</td>
+      <td>2.795075</td>
+      <td>3.354090</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>2.717686</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-01</td>
+      <td>44.236612</td>
+      <td>0.029497</td>
+      <td>3950000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1100000.0</td>
+      <td>1450000.0</td>
+      <td>2.125137</td>
+      <td>2.793926</td>
+      <td>2.343911</td>
+      <td>0.006524</td>
+      <td>2.368224</td>
+      <td>2.841868</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>2.118612</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-02</td>
+      <td>44.791115</td>
+      <td>0.029497</td>
+      <td>4100000.0</td>
+      <td>150000.0</td>
+      <td>6.635492e+06</td>
+      <td>0.050819</td>
+      <td>0.037975</td>
+      <td>1250000.0</td>
+      <td>1500000.0</td>
+      <td>2.322680</td>
+      <td>2.712969</td>
+      <td>1.034025</td>
+      <td>0.178856</td>
+      <td>2.146264</td>
+      <td>2.575517</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>2.143824</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-05</td>
+      <td>46.471255</td>
+      <td>0.029497</td>
+      <td>4100000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1250000.0</td>
+      <td>1450000.0</td>
+      <td>2.186438</td>
+      <td>2.397214</td>
+      <td>1.020945</td>
+      <td>1.075969</td>
+      <td>1.801378</td>
+      <td>2.161654</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.110469</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-06</td>
+      <td>47.695916</td>
+      <td>0.029497</td>
+      <td>4100000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1200000.0</td>
+      <td>1450000.0</td>
+      <td>1.934117</td>
+      <td>2.251242</td>
+      <td>-1.056185</td>
+      <td>1.489252</td>
+      <td>1.133344</td>
+      <td>1.133344</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.444865</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-07</td>
+      <td>46.809087</td>
+      <td>0.029497</td>
+      <td>4350000.0</td>
+      <td>250000.0</td>
+      <td>1.192398e+07</td>
+      <td>0.082576</td>
+      <td>0.060976</td>
+      <td>1300000.0</td>
+      <td>1650000.0</td>
+      <td>1.914003</td>
+      <td>2.572718</td>
+      <td>-0.610956</td>
+      <td>0.784723</td>
+      <td>1.449681</td>
+      <td>1.449681</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.129280</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-08</td>
+      <td>46.405178</td>
+      <td>0.029497</td>
+      <td>4550000.0</td>
+      <td>200000.0</td>
+      <td>9.361817e+06</td>
+      <td>0.065395</td>
+      <td>0.045977</td>
+      <td>1450000.0</td>
+      <td>1850000.0</td>
+      <td>2.036772</td>
+      <td>2.809110</td>
+      <td>1.111719</td>
+      <td>0.288548</td>
+      <td>2.025753</td>
+      <td>2.430904</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.748224</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-09</td>
+      <td>47.391851</td>
+      <td>0.029497</td>
+      <td>4550000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1399999.0</td>
+      <td>1850000.0</td>
+      <td>1.822131</td>
+      <td>2.596684</td>
+      <td>0.243803</td>
+      <td>0.932858</td>
+      <td>1.552259</td>
+      <td>1.552259</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.889272</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-12</td>
+      <td>48.527910</td>
+      <td>0.029497</td>
+      <td>4800000.0</td>
+      <td>250000.0</td>
+      <td>1.184796e+07</td>
+      <td>0.080021</td>
+      <td>0.054945</td>
+      <td>1550000.0</td>
+      <td>2100000.0</td>
+      <td>1.898699</td>
+      <td>2.868393</td>
+      <td>2.254313</td>
+      <td>1.288512</td>
+      <td>2.003027</td>
+      <td>2.003027</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.610187</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-13</td>
+      <td>48.706768</td>
+      <td>0.029497</td>
+      <td>4900000.0</td>
+      <td>100000.0</td>
+      <td>4.852791e+06</td>
+      <td>0.031637</td>
+      <td>0.020833</td>
+      <td>1650000.0</td>
+      <td>2200000.0</td>
+      <td>1.946529</td>
+      <td>2.810225</td>
+      <td>3.731934</td>
+      <td>1.708240</td>
+      <td>2.221071</td>
+      <td>2.221071</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.238289</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-14</td>
+      <td>49.806510</td>
+      <td>0.029497</td>
+      <td>5300000.0</td>
+      <td>400000.0</td>
+      <td>1.948271e+07</td>
+      <td>0.124837</td>
+      <td>0.081633</td>
+      <td>1950000.0</td>
+      <td>2600000.0</td>
+      <td>2.170549</td>
+      <td>3.195107</td>
+      <td>3.357392</td>
+      <td>1.894932</td>
+      <td>2.336299</td>
+      <td>2.803558</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.275617</td>
+      <td>Neutral</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-15</td>
+      <td>49.800350</td>
+      <td>0.029497</td>
+      <td>5550000.0</td>
+      <td>250000.0</td>
+      <td>1.245163e+07</td>
+      <td>0.076884</td>
+      <td>0.047170</td>
+      <td>2200000.0</td>
+      <td>2850000.0</td>
+      <td>2.328707</td>
+      <td>3.236237</td>
+      <td>2.235163</td>
+      <td>1.690762</td>
+      <td>2.244105</td>
+      <td>2.692926</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.637945</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-16</td>
+      <td>49.190667</td>
+      <td>0.029497</td>
+      <td>5750000.0</td>
+      <td>200000.0</td>
+      <td>9.960070e+06</td>
+      <td>0.060560</td>
+      <td>0.036036</td>
+      <td>2300000.0</td>
+      <td>3050000.0</td>
+      <td>2.224401</td>
+      <td>3.178976</td>
+      <td>3.873248</td>
+      <td>1.239647</td>
+      <td>2.592614</td>
+      <td>3.111136</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.984754</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-19</td>
+      <td>49.190667</td>
+      <td>0.029497</td>
+      <td>5750000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2300000.0</td>
+      <td>3050000.0</td>
+      <td>2.099103</td>
+      <td>2.893714</td>
+      <td>0.968388</td>
+      <td>0.738248</td>
+      <td>1.963693</td>
+      <td>2.356432</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.360855</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-20</td>
+      <td>49.892125</td>
+      <td>0.029497</td>
+      <td>5900000.0</td>
+      <td>150000.0</td>
+      <td>7.378600e+06</td>
+      <td>0.044031</td>
+      <td>0.026087</td>
+      <td>2400000.0</td>
+      <td>3200000.0</td>
+      <td>2.049790</td>
+      <td>2.828307</td>
+      <td>0.659038</td>
+      <td>0.685017</td>
+      <td>1.868191</td>
+      <td>2.241830</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.364773</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-21</td>
+      <td>50.842803</td>
+      <td>0.029497</td>
+      <td>5900000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2400000.0</td>
+      <td>3200000.0</td>
+      <td>1.945097</td>
+      <td>2.613316</td>
+      <td>-2.344813</td>
+      <td>1.033035</td>
+      <td>1.080974</td>
+      <td>1.080974</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.912062</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-22</td>
+      <td>49.973052</td>
+      <td>0.029497</td>
+      <td>6000000.0</td>
+      <td>100000.0</td>
+      <td>5.084280e+06</td>
+      <td>0.028450</td>
+      <td>0.016949</td>
+      <td>2500000.0</td>
+      <td>3300000.0</td>
+      <td>1.936105</td>
+      <td>2.534060</td>
+      <td>-3.099343</td>
+      <td>0.709176</td>
+      <td>0.966567</td>
+      <td>0.966567</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.226929</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-23</td>
+      <td>51.740896</td>
+      <td>0.029497</td>
+      <td>6250000.0</td>
+      <td>250000.0</td>
+      <td>1.249326e+07</td>
+      <td>0.069946</td>
+      <td>0.041667</td>
+      <td>2550000.0</td>
+      <td>3550000.0</td>
+      <td>1.767616</td>
+      <td>2.602816</td>
+      <td>-3.396651</td>
+      <td>1.135933</td>
+      <td>0.758136</td>
+      <td>0.758136</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.631683</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-26</td>
+      <td>52.889992</td>
+      <td>0.029497</td>
+      <td>6450000.0</td>
+      <td>200000.0</td>
+      <td>1.034818e+07</td>
+      <td>0.054995</td>
+      <td>0.032000</td>
+      <td>2750000.0</td>
+      <td>3750000.0</td>
+      <td>1.843911</td>
+      <td>2.603202</td>
+      <td>-1.341874</td>
+      <td>1.754965</td>
+      <td>1.083548</td>
+      <td>1.083548</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>0.088945</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-27</td>
+      <td>54.091272</td>
+      <td>0.029497</td>
+      <td>6800000.0</td>
+      <td>350000.0</td>
+      <td>1.851150e+07</td>
+      <td>0.094467</td>
+      <td>0.054264</td>
+      <td>2950000.0</td>
+      <td>4100000.0</td>
+      <td>1.824071</td>
+      <td>2.716626</td>
+      <td>-0.670494</td>
+      <td>1.975330</td>
+      <td>1.197858</td>
+      <td>1.197858</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>-0.151260</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-01-28</td>
+      <td>54.747260</td>
+      <td>0.029497</td>
+      <td>7450000.0</td>
+      <td>650000.0</td>
+      <td>3.515933e+07</td>
+      <td>0.171768</td>
+      <td>0.095588</td>
+      <td>3500000.0</td>
+      <td>4750000.0</td>
+      <td>2.055077</td>
+      <td>3.011659</td>
+      <td>3.456004</td>
+      <td>2.174553</td>
+      <td>2.187326</td>
+      <td>2.624792</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>-0.119476</td>
+      <td>Neutral</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-29</td>
+      <td>55.671397</td>
+      <td>0.029497</td>
+      <td>7600000.0</td>
+      <td>150000.0</td>
+      <td>8.212089e+06</td>
+      <td>0.038801</td>
+      <td>0.020134</td>
+      <td>3650000.0</td>
+      <td>4900000.0</td>
+      <td>2.037309</td>
+      <td>2.866628</td>
+      <td>3.655982</td>
+      <td>2.351755</td>
+      <td>2.139489</td>
+      <td>2.567386</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>-0.314445</td>
+      <td>Neutral</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-01-30</td>
+      <td>51.268210</td>
+      <td>0.029497</td>
+      <td>7850000.0</td>
+      <td>250000.0</td>
+      <td>1.391785e+07</td>
+      <td>0.063264</td>
+      <td>0.032895</td>
+      <td>3750000.0</td>
+      <td>5150000.0</td>
+      <td>1.915725</td>
+      <td>2.809196</td>
+      <td>3.122612</td>
+      <td>0.691948</td>
+      <td>2.286754</td>
+      <td>2.286754</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.223777</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-02</td>
+      <td>51.299395</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>650000.0</td>
+      <td>3.332434e+07</td>
+      <td>0.160560</td>
+      <td>0.082803</td>
+      <td>4400000.0</td>
+      <td>5800000.0</td>
+      <td>2.167119</td>
+      <td>2.991345</td>
+      <td>3.429491</td>
+      <td>0.079803</td>
+      <td>2.650901</td>
+      <td>3.181081</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>2.087316</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-02-03</td>
+      <td>54.535256</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>4400000.0</td>
+      <td>5800000.0</td>
+      <td>2.055202</td>
+      <td>2.747046</td>
+      <td>1.797880</td>
+      <td>0.635010</td>
+      <td>2.084289</td>
+      <td>2.501147</td>
+      <td>Extreme Inflow</td>
+      <td>Extreme Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.420192</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-02-04</td>
+      <td>52.861484</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>4150000.0</td>
+      <td>5800000.0</td>
+      <td>1.718676</td>
+      <td>2.548008</td>
+      <td>-1.688740</td>
+      <td>0.402021</td>
+      <td>1.205588</td>
+      <td>1.205588</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>1.000000</td>
+      <td>Sustained Inflow</td>
+      <td>1.316655</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-05</td>
+      <td>50.123640</td>
+      <td>0.029497</td>
+      <td>8400000.0</td>
+      <td>-100000.0</td>
+      <td>-5.286148e+06</td>
+      <td>-0.023059</td>
+      <td>-0.011765</td>
+      <td>3850000.0</td>
+      <td>5700000.0</td>
+      <td>1.421582</td>
+      <td>2.328300</td>
+      <td>-2.337314</td>
+      <td>-0.370624</td>
+      <td>1.015943</td>
+      <td>1.015943</td>
+      <td>Strong Inflow</td>
+      <td>Strong Inflow</td>
+      <td>0.875000</td>
+      <td>Sustained Inflow</td>
+      <td>1.792206</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-06</td>
+      <td>51.715199</td>
+      <td>0.029497</td>
+      <td>8400000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>3850000.0</td>
+      <td>5700000.0</td>
+      <td>1.373067</td>
+      <td>2.193043</td>
+      <td>-2.734928</td>
+      <td>-0.225311</td>
+      <td>0.842523</td>
+      <td>0.842523</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>0.857143</td>
+      <td>Sustained Inflow</td>
+      <td>1.598378</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-09</td>
+      <td>53.881972</td>
+      <td>0.029497</td>
+      <td>8400000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>3600000.0</td>
+      <td>5700000.0</td>
+      <td>1.105260</td>
+      <td>2.074906</td>
+      <td>-4.329870</td>
+      <td>0.040755</td>
+      <td>0.300977</td>
+      <td>0.300977</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>0.833333</td>
+      <td>Sustained Inflow</td>
+      <td>1.064505</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-10</td>
+      <td>53.246467</td>
+      <td>0.029497</td>
+      <td>8400000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>3500000.0</td>
+      <td>5700000.0</td>
+      <td>0.984937</td>
+      <td>1.970394</td>
+      <td>-3.245996</td>
+      <td>-0.276044</td>
+      <td>0.489596</td>
+      <td>0.489596</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>0.800000</td>
+      <td>Sustained Inflow</td>
+      <td>1.260981</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-11</td>
+      <td>54.905522</td>
+      <td>0.029497</td>
+      <td>8400000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>3100000.0</td>
+      <td>5700000.0</td>
+      <td>0.611641</td>
+      <td>1.876937</td>
+      <td>-1.991645</td>
+      <td>-0.150812</td>
+      <td>0.500735</td>
+      <td>0.500735</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.762453</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-12</td>
+      <td>53.002402</td>
+      <td>0.029497</td>
+      <td>8400000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2850000.0</td>
+      <td>5700000.0</td>
+      <td>0.383588</td>
+      <td>1.792599</td>
+      <td>-1.350120</td>
+      <td>-0.887094</td>
+      <td>0.636969</td>
+      <td>0.636969</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.270682</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-13</td>
+      <td>53.572195</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>50000.0</td>
+      <td>2.650120e+06</td>
+      <td>0.010188</td>
+      <td>0.005952</td>
+      <td>2700000.0</td>
+      <td>5750000.0</td>
+      <td>0.226708</td>
+      <td>1.739716</td>
+      <td>-0.827530</td>
+      <td>-0.493867</td>
+      <td>0.568536</td>
+      <td>0.568536</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.720575</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-16</td>
+      <td>53.572195</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2700000.0</td>
+      <td>5750000.0</td>
+      <td>0.201253</td>
+      <td>1.667622</td>
+      <td>0.252987</td>
+      <td>-0.543016</td>
+      <td>0.760114</td>
+      <td>0.760114</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.744269</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-17</td>
+      <td>52.023566</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2550000.0</td>
+      <td>5750000.0</td>
+      <td>0.055038</td>
+      <td>1.601327</td>
+      <td>0.248685</td>
+      <td>-1.522445</td>
+      <td>0.862143</td>
+      <td>0.862143</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.577483</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-18</td>
+      <td>52.877004</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2550000.0</td>
+      <td>5750000.0</td>
+      <td>0.026820</td>
+      <td>1.540030</td>
+      <td>0.244391</td>
+      <td>-1.619768</td>
+      <td>0.848251</td>
+      <td>0.848251</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.646588</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-19</td>
+      <td>52.883589</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2450000.0</td>
+      <td>5750000.0</td>
+      <td>-0.084950</td>
+      <td>1.483081</td>
+      <td>0.076368</td>
+      <td>-1.282496</td>
+      <td>0.674222</td>
+      <td>0.674222</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.197546</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-20</td>
+      <td>53.930630</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2200000.0</td>
+      <td>5750000.0</td>
+      <td>-0.324973</td>
+      <td>1.429945</td>
+      <td>-0.088859</td>
+      <td>-1.627842</td>
+      <td>0.574294</td>
+      <td>0.574294</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.302869</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-23</td>
+      <td>54.623180</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>2000000.0</td>
+      <td>5750000.0</td>
+      <td>-0.526341</td>
+      <td>1.380178</td>
+      <td>-0.087465</td>
+      <td>-1.792692</td>
+      <td>0.491928</td>
+      <td>0.491928</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.266351</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-24</td>
+      <td>55.827689</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1650000.0</td>
+      <td>5750000.0</td>
+      <td>-0.853759</td>
+      <td>1.333410</td>
+      <td>-0.086071</td>
+      <td>-1.736206</td>
+      <td>0.303170</td>
+      <td>0.303170</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.882447</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-25</td>
+      <td>57.106660</td>
+      <td>0.029497</td>
+      <td>8450000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>1000000.0</td>
+      <td>5750000.0</td>
+      <td>-1.408373</td>
+      <td>1.289328</td>
+      <td>-0.084677</td>
+      <td>-1.459810</td>
+      <td>-0.042362</td>
+      <td>-0.042362</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.051437</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-26</td>
+      <td>56.815486</td>
+      <td>0.029497</td>
+      <td>8550000.0</td>
+      <td>100000.0</td>
+      <td>5.710666e+06</td>
+      <td>0.017334</td>
+      <td>0.011834</td>
+      <td>950000.0</td>
+      <td>5700000.0</td>
+      <td>-1.474944</td>
+      <td>1.224147</td>
+      <td>0.084717</td>
+      <td>-1.833946</td>
+      <td>0.013505</td>
+      <td>0.013505</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.359002</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-02-27</td>
+      <td>57.043725</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>100000.0</td>
+      <td>5.681549e+06</td>
+      <td>0.017048</td>
+      <td>0.011696</td>
+      <td>800000.0</td>
+      <td>5800000.0</td>
+      <td>-1.608394</td>
+      <td>1.231164</td>
+      <td>0.333177</td>
+      <td>-0.026096</td>
+      <td>-0.362993</td>
+      <td>-0.362993</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-1.582298</td>
+      <td>Distribution</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-02</td>
+      <td>56.579648</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>150000.0</td>
+      <td>5800000.0</td>
+      <td>-2.053057</td>
+      <td>1.192279</td>
+      <td>0.331652</td>
+      <td>-0.233775</td>
+      <td>-0.555760</td>
+      <td>-0.666912</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-1.819282</td>
+      <td>Distribution</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-03-03</td>
+      <td>53.035860</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>150000.0</td>
+      <td>5750000.0</td>
+      <td>-2.028003</td>
+      <td>1.131758</td>
+      <td>0.331652</td>
+      <td>-2.649923</td>
+      <td>-0.078159</td>
+      <td>-0.093791</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.621921</td>
+      <td>Accumulation</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>2026-03-04</td>
+      <td>53.662817</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>150000.0</td>
+      <td>5600000.0</td>
+      <td>-1.984273</td>
+      <td>1.025749</td>
+      <td>0.336469</td>
+      <td>-1.792294</td>
+      <td>-0.258659</td>
+      <td>-0.258659</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.191979</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-05</td>
+      <td>51.015601</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>5550000.0</td>
+      <td>-1.879887</td>
+      <td>0.969948</td>
+      <td>0.005563</td>
+      <td>-1.673144</td>
+      <td>-0.313218</td>
+      <td>-0.313218</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.206743</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-06</td>
+      <td>49.234524</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>5499999.0</td>
+      <td>-1.836390</td>
+      <td>0.915374</td>
+      <td>-0.318375</td>
+      <td>-2.636625</td>
+      <td>-0.179933</td>
+      <td>-0.179933</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.800235</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-09</td>
+      <td>49.620224</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>5400000.0</td>
+      <td>-1.787175</td>
+      <td>0.837190</td>
+      <td>-0.306108</td>
+      <td>-2.876490</td>
+      <td>-0.128354</td>
+      <td>-0.128354</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.089315</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-10</td>
+      <td>50.585416</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>5400000.0</td>
+      <td>-1.740777</td>
+      <td>0.809472</td>
+      <td>-0.296342</td>
+      <td>-2.269819</td>
+      <td>-0.232852</td>
+      <td>-0.232852</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.529041</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-11</td>
+      <td>50.368078</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>5300000.0</td>
+      <td>-1.690771</td>
+      <td>0.731750</td>
+      <td>-0.291959</td>
+      <td>-2.552434</td>
+      <td>-0.173765</td>
+      <td>-0.173765</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.861663</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-12</td>
+      <td>48.815643</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>250000.0</td>
+      <td>5300000.0</td>
+      <td>-1.643710</td>
+      <td>0.705495</td>
+      <td>-0.122331</td>
+      <td>-2.343463</td>
+      <td>-0.165980</td>
+      <td>-0.165980</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.699753</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-13</td>
+      <td>46.736924</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>5200000.0</td>
+      <td>-1.621053</td>
+      <td>0.627136</td>
+      <td>0.044484</td>
+      <td>-2.754937</td>
+      <td>-0.062502</td>
+      <td>-0.062502</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.133884</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-16</td>
+      <td>47.597209</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>5200000.0</td>
+      <td>-1.572740</td>
+      <td>0.601609</td>
+      <td>0.038951</td>
+      <td>-2.385462</td>
+      <td>-0.121005</td>
+      <td>-0.121005</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.812722</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-17</td>
+      <td>47.673498</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>5150000.0</td>
+      <td>-1.525327</td>
+      <td>0.548796</td>
+      <td>0.036173</td>
+      <td>-1.945960</td>
+      <td>-0.201598</td>
+      <td>-0.201598</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.420632</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-18</td>
+      <td>45.785285</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>5150000.0</td>
+      <td>-1.480613</td>
+      <td>0.523268</td>
+      <td>0.032012</td>
+      <td>-2.373785</td>
+      <td>-0.102167</td>
+      <td>-0.102167</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.893172</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-19</td>
+      <td>44.351652</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>5150000.0</td>
+      <td>-1.438323</td>
+      <td>0.497578</td>
+      <td>0.029233</td>
+      <td>-2.489607</td>
+      <td>-0.066120</td>
+      <td>-0.066120</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.051284</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-20</td>
+      <td>42.625309</td>
+      <td>0.029497</td>
+      <td>8650000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>200000.0</td>
+      <td>4950000.0</td>
+      <td>-1.392755</td>
+      <td>0.352566</td>
+      <td>0.027841</td>
+      <td>-2.754202</td>
+      <td>-0.034199</td>
+      <td>-0.034199</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>1.361447</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-23</td>
+      <td>44.535809</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>-150000.0</td>
+      <td>-6.393796e+06</td>
+      <td>-0.020588</td>
+      <td>-0.017341</td>
+      <td>50000.0</td>
+      <td>4800000.0</td>
+      <td>-1.419939</td>
+      <td>0.232367</td>
+      <td>-0.217096</td>
+      <td>-2.341026</td>
+      <td>-0.215473</td>
+      <td>-0.215473</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.921087</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-24</td>
+      <td>44.904127</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>50000.0</td>
+      <td>4650000.0</td>
+      <td>-1.371988</td>
+      <td>0.107125</td>
+      <td>-0.210131</td>
+      <td>-2.290343</td>
+      <td>-0.237814</td>
+      <td>-0.237814</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.918355</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-25</td>
+      <td>46.403263</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>50000.0</td>
+      <td>4550000.0</td>
+      <td>-1.325405</td>
+      <td>0.008962</td>
+      <td>-0.198041</td>
+      <td>-2.093176</td>
+      <td>-0.280987</td>
+      <td>-0.280987</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.767772</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-26</td>
+      <td>44.459450</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-50000.0</td>
+      <td>4550000.0</td>
+      <td>-1.330241</td>
+      <td>-0.026777</td>
+      <td>-0.185928</td>
+      <td>-2.214979</td>
+      <td>-0.267343</td>
+      <td>-0.267343</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.884738</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-27</td>
+      <td>44.802450</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-150000.0</td>
+      <td>4400000.0</td>
+      <td>-1.331163</td>
+      <td>-0.172332</td>
+      <td>-0.177646</td>
+      <td>-2.070647</td>
+      <td>-0.338681</td>
+      <td>-0.338681</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.739483</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-30</td>
+      <td>44.552112</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-150000.0</td>
+      <td>4400000.0</td>
+      <td>-1.287074</td>
+      <td>-0.218430</td>
+      <td>0.325917</td>
+      <td>-1.949642</td>
+      <td>-0.253954</td>
+      <td>-0.253954</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>0.662567</td>
+      <td>Accumulation</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-03-31</td>
+      <td>47.383408</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-150000.0</td>
+      <td>4400000.0</td>
+      <td>-1.246045</td>
+      <td>-0.270492</td>
+      <td>0.318668</td>
+      <td>-1.084651</td>
+      <td>-0.423506</td>
+      <td>-0.423506</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.161394</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-04-01</td>
+      <td>48.857195</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-150000.0</td>
+      <td>4150000.0</td>
+      <td>-1.206559</td>
+      <td>-0.534119</td>
+      <td>0.312814</td>
+      <td>-0.922339</td>
+      <td>-0.516485</td>
+      <td>-0.516485</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.284220</td>
+      <td>Neutral</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>2026-04-02</td>
+      <td>48.378378</td>
+      <td>0.029497</td>
+      <td>8500000.0</td>
+      <td>0.0</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-150000.0</td>
+      <td>3950000.0</td>
+      <td>-1.167740</td>
+      <td>-0.773262</td>
+      <td>0.312814</td>
+      <td>-0.610930</td>
+      <td>-0.631100</td>
+      <td>-0.631100</td>
+      <td>Neutral</td>
+      <td>Neutral</td>
+      <td>NaN</td>
+      <td>Mixed/Neutral</td>
+      <td>-0.556810</td>
+      <td>Distribution</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table></div></div></details></section>
+  <div class="disclaimer">
+    The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs.<br /><br />
+    All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions.<br /><br />
+    No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+  </div>
+</main>
+</body>
+</html>

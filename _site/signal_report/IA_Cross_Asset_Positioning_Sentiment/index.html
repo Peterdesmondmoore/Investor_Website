@@ -15,7 +15,8 @@
   <script defer src="/js/auth-guard.js"></script>
   <style>
     :root{
-      --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --bg-primary:#0b1220; --bg-secondary:#121b2d; --bg:#06070a; --text:#e8ecf6; --muted:#a7b0c5; --border:rgba(255,255,255,.10);
+      --text-main:#f3f4f6; --text-muted:#9ca3af; --border-subtle:#2a3648; --accent-purple:#8b5cf6;
       --shadow:0 20px 60px rgba(0,0,0,.45);
       --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
             radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
@@ -26,7 +27,7 @@
     body{margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:var(--bg); color:var(--text); overflow-x:hidden;}
     .bg{position:fixed; inset:0; background:var(--glow); pointer-events:none;}
-    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 80px; position:relative}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 0; position:relative}
     header{position:sticky; top:0; z-index:20; backdrop-filter: blur(10px);
       background:rgba(6,7,10,.55); border-bottom:1px solid rgba(255,255,255,.07);}
     .nav{max-width:var(--max); margin:0 auto; display:flex; align-items:center; justify-content:space-between;
@@ -38,6 +39,7 @@
     .nav a.link:hover{background:rgba(255,255,255,.06); color:var(--text)}
     .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+    .intro-card{background:var(--bg-secondary);}
     .kicker{display:inline-flex; align-items:center; gap:10px; padding:8px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.22);
       color:var(--muted); font-weight:650; font-size:13px}
@@ -53,9 +55,12 @@
     .market-report p{margin:0 0 .8rem}
     .market-report ul{margin:0 0 .8rem; padding-left:1.25rem}
     .market-report a{color:rgba(255,255,255,.78)} .market-report a:hover{color:var(--gold)}
+    
     .tabs{border-radius:18px; border:1px solid rgba(255,255,255,.10);
       background:linear-gradient(180deg, rgba(11,14,20,.88), rgba(10,12,17,.76)); overflow:hidden;}
     .tabs-head{padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+    .lineage-heading{margin:0 0 8px; font-size:21px; color:#3b82f6; text-transform:uppercase; letter-spacing:.08em; font-weight:700; line-height:1.2;}
+    .lineage-summary{margin:0; color:#93c5fd; font-size:13px; line-height:1.55; max-width:92ch;}
     .tablist{display:flex; gap:8px; padding:10px 12px; flex-wrap:wrap}
     .tab{appearance:none; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18);
       color:var(--muted); padding:9px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;}
@@ -66,21 +71,81 @@
     .panel-title{font-weight:800; font-size:14px; margin-bottom:6px}
     .panel-body{color:var(--muted); font-size:13px; line-height:1.55}
     .panel-bullets{margin:10px 0 0; padding:0 0 0 18px; color:var(--muted); font-size:13px; line-height:1.55}
-    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+    .panel-media{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px; width:100%; max-width:100%; overflow:hidden;}
+    .panel-media--single{grid-template-columns:minmax(0,1fr);}
     @media (max-width:900px){ .panel-media{grid-template-columns:1fr} }
     figure.media{margin:0; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.16);
-      padding:10px; overflow:hidden;}
-    figure.media img{width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
+      padding:10px; overflow:hidden; width:100%; max-width:100%;}
+    figure.media img{width:100%; max-width:100%; height:auto; display:block; border-radius:10px; border:1px solid rgba(255,255,255,.10);}
     .media-cap{margin-top:8px; color:var(--muted); font-size:12px; line-height:1.35}
     .report-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
     .report-btn{display:inline-block; padding:8px 14px; border-radius:999px;
       border:1px solid rgba(255,255,255,.15); background:rgba(139,92,246,.12);
       color:var(--text); text-decoration:none; font-size:12px; font-weight:600;}
     .report-btn:hover{background:rgba(139,92,246,.25); border-color:rgba(139,92,246,.4)}
-    footer{margin-top:26px; padding-top:18px; border-top:1px solid rgba(255,255,255,.08); color:var(--muted); font-size:13px}
-    .pill{display:inline-flex; gap:8px; align-items:center; padding:8px 10px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .disclaimer{margin-top:12px; font-size:0.7rem; line-height:1.5; color:var(--muted)}
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid #2a3648;
+      color: var(--text-muted);
+      width: 100%;
+      background: #121b2d;
+      z-index: 1;
+    }
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none !important;
+    }
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none !important;
+    }
+    .universal-footer-linkedin:hover {
+      text-decoration: none !important;
+    }
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
     
     /* Mobile Responsive Styles */
     @media (max-width: 768px) {
@@ -101,6 +166,7 @@
       .report-buttons{flex-direction:column}
       .report-btn{width:100%; text-align:center; padding:10px 14px}
       .nav a.link{font-size:13px; padding:8px 10px}
+      .universal-footer-top{flex-direction:column; align-items:flex-start}
     }
     
     @media (max-width: 480px) {
@@ -135,7 +201,7 @@
 
   <main class="wrap">
     <div class="hero">
-      <div class="card" style="padding:26px">
+      <div class="card intro-card" style="padding:26px">
         <div class="kicker"><span class="dot"></span> Cross Asset Positioning and Sentiment Analyst</div>
         <div class="page-title">Synthesises positioning, flow, and sentiment signals across asset classes to identify regime conditions, crowding risks, and macro-relevant inflection points.</div>
         <div class="hero-inject market-report"><div class="market-report">
@@ -144,50 +210,59 @@
 
   <p><strong>Regime Assessment:</strong></p>
   <ul>
-    <li>Regime: Defensive / Risk-Negative</li>
-    <li>Regime Confidence Index: High Confidence</li>
-    <li>Stability: Fragile</li>
+    <li>Regime: Transitional / Fragile Balance</li>
+    <li>Regime Confidence Index: Medium Confidence</li>
+    <li>The regime is fragile.</li>
   </ul>
 
   <p><strong>Why This Regime:</strong></p>
   <ul>
-    <li>The primary driver is the Market Volatility (VIX) Signal, currently in a Stressed regime with a z-score of 3.08 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>Dynamic weighting prioritizes this High-Weight, High-Confidence signal over mixed tactical data.</li>
-    <li>Breadth of positioning extremes across 366 markets signals systemic instability (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Low macro divergence indicates a dangerous consensus in prevailing trends (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">3</a>).</li>
-    <li>Nasdaq-100 (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">4</a>) and Fed Fund (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">5</a>) signals were downweighted due to Mixed Confidence and Internal Conflict flags.</li>
+    <li>The primary VIX driver remains in a STRESSED regime despite stabilizing momentum (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>High-weight Russell 2000 positioning confirms persistent de-risking and long reduction (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">2</a>).</li>
+    <li>Large-cap indices (Nasdaq, S&P) show stabilizing long builds during price weakness (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Portfolio stability has deteriorated to the extreme upper boundary of the "Normal" classification (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">5</a>).</li>
+    <li>Hedger Pressure is downweighted due to internal conflict and mixed signal interpretation (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">6</a>).</li>
   </ul>
 
   <p><strong>Alignment & Tensions:</strong></p>
   <ul>
-    <li>Alignment: Volatility stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>) reinforces 4-week "Long Reduction" in the Russell E-Mini (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">6</a>).</li>
-    <li>Alignment: High cross-sector speculative crowding (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">7</a>) matches the deteriorating Portfolio Early Warning Index (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Tension: Speculators in the E-Mini S&P 500 continue to build long positions despite falling prices (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">8</a>).</li>
-    <li>Tensions do not overturn the regime call as the high-weight VIX signal dictates the risk-negative threshold.</li>
+    <li>VIX stress aligns with persistent speculative outflows in the Russell 2000 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>)(<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">2</a>).</li>
+    <li>Tension exists between eroding price action and institutional dip-buying in Growth sectors (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">3</a>)(<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">4</a>).</li>
+    <li>Fed Funds flow is stabilizing, suggesting improved alignment with policy expectations (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">7</a>).</li>
+    <li>Tactical squeeze and exhaustion breadths are normal, supporting a shift away from earlier extremes (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">8</a>).</li>
   </ul>
 
   <p><strong>Scenario Balance:</strong></p>
   <ul>
-    <li>Dominant scenario: Active long liquidation and market contraction driven by elevated hedging costs.</li>
-    <li>Primary upside risk: Volatility mean-reversion triggered by price stabilization.</li>
-    <li>Primary downside risk: Transition to Crisis regime if VIX exceeds 45 or z-score stays above 2.0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Dominant scenario: Persistent volatility with defensive institutional rotation.</li>
+    <li>Primary upside risk: A sharp growth-equity relief rally triggered by short-covering (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">3</a>).</li>
+    <li>Primary downside risk: Forced systemic de-leveraging if positioning breadth reaches elevated alert levels (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">5</a>).</li>
   </ul>
 
   <p><strong>What Would Change the Regime:</strong></p>
   <ul>
-    <li>VIX dropping below 20 or the MVS z-score falling below 1.0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>The Early Warning Index moving below -0.5, indicating a shift to a subdued risk environment (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">2</a>).</li>
-    <li>Speculative 4-week flow in the Russell E-Mini reversing to a "Long Build" posture (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">6</a>).</li>
+    <li>The Early Warning Index crossing above the 0.50 threshold into an Elevated Risk state (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">5</a>).</li>
+    <li>VIX falling below 16 alongside a negative MVS z-score (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Agricultural Speculative Crowding share dropping below the 0.40 threshold (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">9</a>).</li>
   </ul>
 
-</div></div>
+</div>
+
+<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Clarify the discrepancy between the 0.75 threshold rule and the 'Moderate' regime label in the Hedger Pressure Indicator.</li>
+  <li>Include VIX Futures positioning to validate if institutional long builds are hedged or unhedged.</li>
+</ul>
+--></div>
       </div>
     </div>
 
     <section class="card" style="padding:18px">
       <aside class="tabs" aria-label="Inputs">
         <div class="tabs-head">
-          <div class="kicker"><span class="dot"></span> Inputs</div>
+          <h2 class="lineage-heading">Model Lineage</h2>
+          <p class="lineage-summary">Visualisations below present upstream signal states and evidence context used to form the current silver market interpretation.</p>
         </div>
 
         <div class="tablist" role="tablist" aria-label="Input tabs">
@@ -211,73 +286,71 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement (mandatory):</strong>
-            Given a VIX level of 31.05 and an MVS z-score of 3.08, this setup aligns with
+            <strong>Configuration statement:</strong>
+            Given a VIX of 23.87 and an MVS_z of 1.286, this setup aligns with
             Downward-biased price paths and Elevated volatility,
             where the dominant risk is Long liquidation, not mean reversion.
         </li>
-        <li>The signal is currently in a STRESSED regime, reflecting high market fear and a tightening of risk appetite (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Moderate; Revision Sensitivity: Low.</li>
+        <li>The signal is currently in a STRESSED regime, characterized by high market fear and active liquidation (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Moderate; Revision Sensitivity: Low.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>A VIX value ≥ 30 or an MVS z-score ≥ 1.0 defines a STRESSED regime, necessitating defensive positioning (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Rising values indicate a transition toward risk-off conditions and market contraction (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Risk-off signals are validated by widening Credit Spreads (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">2</a>) and tightening Liquidity (<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
-        <li>Market Volatility (VIX) Signal, latest observation: 2026-03-27 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Regime Rule: An MVS z-score ≥ 1.0 or VIX ≥ 30 classifies the environment as STRESSED (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Risk Bias: Rising values signal a transition toward risk-off and market contraction (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Market Volatility (VIX) Signal: Latest observation 2026-04-02.</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the VIX level (31.05) and its standardized z-score (3.08), both well above stress thresholds (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Momentum is strongly positive, with the MVS z-score rising from 1.19 to 3.08 over the last month (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>No internal offsets are present; all sub-metrics (level, percentiles, and momentum) indicate high stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: The MVS z-score falling below 1.0 or VIX dropping below 20.</li>
-        <li>History shows a persistent deterioration from a "Normal" regime in early February to a sustained "Stressed" state since March 2nd (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>The primary driver is the MVS_z of 1.286, which remains well above the 1.0 threshold for systemic stress (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Momentum has stabilized after a severe peak in early March (MVS_z 3.15), suggesting persistent but non-accelerating fear (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A shift to CALM regime requires VIX &lt; 16 and MVS z-score &lt; 0 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Signal Stability: The STRESSED regime has persisted since 2026-03-02, indicating a durable period of high uncertainty (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Dominant base case: Continued market contraction driven by active liquidation and expensive downside protection.</li>
-        <li>Most plausible upside risk: Volatility mean-reversion triggered by a sudden stabilization in realized price variance.</li>
-        <li>Most plausible downside risk: Transition to a CRISIS regime if the MVS z-score remains above 2.0 for five consecutive days or VIX exceeds 45 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Base Case dominant: Persistent market stress and defensive positioning.</li>
+        <li>Upside risk: Transition to CRISIS (VIX ≥ 45) triggered by systemic liquidity pressure.</li>
+        <li>Downside risk: Mean reversion to ELEVATED (VIX &lt; 20) if downside hedging demand fades.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks). The VIX measures forward-looking 30-day uncertainty (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: High. Volatility is a critical "risk thermometer" for cross-asset capital allocation.</li>
+        <li>Time Horizon: Tactical (weeks); the VIX reflects short-term equity sentiment and tail-risk expectations (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: High; significant as a "probabilistic risk thermometer" for calibrating risk-on/off exposure (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the Sentiment and Risk Appetite macro dimensions.</li>
-        <li>The economic mechanism is a tightening of risk appetite, where high hedging costs force deleveraging.</li>
-        <li>Cycle position: Not determined by this methodology.</li>
-        <li>Interacts with credit spreads and liquidity to confirm systemic stress transitions (<a href="https://investoranatomy.com/signal_report/Credit_Spreads/" target="_blank">2</a>)(<a href="https://investoranatomy.com/signal_report/Federal_Reserve_Liquidity_Composite/" target="_blank">3</a>).</li>
+        <li>This signal informs the Sentiment and Risk Appetite macro dimensions (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: High readings indicate expanding volatility risk premiums, making downside protection expensive and tightening overall risk appetite (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interaction: Confirms risk-off when aligned with widening credit spreads and tightening liquidity (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>The signal is in a persistent STRESSED regime that has been in place for approximately 25 days (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>The recent direction of change is strengthening (rising stress levels).</li>
+    <li>Regime is persistent; the signal has occupied the STRESSED zone for 31 days (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Direction of change: Stabilising at elevated levels after retreating from crisis-level peaks (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Month-end snapshots may miss rapid intramonth volatility spikes (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-    <li>Structural shifts in the baseline VIX level can occur over decades, impacting absolute threshold reliability (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Month-end snapshots may miss intramonth volatility bursts (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+    <li>Absolute VIX levels can undergo structural shifts over decades (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Market Volatility (VIX) Signal, latest observation: 2026-03-27 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
-        <li>Most influential: VIX (31.05) and MVS_z (3.08).</li>
-        <li>Additional data: CBOE Skew Index and S&P 500 Realized Volatility.</li>
+        <li>Market Volatility (VIX) Signal: Latest 2026-04-02 (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Most influential: MVS_z (1.285) and MVS_regime (STRESSED) (<a href="https://investoranatomy.com/signal_report/VIX_Market_Volatility/" target="_blank">1</a>).</li>
+        <li>Additional data: ICE BofA High Yield Master II Option-Adjusted Spread would improve risk-off confirmation.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/US_Market_Volatility_MVS_signal_chart_mpl.png" alt="Market Volatility (VIX) Signal" /><div class="media-cap">Market Volatility (VIX) Signal</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/US_Market_Volatility_MVS_signal_chart_mpl.png" alt="Market Volatility (VIX) Signal" /><div class="media-cap">Market Volatility (VIX) Signal</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-hedger_pressure_indicator" aria-labelledby="tab-hedger_pressure_indicator" hidden><div class="panel-title">Hedger Pressure Indicator</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -285,73 +358,74 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement (mandatory):</strong>
-            Given a rising Hedger_ShortagePressure_z of 0.674 and a declining Hedger_SupplyPressure_z of 0.265, this setup aligns with
-            Upward-biased price paths and Normal volatility,
-            where the dominant risk is a Regime shift, not Trend continuation.
+            <strong>Configuration statement:</strong>
+            Given a rise in the <strong>hedger_deep_long_count</strong> to 91 and the <strong>Hedger_ShortagePressure_z</strong> reaching 0.537, this setup aligns with <strong>Upward-biased</strong> price paths and <strong>Normal</strong> volatility, where the dominant risk is a <strong>Regime shift</strong>, not trend continuation. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)
         </li>
-        <li>The signal is currently transitioning into a Moderate Shortage / Stress regime as commercial consumer longs increase (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+        <li>The signal has recently transitioned from a supply expansion phase into a <strong>Moderate Shortage / Stress</strong> regime. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Conviction Band: <strong>Low</strong>; Interpretation Confidence: <strong>Mixed Signals</strong>; Internal Conflict Flag: <strong>Yes</strong>. Signal Stability Assessment: <strong>Volatile</strong>; Threshold Proximity: <strong>Near</strong>; Revision Sensitivity: <strong>Unknown</strong>.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Hedger Z-scores $\ge$ 1.0 (Deep Long) indicate physical shortage or inventory stress among consumers (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>A robust Z-score $>0.75$ represents moderate pressure and functions as a trend confirmation signal (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>Rising shortage pressure implies an expansionary or inflationary bias within the physical market (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>Hedger Pressure Indicator: Latest observation date 2026-03-24 (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
+        <li><strong>Z-score Thresholds:</strong> Robust Z-scores > 0.75 denote moderate pressure and trend confirmation, while > 1.5 indicate extreme regimes or exhaustion. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li><strong>Shortage Bias:</strong> A Hedger Z-score &ge; 1.0 (Deep Long) signifies physical shortage or inventory stress, implying a bullish upward price bias. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li><strong>Supply Bias:</strong> A Hedger Z-score &le; -1.0 (Deep Short) indicates supply expansion or producer hedging, implying a bearish disinflationary bias. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Dataset: Hedger Pressure Indicator (Latest: 2026-03-31). (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the sharp increase in Hedger_ShortagePressure_z from -0.39 to 0.67 since early February (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>Simultaneously, Hedger_SupplyPressure_z has fallen from a peak of 0.96 to 0.26, indicating fading producer selling pressure.</li>
-        <li>The signal shows clear stabilization as shortage counts (91) now significantly outnumber supply expansion counts (81).</li>
-        <li>Conditional Invalidation: ShortagePressure_z falling back below 0.0, indicating a failure to sustain physical market stress.</li>
-        <li>The trend is improving, moving away from "Moderate Supply Expansion" toward a confirmed shortage regime.</li>
+        <li>The primary driver is the rotation toward <strong>Shortage Pressure</strong> (z = 0.537), though it currently remains below the methodology's 0.75 confirmation threshold. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>The signal shows <strong>regime instability</strong>, having flipped from "Moderate Supply Expansion" in February to "Moderate Shortage" in late March. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Internal Tension: The 2026-03-31 Z-score (0.537) is labeled "Moderate" despite the methodology requiring &gt; 0.75 for that classification. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: The <strong>Hedger_ShortagePressure_z</strong> falling below 0.0, neutralizing the current upward bias. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base Case dominant: Continued physical market tightening as shortage Z-scores approach the 0.75 confirmation threshold.</li>
-        <li>Upside secondary: Acceleration to an Extreme Shortage regime ($Z > 1.5$) triggering a high-conviction bullish shift.</li>
-        <li>Downside residual: Sudden supply expansion if producers aggressively hedge forward pricing, reversing the current momentum.</li>
+        <li><strong>Base Case dominant:</strong> Recent momentum suggests rising inventory stress among consumers will support price floors.</li>
+        <li><strong>Upside risk:</strong> A rapid spike in deep long counts (z > 1.5) triggers a physical scarcity-driven rally.</li>
+        <li><strong>Downside risk:</strong> A sudden expansion in producer hedging (Deep Shorts) reinstates the February disinflationary supply regime.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks); based on the weekly update frequency of commercial positioning data (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: Medium; serves as a fundamental anchor to validate or diverge from speculative sentiment.</li>
+        <li>Time Horizon: <strong>Tactical (weeks)</strong> as CoT-derived commercial sentiment reflects near-term physical positioning and hedging cycles. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: <strong>Low</strong> due to the current conflict between numerical Z-scores and categorical regime labels.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Macro dimension: Global Trade & Demand; specifically physical inventory availability and producer/consumer pricing power.</li>
-        <li>Economic mechanism: Inventory stress among consumers leads to upward price pressure as buyers compete for limited supply (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>Cycle position: Not determined.</li>
-        <li>Interacts with speculative crowding signals to identify potential reversal points where "paper" markets lag physical reality.</li>
+        <li>Informs the <strong>Supply/Demand Balance</strong> dimension of macro analysis. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Economic mechanism: <strong>Inventory stress</strong>; rising longs among commercial participants imply a shift toward inflationary/expansionary pressure. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Cycle position: <strong>Not determined</strong> by methodology.</li>
+        <li>Typically interacts with <strong>Speculative Crowding</strong> to identify contrarian reversal risks. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>This is a newly entered regime transition, moving from "Normal" to "Moderate Shortage / Stress."</li>
-    <li>Direction of change: Strengthening shortage pressure and weakening supply expansion pressure.</li>
+        <li>Current regime is <strong>newly entered</strong> as of late March 2026. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Direction of change: <strong>Strengthening</strong> shortage pressure relative to the neutral readings in mid-March. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>The signal relies on Commitment of Traders data, which is inherently lagging (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-    <li>Static thresholds may not capture sector-specific behavioral variances in hedging activity (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
+        <li>CoT data is <strong>inherently lagging</strong> and may not reflect real-time physical inventory shifts. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Sensitivity to <strong>static thresholds</strong> (0.75/1.5) may delay regime classification during fast-moving market pivots. (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Hedger Pressure Indicator (CoT): 2026-03-24 (<a href="https://investoranatomy.com/signal_report/Hedger_Pressure_Indicator/" target="_blank">1</a>).</li>
-        <li>Most influential datapoints: Hedger_ShortagePressure_z (0.674) and hedger_deep_long_count (91).</li>
-        <li>Integration with physical inventory data and spot-futures basis would improve interpretation reliability.</li>
+        <li>Hedger Pressure Indicator (2026-03-31): <strong>hedger_deep_long_share</strong> (0.242) and <strong>Hedger_ShortagePressure_z</strong> (0.537). (<a href="https://investoranatomy.com/signal_report/hedger_pressure_indicator/" target="_blank">1</a>)</li>
+        <li>Recommended public datasets: LME Physical Inventory levels and Bloomberg Commodity Volatility Index.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Hedger_Pressure_Indicators.png" alt="Hedger Pressure Indicator" /><div class="media-cap">Hedger Pressure Indicator</div></figure></div></div>
+</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Clarify the discrepancy between the 0.75 threshold rule and the 'Moderate' regime label applied to a Z-score of 0.537 to resolve internal conflict.</li>
+</ul>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Hedger_Pressure_Indicators.png" alt="Hedger Pressure Indicator" /><div class="media-cap">Hedger Pressure Indicator</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-portfolio_level_early_warning_system" aria-labelledby="tab-portfolio_level_early_warning_system" hidden><div class="panel-title">Portfolio-Level Early Warning System</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -360,72 +434,71 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given an Early Warning Index of 0.255, an extreme share z-score of 1.91, and crowded long z-score of 0.72, this setup aligns with
-            Range-biased price paths and Normal volatility,
-            where the dominant risk is Mean reversion, not Trend continuation. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)
+            Given the Early Warning Index at 0.49, an Any Extreme Share Z-score of 1.78, and a Crowded Long Share Z-score of 1.24, this setup aligns with
+            transition-biased price paths and elevated volatility,
+            where the dominant risk is regime shift, not trend continuation. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)
         </li>
-        <li>The signal currently occupies a "Normal" regime, reflecting typical market functioning and neutral positioning risk. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+        <li>The signal is currently in a Normal regime but is positioned at the extreme upper boundary of typical market functioning. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Volatile; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>The Early Warning Index (EWI) defines "Normal" conditions between -0.5 and 0.5, implying standard allocations are appropriate. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Rising EWI values signal a transition toward risk-off sentiment, trend exhaustion, or potential deleveraging. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Extreme positioning z-scores and crowded trade flags identify breadth-based systemic instability. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Portfolio-Level Early Warning System, observed 2026-03-24. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>The Early Warning Index classifies regimes as Normal when values fall between -0.5 and 0.5, representing typical market functioning. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Rising Index values indicate a transition toward risk-off conditions, potential deleveraging, or trend exhaustion. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Elevated z-scores in Any Extreme Share and Crowded Long Share highlight increasing breadth of positioning stress. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Portfolio-Level Early Warning System: Latest observation dated 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the sharp rise in "Any Extreme Share Z" (1.91), indicating a significant breadth of markets reaching positioning limits. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Momentum has been upward-trending, with the EWI rising from -0.23 in early January to a peak of 0.46 in mid-March. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>A slight stabilization occurred in the latest reading (0.255), though internal crowding metrics remain near local highs. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Conditional Invalidation: An EWI reading exceeding 0.50 would trigger an "Elevated" stress regime. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Signal stability is deteriorating as the index drifts toward the upper bound of the neutral range. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>The primary driver is the sharp increase in Any Extreme Share (Z=1.79) and Crowded Long Share (Z=1.25), indicating a narrowing of market stability. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>The Index has trended aggressively from -0.06 in late January to 0.49 in March, signaling a rapid deterioration in stability. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: The index crossing above 0.50 would trigger a shift to an "Elevated" risk regime. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Signal stability is low; the rapid multi-month ascent suggests the current "Normal" classification is fragile. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base Case dominant: Continued range-bound volatility as long as EWI remains below 0.50.</li>
-        <li>Upside risk: Transition to "Elevated" stress if positioning extremes (z-score > 2.0) broaden further.</li>
-        <li>Downside risk: Shift to "Subdued" regime if speculative crowding unwinds through orderly profit-taking.</li>
+        <li>Base Case dominant: Regime remains "Normal" but requires defensive monitoring as stability wanes.</li>
+        <li>Upside risk: A regime shift to "Elevated" triggered by further positioning extremes, requiring gross exposure reduction.</li>
+        <li>Downside risk: Positioning mean reversion that eases the index back toward the zero-line.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks) based on the usage of CoT-derived tactical reversal pressures. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Aggregation Weight Hint: High, as the methodology suggests using this as a tail-risk overlay for sizing. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Time Horizon: Tactical (weeks) because the signal monitors tactical reversal pressures and positioning shifts. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: Medium; while the signal is near a threshold, it remains within the Normal regime.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>This signal informs systemic liquidity and sentiment by measuring the breadth of potential forced deleveraging. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>The implied economic mechanism is "unwind risk," where over-extended positioning creates sensitivity to price shocks. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Informs global risk sentiment and the potential for forced deleveraging across futures markets. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Economic mechanism: High extreme positioning breadth implies systemic fragility where minor shocks can trigger volatility clusters or forced unwinds. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
         <li>Cycle position: Not determined.</li>
-        <li>Typically interacts with VIX and credit spreads to confirm volatility clusters or systemic stress. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Typical interaction: High values should be cross-referenced with VIX spikes and widening credit spreads. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>The "Normal" regime is persistent, having been maintained for over three months. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-    <li>Recent direction reflects weakening stability as the EWI approaches the "Elevated" transition threshold. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+    <li>Persistent Normal regime (15+ weeks), but currently undergoing a significant weakening of stability. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+    <li>Direction of change: Strengthening risk profile as the index approaches the "Elevated" threshold. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>CoT data reporting lag and potential for positioning extremes to persist during strong trends. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-    <li>Sensitivity to thin market noise. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+    <li>CoT data reporting lag and the potential for positioning extremes to persist in strong trends. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+    <li>Revision window cannot be assessed from provided content.</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Portfolio-Level Early Warning System (2026-03-24). (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Influential data: Any Extreme Share Z (1.91) and Crowded Long Share Z (0.72). (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
-        <li>Public data: VIX Index and Corporate Credit Spreads (HY/IG).</li>
+        <li>Portfolio-Level Early Warning System: Latest observation 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Portfolio_Level_Early_Warning_System/" target="_blank">1</a>)</li>
+        <li>Most influential datapoints: Any_Extreme_Share_Z (1.79) and Early_Warning_Index (0.49).</li>
+        <li>Additional suggested datasets: CBOE Volatility Index (VIX) and Corporate Credit Spreads.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Early_Warning_System.png" alt="Portfolio-Level Early Warning System" /><div class="media-cap">Portfolio-Level Early Warning System</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Early_Warning_System.png" alt="Portfolio-Level Early Warning System" /><div class="media-cap">Portfolio-Level Early Warning System</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-specs_vs_hedgers_divergence_reversal_risk" aria-labelledby="tab-specs_vs_hedgers_divergence_reversal_risk" hidden><div class="panel-title">Specs vs Hedgers Divergence: Reversal Risk</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -434,75 +507,72 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given the Macro_Divergence_Risk_z of -1.40 and a divergence_share of 22.7%, this setup aligns with
-            Upward-biased price paths and Compressed volatility,
-            where the dominant risk is Trend continuation, not Mean reversion.
+            Given a divergence share of 0.239 and a z-score of -1.26, this setup aligns with
+            Indeterminate price paths and Compressed volatility,
+            where the dominant risk is Trend continuation, not Regime shift. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)
         </li>
-        <li>The signal is currently in a persistent Low Divergence regime, reflecting extreme alignment between speculative and commercial participants. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
-        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
+        <li>The signal remains in a Low Divergence regime, indicating high alignment between speculative narratives and commercial fundamentals. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Robust Z-Score < -0.5 on the divergence share classifies the market as Low Divergence, indicating strong macro consensus (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>).</li>
-        <li>Low divergence values imply high probability of trend persistence and expansionary regime bias (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>).</li>
-        <li>Commitment of Traders (CoT) Futures Data; latest observation: 2026-03-24.</li>
+        <li>A Robust Z-Score below -0.5 defines a Low Divergence regime. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Low values imply high probability of trend persistence or expansionary cycles. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>The signal measures the breadth of markets where speculators and hedgers hold opposing high-conviction positions. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Specs vs Hedgers Divergence: Reversal Risk, latest observation 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the Macro_Divergence_Risk_z (-1.40), which remains deeply within the consensus zone (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>).</li>
-        <li>Internal dynamics show speculators (0.13 z-score) and hedgers (0.04 z-score) are highly aligned near neutral levels.</li>
-        <li>Conditional Invalidation: Macro_Divergence_Risk_z rising above -0.5, signalling a shift toward normal market disagreement.</li>
-        <li>Signal stability is high, with the Low Divergence regime persisting for over 15 consecutive weeks.</li>
+        <li>The primary driver is the low divergence count (89) relative to total markets (372). (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Momentum is currently normalizing as the z-score rises from -1.81 toward the -0.5 threshold. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Internal consensus is strong, with speculators and hedgers showing unusually high alignment across sectors. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: A move in the Macro Divergence Risk z-score above -0.5. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>The Low Divergence regime has persisted for over 15 weeks. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base Case dominant: Current price trends persist due to high participant alignment.</li>
-        <li>Most plausible upside risk: Further strengthening of consensus as speculative and commercial flows synchronise further.</li>
-        <li>Most plausible downside risk: Rapid divergence spike caused by a sudden macro shock forcing one group to pivot.</li>
+        <li>Base case dominant: Continued trend persistence supported by high participant alignment.</li>
+        <li>Upside risk: Strengthening of the current expansion if alignment deepens further.</li>
+        <li>Downside risk: Emergence of internal market tension if speculative narratives detach from commercials.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks) based on the weekly update frequency of underlying positioning data.</li>
-        <li>Aggregation Weight Hint: High, as the signal is currently at an extreme historical percentile of consensus.</li>
+        <li>Time Horizon: Tactical (weeks); reflects the reporting frequency of CoT data. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Aggregation Weight Hint: High; extreme alignment suggests a robust macro consensus across futures markets.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Dimension informed: Market Sentiment and Positioning Alignment.</li>
-        <li>Economic mechanism: Positioning alignment reduces internal market friction, supporting the extension of prevailing price trends.</li>
-        <li>Cycle position: Expansion or trend-following (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>).</li>
-        <li>Typical interaction: Complements momentum signals by confirming whether a move is supported by commercial fundamentals.</li>
+        <li>This signal informs cross-asset positioning and sentiment by identifying potential structural instability. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>The current state implies that speculative flows are well-anchored by physical commercial activity. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Cycle position: Not determined.</li>
+        <li>Interacts with volatility and flow momentum signals to confirm trend health. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Regime persistence: 15 weeks in Low Divergence; extremely stable.</li>
-    <li>Direction of change: Stabilising far below the transition threshold.</li>
+    <li>The Low Divergence regime is persistent and long-standing. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    <li>The regime is weakening as the z-score trends toward the normal range. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Lagging nature due to CoT reporting frequency (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>).</li>
-    <li>May produce noise in thinly traded futures markets.</li>
+    <li>The signal is lagging due to Commitments of Traders reporting frequency. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+    <li>Requires high-magnitude z-scores on both sides to trigger divergence flags. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>CoT Futures Positioning Data: 2026-03-24 (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>).</li>
-        <li>Most influential: Macro_Divergence_Risk_z (-1.40).</li>
-        <li>Complementary datasets: VIX/MOVE volatility indices and Global Risk Tone monitors.</li>
+        <li>CoT-based divergence dataset, latest observation March 31, 2026. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Most influential data: divergence share and macro divergence risk z-score. (<a href="https://investoranatomy.com/signal_report/Specs_vs_Hedgers_Divergence_Reversal_Risk/" target="_blank">1</a>)</li>
+        <li>Additional metrics like the VIX and MOVE indices would improve risk context.</li>
     </ul>
 
-</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Revision window cannot be assessed from provided content; specify if CoT data undergoes historical revisions in this pipeline.</li>
-</ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Divergence_Reversal_Risk.png" alt="Specs vs Hedgers Divergence: Reversal Risk" /><div class="media-cap">Specs vs Hedgers Divergence: Reversal Risk</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Divergence_Reversal_Risk.png" alt="Specs vs Hedgers Divergence: Reversal Risk" /><div class="media-cap">Specs vs Hedgers Divergence: Reversal Risk</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-cross_sector_positioning" aria-labelledby="tab-cross_sector_positioning" hidden><div class="panel-title">Cross-Sector Positioning</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -510,72 +580,71 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement:</strong>
-            Given Ags speculative crowding (0.538), hedger pressure (0.615), and an average speculative z-score of 1.19, this setup aligns with
-            Transition-biased price paths and Elevated volatility,
+            <strong>Configuration statement (mandatory):</strong>
+            Given high speculative crowding and elevated commercial hedging in the Agricultural sector, this setup aligns with
+            Range-biased price paths and Elevated volatility,
             where the dominant risk is Mean reversion, not Trend continuation. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)
         </li>
-        <li>The signal identifies a concentrated speculative imbalance in the Agriculture sector, currently classified under a broad speculative crowding and systemic hedger pressure regime. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
+        <li>The signal identifies a localized regime of extreme positioning in Ags (61.5% crowding), while Energy, Metals, and FX sectors remain in a Neutral, uncrowded state. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Conviction Band: High; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Deteriorating (imbalances growing); Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>A spec_crowded_long_share ≥ 0.40 indicates a broad speculative consensus and high risk of sharp reversal or trend exhaustion. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>A hedger_pressure_share ≥ 0.40 reflects systemic commercial hedging and a defensive regime, signaling potential for increased volatility. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>An extreme avg_spec_zscore identifies the sector as a primary candidate for mean reversion. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>Cross-Sector Positioning (2026-03-24). (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Speculative consensus is flagged as "Broad" when the <code>spec_crowded_long_share</code> exceeds 0.40, signaling reversal risk. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Defensive regimes are identified when <code>hedger_pressure_share</code> reaches 0.40, indicating systemic commercial hedging. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Cross-Sector Positioning (COT): Latest observation date 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The Agriculture (Ags) sector is the primary driver, with 53.8% of markets showing speculative crowding and 61.5% under hedger pressure. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>Ags avg_spec_zscore (1.19) and avg_hedger_zscore (-1.35) confirm a stretched positioning environment favoring commercial sellers. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>Conditional Invalidation: Ags spec_crowded_long_share falling below the 0.40 threshold. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>The signal has shown persistence, with Ags maintaining "True" flags for crowding and pressure since mid-March. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>The primary driver is the Agricultural sector, where <code>spec_crowded_long_share</code> (0.615) and <code>hedger_pressure_share</code> (0.692) are well above critical 0.40 thresholds. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>The <code>avg_spec_zscore</code> for Ags (1.41) suggests an outlier positioning state compared to other sectors like Rates (0.13) or Metals (0.09). (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Momentum in Ags imbalances is rising, having increased from 0.53 to 0.61 speculative crowding over the last week. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Conditional Invalidation: A drop in Ags <code>spec_crowded_long_share</code> below 0.40 or a spike in <code>unwind_risk_share</code> above 0.30.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base Case dominant: Mean reversion in Ags driven by speculative exhaustion and commercial supply.</li>
-        <li>Most plausible upside risk: Trend continuation in Ags if speculative flow momentum overrides commercial hedging.</li>
-        <li>Most plausible downside risk: Systemic "unwind risk" event if Ags adverse flows trigger broader sector liquidations.</li>
+        <li>Base Case dominant: Mean reversion in Agricultural markets as speculative consensus reaches levels historically associated with trend exhaustion.</li>
+        <li>Upside secondary: Continued trend extension if commercial hedger pressure stabilizes without triggering an immediate liquidation.</li>
+        <li>Downside residual: Sharp systemic liquidation if adverse price action triggers "unwind risk" across the crowded Ags complex.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks) as the signal is designed to guide tactical setups based on weekly positioning shifts. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>Aggregation Weight Hint: High; systemic imbalances in a major sector like Agriculture frequently precede broader shifts in positioning tone.</li>
+        <li>Time Horizon: Tactical (weeks) to Cyclical (months) due to the persistent nature of CoT positioning extremes.</li>
+        <li>Aggregation Weight Hint: High for Agricultural-related themes; Medium for general macro risk sentiment.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Macro dimension: Positioning and Sentiment. (<a href="https://investoranatomy.com/signal_report/ia_cross_asset_positioning_sentiment/" target="_blank">2</a>)</li>
-        <li>Economic mechanism: Stretched speculative consensus creates a liquidity vacuum for reversals, while high hedger pressure implies commercial anticipation of supply expansion or risk-off conditions. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Informs global sentiment and liquidity dimensions by highlighting where capital is most concentrated and at risk of reversal.</li>
+        <li>Economic mechanism: Implies trend exhaustion and rising defensive commercial positioning, potentially signaling a peak in sector-specific demand.</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with Global Risk-On / Risk-Off Positioning Tone to assess if Ags stress is isolated or part of a global shift. (<a href="https://investoranatomy.com/signal_report/Global_Positioning_Tone/" target="_blank">3</a>)</li>
+        <li>Typically interacts with volatility indices (VIX) and sector-specific pricing to confirm if positioning stress is translating into price action.</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Persistent regime in Agriculture; other macro sectors (Energy, FX, Rates) remain within normal positioning bounds. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-    <li>Direction of change: Stabilising at extreme levels; hedger pressure in Ags remains significantly above threshold. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    <li>The Ags sector has been in a persistent "Crowded" regime for at least two weeks; other sectors are stable. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    <li>Direction of change: Strengthening imbalance (implying rising reversal risk) in Ags; stabilizing in Energy and Rates. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>CoT data is lagged; static thresholds may miss structural shifts in market participation. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-    <li>Sector mapping relies on naming heuristics which may oversimplify complex market relationships. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    <li>CoT data is inherently lagged and may miss intra-week position shifts. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+    <li>Sector mapping relies on heuristics which may overlook niche market dynamics. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Cross-Sector Positioning (Latest: 2026-03-24). (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>Ags spec_crowded_long_share (0.538) and Ags hedger_pressure_share (0.615). (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
-        <li>Revision window cannot be assessed from provided content.</li>
+        <li>Cross-Sector Positioning CoT dataset, latest date 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Most influential: Ags spec z-score (1.410) and hedger share (0.692). (<a href="https://investoranatomy.com/signal_report/Cross_Sector_Positioning/" target="_blank">1</a>)</li>
+        <li>Recommended additions: Sector-specific volatility (IV) and realized momentum to validate the "Range-biased" outlook.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Sector_Positioning_Stacked.png" alt="Cross-Sector Positioning" /><div class="media-cap">Cross-Sector Positioning</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Sector_Positioning_Stacked.png" alt="Cross-Sector Positioning" /><div class="media-cap">Cross-Sector Positioning</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-fed_fund_individual_market_analysis" aria-labelledby="tab-fed_fund_individual_market_analysis" hidden><div class="panel-title">Fed Fund - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -583,79 +652,71 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement (mandatory):</strong>
-            Given a Spec Net %OI of -1.5, a neutral Spec z-score of 0.27, and positive Flow_4w of 7.5, this setup aligns with
-            Transition-biased price paths and Normal volatility,
-            where the dominant risk is Mean reversion, not Trend continuation.
+            <strong>Configuration statement:</strong>
+            Given a Spec Net % OI of -2.4%, a 4-week flow of +6.4, and a Spec z-score of 0.13, this setup aligns with
+            Upward-biased price paths and Compressed volatility,
+            where the dominant risk is Trend continuation, not Mean reversion (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).
         </li>
-        <li>The signal has transitioned from a high-risk crowded long regime into a "Normal" synthetic state with a "Balanced_Long_Bias" market structure (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Low; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: No. Signal Stability Assessment: Stabilising; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
+        <li>The signal has transitioned from a period of aggressive long reduction into a stabilizing "Normal" regime characterized by a renewed long build (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Far; Revision Sensitivity: Moderate.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Speculator z-scores exceeding +2 or -2 define extreme crowding and speculative exhaustion or capitulation (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Multi-week flow changes represent the gradual repricing of policy expectations and potential trend shifts (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Flow opposing net positioning direction signals fading conviction and trend fragility (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Fed Fund - Individual Market Analysis: latest observation 2026-03-24 (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Multi-week flow changes (Flow_4w) are interpreted as a gradual repricing of policy expectations (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Extreme positioning (Spec_zscore &ge; |2.0|) identifies high vulnerability to policy surprises; current levels indicate low consensus fragility (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Price stability alongside rising positioning flow suggests a "Long Build" supportive of the current price trend (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Fed Funds Individual Market Analysis: latest observation 2026-03-31 (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the sharp reduction in speculative crowding; the Spec z-score has moved from 2.36 (extreme) to 0.27 (neutral) over the last quarter (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Recent 4-week flow shows a "Long Build" of 7.5%, indicating a stabilisation in rate expectations after a period of heavy liquidation (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Positioning tension has dropped significantly, with the tension score falling from 4.73 to 0.56 (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: Speculator z-score moving beyond ±2.0.</li>
-        <li>The signal is currently stabilising following the resolution of a bearish reversal risk period in January (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The primary driver is the reversal in 4-week flow from -18.3 (Feb 03) to +6.4 (Mar 31), indicating a tactical shift back toward long exposure (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Momentum is stabilizing as Speculator z-scores move from -1.05 toward neutral (0.13), reducing mean-reversion pressure (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: A sharp weekly flow move exceeding -10.0 would suggest a forced de-leveraging event or a pivot in policy-path consensus (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Positioning tension has collapsed from 4.31 to 0.31, indicating high internal coherence between participants (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Continued consolidation as market expectations align with current policy levels.</li>
-        <li>Upside risk: Accelerated "Long Build" flow triggering a shift toward an "Extreme Long" regime if policy easing expectations re-intensify.</li>
-        <li>Downside risk: Renewed "Long Reduction" flow if inflation data forces a hawkish repricing.</li>
+        <li>Base case dominant: Continued gradual long accumulation as market expectations align with Fed guidance.</li>
+        <li>Upside risk: A "Squeeze risk" regime if short covers accelerate alongside bullish macro data.</li>
+        <li>Downside risk: Sudden long liquidation triggered by a hawkish surprise in CPI or employment data.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks) based on 4-week flow momentum rules (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: Medium; the signal effectively identifies the exhaustion of previous policy-path consensus.</li>
+        <li>Time Horizon: Tactical (weeks); driven by 4-week flow momentum and weekly positioning shifts (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Medium; current neutrality provides a clean baseline for combining with directional macro themes.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Macro dimension: Policy-path fragility and liquidity pricing.</li>
-        <li>Economic mechanism: Repricing of Federal Reserve policy expectations via futures market positioning.</li>
+        <li>Informs the Liquidity and Policy Path dimension by quantifying market consensus on the Fed's rate trajectory (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The economic mechanism is the repricing of front-end rates, affecting short-term funding costs and USD attractiveness.</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with USD and Treasury yield signals to confirm or conflict with broader rate-path consensus (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Typical interaction: High sensitivity to 2-Year Treasury yields and USD index momentum (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>The regime has successfully transitioned from an "Elevated Risk" state (Dec 2025) to a "Normal" state (Mar 2026).</li>
-    <li>Direction of change: Stabilising after a significant deleveraging of speculative longs (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>The signal is persistent in a "Normal" state following a transition from "Elevated Risk" in late 2025 (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Direction of change: Stabilising, as z-scores have moved from historical extremes toward the 52-week mean (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>CoT reporting contains a lag; signal is highly sensitive to discrete FOMC and CPI calendar events (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Lagging CoT reporting (data delay) and binary sensitivity to discrete FOMC or CPI calendar events (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Fed Fund Individual Market Analysis (2026-03-24) (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Dominant datapoints: Speculator z-score (0.27) and Flow_4w (7.5).</li>
-        <li>VIX Futures and US Treasury 2-Year Note analysis would improve reliability of the policy-path bias.</li>
+        <li>FED FUNDS - CHICAGO BOARD OF TRADE (CoT): 2026-03-31 (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Most influential: 4-week flow (+6.4) and Spec Net % OI (-2.4%).</li>
+        <li>Relevant external data: 2Y Treasury Yields and VIX Futures (<a href="https://investoranatomy.com/signal_report/FedFund_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
-</div>
-
-<!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Update frequency for Fed Fund CoT data is not explicitly defined in the methodology, preventing "Fresh" classification.</li>
-</ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_FED_FUNDS_Diagnostics.png" alt="Fed Fund - Individual Market Analysis" /><div class="media-cap">Fed Fund - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_FED_FUNDS_Diagnostics.png" alt="Fed Fund - Individual Market Analysis" /><div class="media-cap">Fed Fund - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-nasdaq_individual_market_analysis" aria-labelledby="tab-nasdaq_individual_market_analysis" hidden><div class="panel-title">Nasdaq - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -663,72 +724,73 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement (mandatory):</strong>
-            Given a Spec_Net_%OI of 1.7%, a Spec_zscore of -1.58, and negative 4-week flow of -1.3, this setup aligns with
-            Transition-biased price paths and Elevated volatility,
-            where the dominant risk is Mean reversion, not Trend continuation (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).
+            <strong>Configuration statement:</strong>
+            Given a Spec Net %OI of 7.6, Spec Z-score of -0.35, and 4-week flow strength of 8.4 (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>), this setup aligns with
+            Upward-biased price paths and Compressed volatility,
+            where the dominant risk is Short covering / squeeze, not Trend continuation.
         </li>
-        <li>The signal is currently in a High_Tension_Low_Flags state within a Balanced_Short_Bias market structure (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: Mixed Signals; Internal Conflict Flag: Yes. Signal Stability Assessment: Volatile; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
+        <li>The signal has transitioned from a Crowded Short extreme in early March back to a Normal regime with positive speculative momentum (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Far; Revision Sensitivity: Moderate.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Speculator Z-Score <= -2: Indicates crowded short positioning and high upside convexity (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Flow opposes Net Direction: Suggests conviction is fading as traders de-risk (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Positioning Tension Score: Measures the degree of divergence between participant groups to assess fragility (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Nasdaq-100 Consolidated (CME), latest observation: 2026-03-24 (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Price-Positioning Divergence: "Price down AND Positioning momentum up" implies bottoming risk and a potential bear trap (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Speculator Z-Score: Values moving from -2.12 toward zero indicate a release of extreme bearish crowding (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Flow Momentum: Positive 4-week flow (8.4) in a long build label signals trend sponsorship recovery (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Dataset: NASDAQ-100 Consolidated CoT (Latest observation: 2026-03-31) (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the Spec_zscore (-1.58), which shows speculative participation at multi-month lows relative to historical capacity (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Momentum is currently negative (Flow_4w of -1.3), but the extreme negative z-score on 2026-03-03 (-2.12) suggests a recent peak in bearishness is trying to stabilize (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Internal Conflict: Speculators remain technically net long (+1.7%) while their historical stretch (z-score) is deeply negative, reflecting low conviction (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: 4-week net flow turning positive (Long_Build) would confirm a tactical bottom.</li>
-        <li>Stability: The signal is volatile, having transitioned from "Elevated Risk" to "High Tension" in three weeks as price declined (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The primary driver is the sharp reversal in Speculator Z-score from -2.12 (Mar 3) to -0.35 (Mar 31) (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Recent price weakness (23915) combined with a "Long Build" flow of 8.4 suggests an accumulation phase (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Internal Tension: Speculators are adding exposure despite price continuing to make lower lows since January (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Conditional Invalidation: Flow turning negative while positioning remains near neutral would signal a loss of recovery sponsorship.</li>
+        <li>Stability: Persistent improvement in flow momentum over the last three weeks indicates stabilizing participation.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Continued range-bound consolidation as speculative sponsorship remains absent.</li>
-        <li>Upside risk: Non-linear short squeeze triggered by a positive flow reversal against crowded "short-stretch" positioning.</li>
-        <li>Downside risk: Persistent long reduction leading to price exhaustion if major supports are breached.</li>
+        <li>Base case dominant: Tactical rebound as short-covering momentum offsets recent price weakness.</li>
+        <li>Upside risk: Non-linear squeeze if real rates soften, triggering aggressive re-entry of speculative longs.</li>
+        <li>Downside risk: Trend continuation if broad equity breadth fails, forcing a liquidation of new speculative builds.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Tactical (weeks): Based on 4-week flow momentum and proximity to speculative exhaustion thresholds.</li>
-        <li>Aggregation Weight Hint: Medium; the signal identifies fragility but lacks a confirmed flow trigger.</li>
+        <li>Time Horizon: Tactical (weeks) based on high-velocity flow shifts and recent extreme positioning reversal.</li>
+        <li>Aggregation Weight Hint: High, as the Nasdaq serves as a primary proxy for growth-duration exposure and liquidity sensitivity.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs growth-beta risk sentiment and positioning fragility in technology-heavy indices (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Mechanism: High-tension positioning suggests sensitivity to real-rate shifts or liquidity shocks.</li>
+        <li>Informs the Growth-beta dimension by monitoring the concentration of speculative duration risk.</li>
+        <li>Implied Mechanism: Liquidity-driven mean reversion; recent extreme short positioning provided the "coiled spring" for the current build.</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with US Treasury yields and broad equity breadth signals to confirm risk-off regimes.</li>
+        <li>Interacts with real rates and USD signals to confirm the sustainability of growth-factor sponsorship.</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>The regime is newly entered (High_Tension) following an extreme bearish exhaustion print earlier in the month (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-    <li>Direction: Stabilising at low participation levels, though price remains under pressure (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>The signal is stabilizing after a brief "Elevated Risk" regime entry in early March (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Direction of change: Strengthening speculative participation despite negative price action.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>CoT data is lagging; momentum can persist at extremes longer than thresholds imply (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Weekly CoT reporting lag may mask mid-week sentiment shifts during high volatility events.</li>
+    <li>Momentum can occasionally persist at extremes longer than z-score thresholds suggest.</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Latest Data: 2026-03-24, Spec_Net_%OI: 1.7%, Spec_zscore: -1.58 (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Influential Datapoints: Positioning Tension Score (3.06) and 4-week Flow (-1.3).</li>
-        <li>Public Datasets: VXN (Nasdaq Volatility) and 10-Year Real Yields would provide better context for positioning reversals.</li>
+        <li>Latest CoT report (2026-03-31): Spec Net %OI 7.6, Price 23915.00 (<a href="https://investoranatomy.com/signal_report/NASDAQ_100_Consolidated_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Most influential: Speculator Z-score recovery from -2.12 extreme.</li>
+        <li>Additional data: Real yields (10Y TIPS) and VXN volatility index would provide critical confirmation of the duration-risk regime.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_NASDAQ_Diagnostics.png" alt="Nasdaq - Individual Market Analysis" /><div class="media-cap">Nasdaq - Individual Market Analysis</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_NASDAQ_Diagnostics.png" alt="Nasdaq - Individual Market Analysis" /><div class="media-cap">Nasdaq - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-emini_sp500_individual_market_analysis" aria-labelledby="tab-emini_sp500_individual_market_analysis" hidden><div class="panel-title">EMINI S&amp;P 500 - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -737,70 +799,77 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given a Speculator Z-score of 0.99, 4-week flow of 5.3, and a declining price to 6606, this setup aligns with Range-biased price paths and Normal volatility, where the dominant risk is Mean reversion, not Trend continuation. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)
+            Given a Spec_zscore of 1.97, Spec_Net_%OI of -2.2%, and a 4-week flow of 6.0, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is Mean reversion, not Trend continuation (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).
         </li>
-        <li>The signal is currently in a "Balanced_Long_Bias" regime with a "High_Tension_Low_Flags" synthetic state. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Unknown.</li>
+        <li>The signal is in a "Balanced_Long_Bias" regime characterized by high internal tension and significant long-side accumulation despite price weakness.</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Improving; Threshold Proximity: Near; Revision Sensitivity: Unknown.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Price down AND Positioning momentum up (Rule 5): Interpreted as the selloff losing sponsorship and rising bottoming risk. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Speculator Z-score (Level): Measures intensity relative to historical norms; values |z| &lt; 2 are considered non-extreme. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>4-Week Flow (Direction): Primary indicator of tactical sponsorship; currently showing a "Long Build." (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>E-MINI S&P 500 CoT Analysis (2026-03-24): Latest observation used to assess institutional beta and hedging. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Price/Positioning Divergence: If price is down and positioning momentum is up, bottoming risk and mean reversion potential rise (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Z-score Stretch: Absolute values exceeding 2.0 signal extreme imbalance and high fragility (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Flow Analysis: 4-week positioning shifts serve as the primary indicator for changes in tactical sponsorship.</li>
+        <li>Latest observation: 2026-03-31 (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the divergence between falling prices and accelerating 4-week speculative flow (5.3). (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>A "High Tension" score (2.046) arises as speculators add length while hedgers move into "Deep Short" pressure. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Flow momentum is improving (increasing from 4.1 to 5.3) despite the immediate price peak. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Conditional Invalidation: 4-week flow turning negative or Speculator Z-score crossing below 0. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Revision window cannot be assessed from provided content.</li>
+        <li>Dominant Driver: Strong 4-week "Long_Build" (+6.0) indicates institutional sponsorship is increasing during a price drawdown (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Regime state: High_Tension_Low_Flags, as Spec_zscore (1.97) nears the extreme threshold while price trends lower.</li>
+        <li>Internal Tensions: Divergence between falling price (6570.75) and rising speculative intensity suggests a potential floor is forming.</li>
+        <li>Conditional Invalidation: Speculator Z-score exceeding 2.0 would shift the interpretation from bottoming risk to extreme fragility/exhaustion (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Stability: Improving; positioning momentum has accelerated from 0.1 to 6.0 over the last five reports.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Price stabilization and mean reversion supported by persistent tactical sponsorship.</li>
-        <li>Most plausible upside risk: Short covering relief rally if price finds a floor near current levels.</li>
-        <li>Most plausible downside risk: Liquidation event triggered by a break in positive flow momentum.</li>
+        <li>Base Case dominant: Mean reversion and price stabilization supported by persistent long-side building.</li>
+        <li>Upside risk: Sharp relief rally triggered by short-covering if price stabilizes at current levels.</li>
+        <li>Downside risk: De-risking liquidation triggered by an "Extreme" Z-score stretch above 2.0.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks); CoT flows capture shifts in short-term institutional risk appetite. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Aggregation Weight Hint: Medium; high internal coherence of the divergence rule justifies significant consideration.</li>
+        <li>Time Horizon: Tactical (weeks) based on the responsiveness of 4-week flow shifts.</li>
+        <li>Aggregation Weight Hint: Medium due to the signal's proximity to historical extreme thresholds.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs institutional risk appetite and market fragility dimensions. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Economic mechanism: Speculators are currently absorbing hedger supply expansion (Hedger Deep Short), suggesting a bottoming process. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Macro dimension: Institutional risk appetite and beta management (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Rising speculative sponsorship during price declines implies institutional "dip-buying" or a reduction in hedging demand.</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with VIX futures and macro data surprises to confirm de-risking or re-risking. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Interacts with VIX positioning and macro data surprises to confirm sponsorship shifts.</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Regime is persistent; "Balanced_Long_Bias" has been maintained since December 2025. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-    <li>Direction of change: Strengthening tactical momentum within a stable structural bias. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
+    <li>Persistent: The "Balanced_Long_Bias" has remained the dominant market structure since late December 2025.</li>
+    <li>Direction of change: Strengthening; tactical sponsorship (Flow_4w) has reached a multi-month high.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Net positioning signs can be misleading due to hedging noise and commercial intermediation. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-    <li>Extreme positioning levels can persist indefinitely without a catalyst. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
+    <li>Net positioning signs can be misleading due to institutional hedging noise (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
+    <li>Extreme levels can persist for extended periods during strong trend phases.</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>CoT Futures Data (legacy): Latest observation 2026-03-24. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>Speculator Net %OI and 4-week Flow are the most influential datapoints. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
-        <li>VIX Futures and Earnings Volatility data would improve reliability. (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Latest Observation: 2026-03-31; Spec_zscore: 1.97; Flow_4w: 6.0 (<a href="https://investoranatomy.com/signal_report/EMINI_SP500_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Most influential: Spec_zscore proximity to 2.0 and the accelerating 4-week flow strength.</li>
+        <li>Useful additions: VIX Futures positioning (<a href="https://investoranatomy.com/signal_report/VIX_CoT_Signals/" target="_blank">2</a>) and S&P 500 earnings volatility.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_SP500_Diagnostics.png" alt="EMINI S&amp;P 500 - Individual Market Analysis" /><div class="media-cap">EMINI S&amp;P 500 - Individual Market Analysis</div></figure></div></div>
+</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Include VIX Futures positioning to validate if the current "Long Build" is accompanied by institutional hedging de-risking.</li>
+</ul>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_SP500_Diagnostics.png" alt="EMINI S&amp;P 500 - Individual Market Analysis" /><div class="media-cap">EMINI S&amp;P 500 - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-russell_e_mini_individual_market_analysis" aria-labelledby="tab-russell_e_mini_individual_market_analysis" hidden><div class="panel-title">Russell E-mini - Individual Market Analysis</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -809,71 +878,76 @@
     <ul>
         <li>
             <strong>Configuration statement:</strong>
-            Given a Speculator Net %OI of -6.7 and a consistent 4-week flow of -5.9 (Long Reduction), this setup aligns with
-            Downward-biased price paths and Normal volatility,
-            where the dominant risk is Trend continuation, not mean reversion (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).
+            Given a <strong>Spec_Net_%OI</strong> of -4.5 and a <strong>Flow_4w</strong> of -2.8, this setup aligns with 
+            <strong>Downward-biased</strong> price paths and <strong>Normal</strong> volatility, 
+            where the dominant risk is a <strong>Regime shift</strong>, not a mean reversion. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)
         </li>
-        <li>The signal is currently in a Balanced_Short_Bias regime with a Normal synthetic state, reflecting a transition away from late-2025 bullishness (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stable; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
+        <li>The signal is currently in a <strong>Balanced_Short_Bias</strong> regime, characterized by a persistent eight-week "Long_Reduction" flow cycle. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Conviction Band: <strong>High</strong>; Interpretation Confidence: <strong>High Confidence</strong>; Internal Conflict Flag: <strong>No</strong>. Signal Stability Assessment: <strong>Stable</strong>; Threshold Proximity: <strong>Moderate</strong>; Revision Sensitivity: <strong>Unknown</strong>.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Multi-week long reductions (observed since Feb 2026) serve as an early recession signaling mechanism, implying broader equity de-risking (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Flow direction (Long Reduction) is prioritized over absolute net signs to identify tactical shifts in domestic growth expectations (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Positioning Tension scores (currently 0.199) gauge regime instability; low scores suggest a lack of immediate volatility spikes (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Russell E-Mini Analysis (Latest: 2026-03-24).</li>
+        <li><strong>Flow Momentum:</strong> Multi-week long reductions in <strong>Flow_4w</strong> are interpreted as early recession signaling and a precursor to broader equity de-risking. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li><strong>Regime Bias:</strong> Falling <strong>Spec_zscore</strong> values imply credit stress or a transition to a risk-off environment. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li><strong>Russell E-Mini Signal:</strong> Tracks domestic growth expectations and small-cap balance sheet sensitivity to funding stress. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Latest observation date: 2026-03-31.</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>The primary driver is the sustained "Long_Reduction" flow (-5.9 strength), which suggests fading conviction in domestic cyclical expansion (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Market structure has stabilized into a short-biased configuration following a regime shift in mid-February 2026 (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: A reversal to positive 4-week capital flow or Speculator Z-score crossing above +0.75.</li>
-        <li>The signal shows high persistence, with seven consecutive weeks of short-biased structure (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The primary driver is the sustained <strong>Long_Reduction</strong> capital flow (-8.6 strength at peak), indicating fading conviction among speculators. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li><strong>Positioning Tension</strong> has stabilized at low levels (0.81) following a sharp deleveraging from January peaks (3.78). (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li><strong>Conditional Invalidation:</strong> A reversal to positive 4-week capital flow (Long_Build) would invalidate the current downward bias.</li>
+        <li>The signal demonstrates high persistence in its current bearish trajectory since the February regime shift. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base Case dominant: Persistent downward bias as participants hedge against domestic growth deceleration.</li>
-        <li>Upside risk: Tactical relief rally triggered by a sudden shift to "Long_Build" flow.</li>
-        <li>Downside risk: Accelerated liquidation if credit spreads widen, forcing a move toward extreme negative z-scores.</li>
+        <li><strong>Base Case dominant:</strong> Continued price-path erosion as speculative support is withdrawn amid tightening domestic conditions.</li>
+        <li><strong>Upside risk:</strong> Tactical relief rally triggered by short-covering if <strong>Spec_zscore</strong> reaches extreme negative levels (<-2.0).</li>
+        <li><strong>Downside risk:</strong> Accelerated liquidation if credit spreads widen, exposing small-cap funding vulnerabilities.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Tactical (weeks): Based on the 4-week capital flow momentum and weekly reporting structure (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: Medium; the signal effectively captures marginal risk tolerance in credit-sensitive equities.</li>
+        <li><strong>Tactical (weeks):</strong> The 4-week flow momentum dominates short-term price action.</li>
+        <li><strong>Aggregation Weight Hint: High:</strong> As a proxy for marginal risk tolerance, this signal provides leading context for broader US equity sentiment.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the domestic growth and credit conditions dimension by proxying small-cap balance sheet sensitivity (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>The negative flow implies a demand contraction mechanism and rising recession hedging among speculators.</li>
+        <li>Informs the <strong>US Growth & Business Cycle</strong> by gauging the health of credit-sensitive domestic firms. (<a href="https://investoranatomy.com/signal_report/ia_us_macro_regime/" target="_blank">2</a>)</li>
+        <li>Implies a <strong>Liquidity</strong> withdrawal mechanism; as speculators reduce exposure, the market becomes more sensitive to funding shocks. (<a href="https://investoranatomy.com/signal_report/ia_us_liquidity_and_monetary_conditions/" target="_blank">3</a>)</li>
         <li>Cycle position: Not determined.</li>
-        <li>Interacts with credit spreads and bank lending standards to confirm systemic funding stress.</li>
+        <li>Interacts with <strong>Credit Spreads</strong> and <strong>Bank Lending Standards</strong> to confirm recessionary transitions.</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Persistent regime; the signal has maintained a "Balanced_Short_Bias" since February 10, 2026 (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-    <li>Direction of change: Stabilizing at neutral-to-bearish levels as tension scores have collapsed from January peaks (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>The signal transitioned from a <strong>Balanced_Long_Bias</strong> to <strong>Balanced_Short_Bias</strong> in mid-February 2026. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>The current bearish regime is <strong>Persistent</strong> and <strong>Stabilizing</strong> at lower positioning levels.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>Weekly reporting lag (CoT delay) may miss intra-week funding shocks.</li>
-    <li>High sensitivity to tactical short-horizon flows can produce noise in low-volatility environments (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
+        <li>Weak trend persistence and sensitivity to tactical, short-horizon flows can lead to frequent mean-reversion noise.</li>
+        <li>Weekly CoT reporting lag may mask intra-week volatility spikes.</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>Russell E-Mini (CoT): 2026-03-24 (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Dominant datapoints: Flow_4w (-5.9) and Spec_Net_%OI (-6.7) (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>).</li>
-        <li>Credit Spreads and Federal Reserve Bank Lending Standards would provide critical confirmation of the implied credit-stress mechanism.</li>
+        <li>RUSSELL E-MINI (CME) CoT Data through 2026-03-31. (<a href="https://investoranatomy.com/signal_report/Russell_EMini_CoT_Signals/" target="_blank">1</a>)</li>
+        <li>Influential datapoints: <strong>Spec_Net_%OI</strong> (-4.5) and <strong>Flow_4w</strong> (-2.8).</li>
+        <li>Public datasets: ICE BofA High Yield Spreads and St. Louis Fed Financial Stress Index for credit confirmation.</li>
     </ul>
 
-</div></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Russell_Diagnostics.png" alt="Russell E-mini - Individual Market Analysis" /><div class="media-cap">Russell E-mini - Individual Market Analysis</div></figure></div></div>
+</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
+<h3>Missing Content / Critical Improvements</h3>
+<ul>
+  <li>Revision window cannot be assessed from provided content.</li>
+</ul>
+--></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Russell_Diagnostics.png" alt="Russell E-mini - Individual Market Analysis" /><div class="media-cap">Russell E-mini - Individual Market Analysis</div></figure></div></div>
 <div class="panel" role="tabpanel" id="panel-squeeze_exhaustion_risk_indicators" aria-labelledby="tab-squeeze_exhaustion_risk_indicators" hidden><div class="panel-title">Squeeze &amp; Exhaustion Risk Indicators</div><div class="panel-body"><div class="market-report">
 
     <p style="margin-top:0.75rem;"></p>
@@ -881,89 +955,106 @@
     <p><strong>Signal Summary:</strong></p>
     <ul>
         <li>
-            <strong>Configuration statement (mandatory):</strong>
-            Given a Squeeze z-score of -0.99 and an Exhaustion z-score of 0.33, this setup aligns with
-            Range-biased price paths and Compressed volatility,
-            where the dominant risk is Trend continuation, not Regime shift.
+            <strong>Configuration statement:</strong>
+            Given a Squeeze_z of -0.04 and an Exhaustion_z of 0.15, this setup aligns with
+            Range-biased price paths and Normal volatility,
+            where the dominant risk is Mean reversion, not Regime shift.
         </li>
-        <li>The signal is currently in a double "Normal" regime, indicating tactical risks are within historical medians (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No. Signal Stability Assessment: Stabilising; Threshold Proximity: Far; Revision Sensitivity: Unknown.</li>
+        <li>The signal currently occupies a Normal regime for both squeeze and exhaustion breadth (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Conviction Band: Medium; Interpretation Confidence: High Confidence; Internal Conflict Flag: No.</li>
+        <li>Signal Stability Assessment: Improving; Threshold Proximity: Moderate; Revision Sensitivity: Low.</li>
     </ul>
 
     <p><strong>Methodology Applied:</strong></p>
     <ul>
-        <li>Tactical fragility is measured by the breadth of markets experiencing forced liquidation (squeeze) or momentum decay (exhaustion) (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Z-scores below 0.5 classify a "Normal" regime where trends are less likely to face immediate structural failure (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>The methodology uses z-score thresholds of 0.5 (Moderate) and 1.0 (High) to signal tactical fragility (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Data used: CoT Squeeze and Exhaustion breadth; latest observation date: 2026-03-24.</li>
+        <li>Z-scores below 0.5 define a Normal regime where tactical risks align with historical medians (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Exhaustion_z measures trend fatigue; values above 1.0 imply a high probability of trend reversal (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Squeeze_z measures forced covering risk; high breadth indicates vulnerability to flow-driven price spikes (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Dataset: CoT Tactical Breadth (Latest: 2026-03-31).</li>
     </ul>
 
     <p><strong>Key Dynamics:</strong></p>
     <ul>
-        <li>Dominant drivers are the declining Squeeze_z (-0.99) and the mean-reversion of Exhaustion_z (0.33) into the Normal range (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Exhaustion has stabilised following a period of Moderate Risk in early March (peak z=0.94) (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Speculative crowding remains concentrated in longs (96 markets) versus shorts (75 markets), though breadth is not yet triggering squeeze flags (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Conditional Invalidation: A rise in either Squeeze_z or Exhaustion_z above the 1.0 threshold.</li>
-        <li>Signal stability is improving as tactical fatigue levels retreat toward the historical mean.</li>
+        <li>Exhaustion breadth has stabilised following a peak of 0.94 on March 3 (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Squeeze risk has recovered from extreme lows (-0.98) to a neutral level (-0.04) (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>There are no internal tensions as both metrics confirm a lack of extreme tactical stress.</li>
+        <li>Conditional Invalidation: Any component z-score crossing above the 1.0 threshold for High Risk (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>The signal shows improving stability as it moves away from earlier "Moderate" risk levels.</li>
     </ul>
 
     <p><strong>Scenario Balance:</strong></p>
     <ul>
-        <li>Base case dominant: Continued trend stability as tactical risks remain within historical medians.</li>
-        <li>Upside secondary: Expansion of trend duration driven by the absence of forced liquidation pressure.</li>
-        <li>Downside residual: Sharp reversal triggered by a rapid spike in exhaustion breadth across the 366 monitored markets.</li>
+        <li>Base Case dominant: Current market trends persist without immediate flow-driven structural failure.</li>
+        <li>Upside secondary: Sustained low breadth signals clean positioning and potential for trend extensions.</li>
+        <li>Downside residual: Rapid rise in exhaustion breadth indicates widespread trend fatigue and reversal.</li>
     </ul>
 
     <p><strong>Time Horizon & Aggregation:</strong></p>
     <ul>
-        <li>Time Horizon: Tactical (weeks), as the signal tracks short-term flow shifts and positioning decay (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Aggregation Weight Hint: Medium; it serves as a critical contrarian filter for trend-following models.</li>
+        <li>Tactical (weeks): The signal monitors short-term positioning fragility and trend maturity (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Aggregation Weight Hint: Low; current "Normal" readings suggest no immediate tactical headwind for macro trends.</li>
     </ul>
 
     <p><strong>Macro Relevance:</strong></p>
     <ul>
-        <li>Informs the liquidity and sentiment dimensions by identifying cross-market tactical maturity (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>The current "Normal" direction implies a healthy absorption of flows without immediate squeeze-driven volatility.</li>
+        <li>This signal informs the sentiment and positioning dimension of the macro complex (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Economic mechanism: Identifies potential for non-fundamental volatility driven by forced liquidation or momentum decay.</li>
         <li>Cycle position: Not determined.</li>
-        <li>Typically interacts with VIX/MOVE and credit spreads to confirm systemic versus tactical stress (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Interacts with VIX and Credit Spreads to confirm systemic or tactical stress regimes (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
     </ul>
 
     <p><strong>Regime Context:</strong></p>
     <ul>
-    <li>Persistent "Normal" Squeeze regime; recent transition from "Moderate Exhaustion" to "Normal" Exhaustion.</li>
-    <li>Direction of change: Stabilising.</li>
+    <li>The Exhaustion regime transitioned from Moderate Risk back to Normal over the last three weeks (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+    <li>Direction of change: Stabilising at neutral levels following a period of moderate trend fatigue.</li>
     </ul>
 
     <p><strong>Model Limitations:</strong></p>
     <ul>
-    <li>The signal is sector-agnostic and relies on lagging CoT reporting frequency (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-    <li>Dependent on the accuracy of upstream market-level flags (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+    <li>Sector-agnostic approach ignores potential concentration risks in specific asset classes (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+    <li>Reporting frequency for CoT data is inherently lagging.</li>
     </ul>
 
     <p><strong>Data & References:</strong></p>
     <ul>
-        <li>CoT Squeeze & Exhaustion breadth (2026-03-24) (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
-        <li>Influential points: Squeeze_z (-0.99) and current count of 96 crowded longs.</li>
-        <li>Public datasets: VIX Futures and MOVE Index would improve tactical reliability.</li>
+        <li>Latest Data: 2026-03-31; influential datapoints: Squeeze_z (-0.04) and Exhaustion_z (0.15) (<a href="https://investoranatomy.com/signal_report/Squeeze_Exhaustion_Risk/" target="_blank">1</a>).</li>
+        <li>Public datasets: VIX Index and MOVE Index for cross-confirmation of volatility regimes.</li>
     </ul>
 
-</div><!-- Comment out improvements so they are not visible to end users but available in the HTML for future processing. 
-<h3>Missing Content / Critical Improvements</h3>
-<ul>
-  <li>Revision window cannot be assessed from provided content; require release/pull timing metadata.</li>
-</ul>
---></div><div class="panel-media"><figure class="media"><img src="/images/CoT_Squeeze_Exhaustion_Risk.png" alt="Squeeze &amp; Exhaustion Risk Indicators" /><div class="media-cap">Squeeze &amp; Exhaustion Risk Indicators</div></figure></div></div>
+</div></div><div class="panel-media panel-media--single"><figure class="media"><img src="/images/CoT_Squeeze_Exhaustion_Risk.png" alt="Squeeze &amp; Exhaustion Risk Indicators" /><div class="media-cap">Squeeze &amp; Exhaustion Risk Indicators</div></figure></div></div>
         </div>
       </aside>
     </section>
 
-    <footer>
-      <div class="pill">Investor Anatomy - Cross Asset Positioning and Sentiment Analyst - Not Investment Advice</div>
-      <div class="disclaimer">
-        The information presented is for general informational purposes only and does not constitute financial or investment advice. It has been prepared without regard to individual objectives, financial situation, or needs. You should consider whether it is appropriate for your circumstances and seek independent advice where necessary.
-      </div>
-    </footer>
   </main>
+
+  <footer class="universal-footer">
+    <div class="universal-footer-inner">
+      <div class="universal-footer-top">
+        <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+        <a href="https://www.linkedin.com/company/investoranatomy/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Investor Anatomy on LinkedIn"
+           class="universal-footer-linkedin">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               fill="#0A66C2"
+               aria-hidden="true">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+          </svg>
+        </a>
+      </div>
+      <p class="universal-footer-disclaimer">
+        The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs.<br /><br />
+        All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions.<br /><br />
+        No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+      </p>
+      <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+    </div>
+  </footer>
 
   <script>
     (function(){
@@ -1000,6 +1091,9 @@
 
       const initial = tabs.find(t => t.classList.contains('is-active')) || tabs[0];
       activate(initial);
+
+      const footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = String(new Date().getFullYear());
     })();
   </script>
 </body>
