@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   function toArray(value) {
     return Array.isArray(value) ? value : [];
   }
@@ -141,7 +141,7 @@
       return;
     }
 
-    var visibleRecords = records.slice(0, visibleWeekCount).reverse();
+    var visibleRecords = records.slice(0, visibleWeekCount);
     var table = document.createElement("table");
     table.className = "reporting-table";
 
