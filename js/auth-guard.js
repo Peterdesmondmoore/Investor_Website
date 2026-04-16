@@ -15,6 +15,21 @@
   
   const AuthGuard = {
     /**
+     * Send auth-gate analytics without blocking the popup flow.
+     * @param {string} category
+     */
+    trackAuthGateShown: function(category) {
+      if (!window.IA_MONITOR || typeof window.IA_MONITOR.track !== 'function') {
+        return;
+      }
+
+      window.IA_MONITOR.track('auth_gate_shown', {
+        access_category: category || '',
+        gate_type: 'modal'
+      });
+    },
+
+    /**
      * Check if user is authenticated via Netlify Identity
      * @returns {boolean} True if user is logged in
      */
@@ -37,6 +52,8 @@
       const category = window.AuthConfig.getCategoryForPath(currentPath);
       const categoryInfo = window.AuthConfig.categories[category];
       const redirectUrl = window.AuthConfig.redirectUrl;
+
+      this.trackAuthGateShown(category);
       
       // Create modal overlay
       const overlay = document.createElement('div');

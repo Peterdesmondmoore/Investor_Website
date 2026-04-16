@@ -74,6 +74,7 @@ const AuthConfig = {
     '/rss_feed/*': 'signals',
     '/document_library.html': 'signals',
     '/document_library/*': 'signals',
+    '/signal_monitor/*': 'signals',
     '/trading-recommendation/*': 'signals',
     
     // Market reports
@@ -82,6 +83,7 @@ const AuthConfig = {
     '/summary-reports/*': 'reports',
     '/pricing-reports/*': 'reports',
     '/signal_report/*': 'reports',
+    '/Podcast_*': 'reports',
     
     // Investment strategy
     '/investment-strategy/*': 'strategy',

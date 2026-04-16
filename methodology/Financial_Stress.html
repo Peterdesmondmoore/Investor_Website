@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Netlify Identity Widget for Authentication -->
@@ -6,11 +6,18 @@
 
   <!-- Authentication System -->
   <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/monitoring.js"></script>
+  <script>
+    window.IA_MONITORING_CONFIG = {
+      ga4MeasurementId: {{ site.ga4MeasurementId | jsonify }}
+    };
+  </script>
   <script defer src="/js/auth-guard.js"></script>
-
-  <meta charset="UTF-8" />
+<!-- Netlify Identity Widget for Authentication -->
+<!-- Authentication System -->
+<meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Financial Stress Index (STLFSI4) — Methodology</title>
+  <title>Financial Stress Index (STLFSI4) â€” Methodology</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +36,7 @@
     .tag{font-size:.7rem;border:1px solid #e5e7eb;border-radius:.35rem;padding:.1rem .35rem;background:#fff}
   </style>
 </head>
-<body class="bg-white text-slate-800">
+<body class="bg-white text-slate-800" data-ia-page-family="methodology" data-ia-generator-source="website_authored" data-ia-content-name="Financial Stress" data-ia-model-name="Financial_Stress">
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
@@ -44,7 +51,7 @@
       <div class="mt-3 flex gap-2 text-xs text-slate-600">
         <span class="tag">FRED</span>
         <span class="tag">STLFSI4</span>
-        <span class="tag">Weekly (W‑FRI)</span>
+        <span class="tag">Weekly (Wâ€‘FRI)</span>
         <span class="tag">Robust Z</span>
         <span class="tag">Regime Classification</span>
         <span class="tag">Pillar Decomposition (Optional)</span>
@@ -54,7 +61,7 @@
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
-      <p class="leading-7">We convert the St. Louis Fed’s composite financial stress index into a weekly <em>risk-on / risk-off</em> classifier. The series is harmonised to a Friday weekly cadence and forward-filled to remove minor publication gaps. We compute a robust z-score on the level to quantify deviations from its long-run distribution, then classify regimes using transparent rules that combine absolute level with relative z-score.</p>
+      <p class="leading-7">We convert the St. Louis Fedâ€™s composite financial stress index into a weekly <em>risk-on / risk-off</em> classifier. The series is harmonised to a Friday weekly cadence and forward-filled to remove minor publication gaps. We compute a robust z-score on the level to quantify deviations from its long-run distribution, then classify regimes using transparent rules that combine absolute level with relative z-score.</p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -65,7 +72,7 @@
 
   <h3 class="text-lg font-semibold text-slate-900 mt-2">1.1 Primary composite (baseline)</h3>
   <ul class="list-disc pl-6 leading-7">
-    <li><b>STLFSI4</b> — St. Louis Fed Financial Stress Index (rev. 4), weekly composite published by the Federal Reserve Bank of St. Louis via FRED.</li>
+    <li><b>STLFSI4</b> â€” St. Louis Fed Financial Stress Index (rev. 4), weekly composite published by the Federal Reserve Bank of St. Louis via FRED.</li>
   </ul>
 
   <p class="leading-7 mt-3">
@@ -78,10 +85,10 @@
 stlfsi = fred.get_series("STLFSI4")
 df_stress = pd.DataFrame(stlfsi, columns=["STLFSI4"])
 df_stress = df_stress.resample("W-FRI").last().ffill()
-print("✅ STLFSI4 data retrieved."); print(df_stress.tail())</code></pre>
+print("âœ… STLFSI4 data retrieved."); print(df_stress.tail())</code></pre>
   </div>
 
-  <h3 class="text-lg font-semibold text-slate-900 mt-6">1.2 Optional “pillar” components (for interpretability)</h3>
+  <h3 class="text-lg font-semibold text-slate-900 mt-6">1.2 Optional â€œpillarâ€ components (for interpretability)</h3>
   <p class="leading-7">
     To make drivers explicit, we optionally source representative sub-series and map them into three pillars. These components are typically
     <em>near real-time</em>, but can suffer outages, late updates, or discontinuations (especially interbank-spread series).
@@ -101,7 +108,7 @@ print("✅ STLFSI4 data retrieved."); print(df_stress.tail())</code></pre>
         <tr class="border-t">
           <td class="py-2 pr-3"><b>Volatility</b></td>
           <td class="py-2 pr-3"><code>VIXCLS</code></td>
-          <td class="py-2 pr-3">Equity implied volatility (“risk aversion / uncertainty” proxy).</td>
+          <td class="py-2 pr-3">Equity implied volatility (â€œrisk aversion / uncertaintyâ€ proxy).</td>
           <td class="py-2">Daily close; resampled to <code>W-FRI</code>.</td>
         </tr>
         <tr class="border-t">
@@ -114,7 +121,7 @@ print("✅ STLFSI4 data retrieved."); print(df_stress.tail())</code></pre>
           <td class="py-2 pr-3"><b>Liquidity</b></td>
           <td class="py-2 pr-3"><code>TEDRATE</code></td>
           <td class="py-2 pr-3">Interbank/treasury funding stress proxy (TED spread).</td>
-          <td class="py-2">Marked “DISCONTINUED” on FRED; when stale, pillar confidence is reduced and/or a replacement spread should be substituted.</td>
+          <td class="py-2">Marked â€œDISCONTINUEDâ€ on FRED; when stale, pillar confidence is reduced and/or a replacement spread should be substituted.</td>
         </tr>
       </tbody>
     </table>
@@ -138,7 +145,7 @@ df_pillars = df_pillars.resample("W-FRI").last()</code></pre>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2) Robust Z-Score on Level</h2>
-      <p class="leading-7">To measure <em>relative</em> tightness/looseness versus history, we compute a robust z-score using median and MAD over a rolling window. Given weekly data, we use a <span class="font-semibold">3‑year</span> target window (156 weeks) with a <span class="font-semibold">minimum</span> of 52 weeks; if history is shorter, we adapt to 80% of available observations but never below 52.</p>
+      <p class="leading-7">To measure <em>relative</em> tightness/looseness versus history, we compute a robust z-score using median and MAD over a rolling window. Given weekly data, we use a <span class="font-semibold">3â€‘year</span> target window (156 weeks) with a <span class="font-semibold">minimum</span> of 52 weeks; if history is shorter, we adapt to 80% of available observations but never below 52.</p>
       <div class="box text-sm">
         <div class="eq">\( z_t = \dfrac{X_t - \text{median}_W(X)}{1.4826\,\text{MAD}_W(X)} \)</div>
         <p class="mt-2 text-sm">Window choice: \(W = \max\{52, \min(156, \lfloor 0.8\,N \rfloor)\}\), where \(N\) is non-missing sample size.</p>
@@ -159,15 +166,15 @@ df_stress["Stress_z"] = robust_z(df_stress["STLFSI4"], window=156, min_window=52
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2b) Pillar Contributions & Confidence (v1.1, optional)</h2>
       <p class="leading-7">
-        When pillar series are enabled, we compute a robust z-score for each pillar and aggregate them into an explainable “pillar stress”
+        When pillar series are enabled, we compute a robust z-score for each pillar and aggregate them into an explainable â€œpillar stressâ€
         score. Pillars are oriented so that <b>higher</b> values imply <b>more</b> stress.
       </p>
 
       <div class="box text-sm">
         <ul class="list-disc pl-6">
-          <li><b>Volatility pillar:</b> higher <code>VIXCLS</code> → higher stress.</li>
-          <li><b>Credit pillar:</b> wider OAS (<code>BAMLH0A0HYM2</code>) → higher stress.</li>
-          <li><b>Liquidity pillar:</b> wider TED (<code>TEDRATE</code>) → higher stress (but series may be discontinued).</li>
+          <li><b>Volatility pillar:</b> higher <code>VIXCLS</code> â†’ higher stress.</li>
+          <li><b>Credit pillar:</b> wider OAS (<code>BAMLH0A0HYM2</code>) â†’ higher stress.</li>
+          <li><b>Liquidity pillar:</b> wider TED (<code>TEDRATE</code>) â†’ higher stress (but series may be discontinued).</li>
         </ul>
       </div>
 
@@ -201,7 +208,7 @@ for k, w in weights.items():
     return (series.index.max() - series.dropna().index.max()).days if series.dropna().size else 10_000
 
 # Example rule-of-thumb thresholds (tune to your pipeline):
-# 0–7d: OK, 8–21d: stale, &gt;21d: critical (or discontinued)
+# 0â€“7d: OK, 8â€“21d: stale, &gt;21d: critical (or discontinued)
 stale = {
   "vol": staleness_days(df_pillars["VIXCLS"]) &gt; 7,
   "credit": staleness_days(df_pillars["HY_OAS"]) &gt; 7,
@@ -224,8 +231,8 @@ df_pillars["FSI_Confidence"] = (
       <p class="leading-7">We combine <em>absolute level</em> and <em>relative z-score</em> to form weekly regimes:</p>
       <div class="box text-sm">
         <ul class="list-disc pl-6">
-          <li><b>Bearish</b> (risk‑off): <code>STLFSI4 &gt; 0</code> <em>or</em> <code>z &gt; +0.5</code> → tightening / elevated stress</li>
-          <li><b>Bullish</b> (risk‑on): <code>STLFSI4 &lt; 0</code> <em>and</em> <code>z &lt; −0.5</code> → loose conditions</li>
+          <li><b>Bearish</b> (riskâ€‘off): <code>STLFSI4 &gt; 0</code> <em>or</em> <code>z &gt; +0.5</code> â†’ tightening / elevated stress</li>
+          <li><b>Bullish</b> (riskâ€‘on): <code>STLFSI4 &lt; 0</code> <em>and</em> <code>z &lt; âˆ’0.5</code> â†’ loose conditions</li>
           <li><b>Neutral</b>: otherwise (including any NaNs)</li>
         </ul>
       </div>
@@ -273,7 +280,7 @@ df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</
   <h3 class="text-lg font-semibold text-slate-900">6.1 What the headline level means</h3>
   <p class="leading-7">
     <b>STLFSI4 is standardized around a long-run average.</b> In practice, <b>positive</b> values indicate above-average financial stress/tightness,
-    while <b>negative</b> values indicate below-average stress/looser conditions. Treat the level as a “headline” barometer of broad market stress rather than a
+    while <b>negative</b> values indicate below-average stress/looser conditions. Treat the level as a â€œheadlineâ€ barometer of broad market stress rather than a
     single-market signal. (St. Louis Fed STLFSI4 documentation; see References.)
   </p>
 
@@ -286,9 +293,9 @@ df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</
 
   <div class="box text-sm mt-3">
     <ul class="list-disc pl-6">
-      <li><b>z &gt; +0.5:</b> above-normal stress relative to the recent multi-year distribution (watch for “risk-off” behaviour).</li>
-      <li><b>z &lt; −0.5:</b> below-normal stress / easy conditions (often compatible with “risk-on” positioning).</li>
-      <li><b>Near thresholds:</b> expect whipsaw risk; prefer sustained confirmation (e.g., 2–4 weekly closes) if you use this for regime switching.</li>
+      <li><b>z &gt; +0.5:</b> above-normal stress relative to the recent multi-year distribution (watch for â€œrisk-offâ€ behaviour).</li>
+      <li><b>z &lt; âˆ’0.5:</b> below-normal stress / easy conditions (often compatible with â€œrisk-onâ€ positioning).</li>
+      <li><b>Near thresholds:</b> expect whipsaw risk; prefer sustained confirmation (e.g., 2â€“4 weekly closes) if you use this for regime switching.</li>
     </ul>
   </div>
 
@@ -302,7 +309,7 @@ df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</
   <div class="box text-sm mt-3">
     <ul class="list-disc pl-6">
       <li><b>Volatility-led stress:</b> spikes in implied volatility can be sharp and mean-reverting; use for tactical risk management (VIX literature).</li>
-      <li><b>Credit-led stress:</b> widening spreads often carry higher macro predictive content, especially via “excess bond premium” dynamics.</li>
+      <li><b>Credit-led stress:</b> widening spreads often carry higher macro predictive content, especially via â€œexcess bond premiumâ€ dynamics.</li>
       <li><b>Liquidity-led stress:</b> widening funding spreads can signal market-functioning risk; treat as high-severity when confirmed.</li>
     </ul>
   </div>
@@ -316,7 +323,7 @@ df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</
   <h3 class="text-lg font-semibold text-slate-900 mt-6">6.5 Practical usage</h3>
   <div class="box text-sm mt-3">
     <ul class="list-disc pl-6">
-      <li><b>Strategic:</b> use sustained “Bearish” readings as a headwind to cyclical risk exposure, not as a timing tool in isolation.</li>
+      <li><b>Strategic:</b> use sustained â€œBearishâ€ readings as a headwind to cyclical risk exposure, not as a timing tool in isolation.</li>
       <li><b>Tactical:</b> use rapid increases (level + z) and volatility-led surges for short-horizon risk controls.</li>
       <li><b>Macro integration:</b> interpret stress jointly with growth/inflation conditions; the literature links severe stress episodes to downturn risk, but not every stress episode produces a recession.</li>
     </ul>
@@ -325,16 +332,17 @@ df_stress["FinancialStress_Signal"] = df_stress.apply(classify_stress, axis=1)</
   <h3 class="text-lg font-semibold text-slate-900 mt-6">References (selected)</h3>
   <ol class="list-decimal pl-6 leading-7 text-sm text-slate-700">
     <li>St. Louis Fed / FRED: STLFSI4 series notes and description (method and component categories).</li>
-    <li>St. Louis Fed FRED Blog (2022): “The St. Louis Fed’s Financial Stress Index, version 4”.</li>
-    <li>Hakkio, C. S., &amp; Keeton, W. R. (2009). “Financial stress: what is it, how can it be measured, and why does it matter?” Federal Reserve Bank of Kansas City, Economic Review.</li>
-    <li>Cardarelli, R., Elekdag, S., &amp; Lall, S. (2009/2010). “Financial Stress, Downturns, and Recoveries / Financial Stress and Economic Contractions.” IMF Working Paper / related journal version.</li>
-    <li>Whaley, R. E. (2000). “The Investor Fear Gauge.” (VIX interpretation).</li>
-    <li>Gilchrist, S., &amp; Zakrajšek, E. (2012). “Credit Spreads and Business Cycle Fluctuations.” American Economic Review.</li>
+    <li>St. Louis Fed FRED Blog (2022): â€œThe St. Louis Fedâ€™s Financial Stress Index, version 4â€.</li>
+    <li>Hakkio, C. S., &amp; Keeton, W. R. (2009). â€œFinancial stress: what is it, how can it be measured, and why does it matter?â€ Federal Reserve Bank of Kansas City, Economic Review.</li>
+    <li>Cardarelli, R., Elekdag, S., &amp; Lall, S. (2009/2010). â€œFinancial Stress, Downturns, and Recoveries / Financial Stress and Economic Contractions.â€ IMF Working Paper / related journal version.</li>
+    <li>Whaley, R. E. (2000). â€œThe Investor Fear Gauge.â€ (VIX interpretation).</li>
+    <li>Gilchrist, S., &amp; ZakrajÅ¡ek, E. (2012). â€œCredit Spreads and Business Cycle Fluctuations.â€ American Economic Review.</li>
   </ol>
 </section>
 
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print-friendly specification for the Financial Stress Index signal (v1.1).</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">Â© 2026. Print-friendly specification for the Financial Stress Index signal (v1.1).</footer>
   </main>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Netlify Identity Widget for Authentication -->
@@ -6,11 +6,18 @@
 
   <!-- Authentication System -->
   <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/monitoring.js"></script>
+  <script>
+    window.IA_MONITORING_CONFIG = {
+      ga4MeasurementId: {{ site.ga4MeasurementId | jsonify }}
+    };
+  </script>
   <script defer src="/js/auth-guard.js"></script>
-
-  <meta charset="UTF-8" />
+<!-- Netlify Identity Widget for Authentication -->
+<!-- Authentication System -->
+<meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wage Growth and Inflation Composite — Methodology</title>
+  <title>Wage Growth and Inflation Composite â€” Methodology</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +32,7 @@
     code{background:#f6f8fa;padding:.15rem .35rem;border-radius:.35rem}
   </style>
 </head>
-<body class="bg-white text-slate-800">
+<body class="bg-white text-slate-800" data-ia-page-family="methodology" data-ia-generator-source="website_authored" data-ia-content-name="Wage Growth And Inflation Methodology" data-ia-model-name="wage_growth_and_inflation_methodology">
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
@@ -42,7 +49,7 @@
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">Abstract</h2>
-      <p class="leading-7">This methodology merges the <strong>Employment Cost Index (ECI)</strong> with <strong>Labor Market Tightness (LMT)</strong> to create a unified measure of inflationary pressure. Quarterly wage data (ECI) are aligned to monthly frequency, robustly standardized, and integrated with the LMT z‑score to form a smoothed inflation composite with categorical regimes.</p>
+      <p class="leading-7">This methodology merges the <strong>Employment Cost Index (ECI)</strong> with <strong>Labor Market Tightness (LMT)</strong> to create a unified measure of inflationary pressure. Quarterly wage data (ECI) are aligned to monthly frequency, robustly standardized, and integrated with the LMT zâ€‘score to form a smoothed inflation composite with categorical regimes.</p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -50,20 +57,20 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">1. Data (BLS ECI Series)</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><b>CIU2020000000000A</b> — Private Industry Wages & Salaries, 12‑month % change</li>
-        <li><b>CIU1020000000000A</b> — Civilian Workers Wages & Salaries, 12‑month % change</li>
+        <li><b>CIU2020000000000A</b> â€” Private Industry Wages & Salaries, 12â€‘month % change</li>
+        <li><b>CIU1020000000000A</b> â€” Civilian Workers Wages & Salaries, 12â€‘month % change</li>
       </ul>
-      <p class="leading-7 mt-3">Both are quarterly Employment Cost Index series. Dates are normalized to quarter‑end, then up‑sampled to monthly (start of month) for integration with JOLTS‑based labor metrics.</p>
+      <p class="leading-7 mt-3">Both are quarterly Employment Cost Index series. Dates are normalized to quarterâ€‘end, then upâ€‘sampled to monthly (start of month) for integration with JOLTSâ€‘based labor metrics.</p>
     </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">2. Data Handling & Validation</h2>
       <div class="box text-sm">
         <ul class="list-disc pl-6">
-          <li><b>Quarter alignment:</b> Convert to quarterly periods (<code>to_period('Q')</code> → <code>to_timestamp()</code>).</li>
-          <li><b>Monthly up‑sampling:</b> Resample with <code>resample('MS')</code> and <code>ffill(limit=2)</code>.</li>
+          <li><b>Quarter alignment:</b> Convert to quarterly periods (<code>to_period('Q')</code> â†’ <code>to_timestamp()</code>).</li>
+          <li><b>Monthly upâ€‘sampling:</b> Resample with <code>resample('MS')</code> and <code>ffill(limit=2)</code>.</li>
           <li><b>Numeric enforcement:</b> Coerce values to numeric; NaNs preserved.</li>
-          <li><b>Fail‑fast:</b> Missing columns (<code>date, series_id, value</code>) trigger assertion error.</li>
+          <li><b>Failâ€‘fast:</b> Missing columns (<code>date, series_id, value</code>) trigger assertion error.</li>
         </ul>
       </div>
     </section>
@@ -71,29 +78,29 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">3. Transform Definitions</h2>
       <div class="box text-sm">
-        <div class="italic">z<sub>t</sub> = (x<sub>t</sub> − median<sub>W</sub>(x)) / (1.4826·MAD<sub>W</sub>(x))</div>
-        <p class="mt-2">Robust z‑scores with adaptive rolling window (<b>W=24 months</b>, min 8) ensure stability across short and long samples.</p>
+        <div class="italic">z<sub>t</sub> = (x<sub>t</sub> âˆ’ median<sub>W</sub>(x)) / (1.4826Â·MAD<sub>W</sub>(x))</div>
+        <p class="mt-2">Robust zâ€‘scores with adaptive rolling window (<b>W=24 months</b>, min 8) ensure stability across short and long samples.</p>
       </div>
-      <p class="leading-7 mt-3">The function protects against division errors (<code>eps=1e‑9</code>) and uses median absolute deviation scaling.</p>
+      <p class="leading-7 mt-3">The function protects against division errors (<code>eps=1eâ€‘9</code>) and uses median absolute deviation scaling.</p>
     </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">4. Wage Pressure Signal</h2>
-      <p class="leading-7">Compute z‑scores for each wage series, then form a composite average:</p>
+      <p class="leading-7">Compute zâ€‘scores for each wage series, then form a composite average:</p>
       <div class="box text-sm">
         <div class="italic">Wage_Pressure<sub>z</sub> = mean(private_wage<sub>z</sub>, civilian_wage<sub>z</sub>)</div>
       </div>
-      <p class="mt-2 text-sm">The result is rescaled to 0–100 and smoothed via a 3‑month exponential moving average (<code>ewm(span=3)</code>).</p>
+      <p class="mt-2 text-sm">The result is rescaled to 0â€“100 and smoothed via a 3â€‘month exponential moving average (<code>ewm(span=3)</code>).</p>
     </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">5. Regime Classification</h2>
-      <p class="leading-7">Regimes categorize the z‑score based on wage inflation risk thresholds:</p>
+      <p class="leading-7">Regimes categorize the zâ€‘score based on wage inflation risk thresholds:</p>
       <div class="box text-sm">
         <ul class="list-disc pl-6">
           <li><b>HOT (wage inflation risk):</b> z > +1.0</li>
-          <li><b>NEUTRAL:</b> −1.0 ≤ z ≤ +1.0</li>
-          <li><b>COOL (disinflationary):</b> z < −1.0</li>
+          <li><b>NEUTRAL:</b> âˆ’1.0 â‰¤ z â‰¤ +1.0</li>
+          <li><b>COOL (disinflationary):</b> z < âˆ’1.0</li>
         </ul>
       </div>
     </section>
@@ -104,7 +111,7 @@
       <div class="box text-sm">
         <div class="italic">Inflation_Composite<sub>z</sub> = mean(Wage_Pressure<sub>z</sub>, Labor_Tightness<sub>z</sub>)</div>
       </div>
-      <p class="leading-7 mt-3">The joined index is aligned on monthly start frequency, forward‑filled within month, and output as z‑score, 0–100 scale, smoothed headline, and regime.</p>
+      <p class="leading-7 mt-3">The joined index is aligned on monthly start frequency, forwardâ€‘filled within month, and output as zâ€‘score, 0â€“100 scale, smoothed headline, and regime.</p>
     </section>
 
     <section class="mb-10">
@@ -127,7 +134,7 @@ Inflation_Composite = [
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">8. Interpretation & Use</h2>
-      <p class="leading-7"><span class="italic">HOT</span> regimes reflect elevated wage inflation and potential persistence of CPI/PCE pressures, while <span class="italic">COOL</span> phases imply softening wage dynamics and macro disinflation. The composite aligns closely with real‑time macro indicators such as PMI prices and liquidity conditions.</p>
+      <p class="leading-7"><span class="italic">HOT</span> regimes reflect elevated wage inflation and potential persistence of CPI/PCE pressures, while <span class="italic">COOL</span> phases imply softening wage dynamics and macro disinflation. The composite aligns closely with realâ€‘time macro indicators such as PMI prices and liquidity conditions.</p>
     </section>
 
     <section class="mb-16">
@@ -139,7 +146,8 @@ Inflation_Composite = [
       </ul>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Employment Cost Index and Labor Market Tightness Composite Methodology.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">Â© 2025. Employment Cost Index and Labor Market Tightness Composite Methodology.</footer>
   </main>
 </body>
 </html>
+

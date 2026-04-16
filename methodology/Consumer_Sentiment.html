@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Netlify Identity Widget for Authentication -->
@@ -6,11 +6,18 @@
 
   <!-- Authentication System -->
   <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/monitoring.js"></script>
+  <script>
+    window.IA_MONITORING_CONFIG = {
+      ga4MeasurementId: {{ site.ga4MeasurementId | jsonify }}
+    };
+  </script>
   <script defer src="/js/auth-guard.js"></script>
-
-  <meta charset="UTF-8" />
+<!-- Netlify Identity Widget for Authentication -->
+<!-- Authentication System -->
+<meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UMich Consumer Sentiment (UMCSENT) — Methodology</title>
+  <title>UMich Consumer Sentiment (UMCSENT) â€” Methodology</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +36,7 @@
     .tag{font-size:.7rem;border:1px solid #e5e7eb;border-radius:.35rem;padding:.1rem .35rem;background:#fff}
   </style>
 </head>
-<body class="bg-white text-slate-800">
+<body class="bg-white text-slate-800" data-ia-page-family="methodology" data-ia-generator-source="website_authored" data-ia-content-name="Consumer Sentiment" data-ia-model-name="Consumer_Sentiment">
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
@@ -40,7 +47,7 @@
   <main class="container mx-auto px-5 py-10">
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">University of Michigan Consumer Sentiment (UMCSENT)</h1>
-      <p class="mt-2 text-slate-600 text-sm">A reproducible, monthly demand signal from <span class="font-semibold">FRED: UMCSENT</span>. We align to month‑end, smooth the level with a 3‑month average, compute YoY and 3‑month momentum, standardise sentiment with a rolling z‑score (mean &amp; median anchors), and classify regimes with a neutral band to reduce month‑to‑month whipsaws.</p>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible, monthly demand signal from <span class="font-semibold">FRED: UMCSENT</span>. We align to monthâ€‘end, smooth the level with a 3â€‘month average, compute YoY and 3â€‘month momentum, standardise sentiment with a rolling zâ€‘score (mean &amp; median anchors), and classify regimes with a neutral band to reduce monthâ€‘toâ€‘month whipsaws.</p>
       <div class="mt-3 flex gap-2 text-xs text-slate-600">
   <span class="tag">FRED</span>
   <span class="tag">UMCSENT</span>
@@ -53,7 +60,7 @@
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
-      <p class="leading-7">We transform the University of Michigan Consumer Sentiment index into a monthly, classification‑ready demand signal. After resampling to month‑end and smoothing the level with a 3‑month average, we derive YoY and 3‑month percent changes to capture momentum. We then standardise the level with a rolling z‑score that blends mean/standard‑deviation and median/MAD anchors for robustness. The final regime (<span class="font-semibold">Bullish</span>, <span class="font-semibold">Neutral</span>, <span class="font-semibold">Bearish</span>) is determined by combining level context (z) with momentum (YoY/3M), with an explicit neutral band to reduce noise‑driven flips.</p>
+      <p class="leading-7">We transform the University of Michigan Consumer Sentiment index into a monthly, classificationâ€‘ready demand signal. After resampling to monthâ€‘end and smoothing the level with a 3â€‘month average, we derive YoY and 3â€‘month percent changes to capture momentum. We then standardise the level with a rolling zâ€‘score that blends mean/standardâ€‘deviation and median/MAD anchors for robustness. The final regime (<span class="font-semibold">Bullish</span>, <span class="font-semibold">Neutral</span>, <span class="font-semibold">Bearish</span>) is determined by combining level context (z) with momentum (YoY/3M), with an explicit neutral band to reduce noiseâ€‘driven flips.</p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -61,23 +68,23 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">1) Data (FRED Identifier)</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><b>UMCSENT</b>: University of Michigan: Consumer Sentiment®</li>
+        <li><b>UMCSENT</b>: University of Michigan: Consumer SentimentÂ®</li>
       </ul>
-      <p class="leading-7 mt-3">We standardise to a <span class="font-semibold">month‑end</span> frequency (<code>"M"</code>) and <code>.ffill()</code> within month to avoid gaps around release dates.</p>
+      <p class="leading-7 mt-3">We standardise to a <span class="font-semibold">monthâ€‘end</span> frequency (<code>"M"</code>) and <code>.ffill()</code> within month to avoid gaps around release dates.</p>
       <div class="box text-sm mt-3">
 <pre><code># Fetch & align (fredapi)
 umich = fred.get_series("UMCSENT")
 df_sent = pd.DataFrame(umich, columns=["UMCSENT"])
 df_sent = df_sent.resample("M").last().ffill()
-print("✅ UMCSENT retrieved."); print(df_sent.tail())</code></pre>
+print("âœ… UMCSENT retrieved."); print(df_sent.tail())</code></pre>
       </div>
     </section>
 
     <section class="mb-10">
-  <h2 class="text-2xl font-semibold mb-3">2) Feature Engineering (Noise‑Aware)</h2>
+  <h2 class="text-2xl font-semibold mb-3">2) Feature Engineering (Noiseâ€‘Aware)</h2>
   <p class="leading-7">
-    Survey results can exhibit high month‑to‑month volatility. To reduce spurious flips driven by noise,
-    we smooth the level with a simple 3‑month moving average before computing momentum.
+    Survey results can exhibit high monthâ€‘toâ€‘month volatility. To reduce spurious flips driven by noise,
+    we smooth the level with a simple 3â€‘month moving average before computing momentum.
   </p>
 
   <div class="box text-sm">
@@ -95,11 +102,11 @@ df_sent["3M_pct"]  = df_sent["UMCSENT_3M"].pct_change(3)  * 100</code></pre>
 </section>
 
     <section class="mb-10">
-  <h2 class="text-2xl font-semibold mb-3">3) Rolling Z‑Score on Level (Mean + Median Anchors)</h2>
+  <h2 class="text-2xl font-semibold mb-3">3) Rolling Zâ€‘Score on Level (Mean + Median Anchors)</h2>
   <p class="leading-7">
-    To interpret the absolute level of sentiment relative to its own history, we compute a rolling z‑score on the
+    To interpret the absolute level of sentiment relative to its own history, we compute a rolling zâ€‘score on the
     smoothed level \(\tilde{X}_t\). Because surveys can have outliers and structural shifts, we blend two anchors:
-    a conventional mean/standard‑deviation z‑score and a robust median/MAD z‑score.
+    a conventional mean/standardâ€‘deviation zâ€‘score and a robust median/MAD zâ€‘score.
   </p>
 
   <div class="box text-sm">
@@ -133,15 +140,15 @@ df_sent["Level_z"] = rolling_z_blend(df_sent["UMCSENT_3M"], window=120, min_wind
     <section class="mb-10">
   <h2 class="text-2xl font-semibold mb-3">4) Regime Classification (Neutral Band + Smoothing)</h2>
   <p class="leading-7">
-    Survey results can be revised; high survey volatility means month‑to‑month flips may reflect noise rather than trend.
-    To reduce this, we introduce a <b>neutral band</b> around zero and base both z‑score and momentum on the smoothed level.
+    Survey results can be revised; high survey volatility means monthâ€‘toâ€‘month flips may reflect noise rather than trend.
+    To reduce this, we introduce a <b>neutral band</b> around zero and base both zâ€‘score and momentum on the smoothed level.
   </p>
 
   <div class="box text-sm">
     <ul class="list-disc pl-6">
-      <li><b>Neutral band:</b> <code>|Level_z| &lt; 0.25</code> → <b>Neutral</b></li>
+      <li><b>Neutral band:</b> <code>|Level_z| &lt; 0.25</code> â†’ <b>Neutral</b></li>
       <li><b>Bullish</b> (demand tailwind): <code>Level_z &gt; +0.75</code> and (<code>YoY_pct &gt; 0</code> <em>or</em> <code>3M_pct &gt; +1</code>)</li>
-      <li><b>Bearish</b> (demand headwind): <code>Level_z &lt; −0.75</code> and (<code>YoY_pct &lt; 0</code> <em>or</em> <code>3M_pct &lt; −1</code>)</li>
+      <li><b>Bearish</b> (demand headwind): <code>Level_z &lt; âˆ’0.75</code> and (<code>YoY_pct &lt; 0</code> <em>or</em> <code>3M_pct &lt; âˆ’1</code>)</li>
       <li><b>Neutral</b>: otherwise (including any NaNs)</li>
     </ul>
   </div>
@@ -175,16 +182,16 @@ df_sent["UMCSENT_Signal"] = df_sent.apply(classify_umich, axis=1)</code></pre>
   </div>
   <p class="leading-7 mt-3">
     Publishing <code>UMCSENT_3M</code> and <code>Level_z</code> alongside the discrete regime makes it easier to diagnose
-    “near‑threshold” states and interpret whether the regime is supported by a meaningful move or just small noise.
+    â€œnearâ€‘thresholdâ€ states and interpret whether the regime is supported by a meaningful move or just small noise.
   </p>
 </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">6) Data Handling & Validation</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><b>Frequency alignment:</b> resample to month‑end (<code>"M"</code>) with <code>.last()</code> and <code>.ffill()</code>.</li>
+        <li><b>Frequency alignment:</b> resample to monthâ€‘end (<code>"M"</code>) with <code>.last()</code> and <code>.ffill()</code>.</li>
         <li><b>NaN policy:</b> initial lags from percentage change calculations are NaN; regime treats any NaN as Neutral.</li>
-        <li><b>Robust scaling:</b> level z‑scores use median/MAD; if MAD = 0, z is NaN rather than infinite.</li>
+        <li><b>Robust scaling:</b> level zâ€‘scores use median/MAD; if MAD = 0, z is NaN rather than infinite.</li>
         <li><b>Reproducibility:</b> all transformations are deterministic given the UMCSENT series.</li>
       </ul>
     </section>
@@ -200,23 +207,23 @@ df_sent["UMCSENT_Signal"] = df_sent.apply(classify_umich, axis=1)</code></pre>
 
   <div class="box text-sm mt-3">
     <ul class="list-disc pl-6 leading-7">
-      <li><b>Level_z (context):</b> positive means sentiment is high relative to its rolling history; negative means low. Near zero is “normal”.</li>
+      <li><b>Level_z (context):</b> positive means sentiment is high relative to its rolling history; negative means low. Near zero is â€œnormalâ€.</li>
       <li><b>Neutral band:</b> when <code>|Level_z|</code> is small, the model deliberately returns <b>Neutral</b> (noise dominates).</li>
       <li><b>Momentum (YoY/3M):</b> helps timing. Divergence between level and momentum suggests transition risk (e.g., improving from depressed levels vs. rolling over from elevated levels).</li>
       <li><b>Flip frequency:</b> frequent flips without large moves in <code>Level_z</code> implies thresholds are too tight; widen <code>z_neutral</code> and/or raise <code>z_hi/z_lo</code>.</li>
       <li><b>Real-time vs revised:</b> for decision-grade backtests, use ALFRED vintages (what was available then), not revised history.</li>
-      <li><b>Survey method changes:</b> step changes may reflect methodological transitions; validate against “hard” activity data before acting on a single print.</li>
+      <li><b>Survey method changes:</b> step changes may reflect methodological transitions; validate against â€œhardâ€ activity data before acting on a single print.</li>
     </ul>
   </div>
 
   <h3 class="text-xl font-semibold mt-10 mb-3">Academic & primary references (selected)</h3>
   <ul class="list-disc pl-6 leading-7">
     <li>
-      Carroll, Fuhrer &amp; Wilcox (1994) — sentiment adds forecasting content for household spending:
+      Carroll, Fuhrer &amp; Wilcox (1994) â€” sentiment adds forecasting content for household spending:
       <a class="underline" href="https://www.jstor.org/stable/2117779">JSTOR</a>.
     </li>
     <li>
-      Ludvigson (2004) — overview and evidence that confidence measures contain information about future consumption growth:
+      Ludvigson (2004) â€” overview and evidence that confidence measures contain information about future consumption growth:
       <a class="underline" href="https://www.aeaweb.org/articles?id=10.1257/0895330041371222">AEA</a>.
     </li>
     <li>
@@ -227,12 +234,13 @@ df_sent["UMCSENT_Signal"] = df_sent.apply(classify_umich, axis=1)</code></pre>
 
   <h3 class="text-xl font-semibold mt-10 mb-3">Practical caveat</h3>
   <p class="leading-7">
-    Survey results can be revised; high survey volatility means month‑to‑month flips may reflect noise rather than trend.
-    The smoothing, z‑score standardisation, and neutral band are explicit choices to prioritise stability and interpretability.
+    Survey results can be revised; high survey volatility means monthâ€‘toâ€‘month flips may reflect noise rather than trend.
+    The smoothing, zâ€‘score standardisation, and neutral band are explicit choices to prioritise stability and interpretability.
   </p>
 </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2026. Print‑friendly specification for the UMCSENT demand signal.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">Â© 2026. Printâ€‘friendly specification for the UMCSENT demand signal.</footer>
   </main>
 </body>
 </html>
+
