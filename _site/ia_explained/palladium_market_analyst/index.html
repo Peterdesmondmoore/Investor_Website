@@ -1,0 +1,2301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Netlify Identity Widget for Authentication -->
+  <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <!-- Authentication System -->
+  <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/monitoring.js"></script>
+  <script>
+    window.IA_MONITORING_CONFIG = {
+      ga4MeasurementId: ""
+    };
+  </script>
+  <script defer src="/js/auth-guard.js"></script>
+<!-- Netlify Identity Widget for Authentication -->
+<!-- Authentication System -->
+<meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palladium Market Analyst BETA - Investor Anatomy</title>
+  <link rel="icon" type="image/png" href="/images/Favicon.png" />
+  <meta name="description" content="How the Palladium Market Analyst is built in Investor Anatomy, with Featured Insights integrated above the model architecture." />
+
+  <style>
+    :root{
+      --bg:#06070a;
+      --bg-primary:#0b1220;
+      --bg-secondary:#121b2d;
+      --text:#e8ecf6;
+      --text-main:#f3f4f6;
+      --muted:#a7b0c5;
+      --text-muted:#9ca3af;
+      --border:rgba(255,255,255,.10);
+      --border-subtle:#2a3648;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --glow:radial-gradient(800px 400px at 20% -10%, rgba(139,92,246,.26), transparent 60%),
+              radial-gradient(700px 360px at 85% 0%, rgba(59,130,246,.22), transparent 55%),
+              radial-gradient(700px 360px at 60% 120%, rgba(251,191,36,.12), transparent 55%);
+      --accent:#8b5cf6;
+      --accent-purple:#8b5cf6;
+      --accent2:#3b82f6;
+      --gold:#fbbf24;
+      --radius:20px;
+      --max:1120px;
+    }
+
+    * { box-sizing:border-box; }
+    html,body { height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--bg-secondary);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    .bg{
+      position:fixed; inset:0;
+      background:var(--glow);
+      pointer-events:none;
+      filter:saturate(1.05);
+    }
+
+    .grain{
+      position:fixed; inset:-20%;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      opacity:.10;
+      mix-blend-mode:overlay;
+      pointer-events:none;
+      transform:rotate(8deg);
+    }
+
+    .wrap {
+      max-width:var(--max);
+      margin:0 auto;
+      padding:28px 18px 0;
+      padding-top:calc(77vh + 40px);
+      position:relative;
+      z-index:1;
+    }
+
+    .page{
+      min-height:100vh;
+      background: var(--bg-secondary);
+      position:relative;
+      overflow:visible;
+    }
+
+    .nav-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Playfair Display", Georgia, serif;
+      z-index: 100;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .nav-header.scrolled {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid #2a3644;
+    }
+
+    .nav-header-inner {
+      max-width: 1120px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .nav-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none;
+    }
+
+    .nav-menu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: rgba(42, 54, 68, 0.5);
+      color: #e5e7eb;
+      font-size: 12px;
+      transition: background 0.2s ease;
+      text-decoration: none;
+    }
+
+    .nav-menu-btn:hover {
+      background: rgba(42, 54, 68, 0.8);
+      text-decoration:none;
+    }
+
+    .nav-menu-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .video-background{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:77vh;
+      margin-top:0;
+      overflow:hidden;
+      z-index:0;
+    }
+    .video-background video,
+    .video-background img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .video-overlay{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to bottom, rgba(2,6,23,.16) 0%, rgba(2,6,23,.45) 45%, rgba(2,6,23,.75) 100%);
+      pointer-events:none;
+    }
+    .hero-title-mark{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      text-align:center;
+      z-index:1;
+      pointer-events:none;
+    }
+    .hero-title-text{
+      display:inline-flex;
+      align-items:flex-start;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+      color:#ffffff;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:clamp(2rem, 4vw, 3.35rem);
+      line-height:1.08;
+      font-weight:400;
+      letter-spacing:0.01em;
+      text-shadow:0 10px 30px rgba(0,0,0,.55), 0 2px 10px rgba(0,0,0,.65);
+    }
+    .hero-title-text .beta{
+      display:inline-block;
+      margin-top:0.48em;
+      font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-size:0.34em;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:0.18em;
+      color:#fbbf24;
+    }
+    .hero{padding:0; display:grid; grid-template-columns:1fr; gap:18px; align-items:start}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .intro-card{
+      border-radius:0;
+      padding:28px 26px 28px;
+      border:0;
+      background: var(--bg-secondary);
+      box-shadow:none;
+    }
+    .hero-intro-grid{
+      display:grid;
+      grid-template-columns:1fr 2fr;
+      gap:22px;
+      align-items:start;
+    }
+    .intro-title{
+      margin:0;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:2.375rem;
+      line-height:1.25;
+      font-weight:400;
+      color:#ffffff;
+    }
+    .intro-body{
+      margin:0;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:1.18rem;
+      line-height:1.65;
+      color:#93c5fd;
+      font-weight:400;
+    }
+    .intro-body + .intro-body{margin-top:10px;}
+    @media (max-width: 920px){
+      .wrap{padding-top:calc(64vh + 30px);}
+      .video-background{height:64vh;}
+      .hero-intro-grid{grid-template-columns:1fr;}
+      .intro-title{font-size:2rem;}
+      .intro-body{font-size:1.05rem;}
+      #overview{padding:40px 0;}
+    }
+
+    h1{margin:14px 0 10px; font-size:38px; line-height:1.05; letter-spacing:-.5px; color:var(--text)}
+    h1 .gradient-text{
+      background:linear-gradient(135deg, #fbbf24 0%, #e5e7eb 35%, #3b82f6 70%, #8b5cf6 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      display:inline;
+    }
+    p{margin:0; color:var(--muted); font-size:16px; line-height:1.55}
+
+    .metrics{margin-top:18px; display:grid; grid-template-columns:repeat(3, 1fr); gap:10px}
+    @media (max-width: 900px){ .metrics{grid-template-columns:repeat(2, 1fr);} }
+    .metric{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+    }
+    .metric-k{color:var(--muted); font-size:12px; font-weight:750; letter-spacing:.2px}
+    .metric-v{margin-top:6px; font-size:18px; font-weight:900; letter-spacing:-.2px}
+    .metric-s{margin-top:2px; color:var(--muted); font-size:12px}
+
+    .section{
+      position:relative;
+      padding:28px 0;
+      isolation:isolate;
+      --section-bg:var(--bg-primary);
+    }
+    .section::before{
+      content:"";
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:50%;
+      width:100vw;
+      transform:translateX(-50%);
+      background:var(--section-bg);
+      z-index:-1;
+    }
+    .section-primary{ --section-bg:var(--bg-primary); }
+    .section-secondary{ --section-bg:var(--bg-secondary); }
+    #overview{padding:56px 0;}
+    .visual-section{margin-top:18px; margin-bottom:0; position:relative; z-index:1;}
+    .section-title{
+      margin:20px auto 10px;
+      max-width:var(--max);
+      padding:0 44px;
+    }
+    .section-title h2{margin:0; font-size:18px; letter-spacing:.2px}
+    .section-title .hint{color:var(--muted); font-size:13px}
+    .model-lineage-title{
+      margin:0 0 8px;
+      font-size:21px;
+      color:#3b82f6;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:700;
+    }
+    .model-lineage-desc{
+      margin:0 0 14px;
+      font-family:"Playfair Display", Georgia, serif;
+      font-size:1.12rem;
+      line-height:1.6;
+      color:#93c5fd;
+      font-weight:400;
+      width:100%;
+      max-width:none;
+    }
+
+    .process-card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-width: var(--max);
+      margin: 0 auto 22px;
+      padding: 0 44px;
+    }
+
+    .process-card {
+      border: 1px solid #111827;
+      border-radius: 18px;
+      background: #172236;
+      padding: 14px;
+      position: relative;
+      overflow: visible;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+    }
+
+    .process-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 26px rgba(2, 6, 23, 0.42);
+      border-color: rgba(147, 197, 253, 0.7);
+      z-index: 5;
+    }
+
+    .process-card-bar {
+      height: 3px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      background: var(--accent);
+    }
+
+    .process-card-title {
+      font-size: 14px;
+      color: #e5e7eb;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .process-card-copy {
+      margin: 0;
+      color: #93c5fd;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      font-weight: 400;
+    }
+
+    .featured-insights-section {
+      padding-top: 0;
+      padding-bottom: 8px;
+    }
+
+    .reporting-section {
+      padding-top: 8px;
+      background: var(--bg-secondary) !important;
+    }
+
+    .reporting-card {
+      width: calc(100vw - 36px);
+      max-width: none;
+      margin: 0;
+      margin-left: calc(50% - 50vw + 18px);
+      border: 1px solid #111827;
+      border-radius: 22px;
+      background: var(--bg-secondary);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .reporting-toolbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      gap: 14px;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      background: var(--bg-secondary);
+    }
+
+    .reporting-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reporting-slicer {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .reporting-slicer select {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+      padding-right: 4px;
+    }
+
+    .reporting-status {
+      padding: 18px 20px 16px;
+      color: var(--text-muted);
+      font-size: 12px;
+      letter-spacing: 0.02em;
+    }
+
+    .reporting-status.error {
+      color: #fca5a5;
+    }
+
+    .reporting-grid-shell {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0 20px 20px;
+      background: var(--bg-secondary);
+    }
+
+    .reporting-grid-shell::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    .reporting-grid-shell::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.34);
+      border-radius: 999px;
+    }
+
+    .reporting-table {
+      width: 100%;
+      min-width: 1320px;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    .reporting-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #0f172a;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .reporting-table tbody th {
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .reporting-table th,
+    .reporting-table td {
+      padding: 14px 12px;
+      border-right: 1px solid rgba(148, 163, 184, 0.12);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      vertical-align: top;
+    }
+
+    .reporting-table thead th:first-child,
+    .reporting-table tbody th {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #111827;
+      text-align: left;
+    }
+
+    .reporting-table thead th:first-child {
+      z-index: 3;
+      min-width: 132px;
+      width: 132px;
+    }
+
+    .reporting-table th.trade-call-column,
+    .reporting-table td.trade-call-column {
+      min-width: 110px;
+      width: 110px;
+    }
+
+    .reporting-table th.double-width-column,
+    .reporting-table td.double-width-column {
+      min-width: 128px;
+      width: 128px;
+    }
+
+    .reporting-table th.price-column,
+    .reporting-table td.price-column {
+      min-width: 120px;
+      width: 120px;
+    }
+
+    .reporting-table td {
+      background: rgba(15, 23, 42, 0.76);
+      color: #e5e7eb;
+      font-size: 13px;
+      line-height: 1.5;
+      min-width: 170px;
+    }
+
+    .reporting-table th.commentary-column,
+    .reporting-table td.commentary-column {
+      min-width: 420px;
+      width: 420px;
+    }
+
+    .reporting-table td.commentary-column {
+      padding: 10px 12px;
+    }
+
+    .reporting-table td .reporting-cell-content {
+      display: block;
+      width: 100%;
+    }
+
+    .reporting-table td.commentary-column .reporting-cell-content {
+      max-height: 176px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .reporting-table td.commentary-column .reporting-cell-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .reporting-table td.commentary-column .reporting-cell-content::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.32);
+      border-radius: 999px;
+    }
+
+    .reporting-table td.has-value {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.96));
+    }
+
+    .reporting-table td.na {
+      color: #64748b;
+      font-style: italic;
+    }
+
+    .reporting-table tr:last-child th,
+    .reporting-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .reporting-table th:last-child,
+    .reporting-table td:last-child {
+      border-right: 0;
+    }
+
+    .carousel-card {
+      border-radius: 22px;
+      padding: 16px 18px 18px;
+      border: 1px solid #111827;
+      border-left: 2px solid #8b5cf6;
+      background: transparent;
+      margin: 0 auto;
+      max-width: var(--max);
+    }
+
+    .carousel-shell {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .carousel-image {
+      width: 240px;
+      height: 240px;
+      min-width: 240px;
+      flex-shrink: 0;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 0, #38bdf8, #0f172a 70%);
+      border: 1px solid rgba(148,163,184,0.5);
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      color: #e5e7eb;
+      padding: 8px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease, filter 0.24s ease;
+    }
+
+    .carousel-image:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 16px 30px rgba(2, 6, 23, 0.45);
+      border-color: rgba(147, 197, 253, 0.8);
+      filter: saturate(1.08) brightness(1.04);
+    }
+
+    .carousel-image-label {
+      display: inline-block;
+      background: rgba(2, 6, 23, 0.65);
+      color: #e5e7eb;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.2;
+      transition: transform 0.24s ease, background 0.24s ease;
+    }
+
+    .carousel-image:hover .carousel-image-label {
+      transform: translateY(-1px);
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    .carousel-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      max-height: 240px;
+      min-width: 0;
+    }
+
+    .carousel-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .carousel-subtitle {
+      margin: 6px 0 6px;
+      font-size: 1.1rem;
+      line-height: 1.4;
+      color: #3b82f6;
+      font-weight: 400;
+      font-family: "Playfair Display", Georgia, serif;
+    }
+
+    .carousel-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .carousel-summary {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    .carousel-footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #111827;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .carousel-button {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(to right, #1d4ed8, #8b5cf6);
+      color: #f9fafb;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .carousel-button span.icon {
+      font-size: 12px;
+    }
+
+    .carousel-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .carousel-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      justify-content: flex-end;
+    }
+
+    .carousel-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .carousel-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .carousel-dot.active {
+      background: var(--gold);
+      border-color: #f59e0b;
+    }
+
+    .carousel-arrow {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: rgba(15,23,42,0.96);
+      color: #e5e7eb;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .carousel-arrow:hover {
+      border-color: #e5e7eb;
+    }
+
+    @media (max-width: 920px){
+      .section-title{padding:0 22px;}
+      .model-lineage-desc{width:100%;}
+      .process-card-grid{
+        grid-template-columns:1fr;
+        padding:0 22px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .carousel-shell {
+        flex-direction: column;
+      }
+
+      .carousel-image {
+        width: 120px;
+        height: 120px;
+        min-width: 120px;
+      }
+
+      .carousel-content {
+        max-height: none;
+      }
+    }
+
+    .visual-card{
+      padding:18px;
+      background: var(--bg-primary);
+      border:0;
+      box-shadow:none;
+    }
+    .visual-card.full-width{
+      width:100vw;
+      margin-left:calc(50% - 50vw);
+      margin-right:calc(50% - 50vw);
+      border-radius:0;
+      border:0;
+      padding:18px 20px 32px;
+    }
+
+    .sankey-shell{
+      position:relative;
+      border:0;
+      border-radius:0;
+      background: var(--bg-primary);
+      overflow:hidden;
+      box-shadow:none;
+    }
+    .sankey-toolbar{
+      display:flex;
+      justify-content:flex-end;
+      padding:14px;
+      border-bottom:1px solid rgba(125, 211, 252, 0.16);
+      background:rgba(0,0,0,.16);
+    }
+    .sankey-filter{
+      background:#0f172a;
+      color:#e6eef8;
+      border:1px solid rgba(125, 211, 252, 0.16);
+      border-radius:8px;
+      padding:8px 10px;
+      font-size:13px;
+    }
+    .sankey-wrap{ width:100%; overflow:hidden; }
+    .sankey-wrap svg{
+      display:block;
+      width:100%;
+      height:auto;
+      min-width:0;
+    }
+    .sankey-tooltip{
+      position:absolute;
+      left:0;
+      top:0;
+      z-index:30;
+      max-width:320px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(125, 211, 252, 0.22);
+      background:linear-gradient(180deg, rgba(9, 17, 31, 0.96), rgba(5, 12, 24, 0.96));
+      box-shadow:0 14px 28px rgba(0, 0, 0, 0.42);
+      color:var(--text);
+      pointer-events:none;
+      opacity:0;
+      transform:translate3d(0, 0, 0) scale(0.98);
+      transition:opacity .14s ease, transform .14s ease;
+    }
+    .sankey-tooltip.show{
+      opacity:1;
+      transform:translate3d(0, 0, 0) scale(1);
+    }
+    .sankey-tooltip .tip-title{
+      margin:0 0 4px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.2px;
+      color:#f8fbff;
+    }
+    .sankey-tooltip .tip-body{
+      margin:0;
+      font-size:11px;
+      line-height:1.4;
+      color:var(--muted);
+    }
+    .click-ring{
+      fill:none;
+      stroke-width:1.4;
+      stroke-dasharray:0;
+      opacity:.36;
+      transform-box:fill-box;
+      transform-origin:center;
+      filter:drop-shadow(0 0 4px currentColor);
+      animation:clickPulse 2.9s cubic-bezier(.4,0,.2,1) infinite;
+      pointer-events:none;
+    }
+    @keyframes clickPulse{
+      0%{
+        opacity:.26;
+        stroke-width:1.2;
+        stroke-dashoffset:0;
+        transform:scale(1);
+      }
+      45%{
+        opacity:.62;
+        stroke-width:2.1;
+        stroke-dashoffset:-1;
+        transform:scale(1.02);
+      }
+      100%{
+        opacity:.16;
+        stroke-width:.9;
+        stroke-dashoffset:-2;
+        transform:scale(1.04);
+      }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .click-ring{animation:none; opacity:.6}
+    }
+
+    .universal-footer {
+      position: relative;
+      margin-top: 0;
+      padding: 16px 18px 10px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      width: 100%;
+      background: var(--bg-secondary);
+      z-index: 1;
+    }
+
+    .universal-footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .universal-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .universal-footer-brand {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .universal-footer-brand:visited,
+    .universal-footer-brand:active {
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .universal-footer-brand:hover {
+      color: var(--accent-purple);
+      text-decoration: none;
+    }
+
+    .universal-footer-linkedin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 999px;
+      border: 1px solid #2a3644;
+      background: #ffffff;
+      text-decoration: none;
+    }
+
+    .universal-footer-linkedin:hover {
+      text-decoration: none;
+    }
+
+    .universal-footer-disclaimer {
+      margin: 0 0 8px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .universal-footer-copyright {
+      margin: 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body data-ia-page-family="ia_explained" data-ia-generator-source="website_authored" data-ia-content-name="Palladium Market Analyst" data-ia-model-name="palladium_market_analyst" data-ia-commodity="palladium">
+  <div class="bg"></div>
+  <div class="grain"></div>
+
+  <div class="nav-header" id="nav-header">
+    <div class="nav-header-inner">
+      <a class="nav-brand" href="/index.html">Investor Anatomy</a>
+      <a class="nav-menu-btn" href="/index.html" aria-label="Back to home page">
+        <span class="nav-menu-label">Home</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="page">
+    <section class="video-background" aria-label="Palladium Market Analyst hero image">
+      <img src="/images/CoT_PALLADIUM_Diagnostics.png" alt="Palladium market analyst hero image">
+      <div class="video-overlay"></div>
+      <div class="hero-title-mark">
+        <div class="hero-title-text">Palladium Market Analyst <span class="beta">BETA</span></div>
+      </div>
+    </section>
+
+    <main class="wrap">
+      <section class="section section-secondary" id="overview">
+        <section class="intro-card">
+          <div class="hero-intro-grid">
+            <h1 class="intro-title">We convert palladium market complexity into structured, decision-grade insight</h1>
+            <div>
+              <p class="intro-body">
+                Palladium is a hybrid precious-industrial metal. Its price sits between global growth, autocatalyst demand, platinum-substitution dynamics, USD and liquidity conditions, positioning, and market stress. Those forces can align during industrial expansion or break sharply when auto demand softens and macro liquidation takes control.
+              </p>
+              <p class="intro-body">
+                The <strong><span style="color: var(--accent-purple);">Palladium Market Analyst</span></strong> combines macro signals, palladium-specific positioning, planned SPDM.L proxy pricing, live ETF-flow context, metals-relative analysis, research, and news compression into a unified workflow. This page mirrors the current repository state: implemented components are linked, and the incomplete components still being wired into the stack are shown in red.
+              </p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section id="featured-insights" class="visual-card full-width visual-section featured-insights-section">
+        <div class="section-title">
+          <h2 class="model-lineage-title">Featured Insights</h2>
+          <p class="model-lineage-desc">The Palladium analyst stack is being built toward four primary user-facing outputs: the forward Palladium Outlook, the tactical Execution Brief, and two narrative monitors covering the last seven days and last two days of Palladium news flow.</p>
+        </div>
+        <div class="carousel-card" id="featured-insights-carousel">
+          <div class="carousel-shell">
+            <div class="carousel-image" id="featured-carousel-image">
+              <span class="carousel-image-label" id="featured-carousel-image-label">Palladium Outlook</span>
+            </div>
+            <div class="carousel-content">
+              <div>
+                <div class="carousel-tag" id="featured-carousel-tag">Palladium Market Analyst - Outlook</div>
+                <div class="carousel-title" id="featured-carousel-title">Palladium Outlook</div>
+                <div class="carousel-subtitle" id="featured-carousel-subtitle"></div>
+                <div class="carousel-summary" id="featured-carousel-summary"></div>
+              </div>
+              <div class="carousel-footer">
+                <button class="carousel-button" id="featured-carousel-button" type="button">
+                  <span>View full report</span>
+                  <span class="icon">&rarr;</span>
+                </button>
+                <div class="carousel-meta" id="featured-carousel-meta">Signal synthesis - Updated April 4, 2026</div>
+              </div>
+            </div>
+          </div>
+          <div class="carousel-nav">
+            <div class="carousel-arrow" id="featured-carousel-prev">&lsaquo;</div>
+            <div class="carousel-dots" id="featured-carousel-dots"></div>
+            <div class="carousel-arrow" id="featured-carousel-next">&rsaquo;</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="reporting-cycle-visualisation" class="visual-card full-width visual-section reporting-section">
+        <div class="section-title">
+          <h2 class="model-lineage-title">Historical Reporting View</h2>
+          <p class="model-lineage-desc">A week-by-week view of how the Palladium Market Analyst will frame liquidity, rates, USD, inflation, stress, positioning, directional bias, trade posture, price, and commentary across the reporting cycle.</p>
+        </div>
+        <div class="reporting-card">
+          <div class="reporting-status" id="reporting-status">Loading reporting history...</div>
+          <div class="reporting-grid-shell">
+            <div id="reporting-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="visual" class="visual-card full-width visual-section">
+        <div class="section-title">
+          <h2 class="model-lineage-title">Model Architecture</h2>
+          <p class="model-lineage-desc">How macro data, palladium-specific inputs, planned SPDM.L proxy pricing, live ETF-flow context, metals-relative analysis, and narrative compression combine to produce the Palladium Outlook while leaving unfinished workflow nodes visible in red.</p>
+        </div>
+        <div class="process-card-grid">
+          <div class="process-card">
+            <div class="process-card-bar" style="background:#3b82f6;"></div>
+            <div class="process-card-title">1. Generate palladium signals</div>
+            <p class="process-card-copy">
+              Convert macro, market, and palladium-specific data into quantitative signals across global growth, real rates, USD and liquidity conditions, autocatalyst demand, metals-relative positioning, ETF flows, and pricing confirmation.
+            </p>
+          </div>
+          <div class="process-card">
+            <div class="process-card-bar" style="background:#8b5cf6;"></div>
+            <div class="process-card-title">2. Synthesis (not aggregation)</div>
+            <p class="process-card-copy">
+              Preserve economic meaning by evaluating how industrial demand, precious-metals spillovers, substitution pressure, macro stress, positioning, and pricing forces interact, identifying alignment, conflict, and dominance rather than collapsing signals into a single composite.
+            </p>
+          </div>
+          <div class="process-card">
+            <div class="process-card-bar" style="background:#fbbf24;"></div>
+            <div class="process-card-title">3. Decision-grade outputs</div>
+            <p class="process-card-copy">
+              Produce palladium regime views, turning-point signals, and forward-looking interpretation that links macro conditions, industrial demand, and cross-metal context to price direction, risk, and opportunity.
+            </p>
+          </div>
+        </div>
+
+        <div class="sankey-shell" aria-label="Palladium market analyst sankey diagram">
+        <div class="sankey-wrap">
+            <svg id="commoditySankey" viewBox="0 0 1460 1320" role="img" aria-label="Palladium signal flow from sources to market analyst outputs"></svg>
+          </div>
+          <div id="sankeyTooltip" class="sankey-tooltip" aria-hidden="true">
+            <p class="tip-title"></p>
+            <p class="tip-body"></p>
+          </div>
+        </div>
+
+      </section>
+    </main>
+    <footer class="universal-footer">
+      <div class="universal-footer-inner">
+        <div class="universal-footer-top">
+          <a href="https://investoranatomy.com/" class="universal-footer-brand" aria-label="Go to Investor Anatomy home">Investor Anatomy</a>
+          <a href="https://www.linkedin.com/company/investoranatomy/"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Investor Anatomy on LinkedIn"
+             class="universal-footer-linkedin">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="24"
+                 height="24"
+                 viewBox="0 0 24 24"
+                 fill="#0A66C2"
+                 aria-hidden="true">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.849-3.037-1.851 0-2.134 1.445-2.134 2.939v5.667H9.356V9h3.414v1.561h.049c.476-.9 1.637-1.849 3.369-1.849 3.604 0 4.269 2.372 4.269 5.456v6.284zM5.337 7.433a2.063 2.063 0 110-4.126 2.063 2.063 0 010 4.126zM6.963 20.452H3.711V9h3.252v11.452z"/>
+            </svg>
+          </a>
+        </div>
+        <p class="universal-footer-disclaimer">
+          The information on this website is provided for general informational and educational purposes only and does not constitute financial, investment, legal, or tax advice. It does not take into account any individual objectives, financial situation, or needs. All views expressed are personal, based on publicly available information, and do not represent the views of any employer or reflect any proprietary or internal analysis. This information should not be relied upon for making investment decisions. No representation or warranty is made as to the accuracy, completeness, or timeliness of the information, and no liability is accepted for any loss arising directly or indirectly from its use.
+        </p>
+        <p class="universal-footer-copyright">&copy; <span id="footer-year"></span> Investor Anatomy. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/shared/layout-loader.js"></script>
+  <script>
+    (function () {
+      const navHeader = document.getElementById("nav-header");
+      if (!navHeader) return;
+
+      function syncNavState() {
+        navHeader.classList.toggle("scrolled", window.scrollY > 8);
+      }
+
+      syncNavState();
+      window.addEventListener("scroll", syncNavState, { passive: true });
+    })();
+  </script>
+  <script>
+    (function () {
+      const items = [
+        {
+          imagePath: "/images/Outlook.jpg",
+          imageLabel: "Palladium Outlook",
+          tag: "Palladium Market Analyst - Outlook",
+          title: "Palladium Outlook",
+          subtitle: "A forward palladium synthesis will combine hybrid precious-industrial demand, metals-relative positioning, ETF flow, and SPDM.L proxy pricing into a single regime view.",
+          summary: "Planned output: a structured palladium synthesis integrating macro drivers, price behaviour, metals-relative context, and institutional research.",
+          meta: "Live report",
+          url: "/signal_report/Palladium_Outlook_Podcast.html"
+        },
+        {
+          imagePath: "/images/Execution_Brief.jpg",
+          imageLabel: "Execution Brief",
+          tag: "Palladium Market Analyst - Tactical",
+          title: "Execution Brief",
+          subtitle: "The palladium execution layer will translate regime conflict, pricing confirmation, and recent narrative change into a short-horizon trade posture.",
+          summary: "Planned output: a tactical palladium view of price structure, signal shifts, and execution timing.",
+          meta: "Live report",
+          url: "/signal_report/palladium_execution_brief.html"
+        },
+        {
+          imagePath: "/images/News_7.jpg",
+          imageLabel: "Palladium News 7 Days",
+          tag: "Narrative Monitor - 7 Days",
+          title: "Palladium News 7 Days",
+          subtitle: "The 7-day palladium monitor tracks autocatalyst demand, Russian and South African supply headlines, ETF interest, and cross-metal substitution signals across the PGM complex.",
+          summary: "A 7-day Palladium news signal with price-and-news chart context to show how narrative flow is interacting with palladium exposure proxies.",
+          meta: "Narrative layer - live in current repo",
+          url: "/signal_report/Podcast_Palladium_News_Signal_7D.html"
+        },
+        {
+          imagePath: "/images/News_48.jpg",
+          imageLabel: "Palladium News 2 Days",
+          tag: "Narrative Monitor - 2 Days",
+          title: "Palladium News 2 Days",
+          subtitle: "The 48-hour palladium monitor surfaces the latest narrative change feeding the tactical brief across autos, ETF flows, and cross-metal rotation.",
+          summary: "A 48-hour Palladium news signal with price-and-news chart context to surface the latest narrative shift feeding the tactical brief.",
+          meta: "Narrative layer - live in current repo",
+          url: "/signal_report/Podcast_Palladium_News_Signal_48H.html"
+        }
+      ];
+
+      let index = 0;
+
+      const imageEl = document.getElementById("featured-carousel-image");
+      const imageLabelEl = document.getElementById("featured-carousel-image-label");
+      const tagEl = document.getElementById("featured-carousel-tag");
+      const titleEl = document.getElementById("featured-carousel-title");
+      const subtitleEl = document.getElementById("featured-carousel-subtitle");
+      const summaryEl = document.getElementById("featured-carousel-summary");
+      const metaEl = document.getElementById("featured-carousel-meta");
+      const buttonEl = document.getElementById("featured-carousel-button");
+      const dotsEl = document.getElementById("featured-carousel-dots");
+      const prevEl = document.getElementById("featured-carousel-prev");
+      const nextEl = document.getElementById("featured-carousel-next");
+
+      if (!imageEl || !imageLabelEl || !tagEl || !titleEl || !subtitleEl || !summaryEl || !metaEl || !buttonEl || !dotsEl || !prevEl || !nextEl) {
+        return;
+      }
+
+      function goToItem(item) {
+        if (!item || !item.url) return;
+        window.location.href = item.url;
+      }
+
+      function renderDots() {
+        dotsEl.innerHTML = "";
+        items.forEach(function (_, idx) {
+          const dot = document.createElement("div");
+          dot.className = "carousel-dot" + (idx === index ? " active" : "");
+          dot.addEventListener("click", function () {
+            index = idx;
+            updateCarousel();
+          });
+          dotsEl.appendChild(dot);
+        });
+      }
+
+      function updateCarousel() {
+        const item = items[index];
+        imageEl.style.backgroundImage = item.imagePath ? "url('" + item.imagePath + "')" : "";
+        imageLabelEl.textContent = item.imageLabel || "";
+        tagEl.textContent = item.tag || "";
+        titleEl.textContent = item.title || "";
+        titleEl.style.display = item.title ? "block" : "none";
+        subtitleEl.textContent = item.subtitle || "";
+        summaryEl.textContent = item.summary || "";
+        metaEl.textContent = item.meta || "";
+        const buttonLabel = buttonEl.querySelector("span");
+        if (buttonLabel) {
+          buttonLabel.textContent = item.url ? "View full report" : "Output pending";
+        }
+        buttonEl.style.opacity = item.url ? "1" : "0.62";
+        buttonEl.style.cursor = item.url ? "pointer" : "default";
+        buttonEl.onclick = function () { goToItem(item); };
+        imageEl.onclick = function () { goToItem(item); };
+        renderDots();
+      }
+
+      prevEl.addEventListener("click", function () {
+        index = (index - 1 + items.length) % items.length;
+        updateCarousel();
+      });
+
+      nextEl.addEventListener("click", function () {
+        index = (index + 1) % items.length;
+        updateCarousel();
+      });
+
+      setInterval(function () {
+        index = (index + 1) % items.length;
+        updateCarousel();
+      }, 12000);
+
+      updateCarousel();
+    })();
+  </script>
+  <script src="/ia_explained/reporting-history-loader.js"></script>
+  <script id="reporting-history-embedded" type="application/x-jsonl">
+{"run_id":"2026-04-12T00:00:00Z","date":"2026-04-12","signal_id":"Palladium_regime_state_visualisation","liquidity_regime":"Pending regime history","real_rate_regime":"Pending regime history","usd_regime":"Pending regime history","inflation_regime":"Pending regime history","stress_state":"Pending regime history","positioning_regime":"Pending regime synthesis","flow_regime":"Pending regime synthesis","market_expression_check":"Pending pricing signal","horizon_bias_1m":"Pending","horizon_bias_3m":"Pending","6-12 Month Bias":"Pending","trade_call":"Pending","price":"Pending","commentary":"Palladium IA Explained is live before the full pricing, ETF-flow, regime, outlook, and execution stack. Reporting history will populate once the first palladium regime output is generated.","reporting_flag":"Y","reporting_week_starts":["2026-04-12"],"reporting_selection_rules":["placeholder_until_live_run"]}
+  </script>
+  <script>
+    window.InvestorAnatomyReportingHistoryLoader.init({
+      historyUrls: [
+        "/ia_explained/Palladium_regime_state_visualisation.jsonl"
+      ],
+      reportingFields: [
+        { key: "liquidity_regime", label: "Liquidity Regime", doubleWidth: true },
+        { key: "real_rate_regime", label: "Real Rate Regime", doubleWidth: true },
+        { key: "usd_regime", label: "USD Regime", doubleWidth: true },
+        { key: "inflation_regime", label: "Inflation Regime", doubleWidth: true },
+        { key: "stress_state", label: "Stress State", doubleWidth: true },
+        { key: "positioning_regime", label: "Positioning Regime", doubleWidth: true },
+        { key: "flow_regime", label: "Flow Regime", doubleWidth: true },
+        { key: "market_expression_check", label: "Market Expression Check", doubleWidth: true },
+        { key: "horizon_bias_1m", label: "1 Month Bias", doubleWidth: true },
+        { key: "horizon_bias_3m", label: "3 Month Bias", doubleWidth: true },
+        { key: "6-12 Month Bias", label: "6-12 Month Bias", doubleWidth: true },
+        { key: "trade_call", label: "Trade Call" },
+      { key: "price", label: "Price (SPDM.L)" },
+        { key: "commentary", label: "Commentary" }
+      ],
+      htmlFields: [
+        "liquidity_regime",
+        "real_rate_regime",
+        "usd_regime",
+        "inflation_regime",
+        "stress_state",
+        "positioning_regime",
+        "flow_regime",
+        "market_expression_check",
+        "horizon_bias_1m",
+        "horizon_bias_3m",
+        "6-12 Month Bias",
+        "trade_call"
+      ]
+    });
+  </script>
+  <script>
+    (function () {
+      const pageConfig = {
+      "commodity": "Palladium",
+      "newsSources": [
+            "EIN News - Mining (Palladium)",
+            "Mining.com",
+            "Heraeus Precious Metals",
+            "Johnson Matthey",
+            "Bank for International Settlements",
+            "CFTC",
+            "Yahoo Finance"
+      ],
+      "newsSourceMeta": {
+            "EIN News - Mining (Palladium)": {
+                  "description": "Track palladium and PGM headlines on mine supply, sanctions risk, policy developments, and industrial-demand news."
+            },
+            "Mining.com": {
+                  "description": "Capture global mining-industry reporting on operations, project disruptions, supply concentration, and capital activity.",
+                  "rssUrl": "https://www.mining.com/feed/"
+            },
+            "Heraeus Precious Metals": {
+                  "description": "Follow precious-metals commentary on industrial demand, PGM balances, substitution, and refinery dynamics."
+            },
+            "Johnson Matthey": {
+                  "description": "Track palladium and platinum-group-metals commentary on autocatalysts, substitution, recycling, and industrial end markets."
+            },
+            "Bank for International Settlements": {
+                  "description": "Track BIS publications and commentary for central-bank, liquidity, and macro-financial policy signals.",
+                  "rssUrl": "https://www.bis.org/doclist/all_statistics.rss"
+            },
+            "CFTC": {
+                  "description": "Monitor CFTC releases for market-structure, regulatory, and positioning-related developments.",
+                  "rssUrl": "https://www.cftc.gov/RSS/RSSGP/rssgp.xml"
+            },
+            "Yahoo Finance": {
+                  "description": "Capture broad market and company headlines that shape palladium sentiment and near-term risk tone.",
+                  "rssUrl": "https://finance.yahoo.com/news/"
+            }
+      },
+      "signalInputs": [
+            {
+                  "name": "Real Interest Rate Trend Signal Monitor",
+                  "href": "/signal_monitor/real_interest_rate_trend_signal_monitor.html",
+                  "sourceGroup": "FRED",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Federal Reserve Liquidity Composite Signal Monitor",
+                  "href": "/signal_monitor/federal_reserve_liquidity_composite_signal_monitor.html",
+                  "sourceGroup": "FRED",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "M2 Money Supply Signal Monitor",
+                  "href": "/signal_monitor/m2_money_supply_signal_monitor.html",
+                  "sourceGroup": "FRED",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Explicit Neutral Rate R Proxy Signal Monitor",
+                  "href": "/signal_monitor/explicit_neutral_rate_r_proxy_signal_monitor.html",
+                  "sourceGroup": "FRED",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Usd Index Signal Monitor",
+                  "href": "/signal_monitor/usd_index_signal_monitor.html",
+                  "sourceGroup": "FRED",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Usd Individual Market Analysis Monitor",
+                  "href": "/signal_monitor/usd_individual_market_analysis_monitor.html",
+                  "sourceGroup": "COT",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Global Growth & Economic Cycles",
+                  "href": "/signal_report/Macro_Theme_Global_Growth.html",
+                  "sourceGroup": "Investor Anatomy",
+                  "description": "Track the global growth and economic-cycle regime that sets the primary industrial and autocatalyst-demand backdrop for palladium.",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Global Inflation & FX Dynamics",
+                  "href": "/signal_report/Macro_Theme_Global_Inflation_and_FX_Dynamics.html",
+                  "sourceGroup": "Investor Anatomy",
+                  "description": "Track the global inflation and FX regime that conditions palladium through USD pressure, real-rate transmission, and precious-metals spillovers.",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Palladium Individual Market Analysis Monitor",
+              "href": "/signal_report/Palladium_Market_Analyst.html",
+                  "sourceGroup": "COT",
+                  "description": "Translate palladium futures CoT positioning into hybrid precious-industrial regime context, crowding, and reversal-risk signals that anchor the palladium positioning layer.",
+                  "regimeStateRoles": ["positioning"],
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Cross Sector Positioning Monitor",
+                  "href": "/signal_monitor/cross_sector_positioning_monitor.html",
+                  "sourceGroup": "COT",
+                  "feedsRegime": false,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Specs Vs Hedgers Divergence Reversal Risk Monitor",
+                  "href": "/signal_monitor/specs_vs_hedgers_divergence_reversal_risk_monitor.html",
+                  "sourceGroup": "COT",
+                  "regimeStateRoles": ["positioning"],
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Hedger Pressure Indicator Monitor",
+                  "href": "/signal_monitor/hedger_pressure_indicator_monitor.html",
+                  "sourceGroup": "COT",
+                  "description": "Quantify commercial hedger pressure as a palladium flow-regime modifier alongside substitution and industrial-cycle context.",
+                  "regimeStateRoles": ["flow-modifier"],
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Squeeze Exhaustion Risk Indicators Monitor",
+                  "href": "/signal_monitor/squeeze_exhaustion_risk_indicators_monitor.html",
+                  "sourceGroup": "COT",
+                  "feedsRegime": false,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Financial Stress Index Signal Monitor",
+                  "href": "/signal_monitor/financial_stress_index_signal_monitor.html",
+                  "sourceGroup": "FRED",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Financial Stress Composite Signal Monitor",
+                  "href": "/signal_monitor/financial_stress_composite_signal_monitor.html",
+                  "sourceGroup": "FRED",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Market Volatility Vix Signal Monitor",
+                  "href": "/signal_monitor/market_volatility_vix_signal_monitor.html",
+                  "sourceGroup": "YFinance",
+                  "feedsRegime": true,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": true,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Palladium Pricing Signal",
+                  "href": null,
+                  "sourceGroup": "YFinance",
+                  "description": "Use the planned SPDM.L proxy pricing output as the live confirmatory palladium pricing proxy; it remains a market-expression check rather than a direct Regime State driver.",
+                  "regimeStateRoles": ["confirmatory"],
+                  "feedsRegime": false,
+                  "feedsSignalChange": true,
+                  "feedsAnalyst": true,
+                  "feedsExecutionBaseline": true,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false,
+                  "missing": true
+            },
+            {
+                  "name": "Metals Comparative Signal",
+                  "href": "/signal_report/Metals_Comparative_Signal.html",
+                  "sourceGroup": "YFinance",
+                  "description": "Track cross-metal relative performance and rotation pressure to contextualize Palladium within the broader precious-and-industrial metals complex.",
+                  "regimeStateRoles": ["positioning"],
+                  "feedsRegime": true,
+                  "feedsSignalChange": false,
+                  "feedsAnalyst": false,
+                  "feedsExecutionBaseline": false,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            },
+            {
+                  "name": "Palladium ETF Flow Signal",
+                  "href": "/signal_report/Palladium_ETF_Flow_Signal.html",
+                  "sourceGroup": "Blackrock",
+                  "description": "Track BlackRock palladium ETC flow so investment-demand pressure can feed the palladium flow regime.",
+                  "regimeStateRoles": ["flow"],
+                  "feedsRegime": true,
+                  "feedsSignalChange": false,
+                  "feedsAnalyst": true,
+                  "feedsExecutionBaseline": true,
+                  "feedsOutlook": false,
+                  "feedsOutlookSecondary": false
+            }
+      ],
+      "nodeLinks": {
+            "Palladium News - 7 Days": "/signal_report/Podcast_Palladium_News_Signal_7D.html",
+            "Palladium News Compression": "/signal_report/Podcast_Palladium_News_Signal_Compression_7D.html"
+      },
+      "nodes": {
+            "research": {
+                  "id": "Palladium Price Research",
+                  "name": "Palladium Price Research",
+                  "href": null,
+                  "missing": true,
+                  "description": "Inject thematic palladium price research context alongside macro, positioning, metals-relative, and narrative signals."
+            },
+            "regimeFramework": {
+                  "id": "Palladium Regime Framework",
+                  "name": "Palladium Regime Framework",
+                  "href": null,
+                  "missing": true,
+                  "description": "Represent the formal palladium regime-framework explainer that would define how hybrid precious-industrial demand, real rates, pricing, and cross-metal context are interpreted before analyst synthesis."
+            },
+            "regimeState": {
+                  "id": "Palladium Regime State",
+                  "name": "Palladium Regime State",
+                  "href": null,
+                  "missing": true,
+                  "description": "Classify the current palladium regime state by combining macro inputs with Palladium Individual Market Analysis, Metals Comparative, Specs vs Hedgers divergence, Palladium ETF Flow as the flow layer, and Hedger Pressure as a modifier. SPDM.L pricing remains the planned confirmatory pricing proxy."
+            },
+            "signalChange": {
+                  "id": "Palladium Signal Change Monitor",
+                  "name": "Palladium Signal Change Monitor",
+                  "href": null,
+                  "missing": true,
+                  "description": "Aggregate the execution delta-candidate signal set so upstream palladium turning points can be surfaced before the final brief."
+            },
+            "outlook": {
+                  "id": "Palladium Outlook",
+                  "name": "Palladium Outlook",
+              "href": "/signal_report/Palladium_Outlook_Podcast.html",
+                  "description": "Provide the forward-looking palladium outlook page built from the current market-analyst stack."
+            },
+            "execution": {
+                  "id": "Execution Brief",
+                  "name": "Execution Brief",
+                  "description": "Translate the palladium market-analyst anchor plus baseline and delta-change context into a short-horizon execution brief.",
+              "href": "/signal_report/palladium_execution_brief.html"
+            }
+      }
+};
+
+      const commodity = pageConfig.commodity;
+      const newsSources = pageConfig.newsSources;
+      const newsSourceMeta = pageConfig.newsSourceMeta || {};
+      const signalInputs = pageConfig.signalInputs || [];
+      const nodeLinks = pageConfig.nodeLinks || {};
+      const rssFeedFallbackUrl = "https://investoranatomy.com/rss_feed.html";
+      const modelOutputNodeIds = new Set([pageConfig.nodes.outlook.id, pageConfig.nodes.execution.id]);
+
+      const palette = {
+        panel: "#0b1220",
+        text: "#e6eef8",
+        link: "#67e8f9",
+        flow: "rgba(103, 232, 249, 0.18)",
+        newsFlow: "rgba(103, 232, 249, 0.42)",
+        silver: "rgba(192, 198, 208, 0.60)",
+        gold: "rgba(250, 204, 21, 0.52)",
+        platinum: "rgba(203, 213, 225, 0.58)",
+        palladium: "rgba(180, 173, 194, 0.58)",
+        lithium: "rgba(129, 140, 248, 0.52)",
+        copper: "rgba(251, 146, 60, 0.56)",
+        yfinance: "rgba(16, 185, 129, 0.42)",
+        etf: "rgba(236, 72, 153, 0.50)",
+        missing: "rgba(220, 38, 38, 0.90)",
+        missingRing: "rgba(248, 113, 113, 0.92)",
+      };
+
+      const columnX = { source: 40, enrich: 280, news: 520, compression: 760, analyst: 1000, terminal: 1240 };
+      const nodeWidth = 18;
+      const nodeHeight = 22;
+      const reportGap = 16;
+      const sourceGap = 42;
+      const chartWidth = 1420;
+
+      function getSignalSource(name) {
+        const signal = signalInputs.find((item) => item.name === name);
+        return signal && signal.sourceGroup ? signal.sourceGroup : "FRED";
+      }
+
+      function getNewsSourceRssUrl(name) {
+        const meta = newsSourceMeta[name] || {};
+        if (meta.rssUrl) return meta.rssUrl;
+        return rssFeedFallbackUrl + "?q=" + encodeURIComponent(name);
+      }
+
+      function getCommodityColor(commodityName, alpha) {
+        if (commodityName === "Silver") return "rgba(192, 198, 208, " + alpha + ")";
+        if (commodityName === "Gold") return "rgba(250, 204, 21, " + alpha + ")";
+        if (commodityName === "Platinum") return "rgba(203, 213, 225, " + alpha + ")";
+        if (commodityName === "Palladium") return "rgba(180, 173, 194, " + alpha + ")";
+        if (commodityName === "Lithium") return "rgba(129, 140, 248, " + alpha + ")";
+        if (commodityName === "Copper") return "rgba(251, 146, 60, " + alpha + ")";
+        return "rgba(103, 232, 249, " + alpha + ")";
+      }
+
+      function getSignalFlowColor(signalSource, alpha) {
+        if (signalSource === "Investor Anatomy") return "rgba(249, 115, 22, " + alpha + ")";
+        if (signalSource === "COT") return "rgba(251, 191, 36, " + alpha + ")";
+        if (signalSource === "YFinance") return "rgba(16, 185, 129, " + alpha + ")";
+        if (signalSource === "Blackrock") return "rgba(236, 72, 153, " + alpha + ")";
+        return "rgba(59, 130, 246, " + alpha + ")";
+      }
+
+      function getNodeFill(node) {
+        if (node.missing || node.attention) return palette.missing;
+        if (node.type === "source") return "rgba(103, 232, 249, 0.92)";
+        if (node.type === "data-source") {
+          if (node.id === "Investor Anatomy") return "rgba(249, 115, 22, 0.95)";
+          if (node.id === "COT") return "rgba(251, 191, 36, 0.95)";
+          if (node.id === "YFinance") return "rgba(16, 185, 129, 0.95)";
+          if (node.id === "Blackrock") return "rgba(236, 72, 153, 0.95)";
+          return "rgba(59, 130, 246, 0.95)";
+        }
+        if (node.type === "signal") {
+          if (node.sourceGroup === "Investor Anatomy") return "rgba(249, 115, 22, 0.9)";
+          if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.9)";
+          if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.9)";
+          if (node.sourceGroup === "Blackrock") return "rgba(236, 72, 153, 0.92)";
+          return "rgba(59, 130, 246, 0.9)";
+        }
+        if (node.type === "enrich") return "rgba(103, 232, 249, 0.92)";
+        if (node.type === "research" && node.commodity) return getCommodityColor(node.commodity, 0.9);
+        if (node.type === "research") return "rgba(148, 163, 184, 0.92)";
+        if (node.type === "regime" && node.commodity) return getCommodityColor(node.commodity, 0.9);
+        if (node.type === "regime") return "rgba(125, 211, 252, 0.88)";
+        if (node.commodity) return getCommodityColor(node.commodity, node.href ? 0.92 : 0.62);
+        return "rgba(15,23,42,0.9)";
+      }
+
+      function getNodeRingStroke(node) {
+        if (node.missing || node.attention) return palette.missingRing;
+        if (node.type === "data-source") {
+          if (node.id === "Investor Anatomy") return "rgba(249, 115, 22, 0.75)";
+          if (node.id === "COT") return "rgba(251, 191, 36, 0.75)";
+          if (node.id === "YFinance") return "rgba(16, 185, 129, 0.75)";
+          if (node.id === "Blackrock") return "rgba(236, 72, 153, 0.78)";
+          return "rgba(59, 130, 246, 0.75)";
+        }
+        if (node.type === "signal") {
+          if (node.sourceGroup === "Investor Anatomy") return "rgba(249, 115, 22, 0.8)";
+          if (node.sourceGroup === "COT") return "rgba(251, 191, 36, 0.8)";
+          if (node.sourceGroup === "YFinance") return "rgba(16, 185, 129, 0.8)";
+          if (node.sourceGroup === "Blackrock") return "rgba(236, 72, 153, 0.82)";
+          return "rgba(59, 130, 246, 0.8)";
+        }
+        if (node.commodity) return getCommodityColor(node.commodity, 0.8);
+        return "rgba(103, 232, 249, 0.75)";
+      }
+
+      function buildNodes() {
+        const newsSourceNodes = newsSources.map((name, index) => ({
+          id: name,
+          name,
+          x: columnX.source,
+          y: 70 + index * sourceGap,
+          type: "source",
+          href: getNewsSourceRssUrl(name),
+        }));
+        const dedupeY = Math.round((newsSourceNodes[0].y + newsSourceNodes[newsSourceNodes.length - 1].y) / 2);
+
+        const signalsStartY = Math.max(180, 70 + newsSources.length * sourceGap - 10);
+        const signalGroupOrder = ["FRED", "Investor Anatomy", "COT", "YFinance", "Blackrock"];
+        const signalNodes = [];
+        const signalSourceNodes = [];
+        let groupCursorY = signalsStartY;
+
+        signalGroupOrder.forEach((groupName) => {
+          const groupItems = signalInputs.filter((item) => getSignalSource(item.name) === groupName);
+          if (!groupItems.length) return;
+
+          const groupStartY = groupCursorY;
+          groupItems.forEach((item, index) => {
+            signalNodes.push({
+              id: item.name,
+              name: item.name,
+              x: columnX.enrich,
+              y: groupCursorY + index * sourceGap,
+              type: "signal",
+              commodity,
+              href: item.href || null,
+              sourceGroup: groupName,
+              missing: !!item.missing,
+              description: item.description || "",
+            });
+          });
+
+          const groupEndY = groupCursorY + (groupItems.length - 1) * sourceGap;
+          signalSourceNodes.push({
+            id: groupName,
+            name: groupName,
+            x: columnX.source,
+            y: groupStartY + (groupEndY - groupStartY) / 2,
+            type: "data-source",
+            commodity,
+          });
+          groupCursorY = groupEndY + sourceGap + 18;
+        });
+
+        const baseY = 132;
+        const centerOffset = (nodeHeight + reportGap) / 2;
+        const stride = nodeHeight + reportGap;
+        const nodes = pageConfig.nodes;
+
+        return [
+          ...newsSourceNodes,
+          ...signalSourceNodes,
+          ...signalNodes,
+          { id: "News Monitor", name: "News Monitor", x: columnX.enrich, y: dedupeY, type: "enrich" },
+          {
+            id: commodity + " News - 7 Days",
+            name: commodity + " News - 7 Days",
+            x: columnX.news,
+            y: baseY + stride * 2,
+            commodity,
+            href: nodeLinks[commodity + " News - 7 Days"] || null,
+            missing: !nodeLinks[commodity + " News - 7 Days"],
+          },
+          {
+            id: commodity + " News - 2 Days",
+            name: commodity + " News - 2 Days",
+            x: columnX.news,
+            y: baseY + stride * 5,
+            commodity,
+            href: nodeLinks[commodity + " News - 2 Days"] || null,
+            missing: !nodeLinks[commodity + " News - 2 Days"],
+          },
+          {
+            id: commodity + " News Compression",
+            name: commodity + " News Compression",
+            x: columnX.compression,
+            y: baseY + centerOffset + stride * 2,
+            commodity,
+            href: nodeLinks[commodity + " News Compression"] || null,
+            missing: !nodeLinks[commodity + " News Compression"],
+          },
+          {
+            id: commodity + " Market Analyst",
+            name: commodity + " Market Analyst",
+            x: columnX.analyst,
+            y: baseY + centerOffset,
+            commodity,
+            href: nodeLinks[commodity + " Market Analyst"] || null,
+            missing: !nodeLinks[commodity + " Market Analyst"],
+          },
+          {
+            id: nodes.research.id,
+            name: nodes.research.name,
+            x: columnX.compression,
+            y: baseY + centerOffset - 100,
+            commodity,
+            type: "research",
+            href: nodes.research.href || null,
+            missing: !!nodes.research.missing,
+            attention: !!nodes.research.attention,
+            description: nodes.research.description || "",
+          },
+          {
+            id: nodes.regimeFramework.id,
+            name: nodes.regimeFramework.name,
+            x: columnX.compression,
+            y: baseY + centerOffset - 62,
+            commodity,
+            type: "regime",
+            href: nodes.regimeFramework.href || null,
+            missing: !!nodes.regimeFramework.missing,
+            attention: !!nodes.regimeFramework.attention,
+            description: nodes.regimeFramework.description || "",
+          },
+          {
+            id: nodes.regimeState.id,
+            name: nodes.regimeState.name,
+            x: columnX.news,
+            y: baseY + stride * 8,
+            commodity,
+            type: "regime",
+            href: nodes.regimeState.href || null,
+            missing: !!nodes.regimeState.missing,
+            attention: !!nodes.regimeState.attention,
+            description: nodes.regimeState.description || "",
+          },
+          {
+            id: nodes.execution.id,
+            name: nodes.execution.name,
+            x: columnX.terminal,
+            y: baseY + centerOffset + stride,
+            commodity,
+            type: "endpoint-day-trader",
+            href: nodes.execution.href || null,
+            missing: !!nodes.execution.missing,
+            attention: !!nodes.execution.attention,
+            description: nodes.execution.description || "",
+          },
+          {
+            id: nodes.outlook.id,
+            name: nodes.outlook.name,
+            x: columnX.terminal,
+            y: baseY + centerOffset - stride,
+            commodity,
+            type: "endpoint-outlook",
+            href: nodes.outlook.href || null,
+            missing: !!nodes.outlook.missing,
+            attention: !!nodes.outlook.attention,
+            description: nodes.outlook.description || "",
+          },
+          {
+            id: nodes.signalChange.id,
+            name: nodes.signalChange.name,
+            x: columnX.news,
+            y: baseY + stride * 11,
+            commodity,
+            type: "regime",
+            href: nodes.signalChange.href || null,
+            missing: !!nodes.signalChange.missing,
+            attention: !!nodes.signalChange.attention,
+            description: nodes.signalChange.description || "",
+          },
+        ];
+      }
+
+      function buildLinks() {
+        const nodes = pageConfig.nodes;
+        const marketAnalystId = commodity + " Market Analyst";
+        return [
+          ...newsSources.map((source) => ({ source, target: "News Monitor", value: 1, kind: "news-source" })),
+          ...signalInputs.map((item) => ({
+            source: getSignalSource(item.name),
+            target: item.name,
+            commodity,
+            kind: getSignalSource(item.name) === "COT" ? "cot-source" : getSignalSource(item.name) === "Investor Anatomy" ? "investor-anatomy-source" : getSignalSource(item.name) === "YFinance" ? "yfinance-source" : getSignalSource(item.name) === "Blackrock" ? "etf-source" : "fred-source",
+            signalSource: getSignalSource(item.name),
+          })),
+          ...signalInputs.filter((item) => item.feedsRegime).map((item) => ({ source: item.name, target: nodes.regimeState.id, commodity, kind: "regime-feed", signalSource: getSignalSource(item.name) })),
+          ...signalInputs.filter((item) => item.feedsSignalChange).map((item) => ({ source: item.name, target: nodes.signalChange.id, commodity, kind: "signal-change-feed", signalSource: getSignalSource(item.name) })),
+          ...signalInputs.filter((item) => item.feedsAnalyst).map((item) => ({ source: item.name, target: marketAnalystId, commodity, kind: "analyst-feed", signalSource: getSignalSource(item.name) })),
+          ...signalInputs.filter((item) => item.feedsExecutionBaseline).map((item) => ({ source: item.name, target: nodes.execution.id, commodity, kind: "execution-baseline", signalSource: getSignalSource(item.name) })),
+          { source: "News Monitor", target: commodity + " News - 7 Days", commodity, kind: "news-pipeline" },
+          { source: "News Monitor", target: commodity + " News - 2 Days", commodity, kind: "news-pipeline" },
+          { source: commodity + " News - 7 Days", target: commodity + " News Compression", commodity },
+          { source: commodity + " News - 7 Days", target: marketAnalystId, commodity },
+          { source: nodes.research.id, target: marketAnalystId, commodity, kind: "analyst-context" },
+          { source: nodes.regimeFramework.id, target: marketAnalystId, commodity, kind: "analyst-context" },
+          { source: nodes.regimeState.id, target: marketAnalystId, commodity, kind: "analyst-context" },
+          { source: commodity + " News Compression", target: marketAnalystId, commodity, kind: "analyst-context" },
+          { source: marketAnalystId, target: nodes.execution.id, commodity, kind: "execution-context" },
+          { source: nodes.signalChange.id, target: nodes.execution.id, commodity, kind: "execution-context" },
+          { source: commodity + " News - 2 Days", target: nodes.execution.id, commodity, kind: "execution-context" },
+          { source: marketAnalystId, target: nodes.outlook.id, commodity, kind: "outlook-context" },
+        ];
+      }
+
+      function getLinkColor(link) {
+        if (link.kind === "news-source") return palette.newsFlow;
+        if (link.kind === "news-pipeline") return "rgba(103, 232, 249, 0.58)";
+        if (link.kind === "fred-source") return "rgba(59, 130, 246, 0.35)";
+        if (link.kind === "investor-anatomy-source") return "rgba(249, 115, 22, 0.4)";
+        if (link.kind === "cot-source") return "rgba(251, 191, 36, 0.42)";
+        if (link.kind === "yfinance-source") return palette.yfinance;
+        if (link.kind === "etf-source") return palette.etf;
+        if (link.kind === "regime-feed") return getSignalFlowColor(link.signalSource, 0.46);
+        if (link.kind === "signal-change-feed") return getSignalFlowColor(link.signalSource, 0.28);
+        if (link.kind === "analyst-feed") return getSignalFlowColor(link.signalSource, 0.82);
+        if (link.kind === "execution-baseline") return getSignalFlowColor(link.signalSource, 0.68);
+        if (link.kind === "outlook-feed") return getSignalFlowColor(link.signalSource, 0.54);
+        if (link.kind === "outlook-secondary") return getCommodityColor(link.commodity, 0.22);
+        if (link.kind === "analyst-context") return getCommodityColor(link.commodity, 0.62);
+        if (link.kind === "execution-context") return getCommodityColor(link.commodity, 0.78);
+        if (link.kind === "outlook-context") return getCommodityColor(link.commodity, 0.52);
+        if (link.commodity === "Silver") return palette.silver;
+        if (link.commodity === "Gold") return palette.gold;
+        if (link.commodity === "Platinum") return palette.platinum;
+        if (link.commodity === "Palladium") return palette.palladium;
+        if (link.commodity === "Lithium") return palette.lithium;
+        if (link.commodity === "Copper") return palette.copper;
+        return palette.flow;
+      }
+
+      const svg = document.getElementById("commoditySankey");
+      const sankeyShell = document.querySelector(".sankey-shell");
+      const tooltip = document.getElementById("sankeyTooltip");
+      if (!svg || !sankeyShell || !tooltip) return;
+
+      const tooltipTitle = tooltip.querySelector(".tip-title");
+      const tooltipBody = tooltip.querySelector(".tip-body");
+      if (!tooltipTitle || !tooltipBody) return;
+
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const XLINK_NS = "http://www.w3.org/1999/xlink";
+
+      function make(tag, attrs) {
+        const el = document.createElementNS(SVG_NS, tag);
+        Object.keys(attrs || {}).forEach((key) => el.setAttribute(key, attrs[key]));
+        return el;
+      }
+
+      function wrapNodeLabel(text, maxChars) {
+        const words = (text || "").split(/\s+/).filter(Boolean);
+        if (!words.length) return [""];
+        const lines = [];
+        let current = "";
+        words.forEach((word) => {
+          if (!current) {
+            if (word.length > maxChars) lines.push(word.slice(0, maxChars - 1) + "...");
+            else current = word;
+            return;
+          }
+          const candidate = current + " " + word;
+          if (candidate.length <= maxChars) {
+            current = candidate;
+            return;
+          }
+          lines.push(current);
+          current = word.length > maxChars ? "" : word;
+          if (word.length > maxChars) lines.push(word.slice(0, maxChars - 1) + "...");
+        });
+        if (current) lines.push(current);
+        if (lines.length <= 2) return lines;
+        let second = lines.slice(1).join(" ");
+        if (second.length > maxChars) second = second.slice(0, maxChars - 1).trimEnd() + "...";
+        return [lines[0], second];
+      }
+
+      function estimateLabelWidth(lines) {
+        const maxLen = lines.reduce((acc, line) => Math.max(acc, line.length), 0);
+        return Math.max(110, Math.min(430, Math.round(maxLen * 6.2 + 16)));
+      }
+
+      function getNodeDisplayName(node) {
+        if (node.type === "signal") return (node.name || "").replace(/\s+Monitor$/i, "");
+        return node.name || "";
+      }
+
+      const nodeObjectiveByName = Object.assign({}, {
+      "Real Interest Rate Trend Signal Monitor": "Track 10Y real-yield deviation from trend to flag accommodative versus restrictive real-rate pressure.",
+      "Federal Reserve Liquidity Composite Signal Monitor": "Measure system liquidity by combining M2, Fed balance sheet, reserves, and reverse-repo dynamics.",
+      "M2 Money Supply Signal Monitor": "Monitor money-supply growth and short-run momentum to identify liquidity acceleration or contraction.",
+      "Explicit Neutral Rate R Proxy Signal Monitor": "Approximate the market-implied neutral policy-rate regime using real-rate and term-premium context.",
+      "Usd Index Signal Monitor": "Detect broad USD strengthening or weakening regimes that influence global commodity pricing pressure.",
+      "Usd Individual Market Analysis Monitor": "Translate USD futures positioning into crowding, unwind, and reversal-risk diagnostics.",
+      "Regime Specific Macro Themes Monitor": "Track dominant cross-market macro themes so commodity interpretation can be anchored to the prevailing narrative regime.",
+      "Inflation Term Structure Signal Monitor": "Track inflation term-structure shifts across breakevens and real yields to classify reflation versus disinflation.",
+      "Market Implied Inflation Signal Monitor": "Summarize forward inflation expectations from breakevens and momentum structure.",
+      "Policy Relevant Inflation Pce Signal Monitor": "Track headline and core PCE inflation pressure in a policy-relevant composite.",
+      "Cross Sector Positioning Monitor": "Aggregate CoT positioning breadth across sectors to identify crowding and hedger-pressure concentration.",
+      "Specs Vs Hedgers Divergence Reversal Risk Monitor": "Measure speculative versus hedger divergence breadth to surface reversal-risk regimes.",
+      "Hedger Pressure Indicator Monitor": "Quantify commercial hedger pressure to infer supply-expansion versus shortage-stress conditions.",
+      "Squeeze Exhaustion Risk Indicators Monitor": "Aggregate squeeze and trend-exhaustion breadth flags across futures markets.",
+      "Financial Stress Index Signal Monitor": "Track STLFSI stress conditions to detect risk-off pressure and systemic strain.",
+      "Financial Stress Composite Signal Monitor": "Blend stress index, credit spreads, and curve slope into a unified financial-stress regime signal.",
+      "Market Volatility Vix Signal Monitor": "Track VIX regime and momentum as a tactical risk-sentiment and volatility-pressure gauge."
+});
+      signalInputs.forEach((item) => {
+        if (item.description) nodeObjectiveByName[item.name] = item.description;
+      });
+      Object.values(pageConfig.nodes).forEach((node) => {
+        if (node.description) nodeObjectiveByName[node.name] = node.description;
+      });
+
+      function getNodeObjective(node) {
+        const commodityName = (node.name || "").split(" ")[0] || commodity;
+        let objective = node.description || nodeObjectiveByName[node.name];
+        if (!objective) {
+          if (node.type === "source") {
+            const meta = newsSourceMeta[node.name];
+            objective = meta && meta.description ? meta.description : "Provide external commodity-news inputs to the enrichment layer.";
+          } else if (node.type === "enrich") {
+            objective = "Deduplicate, normalize, and enrich incoming news before compression.";
+          } else if (node.type === "data-source") {
+            objective = node.id === "Investor Anatomy"
+              ? "Provide Investor Anatomy macro-theme outputs used by the cross-asset commodity regime stack."
+              : node.id === "COT"
+              ? "Provide commitment-of-traders positioning data used by the CoT signal stack."
+              : node.id === "YFinance"
+                ? "Provide market-pricing and volatility feeds used by the YFinance signal stack."
+                : node.id === "Blackrock"
+                  ? "Provide Blackrock ETF flow data used to track direct investment-demand shifts."
+                  : "Provide macroeconomic time-series used by the FRED-driven signal stack.";
+          } else if ((node.name || "").indexOf("News - 7 Days") !== -1) {
+            objective = "Summarize the last 7 days of " + commodityName + " narrative flow.";
+          } else if ((node.name || "").indexOf("News - 2 Days") !== -1) {
+            objective = "Highlight the most recent 48-hour changes in " + commodityName + " narrative flow.";
+          } else if ((node.name || "").indexOf("News Compression") !== -1) {
+            objective = "Compress recent news into a concise decision-ready signal.";
+          } else if ((node.name || "").indexOf("Market Analyst") !== -1) {
+            objective = "Integrate signals, regime context, and compressed news into final analyst output.";
+          } else {
+            objective = "Provide context within the commodity analyst workflow.";
+          }
+        }
+        if (node.missing) objective += " This node is shown in red because no implemented page or report currently exists in the repo.";
+        if (node.attention) objective += " This node is shown in red because the workflow is not yet fully wired into the current market-analyst stack.";
+        return objective;
+      }
+
+      function positionTooltip(evt, targetEl) {
+        const shellRect = sankeyShell.getBoundingClientRect();
+        let left = 16;
+        let top = 16;
+
+        if (evt && typeof evt.clientX === "number" && typeof evt.clientY === "number") {
+          left = evt.clientX - shellRect.left + 14;
+          top = evt.clientY - shellRect.top + 14;
+        } else if (targetEl) {
+          const targetRect = targetEl.getBoundingClientRect();
+          left = targetRect.left - shellRect.left + targetRect.width + 12;
+          top = targetRect.top - shellRect.top + targetRect.height / 2;
+        }
+
+        tooltip.style.left = left + "px";
+        tooltip.style.top = top + "px";
+
+        const tipRect = tooltip.getBoundingClientRect();
+        const maxLeft = shellRect.width - tipRect.width - 12;
+        const maxTop = shellRect.height - tipRect.height - 12;
+
+        let clampedLeft = Math.min(left, maxLeft);
+        let clampedTop = Math.min(top, maxTop);
+        if (clampedLeft < 12) clampedLeft = 12;
+        if (clampedTop < 12) clampedTop = 12;
+
+        if (left > maxLeft && targetEl) {
+          const targetRect = targetEl.getBoundingClientRect();
+          clampedLeft = targetRect.left - shellRect.left - tipRect.width - 12;
+          if (clampedLeft < 12) clampedLeft = 12;
+        }
+
+        tooltip.style.left = Math.round(clampedLeft) + "px";
+        tooltip.style.top = Math.round(clampedTop) + "px";
+      }
+
+      function showTooltip(node, evt, targetEl) {
+        tooltipTitle.textContent = getNodeDisplayName(node);
+        tooltipBody.textContent = getNodeObjective(node);
+        tooltip.classList.add("show");
+        tooltip.setAttribute("aria-hidden", "false");
+        positionTooltip(evt, targetEl);
+      }
+
+      function hideTooltip() {
+        tooltip.classList.remove("show");
+        tooltip.setAttribute("aria-hidden", "true");
+      }
+
+      function bindTooltipEvents(el, node) {
+        el.addEventListener("pointerenter", function (evt) { showTooltip(node, evt, el); });
+        el.addEventListener("pointermove", function (evt) { positionTooltip(evt, el); });
+        el.addEventListener("pointerleave", hideTooltip);
+        el.addEventListener("mouseenter", function (evt) { showTooltip(node, evt, el); });
+        el.addEventListener("mousemove", function (evt) { positionTooltip(evt, el); });
+        el.addEventListener("mouseleave", hideTooltip);
+      }
+
+      function draw() {
+        const nodes = buildNodes();
+        const links = buildLinks();
+        const nodeById = Object.fromEntries(nodes.map((n) => [n.id, n]));
+        svg.textContent = "";
+        hideTooltip();
+
+        const maxY = Math.max.apply(null, nodes.map((n) => n.y + nodeHeight));
+        const chartHeight = Math.max(1320, maxY + 100);
+        svg.setAttribute("viewBox", "0 0 " + chartWidth + " " + chartHeight);
+
+        svg.appendChild(make("rect", { x: 0, y: 0, width: chartWidth, height: chartHeight, fill: palette.panel, rx: 0 }));
+
+        links.forEach((link) => {
+          const source = nodeById[link.source];
+          const target = nodeById[link.target];
+          if (!source || !target) return;
+
+          const x1 = source.x + nodeWidth;
+          const y1 = source.y + nodeHeight / 2;
+          const x2 = target.x;
+          const y2 = target.y + nodeHeight / 2;
+          const cx1 = x1 + (x2 - x1) * 0.35;
+          const cx2 = x1 + (x2 - x1) * 0.65;
+
+          const path = make("path", {
+            d: "M " + x1 + " " + y1 + " C " + cx1 + " " + y1 + ", " + cx2 + " " + y2 + ", " + x2 + " " + y2,
+            stroke: getLinkColor(link),
+            "stroke-width": 2.4,
+            opacity: 1,
+            fill: "none",
+            "stroke-linecap": "round",
+          });
+          svg.appendChild(path);
+        });
+
+        const modelOutputNodes = nodes.filter((node) => modelOutputNodeIds.has(node.id));
+        if (modelOutputNodes.length) {
+          let boxLeft = Number.POSITIVE_INFINITY;
+          let boxTop = Number.POSITIVE_INFINITY;
+          let boxRight = Number.NEGATIVE_INFINITY;
+          let boxBottom = Number.NEGATIVE_INFINITY;
+
+          modelOutputNodes.forEach((node) => {
+            const outputLines = wrapNodeLabel(getNodeDisplayName(node), 30);
+            const outputLabelWidth = estimateLabelWidth(outputLines);
+            const outputLabelHeight = Math.max(nodeHeight, outputLines.length * 12 + 4);
+            const left = node.x - 10;
+            const top = node.y - 8;
+            const right = node.x + nodeWidth + 10 + outputLabelWidth + 14;
+            const bottom = node.y + outputLabelHeight + 8;
+            if (left < boxLeft) boxLeft = left;
+            if (top < boxTop) boxTop = top;
+            if (right > boxRight) boxRight = right;
+            if (bottom > boxBottom) boxBottom = bottom;
+          });
+
+          boxLeft = Math.max(10, boxLeft - 18);
+          boxRight = Math.min(chartWidth - 14, boxRight + 10);
+          boxBottom += 16;
+          boxTop = Math.max(10, boxTop - 34);
+          const outputBox = make("rect", {
+            x: boxLeft,
+            y: boxTop,
+            width: boxRight - boxLeft,
+            height: boxBottom - boxTop,
+            rx: 14,
+            fill: "rgba(192, 198, 208, 0.05)",
+            stroke: "rgba(192, 198, 208, 0.7)",
+            "stroke-width": 1.4,
+            "stroke-dasharray": "8 6",
+          });
+          svg.appendChild(outputBox);
+
+          const outputTitle = make("text", {
+            x: boxLeft + 12,
+            y: boxTop + 22,
+            "font-size": 14,
+            "font-weight": 700,
+            "letter-spacing": "0.08em",
+            fill: "#f59e0b",
+          });
+          outputTitle.textContent = "MODEL OUTPUTS";
+          svg.appendChild(outputTitle);
+        }
+
+        nodes.forEach((node) => {
+          const isOutputNode = modelOutputNodeIds.has(node.id);
+          const fill = getNodeFill(node);
+          const textFill = node.missing || node.attention ? "#fecaca" : isOutputNode ? "#93c5fd" : "#e2e8f0";
+          const displayName = getNodeDisplayName(node);
+          const labelLines = wrapNodeLabel(displayName, 30);
+          const labelX = node.x + nodeWidth + 10;
+          const labelLineHeight = 12;
+          const labelBoxWidth = estimateLabelWidth(labelLines);
+          const labelBoxHeight = Math.max(nodeHeight, labelLines.length * labelLineHeight + 4);
+
+          const group = make("g", { opacity: 1 });
+          if (node.href) group.style.cursor = "pointer";
+
+          group.appendChild(make("rect", {
+            x: node.x, y: node.y, width: nodeWidth, height: nodeHeight, rx: 5, fill,
+          }));
+
+          if (node.href) {
+            const ring = make("rect", {
+              x: node.x - 6,
+              y: node.y - 4,
+              width: nodeWidth + 12 + labelBoxWidth,
+              height: labelBoxHeight + 8,
+              rx: 10,
+              stroke: getNodeRingStroke(node),
+              class: "click-ring",
+            });
+            ring.style.animationDelay = ((node.y % 17) / 10).toFixed(2) + "s";
+            group.appendChild(ring);
+          }
+
+          const text = make("text", {
+            x: labelX,
+            y: node.y + nodeHeight / 2 - ((labelLines.length - 1) * labelLineHeight) / 2 + 4,
+            "font-size": 12,
+            "font-weight": 700,
+            "letter-spacing": "0.08em",
+            fill: textFill,
+          });
+          labelLines.forEach((line, index) => {
+            const tspan = make("tspan", {
+              x: labelX,
+              dy: index === 0 ? 0 : labelLineHeight,
+            });
+            tspan.textContent = line;
+            text.appendChild(tspan);
+          });
+          group.appendChild(text);
+
+          if (node.href) {
+            const anchor = make("a", { href: node.href, target: "_blank" });
+            anchor.setAttributeNS(XLINK_NS, "xlink:href", node.href);
+            anchor.appendChild(group);
+            bindTooltipEvents(anchor, node);
+            anchor.addEventListener("focus", function (evt) { showTooltip(node, evt, anchor); });
+            anchor.addEventListener("blur", hideTooltip);
+            svg.appendChild(anchor);
+          } else {
+            bindTooltipEvents(group, node);
+            svg.appendChild(group);
+          }
+        });
+      }
+
+      draw();
+    })();
+  </script>
+</body>
+</html>
+
+

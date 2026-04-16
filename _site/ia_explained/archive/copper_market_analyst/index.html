@@ -6,9 +6,16 @@
 
   <!-- Authentication System -->
   <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/monitoring.js"></script>
+  <script>
+    window.IA_MONITORING_CONFIG = {
+      ga4MeasurementId: ""
+    };
+  </script>
   <script defer src="/js/auth-guard.js"></script>
-
-  <meta charset="utf-8" />
+<!-- Netlify Identity Widget for Authentication -->
+<!-- Authentication System -->
+<meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Copper Market Analyst - Investor Anatomy</title>
   <link rel="icon" type="image/png" href="/images/Favicon.png" />
@@ -571,7 +578,7 @@
     }
   </style>
 </head>
-<body>
+<body data-ia-page-family="ia_explained" data-ia-generator-source="website_archive" data-ia-content-name="Copper Market Analyst" data-ia-model-name="copper_market_analyst" data-ia-commodity="copper">
   <div class="bg"></div>
   <div class="grain"></div>
 
@@ -1150,7 +1157,7 @@
           ...newsSourceNodes,
           ...signalSourceNodes,
           ...signalNodes,
-          { id: "Deduplicate and Enrich", name: "Deduplicate and Enrich", x: columnX.enrich, y: dedupeY, type: "enrich" },
+          { id: "News Monitor", name: "News Monitor", x: columnX.enrich, y: dedupeY, type: "enrich" },
           {
             id: commodity + " News - 7 Days",
             name: commodity + " News - 7 Days",
@@ -1262,7 +1269,7 @@
         const nodes = pageConfig.nodes;
         const marketAnalystId = commodity + " Market Analyst";
         return [
-          ...newsSources.map((source) => ({ source, target: "Deduplicate and Enrich", value: 1, kind: "news-source" })),
+          ...newsSources.map((source) => ({ source, target: "News Monitor", value: 1, kind: "news-source" })),
           ...signalInputs.map((item) => ({
             source: getSignalSource(item.name),
             target: item.name,
@@ -1274,8 +1281,8 @@
           ...signalInputs.filter((item) => item.feedsSignalChange).map((item) => ({ source: item.name, target: nodes.signalChange.id, commodity, kind: "signal-change-feed", signalSource: getSignalSource(item.name) })),
           ...signalInputs.filter((item) => item.feedsAnalyst).map((item) => ({ source: item.name, target: marketAnalystId, commodity, kind: "analyst-feed", signalSource: getSignalSource(item.name) })),
           ...signalInputs.filter((item) => item.feedsExecutionBaseline).map((item) => ({ source: item.name, target: nodes.execution.id, commodity, kind: "execution-baseline", signalSource: getSignalSource(item.name) })),
-          { source: "Deduplicate and Enrich", target: commodity + " News - 7 Days", commodity, kind: "news-pipeline" },
-          { source: "Deduplicate and Enrich", target: commodity + " News - 2 Days", commodity, kind: "news-pipeline" },
+          { source: "News Monitor", target: commodity + " News - 7 Days", commodity, kind: "news-pipeline" },
+          { source: "News Monitor", target: commodity + " News - 2 Days", commodity, kind: "news-pipeline" },
           { source: commodity + " News - 7 Days", target: commodity + " News Compression", commodity },
           { source: commodity + " News - 7 Days", target: marketAnalystId, commodity },
           { source: nodes.research.id, target: marketAnalystId, commodity, kind: "analyst-context" },
@@ -1641,4 +1648,5 @@
   </script>
 </body>
 </html>
+
 

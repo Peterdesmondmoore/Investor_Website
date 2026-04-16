@@ -1,0 +1,1324 @@
+<h1>Silver Market Analyst Technical Documentation</h1>
+<p>This document explains the implementation behind <code>ia_explained/silver_market_analyst.html</code> and the silver market-analysis stack in <code>C:\Users\peter\OneDrive\Documents\GitHub\Investor_Anatomy_Code</code>. It follows the code contracts, prompt files, signal registry, and page wiring that currently exist in the repository.</p>
+<p>Where the IA Explained Sankey simplifies a relationship, this document follows the underlying code instead of the simplified visual. That matters most for <code>Silver Regime State</code> and <code>Signal Change Monitor</code>, because the rendered graph is narrower than the actual execution path in <code>Investor_Anatomy_Code</code>.</p>
+<h2>Page Summary</h2>
+<ul>
+<li>Primary page file: <code>ia_explained/silver_market_analyst.html</code></li>
+<li>Public IA Explained route: <code>/ia_explained/silver_market_analyst.html</code></li>
+<li>Historical reporting file: <code>/ia_explained/Silver_regime_state_visualisation.jsonl</code></li>
+<li>Major page sections:
+<ul>
+<li>Hero</li>
+<li>Overview</li>
+<li>Featured Insights</li>
+<li>Historical Reporting View</li>
+<li>Model Architecture</li>
+<li>Footer</li>
+</ul>
+</li>
+<li>Featured Insight cards configured in the page:
+<ul>
+<li><code>Silver Outlook</code> -&gt; <code>/signal_report/Silver_Outlook_Podcast.html</code></li>
+<li><code>Execution Brief</code> -&gt; <code>/signal_report/silver_execution_brief.html</code></li>
+<li><code>Silver News 7 Days</code> -&gt; <code>/signal_report/Podcast_Silver_News_Signal_7D.html</code></li>
+<li><code>Silver News 2 Days</code> -&gt; <code>/signal_report/Podcast_Silver_News_Signal_48H.html</code></li>
+</ul>
+</li>
+<li>Historical reporting loader:
+<ul>
+<li>External source: <code>/ia_explained/Silver_regime_state_visualisation.jsonl</code></li>
+<li>Embedded fallback record exists directly in the HTML inside <code>#reporting-history-embedded</code></li>
+<li>Reporting fields rendered:
+<ul>
+<li><code>liquidity_regime</code></li>
+<li><code>real_rate_regime</code></li>
+<li><code>usd_regime</code></li>
+<li><code>inflation_regime</code></li>
+<li><code>stress_state</code></li>
+<li><code>positioning_regime</code></li>
+<li><code>flow_regime</code></li>
+<li><code>market_expression_check</code></li>
+<li><code>horizon_bias_1m</code></li>
+<li><code>horizon_bias_3m</code></li>
+<li><code>6-12 Month Bias</code></li>
+<li><code>trade_call</code></li>
+<li><code>price</code></li>
+<li><code>commentary</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Architecture Reading Notes</h2>
+<ul>
+<li>The page-level Sankey shows only five direct edges into <code>Silver Regime State</code>, but the actual regime-state prompt consumes the full silver macro stack:
+<ul>
+<li>liquidity</li>
+<li>real rates</li>
+<li>USD</li>
+<li>inflation</li>
+<li>stress</li>
+<li>positioning</li>
+<li>flow</li>
+<li>confirmatory pricing</li>
+</ul>
+</li>
+<li>The page-level Sankey shows nearly every upstream signal feeding <code>Signal Change Monitor</code>, but the real execution-brief delta candidate list is narrower and does <strong>not</strong> include <code>macro_theme_global_inflation_fx_dynamics</code>.</li>
+<li>The node label has been renamed to <code>News Monitor</code>, but one fallback tooltip string in <code>silver_market_analyst.html</code> still says <code>Deduplicate, normalize, and enrich incoming news before compression.</code></li>
+<li>The page defines the <code>Silver Price Research</code> node link as <code>/signal_report/silver_price_research/</code>, while the research module writes <code>signal_report/Silver_Price_Research.html</code> and the signal catalogue also points to <code>https://investoranatomy.com/signal_report/Silver_Price_Research.html</code>.</li>
+</ul>
+<h2>Signals</h2>
+<p>This section groups the silver inputs by source family, because that is how the IA Explained page colors and organizes them. For each signal, the &quot;Outbound connections&quot; field follows the code-level consumers, not just the Sankey rendering.</p>
+<h3>FRED</h3>
+<h4>Real Interest Rate Trend Signal Monitor</h4>
+<ul>
+<li>Name: <code>real_interest_rate_trend_signal</code></li>
+<li>Description: This signal measures whether US 10-year real yields are moving above or below their medium-term trend and treats that move as a direct silver macro constraint. In the silver stack it is a first-order regime input because silver is highly sensitive to real-rate pressure through both monetary demand and the opportunity-cost channel.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;real_interest_rate_trend_signal&quot;,&quot;signal_purpose&quot;:&quot;To identify shifts in the directional impulse of real borrowing costs and the stance of monetary restrictiveness.&quot;,&quot;what_the_signal_measures&quot;:&quot;The medium-term trend of the US 10-year inflation-indexed Treasury yield (TIPS).&quot;,&quot;primary_drivers&quot;:[&quot;Federal Reserve monetary policy&quot;,&quot;Real economic growth expectations&quot;,&quot;TIPS market liquidity&quot;,&quot;Inflation risk premia&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Real yield &lt; 6-month moving average by &gt; 0.05%&quot;,&quot;economic_meaning&quot;:&quot;Easing real-rate pressure at the margin.&quot;,&quot;investment_implication&quot;:&quot;Bullish; indicates more accommodative real financial conditions.&quot;},{&quot;condition&quot;:&quot;Real yield &gt; 6-month moving average by &gt; 0.05%&quot;,&quot;economic_meaning&quot;:&quot;Tightening real-rate pressure at the margin.&quot;,&quot;investment_implication&quot;:&quot;Bearish; indicates restrictive real financial conditions.&quot;},{&quot;condition&quot;:&quot;Real yield within +/- 0.05% of 6-month moving average&quot;,&quot;economic_meaning&quot;:&quot;Real rates are stable relative to recent trend.&quot;,&quot;investment_implication&quot;:&quot;Neutral; no clear directional impulse from real rates.&quot;}],&quot;regime_bias_logic&quot;:&quot;Bullish values imply an expansionary or accommodative regime; Bearish values imply a contractionary or restrictive regime.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Nominal 10-year yields (DGS10), Breakeven inflation (T10YIE), 5-year real yields (DFII5) for curve slope, and market volatility/liquidity indicators.&quot;,&quot;known_limitations&quot;:&quot;Lagging behavior due to moving average window; TIPS liquidity premia can distort yields during risk-off episodes; simple trend filters may produce false signals in high-volatility environments.&quot;,&quot;model_usage_notes&quot;:&quot;Treat as a directional 'real-rates impulse' indicator. Cross-reference with term-structure (5yr vs 10yr) to distinguish policy repricing from long-run growth repricing. Discount abrupt moves during liquidity stress unless corroborated by nominal yields.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate after the latest <code>silver_market_analyst</code> anchor</li>
+</ul>
+</li>
+</ul>
+<h4>Federal Reserve Liquidity Composite Signal Monitor</h4>
+<ul>
+<li>Name: <code>federal_reserve_liquidity_composite_signal</code></li>
+<li>Description: This signal aggregates M2, Fed balance-sheet direction, reserve conditions, and ON RRP behavior into a liquidity regime classifier. In the silver stack it is a dominant macro driver because liquidity expansion can override weaker tactical inputs and create a higher-conviction support regime for precious metals.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;federal_reserve_liquidity_composite_signal&quot;,&quot;signal_purpose&quot;:&quot;Quantify aggregate US dollar liquidity availability driven by Federal Reserve balance sheet operations and broad money supply.&quot;,&quot;what_the_signal_measures&quot;:&quot;The net expansion or contraction of the monetary base and private sector credit availability.&quot;,&quot;primary_drivers&quot;:[&quot;M2 Money Supply growth&quot;,&quot;Federal Reserve asset purchases and sales (QE/QT)&quot;,&quot;Commercial bank reserve levels&quot;,&quot;Overnight Reverse Repo (ON RRP) facility drainage&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Composite Score (LC) &gt;= 0.75&quot;,&quot;economic_meaning&quot;:&quot;Broad-based liquidity expansion across multiple channels.&quot;,&quot;investment_implication&quot;:&quot;Risk-on bias; favorable for equities and credit.&quot;},{&quot;condition&quot;:&quot;Composite Score (LC) &lt;= -0.75&quot;,&quot;economic_meaning&quot;:&quot;Systemic liquidity withdrawal or tightening.&quot;,&quot;investment_implication&quot;:&quot;Risk-off bias; defensive positioning recommended.&quot;},{&quot;condition&quot;:&quot;Falling ON RRP usage&quot;,&quot;economic_meaning&quot;:&quot;Cash returning to the private banking system from the Fed.&quot;,&quot;investment_implication&quot;:&quot;Incremental easing impulse regardless of total balance sheet size.&quot;},{&quot;condition&quot;:&quot;Rising Reserve Balances (WRESBAL)&quot;,&quot;economic_meaning&quot;:&quot;Increased settlement liquidity for depository institutions.&quot;,&quot;investment_implication&quot;:&quot;Supportive of lower short-term funding volatility.&quot;}],&quot;regime_bias_logic&quot;:&quot;Positive values indicate expansionary/risk-on regimes; negative values indicate contractionary/risk-off regimes.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Real yields, credit spreads, USD Index, and volatility (VIX).&quot;,&quot;known_limitations&quot;:&quot;M2 reporting lags, weekly data alignment noise, and sensitivity to Treasury General Account (TGA) volatility.&quot;,&quot;model_usage_notes&quot;:&quot;Use as a primary regime filter; signal reliability is highest when at least three sub-components (M2, Assets, Reserves, RRP) show directional coherence.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>M2 Money Supply Signal Monitor</h4>
+<ul>
+<li>Name: <code>m2_money_supply_signal</code></li>
+<li>Description: This signal tracks broad money-supply expansion and short-horizon momentum to determine whether macro liquidity is accelerating or contracting. In the silver stack it operates as part of the liquidity regime block that helps determine whether silver is trading in a supportive monetary backdrop or a liquidity-withdrawal environment.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;m2_money_supply_signal&quot;,&quot;signal_purpose&quot;:&quot;Assess macro-liquidity conditions to determine risk-on or risk-off tilts for cyclical assets and precious metals.&quot;,&quot;what_the_signal_measures&quot;:&quot;The growth rate and short-term momentum of the US broad money supply (M2).&quot;,&quot;primary_drivers&quot;:[&quot;Federal Reserve monetary policy&quot;,&quot;Commercial bank credit creation&quot;,&quot;Government fiscal spending and transfers&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;M2 YoY &gt; 6.0% and 3M Momentum &gt; 1.0%&quot;,&quot;economic_meaning&quot;:&quot;Aggressive monetary expansion and high liquidity.&quot;,&quot;investment_implication&quot;:&quot;Bullish for cyclicals, precious metals, and risk assets.&quot;},{&quot;condition&quot;:&quot;M2 YoY &lt; 2.0% or 3M Momentum &lt; -1.0%&quot;,&quot;economic_meaning&quot;:&quot;Monetary stagnation or contraction; liquidity withdrawal.&quot;,&quot;investment_implication&quot;:&quot;Bearish for risk assets; defensive positioning favored.&quot;},{&quot;condition&quot;:&quot;M2 YoY between 2.0% and 6.0%&quot;,&quot;economic_meaning&quot;:&quot;Stable or moderate liquidity growth.&quot;,&quot;investment_implication&quot;:&quot;Neutral macro environment; trend-following or idiosyncratic factors dominate.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising values imply expansionary/risk-on regimes; falling or low values imply slowdown/risk-off regimes.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Federal Reserve Liquidity Composite, credit spreads, USD index, and inflation expectations.&quot;,&quot;known_limitations&quot;:&quot;Monthly reporting frequency causes lag; subject to data revisions; 3-month momentum can be volatile/noisy.&quot;,&quot;model_usage_notes&quot;:&quot;Apply 'worst-of' logic for risk control; if either level or momentum is Bearish, the overall signal is Bearish. Primary input for liquidity-driven asset allocation models.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Explicit Neutral Rate R Proxy Signal Monitor</h4>
+<ul>
+<li>Name: <code>explicit_neutral_rate_r_proxy_signal</code></li>
+<li>Description: This signal estimates whether policy is running above, near, or below a market-implied neutral real rate. In the silver system it is part of the liquidity-and-rates block that helps distinguish whether current policy settings are suppressing or supporting silver through the financial-conditions channel.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;explicit_neutral_rate_r_proxy_signal&quot;,&quot;signal_purpose&quot;:&quot;To provide a market-anchored context for the neutral real interest rate (r*) to determine if current monetary policy is restrictive, neutral, or accommodative.&quot;,&quot;what_the_signal_measures&quot;:&quot;The distance (stance_gap) between the inflation-adjusted policy rate and a composite market-implied neutral rate.&quot;,&quot;primary_drivers&quot;:[&quot;10-Year Treasury Real Yields (TIPS)&quot;,&quot;10-Year Breakeven Inflation&quot;,&quot;Federal Funds Effective Rate&quot;,&quot;10-Year Term Premia&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;stance_gap &gt;= +0.50&quot;,&quot;economic_meaning&quot;:&quot;Restrictive policy stance&quot;,&quot;investment_implication&quot;:&quot;Ongoing headwinds to growth and tighter financial conditions.&quot;},{&quot;condition&quot;:&quot;-0.50 &lt; stance_gap &lt; +0.50&quot;,&quot;economic_meaning&quot;:&quot;Near neutral policy stance&quot;,&quot;investment_implication&quot;:&quot;Policy aligned with market neutral; monitor drift and macro momentum for direction.&quot;},{&quot;condition&quot;:&quot;stance_gap &lt;= -0.50&quot;,&quot;economic_meaning&quot;:&quot;Accommodative policy stance&quot;,&quot;investment_implication&quot;:&quot;Support for growth and risk assets; potential for inflation persistence.&quot;},{&quot;condition&quot;:&quot;drift &gt; +0.10&quot;,&quot;economic_meaning&quot;:&quot;Rising neutral rate context&quot;,&quot;investment_implication&quot;:&quot;Reduces restrictiveness of current rates; supports 'higher for longer' narrative.&quot;},{&quot;condition&quot;:&quot;drift &lt; -0.10&quot;,&quot;economic_meaning&quot;:&quot;Falling neutral rate context&quot;,&quot;investment_implication&quot;:&quot;Increases restrictiveness of current rates; strengthens case for policy easing.&quot;}],&quot;regime_bias_logic&quot;:&quot;Positive/Rising stance_gap values indicate a restrictive/slowdown regime; Negative/Falling values indicate an accommodative/expansionary regime.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Inflation momentum, economic slack (unemployment/output gap), financial stress indices, and liquidity indicators.&quot;,&quot;known_limitations&quot;:&quot;Market-implied r* includes liquidity/risk premia; breakevens reflect risk premia not just expectations; term premium model revisions; 10-year horizon may mismatch near-term policy cycles.&quot;,&quot;model_usage_notes&quot;:&quot;Use stance_gap to categorize 'on hold' policy into economic regimes. Prioritize multi-week persistence over daily market noise. Cross-reference with growth indicators to validate restrictiveness impact.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>USD Index Signal Monitor</h4>
+<ul>
+<li>Name: <code>usd_index_signal</code></li>
+<li>Description: This signal classifies whether the broad USD is strengthening, weakening, or transitioning relative to trend and momentum thresholds. In the silver stack it is a direct macro driver because silver is highly conditioned by the USD channel, especially when liquidity support and real-rate headwinds conflict.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;usd_index_signal&quot;,&quot;signal_purpose&quot;:&quot;To identify the regime of U.S. dollar strength or weakness as a proxy for global financial conditions and risk sentiment.&quot;,&quot;what_the_signal_measures&quot;:&quot;The relative value of the USD against a broad basket of trading partner currencies, reflecting global liquidity and dollar-denominated funding costs.&quot;,&quot;primary_drivers&quot;:[&quot;Interest rate differentials&quot;,&quot;Global risk appetite&quot;,&quot;Relative economic growth&quot;,&quot;Safe-haven demand&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;USD &gt; 12M MA (+0.5% band) AND 6M Change &gt; 5%&quot;,&quot;economic_meaning&quot;:&quot;Bullish USD regime with reinforcing momentum.&quot;,&quot;investment_implication&quot;:&quot;Tightening financial conditions; headwind for commodities and non-USD assets.&quot;},{&quot;condition&quot;:&quot;USD &lt; 12M MA (-0.5% band) AND 6M Change &lt; -5%&quot;,&quot;economic_meaning&quot;:&quot;Bearish USD regime with reinforcing downside momentum.&quot;,&quot;investment_implication&quot;:&quot;Easing financial conditions; tailwind for commodities and risk assets.&quot;},{&quot;condition&quot;:&quot;Momentum and level conflict OR price within hysteresis band&quot;,&quot;economic_meaning&quot;:&quot;Neutral/Transition state.&quot;,&quot;investment_implication&quot;:&quot;Indeterminate regime; monitor for volatility expansion or trend initiation.&quot;}],&quot;regime_bias_logic&quot;:&quot;Bullish values indicate risk-off/tightening; Bearish values indicate risk-on/expansion.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Confirm with liquidity, credit spreads, and interest rates. Conflict with rising commodities or falling volatility during USD Bullish regimes.&quot;,&quot;known_limitations&quot;:&quot;Lagging behavior due to moving average and hysteresis; sensitivity to end-of-month price spikes; static thresholds may not adapt to volatility shifts.&quot;,&quot;model_usage_notes&quot;:&quot;Use discrete labels for regime classification and continuous metrics (distance to MA, 6M change) to assess trend maturity and mean-reversion risk.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Inflation Term Structure Signal Monitor</h4>
+<ul>
+<li>Name: <code>inflation_term_structure_signal</code></li>
+<li>Description: This signal measures how breakevens and real-yield structure combine into a reflationary, disinflationary, or neutral market regime. In the silver stack it helps decide whether inflation credibility is adding support to silver or removing one of the asset's macro tailwinds.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;inflation_term_structure_signal&quot;,&quot;signal_purpose&quot;:&quot;Identify shifts in market-priced inflation regimes and real financial conditions relative to a rolling historical baseline.&quot;,&quot;what_the_signal_measures&quot;:&quot;The aggregate state of market-implied inflation compensation and the ease of real interest rate environments.&quot;,&quot;primary_drivers&quot;:[&quot;Inflation expectations&quot;,&quot;Inflation risk premia&quot;,&quot;TIPS liquidity&quot;,&quot;Real interest rates&quot;,&quot;Hedging demand&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Composite &gt; 0.75&quot;,&quot;economic_meaning&quot;:&quot;Reflationary; inflation compensation and real-rate easing are elevated versus history.&quot;,&quot;investment_implication&quot;:&quot;Favors pro-cyclical assets, commodities, and value over growth.&quot;},{&quot;condition&quot;:&quot;Composite &lt; -0.75&quot;,&quot;economic_meaning&quot;:&quot;Disinflationary; low inflation compensation and high real yields indicate tight conditions.&quot;,&quot;investment_implication&quot;:&quot;Favors defensive positioning and assets sensitive to lower inflation expectations.&quot;},{&quot;condition&quot;:&quot;Absolute Composite &lt; 0.75&quot;,&quot;economic_meaning&quot;:&quot;Neutral; market pricing is within normal historical bands.&quot;,&quot;investment_implication&quot;:&quot;Treat as a weak conditioning variable; no strong directional bias.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising values imply reflationary expansion (risk-on); falling values imply disinflationary slowdown or tightening (risk-off).&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Liquidity indicators, credit spreads, survey-based inflation expectations, and volatility.&quot;,&quot;known_limitations&quot;:&quot;TIPS liquidity distortions during market stress can create false disinflation signals; monthly resampling introduces recognition lag.&quot;,&quot;model_usage_notes&quot;:&quot;Condition macro factor models on regime. Distinguish between 'real-rate easing' (driven by inverted real yields) and 'inflation-premium' (driven by breakevens) to refine asset tilts.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Market Implied Inflation Signal Monitor</h4>
+<ul>
+<li>Name: <code>market_implied_inflation_signal</code></li>
+<li>Description: This signal converts breakeven inflation and related market pricing into a clean inflation-compensation regime. In the silver stack it complements the term-structure signal by indicating whether the market is actively repricing inflation higher, anchoring it, or pricing disinflation.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;market_implied_inflation_signal&quot;,&quot;signal_purpose&quot;:&quot;Quantify market-based inflation compensation and forward-looking inflation expectations.&quot;,&quot;what_the_signal_measures&quot;:&quot;The spread between nominal Treasuries and TIPS, representing the sum of expected inflation, inflation risk premia, and liquidity premia.&quot;,&quot;primary_drivers&quot;:[&quot;10-Year Breakeven Inflation Rate (T10YIE)&quot;,&quot;5-Year 5-Year Forward Inflation Expectation Rate (T5YIFR)&quot;,&quot;TIPS liquidity conditions&quot;,&quot;Monetary policy interventions (QE)&quot;,&quot;Nominal vs. real yield curve dynamics&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;z-score &gt;= 1.0 (RISING)&quot;,&quot;economic_meaning&quot;:&quot;Inflation compensation is accelerating relative to the 10-year historical distribution.&quot;,&quot;investment_implication&quot;:&quot;Expect higher inflation pricing and increased probability of restrictive monetary policy; upward pressure on real yields.&quot;},{&quot;condition&quot;:&quot;-0.5 &lt; z-score &lt; 1.0 (STABLE)&quot;,&quot;economic_meaning&quot;:&quot;Inflation expectations are range-bound and consistent with long-term norms.&quot;,&quot;investment_implication&quot;:&quot;Neutral signal; prioritize realized inflation data (CPI/PPI) and liquidity signals for directional conviction.&quot;},{&quot;condition&quot;:&quot;z-score &lt;= -0.5 (FALLING)&quot;,&quot;economic_meaning&quot;:&quot;Market is pricing disinflation or experiencing a flight-to-quality event.&quot;,&quot;investment_implication&quot;:&quot;Disinflationary bias; potential for lower yields or risk-off sentiment compression.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising values imply inflationary expansion or policy tightening; falling values imply disinflation or risk-off flight-to-quality.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Fed Inflation Signal (realized), CPI vs PPI (momentum), Liquidity Regime (distortions), Real Yields.&quot;,&quot;known_limitations&quot;:&quot;TIPS liquidity premiums artificially depress breakevens during market stress; QE and supply shifts distort term premia; signal includes non-inflation risk premia.&quot;,&quot;model_usage_notes&quot;:&quot;Interpret as 'inflation compensation' rather than a pure forecast. Discount 'FALLING' signals if the Liquidity Regime is flagged as 'stressed'. Extremes (|z| &gt;= 2) indicate market dislocation rather than linear trend.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Policy Relevant Inflation PCE Signal Monitor</h4>
+<ul>
+<li>Name: <code>policy_relevant_inflation_pce_signal</code></li>
+<li>Description: This signal reframes PCE inflation into a policy-relevant regime score that tracks whether inflation is significantly above target, below target, or accelerating from neutral. In the silver stack it acts as a real-economy and central-bank confirmation layer inside the inflation regime block.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;policy_relevant_inflation_pce_signal&quot;,&quot;signal_purpose&quot;:&quot;To monitor inflation relative to the Federal Reserve's 2% target and historical volatility to anticipate monetary policy shifts.&quot;,&quot;what_the_signal_measures&quot;:&quot;Aggregate consumer price pressure and underlying inflation persistence.&quot;,&quot;primary_drivers&quot;:[&quot;Consumer demand&quot;,&quot;Energy and food price shocks&quot;,&quot;Supply chain costs&quot;,&quot;Labor market tightness&quot;,&quot;Monetary policy transmission&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Score &gt; 0.75&quot;,&quot;economic_meaning&quot;:&quot;Inflation significantly above historical trend.&quot;,&quot;investment_implication&quot;:&quot;Hawkish policy bias; risk-off for long-duration assets.&quot;},{&quot;condition&quot;:&quot;Score &lt; -0.75&quot;,&quot;economic_meaning&quot;:&quot;Inflation significantly below historical trend.&quot;,&quot;investment_implication&quot;:&quot;Dovish policy bias; potential disinflationary or deflationary risk.&quot;},{&quot;condition&quot;:&quot;Momentum &gt; 0 while Score is Neutral&quot;,&quot;economic_meaning&quot;:&quot;Inflation is accelerating toward a hot regime.&quot;,&quot;investment_implication&quot;:&quot;Early warning of tightening cycle; reduce duration exposure.&quot;},{&quot;condition&quot;:&quot;Level_pp &gt; 0&quot;,&quot;economic_meaning&quot;:&quot;Inflation is exceeding the 2% policy target.&quot;,&quot;investment_implication&quot;:&quot;Structural pressure on central bank to maintain restrictive rates.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising values indicate inflationary expansion or overheating; falling values indicate disinflationary slowdown or transition to contraction.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;CPI, Dallas Fed Trimmed Mean PCE, Unemployment Rate, 10Y Breakeven Inflation Rates.&quot;,&quot;known_limitations&quot;:&quot;Subject to material BEA revisions; monthly reporting lag; z-scores may be distorted by structural breaks in inflation volatility.&quot;,&quot;model_usage_notes&quot;:&quot;Prioritize Momentum for lead-lag analysis. Use the Confidence Band to filter noise near regime thresholds. Treat 'Low Confidence' flags as a signal to wait for data stabilization before rebalancing.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Financial Stress Index Signal Monitor</h4>
+<ul>
+<li>Name: <code>financial_stress_index_signal</code></li>
+<li>Description: This signal classifies the market into risk-on or risk-off conditions using the STLFSI stress complex and related sub-pillars. In the silver stack it can activate a stress override that partly neutralizes USD or real-rate suppression and changes the meaning of tactical price action.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;financial_stress_index_signal&quot;,&quot;signal_purpose&quot;:&quot;Classify market environments into risk-on or risk-off regimes based on systemic financial stress levels.&quot;,&quot;what_the_signal_measures&quot;:&quot;Aggregate financial system tightness, funding stress, and market risk aversion relative to long-run averages.&quot;,&quot;primary_drivers&quot;:[&quot;Equity implied volatility (VIX)&quot;,&quot;Corporate credit risk premiums (High Yield OAS)&quot;,&quot;Interbank funding liquidity (TED spread)&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;STLFSI4 &gt; 0 OR Robust Z-score &gt; 0.5&quot;,&quot;economic_meaning&quot;:&quot;Elevated financial stress and tightening conditions.&quot;,&quot;investment_implication&quot;:&quot;Bearish/Risk-off; reduce cyclical risk exposure.&quot;},{&quot;condition&quot;:&quot;STLFSI4 &lt; 0 AND Robust Z-score &lt; -0.5&quot;,&quot;economic_meaning&quot;:&quot;Loose financial conditions and low systemic stress.&quot;,&quot;investment_implication&quot;:&quot;Bullish/Risk-on; support for risk-seeking positioning.&quot;},{&quot;condition&quot;:&quot;Neither Bullish nor Bearish criteria met&quot;,&quot;economic_meaning&quot;:&quot;Normalised stress levels or conflicting trend/level data.&quot;,&quot;investment_implication&quot;:&quot;Neutral; maintain baseline exposure.&quot;}],&quot;regime_bias_logic&quot;:&quot;Positive or rising values indicate a transition to risk-off, contractionary, or tightening regimes; negative or falling values indicate expansionary or risk-on regimes.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Confirm with liquidity, credit, and volatility signals. Conflict with growth/inflation signals may indicate temporary market dislocation or policy-driven distortions.&quot;,&quot;known_limitations&quot;:&quot;Weekly reporting frequency; potential data staleness in sub-components (e.g., TED spread); sensitivity to threshold whipsaws near zero.&quot;,&quot;model_usage_notes&quot;:&quot;Use sustained Bearish signals as a macro headwind rather than a precise timing tool. Prioritize rapid Z-score surges for tactical risk control. Treat LOW confidence flags as a prompt to ignore sub-pillar drivers and rely solely on the headline index.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Financial Stress Composite Signal Monitor</h4>
+<ul>
+<li>Name: <code>financial_stress_composite_signal</code></li>
+<li>Description: This signal combines broad volatility, credit stress, and curve information into a unified financial-stress regime measure. In the silver stack it works alongside the stress index and VIX to decide whether the stress override is active and how much weight to put on tactical exhaustion versus safe-haven support.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;financial_stress_composite_signal&quot;,&quot;signal_purpose&quot;:&quot;Quantify aggregate U.S. financial system strain to identify shifts in risk regimes and funding conditions.&quot;,&quot;what_the_signal_measures&quot;:&quot;The intersection of broad market volatility, corporate credit risk premia, and monetary policy-driven yield curve inversion.&quot;,&quot;primary_drivers&quot;:[&quot;Funding liquidity&quot;,&quot;Corporate default risk&quot;,&quot;Monetary policy expectations&quot;,&quot;Market volatility&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Composite &gt; 0.75&quot;,&quot;economic_meaning&quot;:&quot;High Stress: Materially elevated funding and credit strain.&quot;,&quot;investment_implication&quot;:&quot;Risk-off; expect tightened credit availability and reduced risk appetite.&quot;},{&quot;condition&quot;:&quot;Composite &lt; -0.75&quot;,&quot;economic_meaning&quot;:&quot;Low Stress: Accommodative financial conditions.&quot;,&quot;investment_implication&quot;:&quot;Risk-on; expansionary bias with low risk premia.&quot;},{&quot;condition&quot;:&quot;-0.75 &lt;= Composite &lt;= 0.75&quot;,&quot;economic_meaning&quot;:&quot;Neutral: Conditions align with historical norms.&quot;,&quot;investment_implication&quot;:&quot;Market stability; monitor for directional persistence or sub-component divergence.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising values indicate a transition toward risk-off and economic slowdown; falling values indicate a transition toward risk-on and expansion.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;VIX, TED Spread, Credit Spreads, Yield Curve Slope.&quot;,&quot;known_limitations&quot;:&quot;Monthly frequency misses intra-month spikes; potential double-counting between STLFSI4 and HY OAS; lagging nature of yield curve inversion.&quot;,&quot;model_usage_notes&quot;:&quot;Analyze sub-component contributions to distinguish between credit-led stress (HY OAS) and policy-led stress (Inversion). Use CompositeConfidence flag to adjust signal weighting in multi-signal models.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h3>COT</h3>
+<h4>USD Individual Market Analysis Monitor</h4>
+<ul>
+<li>Name: <code>usd_individual_market_analysis</code></li>
+<li>Description: This signal uses CoT-style futures positioning to interpret the USD as a systemic liquidity and macro-regime instrument rather than just an FX pair. In the silver stack it complements the broad USD index by adding crowding, reversal-risk, and liquidity-regime context.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;usd_individual_market_analysis&quot;,&quot;signal_purpose&quot;:&quot;Measures global USD liquidity conditions and systemic financial tightening or easing pressure.&quot;,&quot;what_the_signal_measures&quot;:&quot;Global funding stress, balance-sheet capacity, and macro policy transmission via the USD basket.&quot;,&quot;primary_drivers&quot;:[&quot;Federal Reserve policy expectations&quot;,&quot;Global USD funding demand&quot;,&quot;Managed money macro positioning&quot;,&quot;Cross-asset capital allocation&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Extreme long positioning&quot;,&quot;economic_meaning&quot;:&quot;Global liquidity regime saturation and tight financial conditions.&quot;,&quot;investment_implication&quot;:&quot;Elevated downside risk for risk assets; high sensitivity to liquidity shifts.&quot;},{&quot;condition&quot;:&quot;Extreme short positioning&quot;,&quot;economic_meaning&quot;:&quot;Reflation consensus and easing global funding stress.&quot;,&quot;investment_implication&quot;:&quot;Supportive for commodities and emerging markets; upside convexity.&quot;},{&quot;condition&quot;:&quot;Multi-week flow reversal&quot;,&quot;economic_meaning&quot;:&quot;Inflection in the global liquidity regime.&quot;,&quot;investment_implication&quot;:&quot;Signals imminent global risk re-pricing regardless of absolute levels.&quot;},{&quot;condition&quot;:&quot;High positioning tension score&quot;,&quot;economic_meaning&quot;:&quot;Instability in the current liquidity regime.&quot;,&quot;investment_implication&quot;:&quot;Heightened fragility and potential for asymmetric cross-asset volatility.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising long positioning implies a risk-off/tightening regime; rising short positioning implies a risk-on/easing/reflationary regime.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Federal Reserve policy guidance, global liquidity indicators, financial conditions indices, and EM equity performance.&quot;,&quot;known_limitations&quot;:&quot;Commercial positioning is primarily hedging and lacks directional signal; flows are more predictive than absolute net levels.&quot;,&quot;model_usage_notes&quot;:&quot;Interpret as a systemic liquidity gauge rather than idiosyncratic FX direction. Use stretch and flow momentum to detect cross-asset asymmetry and regime shifts.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Silver Individual Market Analysis Monitor</h4>
+<ul>
+<li>Name: <code>silver_individual_market_analysis</code></li>
+<li>Description: This is the main silver CoT positioning signal and the page's primary futures-market positioning anchor. It measures speculative crowding, hedger balance, flow momentum, and divergence versus price so the silver stack can distinguish between supportive positioning, fragile crowding, and squeeze-prone setups.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;silver_individual_market_analysis&quot;,&quot;signal_purpose&quot;:&quot;To identify market participant dominance, positioning fragility, and tactical reversal setups using Commitment of Traders (CoT) data.&quot;,&quot;what_the_signal_measures&quot;:&quot;Speculative and commercial positioning concentration, momentum of capital flows, and positioning extremes relative to historical norms.&quot;,&quot;primary_drivers&quot;:[&quot;Speculative Net Positioning&quot;,&quot;Hedger Net Positioning&quot;,&quot;Open Interest&quot;,&quot;4-week Flow Momentum&quot;,&quot;Price-Positioning Divergence&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Spec Net % OI is positive&quot;,&quot;economic_meaning&quot;:&quot;Speculative traders are net long and in control of the trend.&quot;,&quot;investment_implication&quot;:&quot;Bullish sentiment; monitor for crowding as values increase.&quot;},{&quot;condition&quot;:&quot;|z-score| &gt;= 2&quot;,&quot;economic_meaning&quot;:&quot;Positioning is at a historical extreme (crowded).&quot;,&quot;investment_implication&quot;:&quot;High fragility; elevated risk of trend exhaustion or sharp reversal.&quot;},{&quot;condition&quot;:&quot;Flow opposes net direction&quot;,&quot;economic_meaning&quot;:&quot;Traders are de-risking or conviction is fading.&quot;,&quot;investment_implication&quot;:&quot;Early warning of a potential trend turn or consolidation.&quot;},{&quot;condition&quot;:&quot;Price up AND positioning momentum down&quot;,&quot;economic_meaning&quot;:&quot;Rally is losing sponsorship from speculative buyers.&quot;,&quot;investment_implication&quot;:&quot;Vulnerability rising; avoid adding to longs.&quot;},{&quot;condition&quot;:&quot;Price down AND positioning momentum up&quot;,&quot;economic_meaning&quot;:&quot;Selloff is losing sponsorship from speculative sellers.&quot;,&quot;investment_implication&quot;:&quot;Bottoming risk rising; monitor for squeeze potential.&quot;}],&quot;regime_bias_logic&quot;:&quot;High positive z-scores indicate a crowded long/expansion regime prone to exhaustion; high negative z-scores indicate a crowded short/slowdown regime prone to upside squeezes.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Price action (yfinance), Hedger extremes (mean reversion), 4-week flow acceleration, and Open Interest changes.&quot;,&quot;known_limitations&quot;:&quot;Weekly reporting lag (CoT data is delayed), persistent extremes in strong trends, and noise in low-depth markets.&quot;,&quot;model_usage_notes&quot;:&quot;Treat as a measure of market fragility and setup quality rather than a deterministic timing trigger. Prioritize flow for tactical shifts and z-scores for regime identification.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+<li><code>silver_outlook_podcast</code></li>
+</ul>
+</li>
+</ul>
+<h4>Cross Sector Positioning Monitor</h4>
+<ul>
+<li>Name: <code>cross_sector_positioning</code></li>
+<li>Description: This signal aggregates speculative crowding and unwind risk across the broader futures complex so that silver is not interpreted in isolation. In the silver stack it is used to distinguish silver-specific opportunity from sector-wide crowding and broader macro unwind risk.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;cross_sector_positioning&quot;,&quot;signal_purpose&quot;:&quot;Identify systemic speculative imbalances and potential for sector-wide position liquidations.&quot;,&quot;what_the_signal_measures&quot;:&quot;The degree of consensus and stress within macro-sector futures positioning.&quot;,&quot;primary_drivers&quot;:[&quot;Speculative flow direction&quot;,&quot;Commercial hedger positioning&quot;,&quot;Market-level crowding extremes&quot;,&quot;4-week flow momentum&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;spec_crowded_long_share &gt;= 0.40&quot;,&quot;economic_meaning&quot;:&quot;Broad speculative consensus&quot;,&quot;investment_implication&quot;:&quot;High risk of sharp reversal or trend exhaustion.&quot;},{&quot;condition&quot;:&quot;hedger_pressure_share &gt;= 0.40&quot;,&quot;economic_meaning&quot;:&quot;Systemic commercial hedging&quot;,&quot;investment_implication&quot;:&quot;Defensive regime; potential for increased volatility.&quot;},{&quot;condition&quot;:&quot;unwind_risk_share &gt;= 0.30&quot;,&quot;economic_meaning&quot;:&quot;Stretched positioning vs adverse flow&quot;,&quot;investment_implication&quot;:&quot;High probability of a systemic short or long squeeze.&quot;},{&quot;condition&quot;:&quot;avg_spec_zscore is extreme&quot;,&quot;economic_meaning&quot;:&quot;Sector-wide positioning outlier&quot;,&quot;investment_implication&quot;:&quot;Mean reversion candidate.&quot;}],&quot;regime_bias_logic&quot;:&quot;High crowding and unwind risk indicate trend exhaustion or transition; high hedger pressure indicates defensive or risk-off positioning.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Trend signals, volatility indices, liquidity metrics, macro composites.&quot;,&quot;known_limitations&quot;:&quot;CoT data is lagged; static thresholds may miss structural shifts; sector mapping relies on naming heuristics.&quot;,&quot;model_usage_notes&quot;:&quot;Treat as a contrarian or risk-management signal when thresholds are breached. Best used to flag sectors prone to cascading liquidations.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Specs Vs Hedgers Divergence Reversal Risk Monitor</h4>
+<ul>
+<li>Name: <code>specs_vs_hedgers_divergence_reversal_risk</code></li>
+<li>Description: This signal measures whether speculative conviction and commercial conviction are diverging enough to imply structural instability or reversal risk. In the silver stack it is a positioning-fragility input that helps distinguish healthy trend sponsorship from unstable disagreement.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;specs_vs_hedgers_divergence_reversal_risk&quot;,&quot;signal_purpose&quot;:&quot;Identify structural market instability and potential price reversals by measuring the conviction-based disagreement between speculative and commercial participants.&quot;,&quot;what_the_signal_measures&quot;:&quot;The breadth of futures markets where speculators and hedgers hold opposing, high-conviction positions (divergent z-scores).&quot;,&quot;primary_drivers&quot;:[&quot;Speculator positioning z-scores&quot;,&quot;Commercial hedger positioning z-scores&quot;,&quot;Market breadth of positioning divergence&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Robust Z-Score &gt; 1.5&quot;,&quot;economic_meaning&quot;:&quot;High Divergence Risk; speculators and hedgers are pulling in opposite directions with extreme conviction.&quot;,&quot;investment_implication&quot;:&quot;High risk of volatility, position unwinds, or macro regime transition; potential trend exhaustion.&quot;},{&quot;condition&quot;:&quot;Robust Z-Score 0.5 to 1.5&quot;,&quot;economic_meaning&quot;:&quot;Moderate Divergence Risk; elevated disagreement and emerging internal market tension.&quot;,&quot;investment_implication&quot;:&quot;Monitor for early-stage instability; reduce aggressive trend exposure.&quot;},{&quot;condition&quot;:&quot;Robust Z-Score -0.5 to 0.5&quot;,&quot;economic_meaning&quot;:&quot;Normal; positioning alignment is typical across participants.&quot;,&quot;investment_implication&quot;:&quot;Neutral; no immediate structural threat from positioning imbalances.&quot;},{&quot;condition&quot;:&quot;Robust Z-Score &lt; -0.5&quot;,&quot;economic_meaning&quot;:&quot;Low Divergence; unusually high alignment between speculators and hedgers.&quot;,&quot;investment_implication&quot;:&quot;Strong macro consensus; high probability of trend persistence.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising values imply transition or slowdown regimes (instability); falling or low values imply expansion or trend-following regimes (consensus).&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Market Tone, Hedger Pressure, Sector Flow, Volatility (VIX/MOVE).&quot;,&quot;known_limitations&quot;:&quot;Requires significant z-score magnitudes on both sides to trigger; noisy in thinly traded markets; lagging due to CoT reporting frequency.&quot;,&quot;model_usage_notes&quot;:&quot;Use as a contrarian overlay for momentum signals. High divergence suggests speculative narratives are detaching from commercial fundamentals.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Hedger Pressure Indicator Monitor</h4>
+<ul>
+<li>Name: <code>hedger_pressure_indicator</code></li>
+<li>Description: This signal uses commercial positioning to infer physical tightness or oversupply pressure and acts as the silver stack's flow-regime anchor. It matters because silver's macro picture can be supportive while commercial pressure or tightness materially changes the likely path and volatility of price.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;hedger_pressure_indicator&quot;,&quot;signal_purpose&quot;:&quot;Identify physical market supply and demand imbalances through commercial participant positioning.&quot;,&quot;what_the_signal_measures&quot;:&quot;Aggregate commercial sentiment reflecting production expansion versus inventory shortages.&quot;,&quot;primary_drivers&quot;:[&quot;Commercial net positioning&quot;,&quot;Hedger z-scores&quot;,&quot;Open interest share&quot;,&quot;Physical inventory levels&quot;,&quot;Forward pricing expectations&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Hedger Z-score &lt;= -1.0 (Deep Short)&quot;,&quot;economic_meaning&quot;:&quot;Supply expansion or bearish forward pricing by producers.&quot;,&quot;investment_implication&quot;:&quot;Bearish; expect downward price pressure or oversupply.&quot;},{&quot;condition&quot;:&quot;Hedger Z-score &gt;= 1.0 (Deep Long)&quot;,&quot;economic_meaning&quot;:&quot;Physical shortage or inventory stress among consumers.&quot;,&quot;investment_implication&quot;:&quot;Bullish; expect upward price pressure or scarcity.&quot;},{&quot;condition&quot;:&quot;Robust Z-score &gt; 1.5&quot;,&quot;economic_meaning&quot;:&quot;Extreme supply or shortage regime.&quot;,&quot;investment_implication&quot;:&quot;High conviction signal; potential for trend exhaustion or sharp regime shift.&quot;},{&quot;condition&quot;:&quot;Robust Z-score &gt; 0.75&quot;,&quot;economic_meaning&quot;:&quot;Moderate supply or shortage pressure.&quot;,&quot;investment_implication&quot;:&quot;Trend confirmation; sustained fundamental bias.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising shortage pressure (longs) implies inflationary/expansionary bias; rising supply pressure (shorts) implies disinflationary/slowdown bias.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Speculative crowding (CoT), physical inventory data, spot-futures basis, commodity volatility.&quot;,&quot;known_limitations&quot;:&quot;Lagging nature of CoT data, cross-sector behavioral variance, sensitivity to static thresholds, potential data gaps in open interest.&quot;,&quot;model_usage_notes&quot;:&quot;Acts as a fundamental anchor; use to identify divergences where speculators are positioned against commercial reality (hedgers).&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h4>Squeeze Exhaustion Risk Indicators Monitor</h4>
+<ul>
+<li>Name: <code>squeeze_exhaustion_risk_indicators</code></li>
+<li>Description: This signal compresses cross-market squeeze and exhaustion breadth into a tactical fragility indicator. In the silver stack it is the second half of the flow regime and helps determine whether price behavior should be interpreted as healthy continuation, unstable extension, or a late-cycle exhaustion move.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;squeeze_exhaustion_risk_indicators&quot;,&quot;signal_purpose&quot;:&quot;Quantify cross-market tactical fragility and trend maturity within the futures complex.&quot;,&quot;what_the_signal_measures&quot;:&quot;The aggregate breadth of markets experiencing forced liquidation risk (squeeze) or momentum decay (exhaustion).&quot;,&quot;primary_drivers&quot;:[&quot;Market-level squeeze flags&quot;,&quot;Market-level exhaustion flags&quot;,&quot;CoT positioning crowding&quot;,&quot;Cross-market breadth of tactical stress&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Squeeze_z &gt;= 1.0&quot;,&quot;economic_meaning&quot;:&quot;High Squeeze Risk&quot;,&quot;investment_implication&quot;:&quot;High vulnerability to forced covering and sharp, flow-driven price spikes or reversals.&quot;},{&quot;condition&quot;:&quot;Exhaustion_z &gt;= 1.0&quot;,&quot;economic_meaning&quot;:&quot;High Exhaustion Risk&quot;,&quot;investment_implication&quot;:&quot;Widespread trend fatigue; high probability of trend stalling or reversing.&quot;},{&quot;condition&quot;:&quot;0.5 &lt;= z &lt; 1.0&quot;,&quot;economic_meaning&quot;:&quot;Moderate Risk&quot;,&quot;investment_implication&quot;:&quot;Growing tactical fragility; monitor for confirmation from volatility or liquidity signals.&quot;},{&quot;condition&quot;:&quot;z &lt; 0.5&quot;,&quot;economic_meaning&quot;:&quot;Normal&quot;,&quot;investment_implication&quot;:&quot;Tactical risks are within historical medians; prevailing trends are less likely to face immediate structural failure.&quot;}],&quot;regime_bias_logic&quot;:&quot;High values indicate a transition or late-cycle regime; rising values suggest a shift toward risk-off or trend-reversal environments.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Volatility (VIX/MOVE), Liquidity composites, Credit spreads, and aggregate Positioning Crowding.&quot;,&quot;known_limitations&quot;:&quot;Sector-agnostic (ignores concentration), dependent on upstream flag accuracy, lagging CoT reporting frequency, static z-score thresholds.&quot;,&quot;model_usage_notes&quot;:&quot;Use as a contrarian filter for trend-following models. High exhaustion breadth should trigger tighter stops or reduced exposure. High squeeze breadth indicates potential for non-fundamental volatility.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_execution_brief</code> as a delta candidate</li>
+</ul>
+</li>
+</ul>
+<h3>Investor Anatomy</h3>
+<h4>Global Inflation And FX Dynamics</h4>
+<ul>
+<li>Name: <code>macro_theme_global_inflation_fx_dynamics</code></li>
+<li>Description: This is the silver stack's cross-asset macro-theme overlay for global inflation and FX transmission. It is not a raw data monitor in the same sense as FRED or CoT; it is an Investor Anatomy thematic output that frames how inflation and FX conditions interact to shape commodity behavior.</li>
+<li>Methodology: <code>NA</code></li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+</ul>
+</li>
+</ul>
+<h3>YFinance</h3>
+<h4>Market Volatility VIX Signal Monitor</h4>
+<ul>
+<li>Name: <code>market_volatility_vix_signal</code></li>
+<li>Description: This signal measures implied US equity-market volatility and treats it as a tactical risk thermometer for silver. In the silver stack it has unusual importance because it participates in the regime-state stress block, enters the analyst layer directly, and also anchors the tactical execution brief.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;market_volatility_vix_signal&quot;,&quot;signal_purpose&quot;:&quot;Quantify short-term equity market risk sentiment and tail-risk expectations to calibrate risk-on/off positioning.&quot;,&quot;what_the_signal_measures&quot;:&quot;Forward-looking equity market uncertainty and the cost of downside protection relative to historical norms.&quot;,&quot;primary_drivers&quot;:[&quot;S&amp;P 500 option-implied variance&quot;,&quot;Downside hedging demand (skew)&quot;,&quot;Realized price volatility&quot;,&quot;Market liquidity conditions&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;VIX &lt; 16 and MVS z-score &lt; 0&quot;,&quot;economic_meaning&quot;:&quot;CALM: Low perceived risk and stable market environment.&quot;,&quot;investment_implication&quot;:&quot;Favor carry trades and risk-premia harvesting.&quot;},{&quot;condition&quot;:&quot;VIX between 20 and 30 or MVS z-score [0.5, 1.0)&quot;,&quot;economic_meaning&quot;:&quot;ELEVATED: Rising uncertainty and precautionary hedging.&quot;,&quot;investment_implication&quot;:&quot;Reduce aggressive exposure; monitor for trend reversal.&quot;},{&quot;condition&quot;:&quot;VIX &gt;= 30 or MVS z-score &gt;= 1.0&quot;,&quot;economic_meaning&quot;:&quot;STRESSED: High market fear and active liquidation.&quot;,&quot;investment_implication&quot;:&quot;Prioritize risk control, reduce position sizing, and implement hedging.&quot;},{&quot;condition&quot;:&quot;VIX &gt;= 45 or MVS z-score &gt;= 2.0 sustained for 5 days&quot;,&quot;economic_meaning&quot;:&quot;CRISIS: Extreme panic and systemic liquidity pressure.&quot;,&quot;investment_implication&quot;:&quot;Maximum defensive posture; expect high drawdown risk.&quot;},{&quot;condition&quot;:&quot;Implied Volatility significantly exceeds Realized Volatility&quot;,&quot;economic_meaning&quot;:&quot;Expanding Volatility Risk Premium.&quot;,&quot;investment_implication&quot;:&quot;Indicates tightening risk appetite; protection is expensive.&quot;}],&quot;regime_bias_logic&quot;:&quot;Rising values signal a transition toward risk-off and market contraction; falling values signal a transition toward risk-on and expansion.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Confirm risk-off with widening Credit Spreads (HY OAS) and tightening Liquidity; conflict if VIX rises while USD and Real Yields remain soft.&quot;,&quot;known_limitations&quot;:&quot;Month-end snapshots may miss intramonth volatility bursts; absolute VIX levels can undergo structural shifts over decades.&quot;,&quot;model_usage_notes&quot;:&quot;Treat as a probabilistic risk thermometer rather than a directional timing tool. Use percentile ranks for cross-era stability and absolute levels for intuitive thresholding.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_execution_brief</code> as both direct baseline and delta candidate context</li>
+<li><code>silver_outlook_podcast</code></li>
+</ul>
+</li>
+</ul>
+<h4>Silver Slv Pricing Monitor</h4>
+<ul>
+<li>Name: <code>silver_slv_pricing</code></li>
+<li>Description: This is the silver pricing decoder used throughout the stack. It translates SLV price action, volatility, volume, and range position into a silver-specific technical regime, and in the silver architecture it serves as both a confirmatory regime-state input and a direct analyst/execution input.</li>
+<li>Methodology:</li>
+</ul>
+<pre><code class="language-json">{&quot;signal_id&quot;:&quot;silver_slv_pricing&quot;,&quot;signal_purpose&quot;:&quot;Translate generic pricing context into asset-specific guidance for silver exposure, emphasizing high beta, volatility clustering, and squeeze risk relative to gold.&quot;,&quot;what_the_signal_measures&quot;:&quot;Trend, momentum, realized volatility, liquidity/volume, and 52-week positioning as a high-convexity precious metal regime indicator.&quot;,&quot;primary_drivers&quot;:[&quot;Risk sentiment and liquidity cycles&quot;,&quot;USD and real-rate shocks&quot;,&quot;Industrial-demand narrative shifts&quot;,&quot;Positioning/flow dynamics&quot;,&quot;Volatility feedback loops&quot;],&quot;interpretation_rules&quot;:[{&quot;condition&quot;:&quot;Breakout above 50d/200d with high realized volatility&quot;,&quot;economic_meaning&quot;:&quot;Momentum transition occurring in a fragile/high-convexity regime; follow-through can be violent in both directions&quot;,&quot;investment_implication&quot;:&quot;Treat as tactical opportunity with tighter risk; scale-in rather than full size; avoid assuming smooth trend continuation.&quot;},{&quot;condition&quot;:&quot;High volatility percentile (e.g., &gt;90%) regardless of trend&quot;,&quot;economic_meaning&quot;:&quot;Regime instability and gap risk elevated; stop-outs and reversals more likely&quot;,&quot;investment_implication&quot;:&quot;Reduce leverage and position sizing; use wider but fewer stops; avoid over-trading noise.&quot;},{&quot;condition&quot;:&quot;Volume percentile elevated with trend confirmation&quot;,&quot;economic_meaning&quot;:&quot;Participation broadening; move more likely to be persistent relative to typical silver noise&quot;,&quot;investment_implication&quot;:&quot;Upgrade confidence modestly; prefer multi-day confirmation rather than single-session spikes.&quot;},{&quot;condition&quot;:&quot;Trading mid-range within 52-week band while volatility remains high&quot;,&quot;economic_meaning&quot;:&quot;Chop/mean-reverting regime with poor signal-to-noise&quot;,&quot;investment_implication&quot;:&quot;Downgrade conviction; wait for either volatility compression or directional break with confirmation.&quot;},{&quot;condition&quot;:&quot;Downtrend with stabilising volatility and improving 52-week position (rising from lows)&quot;,&quot;economic_meaning&quot;:&quot;Base-building probability rising, but still vulnerable to macro shocks&quot;,&quot;investment_implication&quot;:&quot;Allow only small exploratory adds after trend stabilises; require confirmation from trend/momentum turn.&quot;}],&quot;regime_bias_logic&quot;:&quot;Silver pricing context acts as a convexity and regime-instability input; large moves reflect elevated tail-risk rather than linear trends.&quot;,&quot;confirmation_or_conflict_signals&quot;:&quot;Gold regime, USD/real-rate context, and broad risk/liquidity indicators.&quot;,&quot;known_limitations&quot;:&quot;Dominated by flow/positioning; volatility clustering creates false signals; technical regimes flip quickly; data adjustments in proxies.&quot;,&quot;model_usage_notes&quot;:&quot;Prioritise multi-week trend confirmation and volatility regime shifts. Treat volatility extremes as risk controls for sizing rather than directional calls. Avoid extrapolating single-day spikes.&quot;}
+</code></pre>
+<ul>
+<li>Outbound connections:
+<ul>
+<li><code>silver_regime_state_deterministic</code> as confirmatory market-expression input</li>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_execution_brief</code> as both direct baseline and delta candidate context</li>
+<li><code>silver_outlook_podcast</code></li>
+<li><code>Silver_regime_state_visualisation</code></li>
+</ul>
+</li>
+</ul>
+<h4>Metals Comparative Signal</h4>
+<ul>
+<li>Name: <code>metals_comparative_signal</code></li>
+<li>Description: This signal adds cross-metal relative-strength and rotation context so the silver stack can compare silver behavior with nearby metal regimes. The silver analyst prompt explicitly treats it as perspective only and forbids it from overriding silver-specific regime logic.</li>
+<li>Methodology: <code>NA</code></li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_execution_brief</code> as both direct baseline and delta candidate context</li>
+<li><code>silver_outlook_podcast</code></li>
+</ul>
+</li>
+</ul>
+<h3>Blackrock</h3>
+<h4>SLV ETF Flow Signal</h4>
+<ul>
+<li>Name: <code>slv_etf_flow_signal</code></li>
+<li>Description: This signal tracks ETF flow pressure through the SLV vehicle and uses it as an investment-demand proxy for silver. It is intentionally kept outside <code>Silver Regime State</code> on the page and in the regime-state prompt, but it is a direct tactical modifier for the analyst, execution, and outlook layers.</li>
+<li>Methodology: <code>NA</code></li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_execution_brief</code> as both direct baseline and delta candidate context</li>
+<li><code>silver_outlook_podcast</code></li>
+</ul>
+</li>
+</ul>
+<h3>GPT</h3>
+<h4>Silver Price Research</h4>
+<ul>
+<li>Name: <code>Silver_Price_Research</code></li>
+<li>Description: This is the GPT-assisted institutional price-target research layer for silver. It reads IA Researcher PDFs, extracts institution-level target rows, synthesizes the current target distribution, and then feeds that research context into the analyst, outlook, and historical-reporting layers.</li>
+<li>Methodology: <code>NA</code></li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_outlook_podcast</code></li>
+<li><code>Silver_regime_state_visualisation</code></li>
+</ul>
+</li>
+</ul>
+<h4>Note On Gold Price Research</h4>
+<ul>
+<li>The live silver architecture does <strong>not</strong> consume <code>Gold_Price_Research</code>.</li>
+<li>The actual GPT-linked research node used by <code>silver_market_analyst.html</code> is <code>Silver_Price_Research</code>.</li>
+<li>I am documenting the silver-connected module here to keep this file faithful to the implemented graph.</li>
+</ul>
+<h2>News Monitor</h2>
+<p><code>News Monitor</code> is the preprocessing and orchestration layer behind the page's news path. In the page graph it is one node, but in code it is a deterministic pipeline in <code>News_Signal/news_signal/news_signal_common.py</code> plus the silver wrappers <code>silver_news_signal.py</code> and <code>silver_news_signal_48h.py</code>.</p>
+<h3>News Sources</h3>
+<p>The IA Explained page declares the following source set for silver news:</p>
+<ul>
+<li><code>EIN News - Mining (Gold)</code><br>
+High-frequency metals and mining wire headlines on projects, policy, and supply developments.</li>
+<li><code>Mining.com</code><br>
+Mining-industry reporting on operations, production, projects, and capital activity.</li>
+<li><code>World Gold Council - Research</code><br>
+Gold-market research used as broader precious-metals context.</li>
+<li><code>CME Group - Metals Video</code><br>
+Futures-market commentary on metals price action, volatility, and positioning.</li>
+<li><code>Bank for International Settlements</code><br>
+Central-bank, liquidity, and macro-financial policy context.</li>
+<li><code>CFTC</code><br>
+Regulatory and market-structure releases relevant to positioning and derivatives markets.</li>
+<li><code>The Silver Institute</code><br>
+Silver-specific supply, industrial demand, investment demand, and market-balance updates.</li>
+<li><code>Yahoo Finance</code><br>
+Broad market and company headline flow that can affect near-term risk tone.</li>
+</ul>
+<h3>Deterministic Processing Steps</h3>
+<ol>
+<li>Load tagged article records from <code>Data\RSS\News_Outputs\rss_feed_items_matching_test_tagged_articles.jsonl</code>.</li>
+<li>Normalize <code>Asset_Class</code> tags and keep only rows where the asset class contains <code>Silver</code>.</li>
+<li>Normalize <code>article_date</code> into an <code>event_date</code>.</li>
+<li>Build a rolling window:
+<ul>
+<li><code>7d</code> for <code>silver_news_signal.py</code></li>
+<li><code>48h</code> via <code>lookback_days=2</code> for <code>silver_news_signal_48h.py</code></li>
+</ul>
+</li>
+<li>Build a structured payload with:
+<ul>
+<li><code>article_date</code></li>
+<li><code>title</code></li>
+<li><code>description</code></li>
+<li><code>company_name</code></li>
+<li><code>polarity_score</code></li>
+<li><code>top_parent</code></li>
+<li><code>top_subcategory</code></li>
+</ul>
+</li>
+<li>Load pricing context using the <code>silver_slv_pricing</code> profile from the pricing config and download recent market data via <code>yfinance</code>.</li>
+<li>Build Gemini context that includes:
+<ul>
+<li>as-of timestamp</li>
+<li>news window dates</li>
+<li>chart/pricing context window</li>
+<li>record count</li>
+<li>polarity split</li>
+<li>top parent categories</li>
+<li>pricing symbol</li>
+<li>latest close</li>
+<li>window price change</li>
+<li>full structured news records JSON</li>
+</ul>
+</li>
+<li>Run one of two narrative prompts:
+<ul>
+<li><code>AssetClassNarrativeSynthesisPrompt</code> for the 7-day narrative</li>
+<li><code>AssetClassNewsPodcastPrompt48H</code> for the 48-hour narrative</li>
+</ul>
+</li>
+<li>For the 7-day path only, run <code>AssetClassNewsCompressionPrompt</code> on:
+<ul>
+<li>the narrative HTML</li>
+<li>the structured event records</li>
+<li>the present categories</li>
+<li>per-category evidence counts</li>
+</ul>
+</li>
+<li>Normalize the compression output into deterministic category states and compute:
+<ul>
+<li><code>category_states</code></li>
+<li><code>composite_news_score</code></li>
+<li><code>signal_breadth</code></li>
+<li><code>overall_state</code></li>
+</ul>
+</li>
+<li>Generate a chart of positive and negative event counts by category with the pricing series overlaid.</li>
+<li>Append the chart section back into the final narrative HTML.</li>
+<li>Persist the result to signal history and also generate a public report page and audio file.</li>
+</ol>
+<h3>Prompted News Layers</h3>
+<h4>7-Day Narrative Layer</h4>
+<ul>
+<li>Prompt class: <code>AssetClassNarrativeSynthesisPrompt</code></li>
+<li>Core objective: convert structured silver news into a human-readable HTML narrative grouped dynamically by the categories actually present in the feed.</li>
+<li>Hard constraints:
+<ul>
+<li>HTML only</li>
+<li>no markdown</li>
+<li>no bullets</li>
+<li>no scores</li>
+<li>no deterministic labels</li>
+<li>no trade recommendations</li>
+</ul>
+</li>
+<li>Required structure:
+<ul>
+<li>one-line subtitle thesis</li>
+<li>opening paragraph</li>
+<li><code>What is driving the news flow</code></li>
+<li>dynamic category sections</li>
+<li><code>What to watch next</code></li>
+</ul>
+</li>
+</ul>
+<h4>48-Hour Narrative Layer</h4>
+<ul>
+<li>Prompt class: <code>AssetClassNewsPodcastPrompt48H</code></li>
+<li>Core objective: produce a shorter narrative briefing focused only on the most recent 48 hours.</li>
+<li>Additional behavior:
+<ul>
+<li>exact no-news HTML fallback if the last 48 hours has no relevant records</li>
+<li>dynamic category grouping</li>
+<li>HTML only</li>
+<li><code>What to watch next</code> section remains mandatory for non-empty output</li>
+</ul>
+</li>
+</ul>
+<h4>7-Day Compression Layer</h4>
+<ul>
+<li>Prompt class: <code>AssetClassNewsCompressionPrompt</code></li>
+<li>Core objective: convert narrative interpretation plus the structured event feed into machine-readable deterministic states.</li>
+<li>Required output JSON fields:
+<ul>
+<li><code>asset</code></li>
+<li><code>as_of_date</code></li>
+<li><code>category_states</code></li>
+<li><code>composite_news_score</code></li>
+<li><code>signal_breadth</code></li>
+<li><code>overall_state</code></li>
+</ul>
+</li>
+<li>Category state fields:
+<ul>
+<li><code>category</code></li>
+<li><code>direction</code></li>
+<li><code>strength</code></li>
+<li><code>persistence</code></li>
+<li><code>confidence</code></li>
+<li><code>evidence_count</code></li>
+</ul>
+</li>
+</ul>
+<h3>News Monitor Outputs</h3>
+<ul>
+<li><code>silver_news_signal_7d</code>
+<ul>
+<li>Prompt recorded as <code>AssetClassNarrativeSynthesisPrompt (7D narrative feed)</code></li>
+<li>Public report: <code>signal_report/Podcast_Silver_News_Signal_7D.html</code></li>
+<li>Audio: <code>images/Investor_Anatomy_Silver_News_Signal_7D.mp3</code></li>
+</ul>
+</li>
+<li><code>silver_news_signal_48h</code>
+<ul>
+<li>Prompt recorded as <code>AssetClassNewsPodcastPrompt48H narrative feed</code></li>
+<li>Public report: <code>signal_report/Podcast_Silver_News_Signal_48H.html</code></li>
+<li>Audio: <code>images/Investor_Anatomy_Silver_News_Signal_48H.mp3</code></li>
+</ul>
+</li>
+<li><code>silver_news_compression_7d</code>
+<ul>
+<li>Prompt recorded as <code>AssetClassNewsCompressionPrompt (7D deterministic compression layer)</code></li>
+<li>Public report: <code>signal_report/Podcast_Silver_News_Signal_Compression_7D.html</code></li>
+<li>Snapshot JSON and history metadata are also persisted under the news-signal compression path</li>
+</ul>
+</li>
+</ul>
+<h2>Investor Anatomy Models</h2>
+<h3>News Monitor</h3>
+<ul>
+<li>Name: <code>News Monitor</code></li>
+<li>Description: This is the logical preprocessing node shown in the IA Explained page. It is not a single prompt call; it is the deterministic ingestion, filtering, normalization, context-building, and chart-building stage that prepares silver news for the 7-day narrative, the 48-hour narrative, and the 7-day compression layer.</li>
+<li>Prompt: No standalone LLM prompt. This node represents deterministic preprocessing in <code>news_signal_common.py</code> before the narrative and compression prompts are called.</li>
+<li>Inputs:
+<ul>
+<li>tagged RSS/news JSONL records</li>
+<li>source metadata from the IA Explained page</li>
+<li>asset-class filter <code>Silver</code></li>
+<li>pricing context via <code>silver_slv_pricing</code></li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>normalized article payload for 7-day narrative generation</li>
+<li>normalized article payload for 48-hour narrative generation</li>
+<li>structured records and category counts for 7-day compression</li>
+<li>contextual news-flow chart image</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>Silver News - 7 Days</code></li>
+<li><code>Silver News - 48 Hours</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver News - 7 Days</h3>
+<ul>
+<li>Name: <code>silver_news_signal_7d</code></li>
+<li>Description: This is the weekly narrative interpretation layer for silver news. It summarizes the latest 7 days of silver-relevant news flow in a human-readable HTML format and becomes one of the direct qualitative inputs into the silver analyst model.</li>
+<li>Prompt:
+<ul>
+<li>Source: <code>AssetClassNarrativeSynthesisPrompt</code></li>
+<li>Objective: convert a structured silver-only news feed into a concise institutional narrative grouped by the categories present in the data.</li>
+<li>Output contract: HTML fragment only, no markdown, no deterministic scores, no trade instructions, dynamic category grouping, and a final <code>What to watch next</code> paragraph.</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>normalized silver news records from <code>News Monitor</code></li>
+<li>30-day price context from the pricing profile</li>
+<li>polarity split</li>
+<li>top parent categories</li>
+<li>Gemini context block from <code>_build_gemini_context</code></li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>signal history record with <code>signal_id=&quot;silver_news_signal_7d&quot;</code></li>
+<li>public report <code>signal_report/Podcast_Silver_News_Signal_7D.html</code></li>
+<li>audio file <code>images/Investor_Anatomy_Silver_News_Signal_7D.mp3</code></li>
+<li>chart-enhanced narrative HTML</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_news_compression_7d</code></li>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_outlook_podcast</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver News - 48 Hours</h3>
+<ul>
+<li>Name: <code>silver_news_signal_48h</code></li>
+<li>Description: This is the short-horizon narrative layer used to surface what changed most recently in silver news. It is designed for tactical context rather than structural interpretation and is explicitly used by the execution brief.</li>
+<li>Prompt:
+<ul>
+<li>Source: <code>AssetClassNewsPodcastPrompt48H</code></li>
+<li>Objective: summarize only the most recent 48 hours of silver news in concise institutional HTML.</li>
+<li>Special rule: if there is no relevant silver news in the last 48 hours, return the exact <code>No news.</code> HTML block.</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>normalized silver news records for the 48-hour window</li>
+<li>30-day price context from <code>silver_slv_pricing</code></li>
+<li>structured Gemini context block</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>signal history record with <code>signal_id=&quot;silver_news_signal_48h&quot;</code></li>
+<li>public report <code>signal_report/Podcast_Silver_News_Signal_48H.html</code></li>
+<li>audio file <code>images/Investor_Anatomy_Silver_News_Signal_48H.mp3</code></li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_execution_brief</code></li>
+<li><code>silver_outlook_podcast</code> as metadata-only page context rather than full signal text</li>
+</ul>
+</li>
+</ul>
+<h3>Silver News Compression</h3>
+<ul>
+<li>Name: <code>silver_news_compression_7d</code></li>
+<li>Description: This is the deterministic news-signal layer that converts the 7-day narrative and structured event feed into machine-readable category states. It is the point where the silver news stack stops being purely narrative and starts becoming model-consumable.</li>
+<li>Prompt:
+<ul>
+<li>Source: <code>AssetClassNewsCompressionPrompt</code></li>
+<li>Objective: transform qualitative narrative interpretation plus event records into deterministic category states suitable for downstream models.</li>
+<li>Output contract: JSON only with <code>category_states</code>, <code>composite_news_score</code>, <code>signal_breadth</code>, and <code>overall_state</code>.</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>7-day silver narrative HTML</li>
+<li>structured event records</li>
+<li>categories present</li>
+<li>per-category evidence counts</li>
+<li>asset name and date window</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>canonical signal history record <code>silver_news_compression_7d</code></li>
+<li>prompt label <code>AssetClassNewsCompressionPrompt (7D deterministic compression layer)</code></li>
+<li>public report <code>signal_report/Podcast_Silver_News_Signal_Compression_7D.html</code></li>
+<li>latest snapshot JSON and compression history metadata</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_outlook_podcast</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver Price Research</h3>
+<ul>
+<li>Name: <code>Silver_Price_Research</code></li>
+<li>Description: This module is the silver institutional target-research engine. It is not a monitor in the usual sense; it is a research synthesis pipeline that extracts institution-level silver price targets from IA Researcher PDFs, maintains a retained dataset, visualizes the target distribution, and turns that dataset into analyst-ready context.</li>
+<li>Prompt:
+<ul>
+<li>Extraction prompt: <code>EXTRACTION_PROMPT</code> converts completed deep-research output into JSONL with one row per institution forecast.</li>
+<li>Deep research prompt: <code>DEEP_RESEARCH_PROMPT</code> asks for institutional silver targets over the next 6-12 months and prioritizes banks, specialists, industry bodies, exchanges, and institutional notes.</li>
+<li>Synthesis prompt: <code>SYNTHESIS_PROMPT</code> asks an impartial commodities research editor to interpret the extracted target dataset in 5-7 HTML paragraphs.</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>IA Researcher PDFs from <code>Data\IA_Researcher\Silver</code></li>
+<li>current run extraction rows</li>
+<li>prior retained institution rows</li>
+<li>summary statistics when available</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>signal history record <code>Silver_Price_Research</code></li>
+<li>public report <code>signal_report/Silver_Price_Research.html</code></li>
+<li>chart <code>images/Silver_Price_Research_Targets.png</code></li>
+<li>methodology page path <code>methodology/silver_price_research.html</code></li>
+<li>master JSONL and run manifest files in the research data folder</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code></li>
+<li><code>silver_outlook_podcast</code></li>
+<li><code>Silver_regime_state_visualisation</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver Regime Framework</h3>
+<ul>
+<li>Name: <code>SILVER_REGIME_FRAMEWORK</code></li>
+<li>Description: This is the embedded regime taxonomy that gives the silver analyst model a fixed vocabulary for classifying the current environment and mapping it to historical probability anchors. It is not a separately persisted signal; it is a static context object appended to the analyst prompt.</li>
+<li>Prompt:
+<ul>
+<li>Source constant: <code>SILVER_REGIME_FRAMEWORK</code> in <code>commodity_market_analyst/silver/prompts.py</code></li>
+<li>Format: JSON taxonomy, not free-form prose</li>
+<li>Regimes defined:
+<ul>
+<li><code>S1 Liquidity Expansion</code></li>
+<li><code>S2 Real Rate Headwind</code></li>
+<li><code>S3 USD Dominance</code></li>
+<li><code>S4 Reflation and Industrial Upswing</code></li>
+<li><code>S5 Disinflation Credibility</code></li>
+<li><code>S6 Stress Safe Haven</code></li>
+<li><code>S7 Flow-Driven Momentum</code></li>
+<li><code>S8 Range-Bound Neutral</code></li>
+</ul>
+</li>
+<li>Each regime includes:
+<ul>
+<li>definition</li>
+<li>primary drivers</li>
+<li>typical characteristics</li>
+<li>1M and 3M probability anchors</li>
+<li>typical volatility</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>none at runtime beyond the embedded constant</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>appended prompt context for <code>silver_market_analyst</code></li>
+<li>regime definitions and probability anchors used by the analyst layer</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_market_analyst</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver Regime State</h3>
+<ul>
+<li>Name: <code>silver_regime_state_deterministic</code></li>
+<li>Description: This is the core deterministic silver regime interpreter. It is a rules-engine prompt that maps macro, positioning, flow, stress, and pricing inputs into a structured silver regime object with horizon biases, dominant drivers, conflict flags, and override flags.</li>
+<li>Prompt:
+<ul>
+<li>Source constant: <code>SILVER_REGIME_STATE_PROMPT</code></li>
+<li>Role: <code>Macro Signal Silver Analyser</code></li>
+<li>Hard constraints:
+<ul>
+<li>do not forecast prices</li>
+<li>do not assign probabilities</li>
+<li>do not invent new signals</li>
+<li>operate as a rules engine</li>
+</ul>
+</li>
+<li>Authoritative inputs:
+<ul>
+<li>primary macro drivers:
+<ul>
+<li><code>real_interest_rate_trend_signal</code></li>
+<li><code>federal_reserve_liquidity_composite_signal</code></li>
+<li><code>m2_money_supply_signal</code></li>
+<li><code>explicit_neutral_rate_r_proxy_signal</code></li>
+<li><code>usd_index_signal</code></li>
+<li><code>usd_individual_market_analysis</code></li>
+<li><code>macro_theme_global_inflation_fx_dynamics</code></li>
+<li><code>inflation_term_structure_signal</code></li>
+<li><code>market_implied_inflation_signal</code></li>
+<li><code>policy_relevant_inflation_pce_signal</code></li>
+</ul>
+</li>
+<li>positioning and flow:
+<ul>
+<li><code>silver_individual_market_analysis</code></li>
+<li><code>cross_sector_positioning</code></li>
+<li><code>specs_vs_hedgers_divergence_reversal_risk</code></li>
+<li><code>hedger_pressure_indicator</code></li>
+<li><code>squeeze_exhaustion_risk_indicators</code></li>
+</ul>
+</li>
+<li>risk and stress:
+<ul>
+<li><code>financial_stress_index_signal</code></li>
+<li><code>financial_stress_composite_signal</code></li>
+<li><code>market_volatility_vix_signal</code></li>
+</ul>
+</li>
+<li>confirmatory market expression:
+<ul>
+<li><code>silver_slv_pricing</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Deterministic output fields:
+<ul>
+<li><code>liquidity_regime</code></li>
+<li><code>real_rate_regime</code></li>
+<li><code>usd_regime</code></li>
+<li><code>inflation_regime</code></li>
+<li><code>stress_state</code></li>
+<li><code>positioning_regime</code></li>
+<li><code>flow_regime</code></li>
+<li><code>market_expression_check</code></li>
+<li><code>horizon_bias_1m</code></li>
+<li><code>horizon_bias_3m</code></li>
+<li><code>dominant_drivers_list</code></li>
+<li><code>conflict_flags_list</code></li>
+<li><code>override_flags_list</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>all <code>REGIME_SIGNAL_IDS[&quot;silver&quot;]</code></li>
+<li>citation prompt built from the same silver regime contract</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>signal history record <code>silver_regime_state_deterministic</code></li>
+<li>public report <code>signal_report/Silver_Regime_State.html</code></li>
+<li>HTML summary block stored back into signal history</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_market_analyst</code></li>
+<li><code>Silver_Analyst_Podcast</code> indirectly via the reloaded summary</li>
+<li><code>silver_execution_brief</code></li>
+<li><code>silver_outlook_podcast</code></li>
+<li><code>Silver_regime_state_visualisation</code></li>
+</ul>
+</li>
+</ul>
+<h3>Signal Change Monitor</h3>
+<ul>
+<li>Name: logical <code>Signal Change Monitor</code> node in the IA Explained page</li>
+<li>Description: This is not a standalone signal file. It is the execution-brief selection layer that compares the latest <code>silver_market_analyst</code> run timestamp with all delta-candidate signals and keeps only the latest changed record per candidate signal after the anchor.</li>
+<li>Prompt:
+<ul>
+<li>No standalone prompt constant</li>
+<li>Implemented by deterministic selection logic in <code>Silver_Execution_Brief.py</code></li>
+<li>Its narrative representation appears inside the <code>Signal Change Monitor</code> section of the execution-brief prompt</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>anchor signal id <code>silver_market_analyst</code></li>
+<li>latest signal history records</li>
+<li><code>content_changed</code> or <code>table_changed</code> flags</li>
+<li>delta-candidate signal ids:
+<ul>
+<li><code>real_interest_rate_trend_signal</code></li>
+<li><code>federal_reserve_liquidity_composite_signal</code></li>
+<li><code>m2_money_supply_signal</code></li>
+<li><code>explicit_neutral_rate_r_proxy_signal</code></li>
+<li><code>usd_index_signal</code></li>
+<li><code>usd_individual_market_analysis</code></li>
+<li><code>inflation_term_structure_signal</code></li>
+<li><code>market_implied_inflation_signal</code></li>
+<li><code>policy_relevant_inflation_pce_signal</code></li>
+<li><code>silver_individual_market_analysis</code></li>
+<li><code>cross_sector_positioning</code></li>
+<li><code>specs_vs_hedgers_divergence_reversal_risk</code></li>
+<li><code>hedger_pressure_indicator</code></li>
+<li><code>squeeze_exhaustion_risk_indicators</code></li>
+<li><code>financial_stress_index_signal</code></li>
+<li><code>financial_stress_composite_signal</code></li>
+<li><code>market_volatility_vix_signal</code></li>
+<li><code>silver_slv_pricing</code></li>
+<li><code>metals_comparative_signal</code></li>
+<li><code>slv_etf_flow_signal</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li><code>delta_signal_ids</code> list used to build <code>SIGNAL_CONTEXT</code></li>
+<li><code>DELTA_NOTE</code> when there are no changes</li>
+<li>the rendered <code>Signal Change Monitor</code> section inside <code>silver_execution_brief</code></li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_execution_brief</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver Market Analyst</h3>
+<ul>
+<li>Name: <code>silver_market_analyst</code></li>
+<li>Description: This is the central silver synthesis layer. It converts regime state, research, news, pricing, volatility, ETF flow, and positioning into a concise institutional silver regime outlook and also powers the consolidated technical-analysis page.</li>
+<li>Prompt:
+<ul>
+<li>Source constant: <code>SILVER_ANALYST_PROMPT</code></li>
+<li>Role: institutional macro strategist generating a <code>Silver Regime Outlook</code></li>
+<li>Mandatory logic:
+<ul>
+<li>map deterministic regime to historical outcome probabilities</li>
+<li>separate 1M, 3M, and 12M views</li>
+<li>distinguish news-driven and flow-driven moves from structural research context</li>
+<li>keep regime classification fixed</li>
+<li>use framework probability anchors exactly</li>
+</ul>
+</li>
+<li>Required output HTML sections:
+<ul>
+<li><code>Regime Assessment</code></li>
+<li><code>1-Month Outlook (Tactical)</code></li>
+<li><code>3-Month Outlook (Cyclical)</code></li>
+<li><code>12-Month Outlook (Strategic)</code></li>
+<li><code>Conflicts, Risks &amp; Invalidation Watchpoints</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li><code>silver_regime_state_deterministic</code> summary</li>
+<li><code>Silver_Price_Research</code></li>
+<li><code>silver_news_signal_7d</code></li>
+<li><code>silver_news_compression_7d</code></li>
+<li><code>metals_comparative_signal</code></li>
+<li><code>slv_etf_flow_signal</code></li>
+<li><code>market_volatility_vix_signal</code></li>
+<li><code>silver_slv_pricing</code></li>
+<li><code>silver_individual_market_analysis</code></li>
+<li>silver-specific citation prompt</li>
+<li><code>SILVER_REGIME_FRAMEWORK</code></li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>signal history record <code>silver_market_analyst</code></li>
+<li>side output <code>Silver_Analyst_Podcast</code></li>
+<li>consolidated report output configured as <code>Silver_Market_Analyst.html</code></li>
+<li>consolidated input tabs built from:
+<ul>
+<li>pricing</li>
+<li>silver CoT</li>
+<li>7-day news narrative</li>
+<li>7-day news compression</li>
+<li>metals comparative</li>
+<li>SLV ETF flow</li>
+<li>VIX</li>
+<li>silver price research</li>
+<li>silver regime state</li>
+<li>supporting upstream macro and positioning signals</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>silver_execution_brief</code></li>
+<li><code>silver_outlook_podcast</code></li>
+<li><code>Silver_regime_state_visualisation</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver Execution Brief</h3>
+<ul>
+<li>Name: <code>silver_execution_brief</code></li>
+<li>Description: This is the tactical 1-3 session execution layer for silver. It separates structural regime bias from tactical posture, loads always-on baseline context plus the latest changed upstream signals since the last analyst run, and turns that into a deterministic execution plan.</li>
+<li>Prompt:
+<ul>
+<li>Source constant: <code>ARCHITECTURE_PROMPT</code> in <code>Silver_Execution_Brief.py</code></li>
+<li>Role: <code>concise, tactical Silver Execution Brief</code></li>
+<li>Exact section order:
+<ul>
+<li><code>Headline</code></li>
+<li><code>Session Setup</code></li>
+<li><code>Signal Change Monitor</code></li>
+<li><code>News Drivers and Market Narrative</code></li>
+<li><code>Tactical Trade Call</code></li>
+<li><code>Risk, Invalidation, Next Triggers</code></li>
+</ul>
+</li>
+<li>Mandatory tactical framework:
+<ul>
+<li>price-zone classification using 20-day mean, Bollinger Bands, ATR, and swing levels</li>
+<li>conflict hierarchy:
+<ul>
+<li>volatility regime</li>
+<li>price structure</li>
+<li>flow confirmation</li>
+</ul>
+</li>
+<li>explicit <code>No trade - wait for trigger</code> rule when conditions conflict or no entry edge exists</li>
+<li>explicit fields in <code>Tactical Trade Call</code>:
+<ul>
+<li>structural bias</li>
+<li>tactical posture</li>
+<li>setup classification</li>
+<li>entry condition</li>
+<li>trim/exit condition</li>
+<li>setup quality</li>
+<li>confidence level</li>
+<li>rationale</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>direct baseline signals:
+<ul>
+<li><code>market_volatility_vix_signal</code></li>
+<li><code>silver_slv_pricing</code></li>
+<li><code>metals_comparative_signal</code></li>
+<li><code>slv_etf_flow_signal</code></li>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_market_analyst</code></li>
+<li><code>silver_news_signal_48h</code></li>
+</ul>
+</li>
+<li>latest changed post-anchor delta signals from the candidate list above</li>
+<li>anchor metadata for the latest <code>silver_market_analyst</code> run</li>
+<li>image library and signal context payloads</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>signal history record <code>silver_execution_brief</code></li>
+<li>public report <code>signal_report/silver_execution_brief.html</code></li>
+<li>audio file <code>images/Investor_Anatomy_Silver_Execution_Brief.mp3</code></li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>Silver_regime_state_visualisation</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver Outlook</h3>
+<ul>
+<li>Name: <code>silver_outlook_podcast</code></li>
+<li>Description: This is the long-form spoken-word silver outlook that turns the analyst stack into a public-facing narrative report with audio. It is more editorial than <code>silver_market_analyst</code>, but it still uses a strict section contract and explicit role separation across price, macro, flows, narrative, research, and risk sections.</li>
+<li>Prompt:
+<ul>
+<li>Source constant: <code>ARCHITECTURE_PROMPT</code> in <code>Silver_Outlook.py</code></li>
+<li>Role: spoken-word podcast script for the <code>Silver Outlook</code></li>
+<li>Exact section order:
+<ul>
+<li><code>Headline</code></li>
+<li><code>Executive Summary</code></li>
+<li><code>Opening Thesis</code></li>
+<li><code>Outlook</code></li>
+<li><code>Market Regime and Macro Drivers</code></li>
+<li><code>Price Action</code></li>
+<li><code>Market Expression and Capital Flows</code></li>
+<li><code>News Flow and Narrative</code></li>
+<li><code>Target Pricing and Research</code></li>
+<li><code>Conflicts, Risks &amp; Invalidation Watchpoints</code></li>
+<li><code>Closing</code></li>
+</ul>
+</li>
+<li>Critical global rules:
+<ul>
+<li>no repetition across sections</li>
+<li>strict role separation between drivers, price, flows, narrative, forward view, and risk</li>
+<li>HTML only</li>
+<li>image use required in several sections</li>
+<li><code>full_signal</code> inputs may be interpreted fully</li>
+<li><code>metadata_only</code> inputs cannot be used to infer direction or outcome</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>full-context signals:
+<ul>
+<li><code>silver_slv_pricing</code></li>
+<li><code>silver_individual_market_analysis</code></li>
+<li><code>silver_news_signal_7d</code></li>
+<li><code>silver_news_compression_7d</code></li>
+<li><code>metals_comparative_signal</code></li>
+<li><code>slv_etf_flow_signal</code></li>
+<li><code>market_volatility_vix_signal</code></li>
+<li><code>Silver_Price_Research</code></li>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_market_analyst</code></li>
+</ul>
+</li>
+<li>metadata-only monitor context:
+<ul>
+<li>real rates monitor</li>
+<li>Fed liquidity monitor</li>
+<li>M2 monitor</li>
+<li>neutral-rate monitor</li>
+<li>USD monitor</li>
+<li>USD CoT monitor</li>
+<li>global inflation and FX dynamics</li>
+<li>inflation term structure monitor</li>
+<li>market-implied inflation monitor</li>
+<li>PCE monitor</li>
+<li>48H news monitor</li>
+<li>broad stress monitors</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>signal history record <code>silver_outlook_podcast</code></li>
+<li>public report <code>signal_report/Silver_Outlook_Podcast.html</code></li>
+<li>audio file <code>images/Investor_Anatomy_Silver_Outlook_Podcast.mp3</code></li>
+<li>repair/rebuild contexts:
+<ul>
+<li><code>silver_market_analyst_podcast_notebook</code></li>
+<li><code>silver_market_analyst_podcast_notebook_repair</code></li>
+<li><code>silver_market_analyst_podcast_notebook_rebuild</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li>Featured Insights card on <code>ia_explained/silver_market_analyst.html</code></li>
+</ul>
+</li>
+</ul>
+<h3>Silver Regime State Visualisation</h3>
+<ul>
+<li>Name: <code>Silver_regime_state_visualisation</code></li>
+<li>Description: This is the historical reporting explainer that powers the <code>Historical Reporting View</code> table inside <code>ia_explained/silver_market_analyst.html</code>. It takes the latest regime, price, research, analyst, and execution outputs and rewrites them into a compact reporting record for the page carousel/table.</li>
+<li>Prompt:
+<ul>
+<li>Implemented via the common regime-history explainer pipeline in <code>Commodity_Model_Outputs/regime_history_common.py</code></li>
+<li>Asset-specific configuration lives in <code>Silver_Regime_history.py</code></li>
+<li>The prompt stored in the embedded history example requires a single JSON object with:
+<ul>
+<li><code>liquidity_regime</code></li>
+<li><code>real_rate_regime</code></li>
+<li><code>usd_regime</code></li>
+<li><code>inflation_regime</code></li>
+<li><code>stress_state</code></li>
+<li><code>positioning_regime</code></li>
+<li><code>flow_regime</code></li>
+<li><code>market_expression_check</code></li>
+<li><code>horizon_bias_1m</code></li>
+<li><code>horizon_bias_3m</code></li>
+<li><code>6-12 Month Bias</code></li>
+<li><code>trade_call</code></li>
+<li><code>price</code></li>
+<li><code>commentary</code></li>
+</ul>
+</li>
+<li>Asset guidance: <code>Explain silver through real rates, liquidity, USD, inflation, mixed monetary and industrial demand, positioning, and ETF flows.</code></li>
+</ul>
+</li>
+<li>Inputs:
+<ul>
+<li>target signal ids configured in <code>ASSET_CONFIG</code>:
+<ul>
+<li><code>silver_regime_state_deterministic</code></li>
+<li><code>silver_slv_pricing</code></li>
+<li><code>Silver_Price_Research</code></li>
+<li><code>silver_market_analyst</code></li>
+<li><code>silver_execution_brief</code></li>
+</ul>
+</li>
+<li>extracted HTML fields from the latest upstream reports</li>
+<li>field taxonomy, display styles, and commentary rules from <code>regime_history_common</code></li>
+</ul>
+</li>
+<li>Outputs:
+<ul>
+<li>JSONL history rows for <code>Silver_regime_state_visualisation</code></li>
+<li>public IA Explained history file <code>/ia_explained/Silver_regime_state_visualisation.jsonl</code></li>
+<li>embedded fallback row inside <code>ia_explained/silver_market_analyst.html</code></li>
+<li>reporting table rows rendered by <code>reporting-history-loader.js</code></li>
+</ul>
+</li>
+<li>Outbound connections:
+<ul>
+<li><code>Historical Reporting View</code> in <code>ia_explained/silver_market_analyst.html</code></li>
+</ul>
+</li>
+</ul>
+<h2>Complete Public Output Inventory</h2>
+<ul>
+<li>IA Explained page:
+<ul>
+<li><code>ia_explained/silver_market_analyst.html</code></li>
+</ul>
+</li>
+<li>IA Explained reporting history:
+<ul>
+<li><code>ia_explained/Silver_regime_state_visualisation.jsonl</code></li>
+</ul>
+</li>
+<li>Signal reports:
+<ul>
+<li><code>signal_report/Podcast_Silver_News_Signal_7D.html</code></li>
+<li><code>signal_report/Podcast_Silver_News_Signal_48H.html</code></li>
+<li><code>signal_report/Podcast_Silver_News_Signal_Compression_7D.html</code></li>
+<li><code>signal_report/Silver_Price_Research.html</code></li>
+<li><code>signal_report/Silver_Regime_State.html</code></li>
+<li><code>signal_report/Silver_Market_Analyst.html</code></li>
+<li><code>signal_report/Silver_Outlook_Podcast.html</code></li>
+<li><code>signal_report/silver_execution_brief.html</code></li>
+</ul>
+</li>
+<li>Audio outputs:
+<ul>
+<li><code>images/Investor_Anatomy_Silver_News_Signal_7D.mp3</code></li>
+<li><code>images/Investor_Anatomy_Silver_News_Signal_48H.mp3</code></li>
+<li><code>images/Investor_Anatomy_Silver_Outlook_Podcast.mp3</code></li>
+<li><code>images/Investor_Anatomy_Silver_Execution_Brief.mp3</code></li>
+</ul>
+</li>
+<li>Key charts/images:
+<ul>
+<li><code>images/silver_news_signal_events_plot_7d.png</code></li>
+<li><code>images/silver_news_signal_events_plot_2d.png</code></li>
+<li><code>images/Silver_Price_Research_Targets.png</code></li>
+<li><code>images/Silver_Pricing_Dashboard.png</code></li>
+<li><code>images/CoT_SILVER_Diagnostics.png</code></li>
+<li><code>images/slv_etf_flow_signal_chart.png</code></li>
+<li><code>images/US_Market_Volatility_MVS_signal_chart_mpl.png</code></li>
+</ul>
+</li>
+</ul>
+<h2>Final Completeness Notes</h2>
+<ul>
+<li>The silver page's actual model stack includes both displayed nodes and supporting side outputs such as <code>Silver_Analyst_Podcast</code>, context registries, repair/rebuild passes, and audio rendering.</li>
+<li>The definitive signal contract for the silver regime layer is <code>REGIME_SIGNAL_IDS[&quot;silver&quot;]</code> in <code>commodity_market_analyst/regime_signal_contract.py</code>.</li>
+<li>The definitive direct-input contract for the silver analyst layer is <code>ANALYST_SIGNAL_IDS[&quot;silver&quot;]</code> in the same file.</li>
+<li>The definitive tactical delta-selection contract is <code>GRAPH_DELTA_CANDIDATE_SIGNAL_IDS</code> in <code>Commodity_Model_Outputs/Silver_Market_Analyst/Silver_Execution_Brief.py</code>.</li>
+<li>The definitive public-outlook context contract is <code>SIGNAL_REGISTRY</code> in <code>Commodity_Model_Outputs/Silver_Market_Analyst/Silver_Outlook.py</code>.</li>
+</ul>

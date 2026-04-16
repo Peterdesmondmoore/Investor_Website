@@ -15,6 +15,21 @@
   
   const AuthGuard = {
     /**
+     * Send auth-gate analytics without blocking the popup flow.
+     * @param {string} category
+     */
+    trackAuthGateShown: function(category) {
+      if (!window.IA_MONITOR || typeof window.IA_MONITOR.track !== 'function') {
+        return;
+      }
+
+      window.IA_MONITOR.track('auth_gate_shown', {
+        access_category: category || '',
+        gate_type: 'modal'
+      });
+    },
+
+    /**
      * Check if user is authenticated via Netlify Identity
      * @returns {boolean} True if user is logged in
      */
@@ -37,6 +52,8 @@
       const category = window.AuthConfig.getCategoryForPath(currentPath);
       const categoryInfo = window.AuthConfig.categories[category];
       const redirectUrl = window.AuthConfig.redirectUrl;
+
+      this.trackAuthGateShown(category);
       
       // Create modal overlay
       const overlay = document.createElement('div');
@@ -148,7 +165,7 @@
           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 15px 40px rgba(139, 92, 246, 0.5)';"
           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(139, 92, 246, 0.4)';"
         >
-          Go to Login Page
+          Go to Home Page
         </a>
         
         <!-- Footer text -->
@@ -157,7 +174,7 @@
           font-size: 13px;
           color: rgba(255, 255, 255, 0.5);
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        ">Please log in to access premium content</p>
+        ">Return to home to continue</p>
       `;
       
       overlay.appendChild(modal);

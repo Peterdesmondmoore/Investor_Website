@@ -5,7 +5,7 @@
 
 const AuthConfig = {
   // Redirect URL for non-authenticated users
-  redirectUrl: 'https://investoranatomy.com',
+  redirectUrl: '/index.html',
   
   // Access categories with their required authentication level
   categories: {
@@ -52,6 +52,7 @@ const AuthConfig = {
     // Public pages
     '/': 'public',
     '/index.html': 'public',
+    '/login': 'public',
     '/login.html': 'public',
     '/login/index.html': 'public',
     '/pricing.html': 'public',
@@ -73,6 +74,7 @@ const AuthConfig = {
     '/rss_feed/*': 'signals',
     '/document_library.html': 'signals',
     '/document_library/*': 'signals',
+    '/signal_monitor/*': 'signals',
     '/trading-recommendation/*': 'signals',
     
     // Market reports
@@ -81,6 +83,7 @@ const AuthConfig = {
     '/summary-reports/*': 'reports',
     '/pricing-reports/*': 'reports',
     '/signal_report/*': 'reports',
+    '/Podcast_*': 'reports',
     
     // Investment strategy
     '/investment-strategy/*': 'strategy',

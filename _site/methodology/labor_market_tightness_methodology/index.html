@@ -6,11 +6,18 @@
 
   <!-- Authentication System -->
   <script defer src="/js/auth-config.js"></script>
+  <script defer src="/js/monitoring.js"></script>
+  <script>
+    window.IA_MONITORING_CONFIG = {
+      ga4MeasurementId: ""
+    };
+  </script>
   <script defer src="/js/auth-guard.js"></script>
-
-  <meta charset="UTF-8" />
+<!-- Netlify Identity Widget for Authentication -->
+<!-- Authentication System -->
+<meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Labor Market Tightness — Methodology</title>
+  <title>Labor Market Tightness â€” Methodology</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +35,7 @@
     .kbd{border:1px solid #e5e7eb;padding:.1rem .35rem;border-radius:.35rem;background:#fff}
   </style>
 </head>
-<body class="bg-white text-slate-800">
+<body class="bg-white text-slate-800" data-ia-page-family="methodology" data-ia-generator-source="website_authored" data-ia-content-name="Labor Market Tightness Methodology" data-ia-model-name="labor_market_tightness_methodology">
   <nav class="screen-only border-b">
     <div class="container mx-auto px-5 py-3 flex items-center justify-between text-sm text-slate-600">
       <div class="smallcaps">Methodology White Paper</div>
@@ -39,13 +46,13 @@
   <main class="container mx-auto px-5 py-10">
     <header class="mb-10">
       <h1 class="text-3xl md:text-4xl font-semibold text-slate-900">Labor Market Tightness (JOLTS)</h1>
-      <p class="mt-2 text-slate-600 text-sm">A reproducible signal summarising <em>U.S. labor market tightness</em> from JOLTS: quits, layoffs &amp; discharges, and job openings. The headline combines a <strong>quits–layoffs differential</strong> with the <strong>openings rate</strong> using robust z‑scores.</p>
+      <p class="mt-2 text-slate-600 text-sm">A reproducible signal summarising <em>U.S. labor market tightness</em> from JOLTS: quits, layoffs &amp; discharges, and job openings. The headline combines a <strong>quitsâ€“layoffs differential</strong> with the <strong>openings rate</strong> using robust zâ€‘scores.</p>
       <p class="mt-2 text-xs text-slate-500">Why: When quits outpace layoffs and openings remain elevated, firms face hiring frictions and wage pressure; the opposite signals cooling conditions.</p>
     </header>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold text-slate-900 mb-3">Abstract</h2>
-      <p class="leading-7">We construct a monthly signal from BLS JOLTS rates: <b>quits</b> (QUR), <b>layoffs &amp; discharges</b> (LDR), and <b>job openings</b> (JOR). We compute the core differential <span class="eq">Tightness_t = Quits_t − Layoffs_t</span>, standardise it and the openings rate with robust rolling z‑scores, and blend them into a composite. We also provide a smoothed headline, momentum diagnostics, an intuitive 0–100 scale, and categorical regimes.</p>
+      <p class="leading-7">We construct a monthly signal from BLS JOLTS rates: <b>quits</b> (QUR), <b>layoffs &amp; discharges</b> (LDR), and <b>job openings</b> (JOR). We compute the core differential <span class="eq">Tightness_t = Quits_t âˆ’ Layoffs_t</span>, standardise it and the openings rate with robust rolling zâ€‘scores, and blend them into a composite. We also provide a smoothed headline, momentum diagnostics, an intuitive 0â€“100 scale, and categorical regimes.</p>
     </section>
 
     <div class="rule mb-10"></div>
@@ -53,11 +60,11 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">1. Data (BLS JOLTS Identifiers)</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><b>JTS000000000000000QUR</b> — Quits rate, total nonfarm (% of employment)</li>
-        <li><b>JTS000000000000000LDR</b> — Layoffs &amp; discharges rate, total nonfarm (% of employment)</li>
-        <li><b>JTS000000000000000JOR</b> — Job openings rate, total nonfarm (% of employment)</li>
+        <li><b>JTS000000000000000QUR</b> â€” Quits rate, total nonfarm (% of employment)</li>
+        <li><b>JTS000000000000000LDR</b> â€” Layoffs &amp; discharges rate, total nonfarm (% of employment)</li>
+        <li><b>JTS000000000000000JOR</b> â€” Job openings rate, total nonfarm (% of employment)</li>
       </ul>
-      <p class="leading-7 mt-3">All inputs are monthly. We restrict to these three series (hard filter) before pivoting to a wide table to avoid stray IDs becoming all‑NaN columns.</p>
+      <p class="leading-7 mt-3">All inputs are monthly. We restrict to these three series (hard filter) before pivoting to a wide table to avoid stray IDs becoming allâ€‘NaN columns.</p>
     </section>
 
     <section class="mb-10">
@@ -66,9 +73,9 @@
         <ul class="list-disc pl-6">
           <li><b>Column sanity:</b> assert presence of <code>series_id</code>, <code>date</code>, <code>value</code>.</li>
           <li><b>Type coercion:</b> force numeric <code>value</code>; parse <code>date</code> to monthly start.</li>
-          <li><b>Resampling:</b> align to a monthly‑start grid via <code>asfreq("MS")</code>.</li>
-          <li><b>Bounded forward‑fill:</b> <code>ffill(limit=2)</code> to tame small gaps; larger gaps remain missing.</li>
-          <li><b>Fail‑fast:</b> after pivot, raise if any of <code>quits_rate</code>, <code>layoffs_rate</code>, <code>openings_rate</code> is entirely missing or all NaN.</li>
+          <li><b>Resampling:</b> align to a monthlyâ€‘start grid via <code>asfreq("MS")</code>.</li>
+          <li><b>Bounded forwardâ€‘fill:</b> <code>ffill(limit=2)</code> to tame small gaps; larger gaps remain missing.</li>
+          <li><b>Failâ€‘fast:</b> after pivot, raise if any of <code>quits_rate</code>, <code>layoffs_rate</code>, <code>openings_rate</code> is entirely missing or all NaN.</li>
         </ul>
       </div>
       <p class="leading-7 mt-3">A simple <span class="font-mono">data_quality</span> log (optional) can track last observation date and ffill counts for monitoring.</p>
@@ -77,24 +84,24 @@
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">3. Transform Definitions</h2>
       <div class="box text-sm">
-        <div class="eq">Tightness_t = QuitsRate_t − LayoffsRate_t</div>
-        <div class="eq">Momentum^{(3m)}_t(x) = x_t − x_{t-3}</div>
-        <p class="mt-2">We compute <span class="italic">Tightness</span> and 3‑month differences for both Tightness and Openings as diagnostics. Momentum is not part of the composite by default.</p>
+        <div class="eq">Tightness_t = QuitsRate_t âˆ’ LayoffsRate_t</div>
+        <div class="eq">Momentum^{(3m)}_t(x) = x_t âˆ’ x_{t-3}</div>
+        <p class="mt-2">We compute <span class="italic">Tightness</span> and 3â€‘month differences for both Tightness and Openings as diagnostics. Momentum is not part of the composite by default.</p>
       </div>
     </section>
 
     <section class="mb-10">
-      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Robust Rolling z‑scores)</h2>
-      <p class="leading-7">Each target series is scaled with a rolling, history‑adaptive <span class="eq">W</span> (default 24 months, minimum 8–12 depending on availability) using median/MAD to mitigate outliers and base‑rate drift.</p>
+      <h2 class="text-2xl font-semibold mb-3">4. Standardisation (Robust Rolling zâ€‘scores)</h2>
+      <p class="leading-7">Each target series is scaled with a rolling, historyâ€‘adaptive <span class="eq">W</span> (default 24 months, minimum 8â€“12 depending on availability) using median/MAD to mitigate outliers and baseâ€‘rate drift.</p>
       <div class="box text-sm">
         <div class="eq">z_t(x) = \dfrac{x_t - \text{median}_W(x)}{1.4826\,\text{MAD}_W(x)}\ ,\quad W=\min(24,\max(12,\lfloor0.8\cdot N_{valid}\rfloor))</div>
-        <p class="mt-2">If the MAD is zero or non‑finite, we protect the denominator with a small <span class="eq">\varepsilon</span> to avoid division errors.</p>
+        <p class="mt-2">If the MAD is zero or nonâ€‘finite, we protect the denominator with a small <span class="eq">\varepsilon</span> to avoid division errors.</p>
       </div>
     </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">5. Weighting &amp; Composite Construction</h2>
-      <p class="leading-7">We combine the z‑scores of the core differential and the openings rate. Weights are configurable; defaults emphasise the quits–layoffs spread.</p>
+      <p class="leading-7">We combine the zâ€‘scores of the core differential and the openings rate. Weights are configurable; defaults emphasise the quitsâ€“layoffs spread.</p>
       <div class="box text-xs mt-3">
 <pre><code>{
   "Labor_Tightness_z": 0.60,
@@ -104,21 +111,21 @@
       <div class="box text-sm mt-3">
         <div class="eq">LMT_t = 0.60\,z_t(Tightness) + 0.40\,z_t(Openings)</div>
       </div>
-      <p class="text-sm text-slate-600 mt-2">Missing components are automatically dropped and weights re‑normalised if needed.</p>
+      <p class="text-sm text-slate-600 mt-2">Missing components are automatically dropped and weights reâ€‘normalised if needed.</p>
     </section>
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">6. Smoothing, Scaling &amp; Regimes</h2>
       <ul class="list-disc pl-6 leading-7">
-        <li><b>Headline smoothing:</b> 3‑period EMA of the composite z‑score: <code>ewm(span=3)</code>.</li>
-        <li><b>Score (0–100):</b> min–max scaled over the observed history; returns all‑NaN if the series is flat.</li>
-        <li><b>Regime mapping:</b> thresholds on the (unsmoothed) composite z‑score.</li>
+        <li><b>Headline smoothing:</b> 3â€‘period EMA of the composite zâ€‘score: <code>ewm(span=3)</code>.</li>
+        <li><b>Score (0â€“100):</b> minâ€“max scaled over the observed history; returns allâ€‘NaN if the series is flat.</li>
+        <li><b>Regime mapping:</b> thresholds on the (unsmoothed) composite zâ€‘score.</li>
       </ul>
       <div class="box text-sm">
         <ul class="list-disc pl-6">
           <li><b>HOT (tightening risk):</b> LMT<sub>z</sub> &gt; +0.75</li>
-          <li><b>NEUTRAL:</b> −0.75 ≤ LMT<sub>z</sub> ≤ +0.75</li>
-          <li><b>COOL (easing):</b> LMT<sub>z</sub> &lt; −0.75</li>
+          <li><b>NEUTRAL:</b> âˆ’0.75 â‰¤ LMT<sub>z</sub> â‰¤ +0.75</li>
+          <li><b>COOL (easing):</b> LMT<sub>z</sub> &lt; âˆ’0.75</li>
         </ul>
       </div>
     </section>
@@ -161,7 +168,7 @@ lmt_wide = (
   })
 )
 
-# Robust z, momentum, composite, smoothing, regime, 0–100 scale
+# Robust z, momentum, composite, smoothing, regime, 0â€“100 scale
 # (as detailed above)
 </code></pre>
       </div>
@@ -169,7 +176,7 @@ lmt_wide = (
 
     <section class="mb-10">
       <h2 class="text-2xl font-semibold mb-3">9. Interpretation &amp; Use</h2>
-      <p class="leading-7"><span class="italic">HOT</span> regimes align with tightening labor conditions and potential wage pressure; <span class="italic">COOL</span> regimes suggest easing frictions and lower inflationary impulse. Combine with inflation, liquidity, and growth signals for cross‑checking.</p>
+      <p class="leading-7"><span class="italic">HOT</span> regimes align with tightening labor conditions and potential wage pressure; <span class="italic">COOL</span> regimes suggest easing frictions and lower inflationary impulse. Combine with inflation, liquidity, and growth signals for crossâ€‘checking.</p>
     </section>
 
     <section class="mb-16">
@@ -180,7 +187,8 @@ lmt_wide = (
       </ul>
     </section>
 
-    <footer class="text-sm text-slate-500 border-t pt-6">© 2025. Print‑friendly specification for the Labor Market Tightness signal.</footer>
+    <footer class="text-sm text-slate-500 border-t pt-6">Â© 2025. Printâ€‘friendly specification for the Labor Market Tightness signal.</footer>
   </main>
 </body>
 </html>
+
