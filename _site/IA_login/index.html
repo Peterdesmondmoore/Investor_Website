@@ -294,6 +294,13 @@
       max-width: 100%;
     }
 
+    .btn-login {
+      color: #052e16;
+      border-color: rgba(34, 197, 94, 0.5);
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      box-shadow: 0 10px 20px rgba(34, 197, 94, 0.28);
+    }
+
     .btn-secondary {
       color: #e5e7eb;
       border-color: rgba(148, 163, 184, 0.25);
@@ -712,7 +719,7 @@
           <div class="code-gate-panel" id="code-gate-panel">
             <label class="code-gate-label" for="access-code-input">Access Code</label>
             <p class="code-gate-help" id="code-gate-help">
-              Enter the shared numeric access code to unlock login for this browser session.
+              Enter the shared numeric access code to unlock login on this page.
             </p>
             <form class="code-gate-form" id="code-gate-form" novalidate>
               <input
@@ -752,38 +759,17 @@
       var continueBtn = document.getElementById("continue-btn");
       var openLoginBtn = document.getElementById("open-login-btn");
       var currentUser = null;
+      var gateUnlocked = false;
       var validatingCode = false;
-      var gateStorageKey = "ia_login_gate_unlocked";
       var localDevAccessCode = "6062";
       var redirectParams = new URLSearchParams(window.location.search);
       var rawRedirectTarget = redirectParams.get("redirect");
       var redirectTarget = getSafeRedirectTarget(rawRedirectTarget);
       var hasExplicitRedirect = isValidRedirectTarget(rawRedirectTarget);
-      var gateUnlocked = readGateUnlock();
 
       function isLocalDevelopment() {
         var host = window.location.hostname || "";
         return window.location.protocol === "file:" || !host || host === "localhost" || host === "127.0.0.1" || host.indexOf(".local") !== -1;
-      }
-
-      function readGateUnlock() {
-        try {
-          return window.sessionStorage.getItem(gateStorageKey) === "1";
-        } catch (_error) {
-          return false;
-        }
-      }
-
-      function writeGateUnlock(isUnlocked) {
-        try {
-          if (isUnlocked) {
-            window.sessionStorage.setItem(gateStorageKey, "1");
-          } else {
-            window.sessionStorage.removeItem(gateStorageKey);
-          }
-        } catch (_error) {
-          // Session storage is optional; continue without persistence.
-        }
       }
 
       function getSafeRedirectTarget(candidate) {
@@ -856,8 +842,8 @@
 
         if (gateUnlocked) {
           destinationCopyEl.textContent = hasExplicitRedirect
-            ? "Code accepted for this browser session. After login you will return to the requested page."
-            : "Code accepted for this browser session. Continue to secure login.";
+            ? "Code accepted. Click Login, then you will return to the requested page."
+            : "Code accepted. Click Login to continue.";
           return;
         }
 
@@ -867,7 +853,7 @@
       }
 
       function updateGateUI() {
-        var isIdentityReady = Boolean(window.netlifyIdentity);
+        var canOpenIdentity = isLocalDevelopment() || Boolean(window.netlifyIdentity);
         var shouldShowCodeGate = !currentUser;
 
         if (codeGatePanelEl) {
@@ -889,8 +875,9 @@
 
         if (openLoginBtn) {
           openLoginBtn.hidden = !currentUser && !gateUnlocked;
-          openLoginBtn.disabled = validatingCode || (!currentUser && (!gateUnlocked || !isIdentityReady));
+          openLoginBtn.disabled = validatingCode || (!currentUser && (!gateUnlocked || !canOpenIdentity));
           openLoginBtn.textContent = currentUser ? "Logout" : "Login";
+          openLoginBtn.classList.toggle("btn-login", !currentUser);
         }
       }
 
@@ -930,7 +917,7 @@
           setStatus("Signed in as " + email, "ok");
           setCodeFeedback("", "");
         } else if (gateUnlocked) {
-          setStatus("Access code accepted. Continue to secure login.", "");
+          setStatus("Access code accepted. Click Login to continue.", "");
         } else {
           setStatus("Not signed in. Enter your access code to continue.", "");
         }
@@ -974,16 +961,21 @@
 
       function handleValidatedLogin() {
         gateUnlocked = true;
-        writeGateUnlock(true);
-        setCodeFeedback("Code accepted for this browser session.", "ok");
-        setStatus(isLocalDevelopment() ? "Access code accepted. Opening local preview..." : "Access code accepted. Opening secure login...", "ok");
+        setCodeFeedback("Code accepted. Login is now available.", "ok");
+        setStatus("Access code accepted. Click Login to continue.", "ok");
         updateDestinationCopy();
         updateGateUI();
-        openIdentity();
+        if (openLoginBtn) {
+          openLoginBtn.focus();
+        }
       }
 
       function initIdentity() {
         if (!window.netlifyIdentity) {
+          if (isLocalDevelopment()) {
+            updateGateUI();
+            return;
+          }
           setStatus("Netlify Identity is unavailable. Confirm Identity is enabled for this project.", "warn");
           updateGateUI();
           return;
@@ -1002,6 +994,11 @@
         });
 
         window.netlifyIdentity.on("logout", function() {
+          gateUnlocked = false;
+          if (codeInputEl) {
+            codeInputEl.value = "";
+          }
+          setCodeFeedback("", "");
           setUIForUser(null);
         });
 
@@ -1101,4 +1098,3 @@
   </script>
 </body>
 </html>
-
