@@ -1452,6 +1452,13 @@ const links = [
     const graph = document.getElementById('graph');
     const controls = document.getElementById('controls');
     const logo = document.getElementById('logo');
+    const loginGatewayHref = '/IA_login/?redirect=' + encodeURIComponent(
+      window.location.pathname + window.location.search + window.location.hash
+    );
+
+    function redirectToLoginGateway() {
+      window.location.replace(loginGatewayHref);
+    }
 
     function setAuthedState(isAuthed) {
       if (isAuthed) {
@@ -1460,11 +1467,11 @@ const links = [
         if (controls) controls.style.display = 'block';
         if (logo) logo.style.display = 'block';
       } else {
-        // Hide app and open login
+        // Hide app and send the user through the IA_login gateway
         if (graph) graph.style.display = 'none';
         if (controls) controls.style.display = 'none';
         if (logo) logo.style.display = 'none';
-        netlifyIdentity.open('login');
+        redirectToLoginGateway();
       }
     }
 
@@ -1479,16 +1486,16 @@ const links = [
       netlifyIdentity.close();
     });
 
-    // When user logs out, show login again
+    // When user logs out, send them back through the login gateway
     netlifyIdentity.on('logout', function () {
-      setAuthedState(false);
+      redirectToLoginGateway();
     });
 
-    // If user closes modal without logging in, redirect home
+    // If the widget closes without a session, return to the login gateway
     netlifyIdentity.on('close', function () {
       const user = netlifyIdentity.currentUser();
       if (!user) {
-        window.location.href = '/index.html';
+        redirectToLoginGateway();
       }
     });
 

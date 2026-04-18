@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 function Get-PageFamily([string]$path) {
     $norm = $path.Replace("\", "/")
     if ($norm -eq "index.html") { return "home" }
-    if ($norm -eq "login.html") { return "login" }
+    if ($norm -eq "login.html" -or $norm -eq "IA_login.html") { return "login" }
     if ($norm -like "ia_explained/*") { return "ia_explained" }
     if ($norm -like "signal_report/*") { return "signal_report" }
     if ($norm -like "signal_monitor/*") { return "signal_monitor" }
@@ -118,13 +118,13 @@ foreach ($file in $htmlFiles) {
     $modelName = [System.IO.Path]::GetFileNameWithoutExtension($relativePath.Split("/")[-1])
     $contentName = if ($relativePath -eq "index.html") {
         "Investor Anatomy"
-    } elseif ($relativePath -eq "login.html") {
-        "Login"
+    } elseif ($relativePath -eq "login.html" -or $relativePath -eq "IA_login.html") {
+        "IA_login"
     } else {
         To-Title $modelName
     }
     $commodity = Get-Commodity $relativePath
-    $isPublic = @("index.html", "login.html") -contains $relativePath
+    $isPublic = @("IA_login.html", "login.html") -contains $relativePath
     $scriptBlock = Build-ScriptBlock -isPublic:$isPublic
 
     $text = [regex]::Replace($text, '(?is)\s*<script\s+defer\s+src="https://identity\.netlify\.com/v1/netlify-identity-widget\.js"></script>\s*', "`r`n")

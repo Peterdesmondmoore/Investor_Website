@@ -29,11 +29,32 @@
       });
     },
 
+    isLocalDevelopment: function() {
+      const host = window.location.hostname || '';
+      return window.location.protocol === 'file:' || !host || host === 'localhost' || host === '127.0.0.1' || host.indexOf('.local') !== -1;
+    },
+
+    hasLocalAccessCodeSession: function() {
+      if (!this.isLocalDevelopment()) {
+        return false;
+      }
+
+      try {
+        return window.sessionStorage.getItem('ia_login_gate_unlocked') === '1';
+      } catch (_error) {
+        return false;
+      }
+    },
+
     /**
      * Check if user is authenticated via Netlify Identity
      * @returns {boolean} True if user is logged in
      */
     isAuthenticated: function() {
+      if (this.hasLocalAccessCodeSession()) {
+        return true;
+      }
+
       // Check if Netlify Identity is available
       if (typeof netlifyIdentity === 'undefined') {
         console.warn('Netlify Identity not loaded');
@@ -52,6 +73,16 @@
       const category = window.AuthConfig.getCategoryForPath(currentPath);
       const categoryInfo = window.AuthConfig.categories[category];
       const redirectUrl = window.AuthConfig.redirectUrl;
+      const currentLocation = window.location.pathname + window.location.search + window.location.hash;
+      let loginHref = redirectUrl;
+
+      try {
+        const loginUrl = new URL(redirectUrl, window.location.origin);
+        loginUrl.searchParams.set('redirect', currentLocation);
+        loginHref = loginUrl.pathname + loginUrl.search + loginUrl.hash;
+      } catch (_error) {
+        loginHref = redirectUrl;
+      }
 
       this.trackAuthGateShown(category);
       
@@ -148,7 +179,7 @@
         
         <!-- Button -->
         <a 
-          href="${redirectUrl}"
+          href="${loginHref}"
           style="
             display: inline-block;
             background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
@@ -165,7 +196,7 @@
           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 15px 40px rgba(139, 92, 246, 0.5)';"
           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(139, 92, 246, 0.4)';"
         >
-          Go to Home Page
+          Go to IA_login
         </a>
         
         <!-- Footer text -->
@@ -174,7 +205,7 @@
           font-size: 13px;
           color: rgba(255, 255, 255, 0.5);
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        ">Return to home to continue</p>
+        ">Use IA_login to continue</p>
       `;
       
       overlay.appendChild(modal);

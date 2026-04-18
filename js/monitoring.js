@@ -82,7 +82,7 @@
     var path = pathname || getPathname();
 
     if (path === "/" || path === "/index.html") return "home";
-    if (/\/login(?:\.html)?\/?$/.test(path)) return "login";
+    if (/\/(?:IA_login|login)(?:\.html)?\/?$/i.test(path)) return "login";
     if (path.indexOf("/ia_explained/") === 0) return "ia_explained";
     if (path.indexOf("/signal_report/") === 0) return "signal_report";
     if (path.indexOf("/signal_monitor/") === 0) return "signal_monitor";

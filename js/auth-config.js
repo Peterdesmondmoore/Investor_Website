@@ -5,7 +5,7 @@
 
 const AuthConfig = {
   // Redirect URL for non-authenticated users
-  redirectUrl: '/index.html',
+  redirectUrl: '/IA_login/',
   
   // Access categories with their required authentication level
   categories: {
@@ -50,8 +50,9 @@ const AuthConfig = {
   // Use patterns with wildcards (*) or exact paths
   pageCategories: {
     // Public pages
-    '/': 'public',
-    '/index.html': 'public',
+    '/IA_login': 'public',
+    '/IA_login.html': 'public',
+    '/IA_login/index.html': 'public',
     '/login': 'public',
     '/login.html': 'public',
     '/login/index.html': 'public',
@@ -59,6 +60,10 @@ const AuthConfig = {
     '/pricing/index.html': 'public',
     '/README.html': 'public',
     '/README/index.html': 'public',
+
+    // Home page
+    '/': 'premium',
+    '/index.html': 'premium',
     
     // Signal pages
     '/signal_catalogue_v1.0.html': 'signals',
