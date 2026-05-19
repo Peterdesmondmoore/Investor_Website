@@ -4,6 +4,14 @@ module.exports = function(eleventyConfig) {
   // Set markdown-it as the library for rendering markdown files
   eleventyConfig.setLibrary("md", markdownIt());
 
+  eleventyConfig.ignores.add("_site/**");
+  eleventyConfig.ignores.add("_site_ga4_test/**");
+  eleventyConfig.ignores.add("node_modules/**");
+  eleventyConfig.ignores.add(".git/**");
+  eleventyConfig.ignores.add(".vscode/**");
+  eleventyConfig.ignores.add("images/**/*.mp3");
+  eleventyConfig.ignores.add("images/**/*.mp4");
+
   eleventyConfig.addPassthroughCopy("_redirects");
 
   // Create a custom collection for reports
@@ -31,10 +39,12 @@ module.exports = function(eleventyConfig) {
       return collectionApi.getFilteredByGlob("china-industrial/*.html");
   });
 
-  // Tell Eleventy to copy the 'css', 'js', and 'images' folders to the output folder
+  // Tell Eleventy to copy static asset folders to the output folder
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("js");
-  eleventyConfig.addPassthroughCopy("images");
+  eleventyConfig.addPassthroughCopy({
+    "images/*.{png,jpg,jpeg,gif,webp,svg,ico}": "images"
+  });
   eleventyConfig.addPassthroughCopy("components");
   eleventyConfig.addPassthroughCopy("shared");
   eleventyConfig.addPassthroughCopy("ia_explained/*.jsonl");
