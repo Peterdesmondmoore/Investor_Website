@@ -9,8 +9,6 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.ignores.add("node_modules/**");
   eleventyConfig.ignores.add(".git/**");
   eleventyConfig.ignores.add(".vscode/**");
-  eleventyConfig.ignores.add("images/**/*.mp3");
-  eleventyConfig.ignores.add("images/**/*.mp4");
 
   eleventyConfig.addPassthroughCopy("_redirects");
 
@@ -42,9 +40,7 @@ module.exports = function(eleventyConfig) {
   // Tell Eleventy to copy static asset folders to the output folder
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("js");
-  eleventyConfig.addPassthroughCopy({
-    "images/*.{png,jpg,jpeg,gif,webp,svg,ico}": "images"
-  });
+  eleventyConfig.addPassthroughCopy("images");
   eleventyConfig.addPassthroughCopy("components");
   eleventyConfig.addPassthroughCopy("shared");
   eleventyConfig.addPassthroughCopy("ia_explained/*.jsonl");
